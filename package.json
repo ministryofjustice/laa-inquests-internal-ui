@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node public/app.js",
-    "clean": "rimraf public",
+    "clean": "rm -rf public",
     "build": "yarn clean && yarn build:ts && node public/esbuild.js",
     "lint": "yarn eslint . --fix",
     "dev": "yarn build:ts && concurrently \"tsc --watch\" \"node public/esbuild.js --watch\" \"nodemon\"",
