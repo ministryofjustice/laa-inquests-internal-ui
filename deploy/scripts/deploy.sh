@@ -11,10 +11,10 @@ deploy_branch() {
   IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-ui-$K8S_NAMESPACE-green"
   echo "Deploying commit: $GITHUB_SHA under release name: '$BRANCH_RELEASE_NAME'..."
 
-  helm upgrade "$BRANCH_RELEASE_NAME" ./deploy/laa-inquests-ui/. \
+  helm upgrade "$BRANCH_RELEASE_NAME" ./deploy/infrastructure/helm/. \
                 --install --wait \
                 --namespace="${K8S_NAMESPACE}" \
-                --values ./deploy/laa-inquests-ui/values/"$ENVIRONMENT".yaml \
+                --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
                 --set image.repository="$REGISTRY/$REPOSITORY" \
                 --set image.tag="$IMAGE_TAG" \
                 --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
@@ -36,10 +36,10 @@ deploy_branch() {
 }
 
 deploy_main() {
-  helm upgrade laa-inquests-ui ./deploy/laa-inquests-ui/. \
+  helm upgrade laa-inquests-ui ./deploy/infrastructure/helm/. \
                           --install --wait \
                           --namespace="${K8S_NAMESPACE}" \
-                          --values ./deploy/laa-inquests-ui/values/"$ENVIRONMENT".yaml \
+                          --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
