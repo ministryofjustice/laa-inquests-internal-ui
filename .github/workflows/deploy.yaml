@@ -51,8 +51,10 @@ jobs:
         run: yarn npm audit
 
   snyk:
-    name: Snyk Security Scan
+    name: Snyk scan docker image
     runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -60,8 +62,8 @@ jobs:
       - name: Build local Docker image
         working-directory: ${{ github.workspace }}
         run: |
-          docker build -t laa-manage-your-civil-cases ./
-          docker save laa-manage-your-civil-cases -o image.tar
+          docker build -t laa-inquests-ui ./
+          docker save laa-inquests-ui -o image.tar
 
       - name: Run Snyk to scan Docker image from tarball
         uses: snyk/actions/docker@master
@@ -70,6 +72,16 @@ jobs:
           args: --docker --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Monitor docker image using Snyk
+        continue-on-error: true
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          image: laa-inquests-ui:scan
+          args: --file=Dockerfile --policy-path=.snyk
 
   mocha-unit-tests:
     name: Mocha Unit Tests
