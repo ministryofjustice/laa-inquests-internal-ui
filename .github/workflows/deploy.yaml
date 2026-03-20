@@ -131,7 +131,7 @@ jobs:
       - name: Build and push image with local action
         uses: ./.github/actions/build-and-push
         with:
-          image_registry: ${{ secrets.ECR_REGISTRY_URL }}
+          image_registry: ${{ steps.login-ecr.outputs.registry }}
           image_repo: ${{ vars.ECR_REPOSITORY }}
           dockerfile_path: Dockerfile
           image_tag: ${{ github.sha }}
