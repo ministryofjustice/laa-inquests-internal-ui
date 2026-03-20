@@ -1,8 +1,10 @@
-# Default values for your-repo-name.
+# Default values for laa-inquests-ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+# this is set as 2 prior to launch, we should increase this when the service is launched
+# and we are ready for live users, staging replicaCount should match production
+replicaCount: 2
 
 image:
   repository: nginx
@@ -48,12 +50,12 @@ service:
 ingress:
   enabled: true
   hosts:
-    - host: laa-inquests-ui-uat.apps.cloud-platform.service.justice.gov.uk
+    - host: your-staging-namespace.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-ui-laa-inquests-ui-uat-green"
+    external-dns.alpha.kubernetes.io/set-identifier: "ingress-name-laa-inquests-ui-laa-inquests-ui-staging-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
 
 resources:
@@ -63,20 +65,6 @@ resources:
   requests:
     cpu: 250m
     memory: 256Mi
-
-livenessProbe:
-  httpGet:
-    path: /status
-    port: http
-  initialDelaySeconds: 30
-  periodSeconds: 60
-
-readinessProbe:
-  httpGet:
-    path: /health
-    port: http
-  initialDelaySeconds: 30
-  periodSeconds: 60
 
 env:
   SERVICE_NAME: "Express TypeScript Template"
@@ -91,7 +79,21 @@ env:
   RATELIMIT_STORAGE_URI: ""
   RATE_LIMIT_MAX: 100
   RATE_WINDOW_MS: 900000
-  NODE_ENV: "uat"
+  NODE_ENV: "staging"
+
+livenessProbe:
+  httpGet:
+    path: /status
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 60
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 60
 
 autoscaling:
   enabled: false

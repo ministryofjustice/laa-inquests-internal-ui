@@ -1,4 +1,4 @@
-# Default values for your-repo-name.
+# Default values for laa-inquests-ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -20,7 +20,7 @@ serviceAccount:
   create: false
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: "inquests-serviceaccount"
+  name: "cd-serviceaccount"
 
 podAnnotations: {}
 podLabels: {}

@@ -1,10 +1,8 @@
-# Default values for your-repo-name.
+# Default values for laa-inquests-ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# this is set as 2 prior to launch, we should increase this when the service is launched
-# and we are ready for live users, staging replicaCount should match production
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: nginx
@@ -20,7 +18,7 @@ serviceAccount:
   create: false
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: "your-github-action-service-account"
+  name: "cd-serviceaccount"
 
 podAnnotations: {}
 podLabels: {}
@@ -50,12 +48,12 @@ service:
 ingress:
   enabled: true
   hosts:
-    - host: your-staging-namespace.cloud-platform.service.justice.gov.uk
+    - host: laa-inquests-ui-uat.apps.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "ingress-name-your-repo-name-your-repo-name-staging-green"
+    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-ui-laa-inquests-ui-uat-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
 
 resources:
@@ -65,21 +63,6 @@ resources:
   requests:
     cpu: 250m
     memory: 256Mi
-
-env:
-  SERVICE_NAME: "Express TypeScript Template"
-  SERVICE_PHASE: "Beta"
-  DEPARTMENT_NAME: "Legal Aid Agency"
-  DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
-  CONTACT_EMAIL: "eligibility@justice.gov.uk"
-  CONTACT_PHONE: ""
-  SERVICE_URL: "https://www.gov.uk/legal-aid"
-  SESSION_NAME: "sessionId"
-  RATELIMIT_HEADERS_ENABLED: true
-  RATELIMIT_STORAGE_URI: ""
-  RATE_LIMIT_MAX: 100
-  RATE_WINDOW_MS: 900000
-  NODE_ENV: "staging"
 
 livenessProbe:
   httpGet:
@@ -94,6 +77,21 @@ readinessProbe:
     port: http
   initialDelaySeconds: 30
   periodSeconds: 60
+
+env:
+  SERVICE_NAME: "Express TypeScript Template"
+  SERVICE_PHASE: "Beta"
+  DEPARTMENT_NAME: "Legal Aid Agency"
+  DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
+  CONTACT_EMAIL: "eligibility@justice.gov.uk"
+  CONTACT_PHONE: ""
+  SERVICE_URL: "https://www.gov.uk/legal-aid"
+  SESSION_NAME: "sessionId"
+  RATELIMIT_HEADERS_ENABLED: true
+  RATELIMIT_STORAGE_URI: ""
+  RATE_LIMIT_MAX: 100
+  RATE_WINDOW_MS: 900000
+  NODE_ENV: "uat"
 
 autoscaling:
   enabled: false

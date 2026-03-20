@@ -93,13 +93,13 @@ Prerequisites, Docker Desktop
 - To build the docker image
 
   ```shell
-  docker build -t your-repo-name:latest .
+  docker build -t laa-inquests-ui:latest .
   ```
 
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 your-repo-name:latest
+  docker run -d -p 8888:3000 laa-inquests-ui:latest
   ```
   (The application should be running at http://localhost:8888)
 

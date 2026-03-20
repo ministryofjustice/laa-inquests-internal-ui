@@ -114,7 +114,6 @@ export default [
       'docs/source/javascripts/govuk_frontend.js', // Documentation JavaScript file, not part of main TypeScript project
       'eslint.config.js', // Parsing error this file was not found by the project service. Consider either including it in the `tsconfig.json` or including it in `allowDefaultProject`,
       'coverage', // Ignore the code coverage output from linter
-      'scripts/e2e_coverage/*' // Route coverage analysis scripts
     ]
   },
 ];

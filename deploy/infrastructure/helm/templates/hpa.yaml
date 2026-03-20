@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "your-repo-name.fullname" . }}
+  name: {{ include "laa-inquests-ui.fullname" . }}
   labels:
-    {{- include "your-repo-name.labels" . | nindent 4 }}
+    {{- include "laa-inquests-ui.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "your-repo-name.fullname" . }}
+    name: {{ include "laa-inquests-ui.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

@@ -1,12 +1,12 @@
 /**
  * Test Server with MSW Integration
- * 
+ *
  * This script starts the actual Express application with MSW enabled for E2E testing.
  * It initializes MSW to intercept outgoing API calls and serve mock responses.
  */
 
 import { setupServer } from 'msw/node';
-import { handlers } from '../tests/playwright/factories/handlers/index.js';
+import { handlers } from '#tests/playwright/factories/handlers/index.js';
 
 // Initialize MSW before importing the app
 const mswServer = setupServer(...handlers);
@@ -17,7 +17,7 @@ const SUCCESS_EXIT_CODE = 0;
 const ERROR_EXIT_CODE = 1;
 
 // Enable request interception with simple warning for unhandled requests
-mswServer.listen({ 
+mswServer.listen({
   /**
    * Handler for unhandled requests to provide warning feedback
    * @param {Request} req - The unhandled request
@@ -39,7 +39,7 @@ process.env.SESSION_NAME ??= 'test-session';
 process.env.SERVICE_NAME ??= 'Test Express Template';
 
 // Now import and start the actual Express application
-const appModulePath = '../public/app.js';
+const appModulePath = '#public/app.js';
 
 import(appModulePath)
   .then(() => {
@@ -60,7 +60,7 @@ import(appModulePath)
  */
 const gracefulShutdown = (signal: string): void => {
   console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
-  
+
   mswServer.close();
   process.exit(SUCCESS_EXIT_CODE);
 };
