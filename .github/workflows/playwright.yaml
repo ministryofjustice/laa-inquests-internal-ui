@@ -96,7 +96,7 @@ jobs:
       - name: Enable Corepack and prepare Yarn
         run: |
           corepack enable
-          corepack prepare yarn@4.9.2 --activate
+          corepack prepare yarn@4.10.3 --activate
 
       - name: Install dependencies
         run: yarn install --immutable
