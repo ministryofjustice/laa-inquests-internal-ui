@@ -35,7 +35,7 @@ runs:
   using: "composite"
   steps:
     - name: Docker Build & Push with Cache
-      id: build_and_push
+      id: build-and-push
       run: |
         docker build \
           --push \
@@ -43,7 +43,6 @@ runs:
           --cache-to=type=local,dest=/tmp/.buildx-cache \
           -t ${{ inputs.image_registry }}/${{ inputs.image_repo }}:${{ inputs.image_tag }} \
           -f ${{ inputs.dockerfile_path }} .
-
       shell: bash
 
     - name: Output
