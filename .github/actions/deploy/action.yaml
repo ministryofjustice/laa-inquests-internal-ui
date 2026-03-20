@@ -69,7 +69,7 @@ runs:
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       shell: bash
       env:
-        REGISTRY: ${{ inputs.ecr-registry-url }}
+        REGISTRY: ${{ inputs.ecr-registry_url }}
         REPOSITORY: ${{ inputs.ecr-repository }}
         IMAGE_TAG: ${{ inputs.image-tag }}
 
