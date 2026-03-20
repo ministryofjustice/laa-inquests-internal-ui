@@ -27,7 +27,7 @@ jobs:
         run: yarn playwright install chromium --with-deps
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key:
@@ -36,8 +36,7 @@ jobs:
 
       - name: Run Playwright tests
         run:
-          yarn playwright test --config=tests/playwright/playwright.config.ts
-          --grep-invert @accessibility
+          yarn test:e2e
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
@@ -71,48 +70,48 @@ jobs:
           echo "::error::Playwright tests failed! Check the test report for
           details."
 
-  accessibility:
-    name: Accessibility Tests
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    outputs:
-      status: ${{ job.status }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
+  # accessibility:
+  #   name: Accessibility Tests
+  #   timeout-minutes: 30
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     status: ${{ job.status }}
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v6
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Read Node version from .nvmrc
-        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_ENV
+  #     - name: Read Node version from .nvmrc
+  #       run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_ENV
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-        env:
-          SKIP_YARN_COREPACK_CHECK: "1"
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v6
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #       env:
+  #         SKIP_YARN_COREPACK_CHECK: "1"
 
-      - name: Enable Corepack and prepare Yarn
-        run: |
-          corepack enable
-          corepack prepare yarn@4.10.3 --activate
+  #     - name: Enable Corepack and prepare Yarn
+  #       run: |
+  #         corepack enable
+  #         corepack prepare yarn@4.10.3 --activate
 
-      - name: Install dependencies
-        run: yarn install --immutable
+  #     - name: Install dependencies
+  #       run: yarn install --immutable
 
-      - name: Build application
-        run: yarn build
+  #     - name: Build application
+  #       run: yarn build
 
-      - name: Install Playwright Chromium
-        run: yarn playwright install chromium --with-deps
+  #     - name: Install Playwright Chromium
+  #       run: yarn playwright install chromium --with-deps
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key:
-            ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')}}
+  #     - name: Cache Playwright browsers
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.cache/ms-playwright
+  #         key:
+  #           ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')}}
 
       # - name: Run Accessibility Tests
       #   run: yarn playwright test --config=tests/playwright/playwright.config.ts --grep @accessibility
