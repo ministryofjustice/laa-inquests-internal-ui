@@ -83,6 +83,14 @@ jobs:
           image: laa-inquests-ui:scan
           args: --file=Dockerfile --policy-path=.snyk
 
+  unit-tests:
+    name: Mocha Unit Tests
+    uses: ./.github/workflows/tests/unit.yaml
+
+  e2e-tests:
+    name: Playwright Tests
+    uses: ./.github/workflows/tests/playwright.yaml
+
   build-and-deploy:
     runs-on: ubuntu-latest
     environment: uat
@@ -90,7 +98,7 @@ jobs:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
     needs:
-      - integration-tests
+      - e2e-tests
       - unit-tests
       - snyk
     steps:
@@ -113,11 +121,3 @@ jobs:
           github-ref-name: ${{ github.ref_name }}
           github-head-ref: ${{ github.head_ref }}
           image-tag: ${{ github.sha }}
-
-  unit-tests:
-    name: Mocha Unit Tests
-    uses: ./.github/workflows/tests/unit.yaml
-
-  e2e-tests:
-    name: Playwright Tests
-    uses: ./.github/workflows/tests/playwright.yaml
