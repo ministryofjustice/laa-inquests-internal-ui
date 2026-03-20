@@ -113,7 +113,7 @@ jobs:
           kube-cluster: ${{ secrets.KUBE_CLUSTER }}
           kube-namespace: ${{ secrets.KUBE_NAMESPACE }}
           ecr-repository: ${{ vars.ECR_REPOSITORY }}
-          ecr-registry-url: ${{ secrets.ECR_REGISTRY_URL }}
+          ecr-registry_url: ${{ secrets.ECR_REGISTRY_URL }}
           ecr-role-to-assume: ${{ secrets.ECR_ROLE_TO_ASSUME }}
           ecr-region: ${{ vars.ECR_REGION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
