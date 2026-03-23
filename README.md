@@ -10,7 +10,7 @@ View the [full technical documentation here](https://ministryofjustice.github.io
 ## Get Started
 ### Prerequisites
 
-- node stable version [24.10.0](https://nodejs.org/en/blog/release/v24.10.0/)
+- node stable version [25.8.1](https://nodejs.org/en/blog/release/v25.8.1/)
 - [Yarn 4.9.2](https://yarnpkg.com/) package manager (see installation instructions below)
 - TypeScript 5.8.3
 
@@ -37,7 +37,7 @@ This project uses Yarn 4.9.2 managed by corepack (built into Node.js 16.10+). To
    # Should output: 4.9.2
    ```
 
-**To Note:** 
+**To Note:**
 - Corepack automatically uses the Yarn version specified in the `packageManager` field of `package.json`. No additional setup is required once corepack is enabled
 - Corepack is the preferred `yarn` way, to install the package manager, instead of `npm install -g yarn` in your ci/cd pipeline
 - `yarn install --immutable` ensures that the lockfile (`yarn.lock`) is not modified during the installation process
@@ -93,13 +93,13 @@ Prerequisites, Docker Desktop
 - To build the docker image
 
   ```shell
-  docker build -t your-repo-name:latest .
+  docker build -t laa-inquests-ui:latest .
   ```
 
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 your-repo-name:latest
+  docker run -d -p 8888:3000 laa-inquests-ui:latest
   ```
   (The application should be running at http://localhost:8888)
 
@@ -115,7 +115,7 @@ Prerequisites, Docker Desktop
   ```
 
 ### GitHub Actions
-- These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project. 
+- These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.
 
 ### Licence
 

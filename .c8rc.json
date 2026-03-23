@@ -22,11 +22,13 @@
     "src/scripts/pages/yourCases.ts",
     "middleware/index.ts",
     "middleware/setupCsrf.ts",
+    "routes/",
+    "src/middleware",
     "utils/helmetSetup.ts",
     "utils/rateLimitSetUp.ts",
     "utils/index.ts",
     "utils/axiosSetup.ts",
-    "utils/nunjucksSetup.ts" 
+    "utils/nunjucksSetup.ts"
   ],
   "all": true,
   "sourceMap": true,

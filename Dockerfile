@@ -1,13 +1,16 @@
 # Use the official Node.js image as the base image
-FROM node:24.10.0-alpine
+FROM node:25.8.1-alpine
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Enable Corepack and prepare Yarn version
-RUN corepack enable && corepack prepare yarn@4.9.2 --activate
+# Force install of corepack (necessary with node >=v25.0.0)
+RUN npm install -g corepack --force
 
-# Copy package.json and yarn.lock to the working directory
+# Enable Corepack and prepare Yarn version
+RUN corepack enable
+
+# Copy the application code to the working directory
 COPY package*.json yarn.lock .yarnrc.yml ./
 
 # Install dependencies
@@ -20,6 +23,7 @@ RUN addgroup -g 1001 -S appuser && \
 # Copy the rest of the application code to the working directory
 # and set ownership to the non-root user
 COPY --chown=1001:1001 . .
+
 
 # Build the application
 RUN yarn build

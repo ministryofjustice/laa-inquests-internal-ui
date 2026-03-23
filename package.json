@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node public/app.js",
-    "clean": "rimraf public",
+    "clean": "rm -rf public",
     "build": "yarn clean && yarn build:ts && node public/esbuild.js",
     "lint": "yarn eslint . --fix",
     "dev": "yarn build:ts && concurrently \"tsc --watch\" \"node public/esbuild.js --watch\" \"nodemon\"",
@@ -24,22 +24,22 @@
     "coverage": "c8 yarn test:unit --check-coverage"
   },
   "engines": {
-    "node": "24.10.0"
+    "node": "25.8.1"
   },
   "dependencies": {
     "@ministryofjustice/frontend": "^6.0.0",
-    "axios": "1.12.2",
-    "body-parser": "^2.2.0",
+    "axios": "1.13.5",
+    "body-parser": "^2.2.1",
     "chalk": "^5.6.2",
     "compression": "^1.8.1",
     "cookie-parser": "~1.4.6",
     "csrf-sync": "^4.2.1",
     "debug": "~4.4.3",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.1.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.1.1",
     "express-session": "^1.18.2",
-    "express-validator": "^7.2.1",
+    "express-validator": "^7.3.0",
     "figlet": "^1.9.3",
     "fs-extra": "^11.3.2",
     "govuk-frontend": "^5.13.0",
@@ -50,7 +50,7 @@
     "moment": "^2.30.1",
     "morgan": "~1.10.1",
     "nunjucks": "^3.2.4",
-    "validator": "^13.15.15"
+    "validator": "^13.15.22"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
@@ -96,11 +96,10 @@
     "livereload": "^0.10.2",
     "middleware-axios": "^3.0.0",
     "mocha": "^11.7.3",
-    "msw": "^2.11.3",
+    "msw": "^2.12.4",
     "nodemon": "^3.1.9",
     "playwright-core": "^1.56.0",
     "prettier": "^3.6.2",
-    "rimraf": "^6.0.1",
     "sass": "^1.93.2",
     "sass-embedded": "^1.93.2",
     "sinon": "^21.0.0",
@@ -117,5 +116,5 @@
   "lint-staged": {
     "*.{js,ts}": "eslint --fix"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.10.3"
 }
