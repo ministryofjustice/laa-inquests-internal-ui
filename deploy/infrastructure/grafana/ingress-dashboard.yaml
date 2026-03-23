@@ -750,7 +750,6 @@ data:
       },
       "timezone": "browser",
       "title": "laa-inquests-ui Ingress",
-      "uid": "your-uid",
       "version": 3,
       "weekStart": ""
     }

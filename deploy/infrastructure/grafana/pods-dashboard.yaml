@@ -451,6 +451,5 @@ data:
       },
       "timezone": "browser",
       "title": "laa-inquests-ui Pods",
-      "uid": "your-uid",
       "version": 1
     }
