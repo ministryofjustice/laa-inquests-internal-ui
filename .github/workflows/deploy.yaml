@@ -64,7 +64,7 @@ jobs:
             --file Dockerfile .
 
       - name: Get Snyk OAuth Token
-        id: snyk-auth
+        id: snyk-auth-token
         run: |
           TOKEN=$(curl -s -X POST "https://api.snyk.io/oauth2/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -75,8 +75,13 @@ jobs:
 
           echo "SNYK_TOKEN=$TOKEN" >> $GITHUB_ENV
 
-      - name: Authenticate Snyk connection
-        run: snyk auth ${{ env.SNYK_TOKEN }}
+      - name: Snyk connection
+        uses: snyk/actions/docker@master
+        with:
+          # image: laa-inquests-ui:scan
+          command: auth
+        env:
+          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
 
       - name: Run Snyk to scan Docker image
         uses: snyk/actions/docker@master
