@@ -53,12 +53,13 @@ jobs:
   snyk:
     name: Snyk scan docker image
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
       - name: Get Snyk OAuth Token
-        id: snyk-auth-token
+        id: snyk-auth
         run: |
           TOKEN=$(curl -s -X POST "https://api.snyk.io/oauth2/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -81,13 +82,13 @@ jobs:
           image: laa-inquests-ui:scan
           args: --docker --severity-threshold=high --policy-path=.snyk
         env:
-          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+          SNYK_OAUTH_TOKEN: ${{ env.SNYK_TOKEN }}
 
       - name: Monitor docker image using Snyk
         continue-on-error: true
         uses: snyk/actions/docker@master
         env:
-          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+          SNYK_OAUTH_TOKEN: ${{ env.SNYK_TOKEN }}
         with:
           command: monitor
           image: laa-inquests-ui:scan
