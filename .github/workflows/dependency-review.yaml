@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout code
         id: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4.8.1
