@@ -68,7 +68,7 @@ jobs:
             -d "client_secret=${{ secrets.SNYK_CLIENT_SECRET }}" \
             | jq -r '.access_token')
 
-          echo "SNYK_TOKEN=$TOKEN" >> $GITHUB_ENV
+          echo "SNYK_OAUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Build local Docker image
         run: |
@@ -82,13 +82,13 @@ jobs:
           image: laa-inquests-ui:scan
           args: --docker --severity-threshold=high --policy-path=.snyk
         env:
-          SNYK_OAUTH_TOKEN: ${{ env.SNYK_TOKEN }}
+          SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
 
       - name: Monitor docker image using Snyk
         continue-on-error: true
         uses: snyk/actions/docker@c75628d834bd4a804426e1cb7b31a9aa43a54c31
         env:
-          SNYK_OAUTH_TOKEN: ${{ env.SNYK_TOKEN }}
+          SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
         with:
           command: monitor
           image: laa-inquests-ui:scan
