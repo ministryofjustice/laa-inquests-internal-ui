@@ -26,3 +26,6 @@ ignore:
   "SNYK-JS-QS-14724253":
     - "*":
         reason: "No direct patch or upgrade available."
+  "SNYK-ALPINE323-ZLIB-15435528":
+    - "*":
+        reason: "No direct patch or upgrade available."
