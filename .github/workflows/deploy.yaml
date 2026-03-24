@@ -57,12 +57,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Build local Docker image
-        run: |
-          docker build \
-            --tag laa-inquests-ui:scan \
-            --file Dockerfile .
-
       - name: Get Snyk OAuth Token
         id: snyk-auth-token
         run: |
@@ -75,27 +69,25 @@ jobs:
 
           echo "SNYK_TOKEN=$TOKEN" >> $GITHUB_ENV
 
-      - name: Snyk connection
-        uses: snyk/actions/docker@master
-        with:
-          # image: laa-inquests-ui:scan
-          command: auth
-        env:
-          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+      - name: Build local Docker image
+        run: |
+          docker build \
+            --tag laa-inquests-ui:scan \
+            --file Dockerfile .
 
       - name: Run Snyk to scan Docker image
         uses: snyk/actions/docker@master
         with:
           image: laa-inquests-ui:scan
           args: --docker --severity-threshold=high --policy-path=.snyk
-        # env:
-        #   SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+        env:
+          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
 
       - name: Monitor docker image using Snyk
         continue-on-error: true
         uses: snyk/actions/docker@master
-        # env:
-        #   SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
+        env:
+          SNYK_TOKEN: ${{ env.SNYK_TOKEN }}
         with:
           command: monitor
           image: laa-inquests-ui:scan
