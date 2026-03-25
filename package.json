@@ -91,7 +91,7 @@
     "eslint-plugin-jsdoc": "^61.1.1",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
-    "jsdom": "^27.0.0",
+    "jsdom": "^29.0.1",
     "lint-staged": "^16.4.0",
     "livereload": "^0.10.2",
     "middleware-axios": "^3.0.0",
