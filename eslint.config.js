@@ -44,6 +44,8 @@ export default [
       'quotes': 'off', // Prettier is handling this
       'semi': 'off', // Prettier is handling this
       'no-console': 'off', // Stops complaining about putting messages in the console
+      'unused-disable-directive': 'off', // stops complaining about single line disable next line
+      'prefer-named-capture-group': 'off',
       'no-param-reassign': ['error', { props: false }], // Allow modifying properties of function parameters (common in Express middleware and reducers)
       'no-negated-condition': 'off', // Allow negated conditions as they can improve readability in certain contexts
       'jsdoc/check-alignment': 'error',

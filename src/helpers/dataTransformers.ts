@@ -29,7 +29,7 @@ export function hasProperty(obj: unknown, key: string): obj is Record<string, un
  * @returns {string} The capitalised string
  */
 export function capitaliseFirst(str: string): string {
-  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  return str.replace(/\b\w/gv, (char) => char.toUpperCase());
 }
 
 // Constants for date formatting

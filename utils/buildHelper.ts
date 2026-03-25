@@ -18,7 +18,7 @@ export const getBuildNumber = (): string => Math.floor(Math.random() * RANDOM_NU
  */
 export const getLatestBuildFile = (directory: string, prefix: string, extension: string): string => {
   const files = fs.readdirSync(directory);
-  const pattern = new RegExp(`^${prefix}\\.\\d+\\.${extension}$`);
+  const pattern = new RegExp(`^${prefix}\\.\\d+\\.${extension}$`, "v");
   const matchingFiles = files.filter(file => pattern.test(file));
   return matchingFiles.length > FIRST_IN_ARRAY ? matchingFiles[FIRST_IN_ARRAY] : '';
 };
