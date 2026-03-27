@@ -10,13 +10,13 @@ View the [full technical documentation here](https://ministryofjustice.github.io
 ## Get Started
 ### Prerequisites
 
-- node stable version [25.8.1](https://nodejs.org/en/blog/release/v25.8.1/)
-- [Yarn 4.9.2](https://yarnpkg.com/) package manager (see installation instructions below)
-- TypeScript 5.8.3
+- node stable version [25.8.2](https://nodejs.org/en/blog/release/v25.8.1/)
+- [Yarn 4.10.3](https://yarnpkg.com/) package manager (see installation instructions below)
+- TypeScript 5.9.3
 
 #### Installing Yarn
 
-This project uses Yarn 4.9.2 managed by corepack (built into Node.js 16.10+). To ensure all team members use the same version, follow these installation steps:
+This project uses Yarn 4.10.3 managed by corepack (built into Node.js 16.10+). To ensure all team members use the same version, follow these installation steps:
 
 1. **Enable corepack (if not already enabled):**
 
@@ -34,7 +34,7 @@ This project uses Yarn 4.9.2 managed by corepack (built into Node.js 16.10+). To
 
    ```shell
    yarn --version
-   # Should output: 4.9.2
+   # Should output: 4.10.3
    ```
 
 **To Note:**
