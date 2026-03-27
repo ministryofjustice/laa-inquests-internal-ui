@@ -35,3 +35,13 @@ ignore:
   "SNYK-JS-PATHTOREGEXP-15789763":
     - "*":
         reason: "Cannot patch directly, bundled with latest version of express."
+  "SNYK-JS-PICOMATCH-15765511":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm and reached highest version to use
+          with current env."
+  "SNYK-JS-BRACEEXPANSION-15789759":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm and reached highest version to use
+          with current env."
