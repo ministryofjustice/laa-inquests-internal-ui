@@ -76,7 +76,7 @@ jobs:
             --file Dockerfile .
 
       - name: Run Snyk to scan Docker image
-        uses: snyk/actions/docker@c75628d834bd4a804426e1cb7b31a9aa43a54c31
+        uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04
         with:
           image: laa-inquests-ui:scan
           args: --docker --severity-threshold=high --policy-path=.snyk
@@ -85,7 +85,7 @@ jobs:
 
       - name: Monitor docker image using Snyk
         continue-on-error: true
-        uses: snyk/actions/docker@c75628d834bd4a804426e1cb7b31a9aa43a54c31
+        uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04
         env:
           SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
         with:
