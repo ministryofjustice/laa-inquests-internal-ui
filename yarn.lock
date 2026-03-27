@@ -3739,10 +3739,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^16.4.0":
-  version: 16.4.0
-  resolution: "globals@npm:16.4.0"
-  checksum: 10c0/a14b447a78b664b42f6d324e8675fcae6fe5e57924fecc1f6328dce08af9b2ca3a3138501e1b1f244a49814a732dc60cfc1aa24e714e0b64ac8bd18910bfac90
+"globals@npm:^17.4.0":
+  version: 17.4.0
+  resolution: "globals@npm:17.4.0"
+  checksum: 10c0/2be9e8c2b9035836f13d420b22f0247a328db82967d3bebfc01126d888ed609305f06c05895914e969653af5c6ba35fd7a0920f3e6c869afa60666c810630feb
   languageName: node
   linkType: hard
 
@@ -4616,7 +4616,7 @@ __metadata:
     express-validator: "npm:^7.3.0"
     figlet: "npm:^1.11.0"
     fs-extra: "npm:^11.3.4"
-    globals: "npm:^16.4.0"
+    globals: "npm:^17.4.0"
     govuk-frontend: "npm:^5.13.0"
     helmet: "npm:^8.1.0"
     http-errors: "npm:~2.0.1"

@@ -89,7 +89,7 @@
     "eslint-config-love": "^151.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^61.1.1",
-    "globals": "^16.4.0",
+    "globals": "^17.4.0",
     "husky": "^9.1.7",
     "jsdom": "^29.0.1",
     "lint-staged": "^16.4.0",
