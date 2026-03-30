@@ -92,7 +92,7 @@ export function formatValidationError(error: ValidationError): ValidationErrorDa
 
   // Fallback: treat the message as both summary and inline
   const safeMessage = safeString(error.msg);
-  const message = safeMessage !== '' ? safeMessage : 'Invalid value';
+  const message = safeMessage === '' ? 'Invalid value' : safeMessage;
   return {
     summaryMessage: message,
     inlineMessage: message
