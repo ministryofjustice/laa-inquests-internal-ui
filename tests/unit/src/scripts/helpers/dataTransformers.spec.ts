@@ -1,7 +1,3 @@
-/**
- * @description Tests for the utility functions in dataTransformers work as expected
- */
-
 import { expect } from 'chai';
 import {
   safeString,

@@ -1,7 +1,3 @@
-/**
- * @description Test that setting up middleware was processed
- */
-
 import { setupMiddlewares } from '#middleware/commonMiddleware.js';
 import express from 'express';
 import { expect } from 'chai';

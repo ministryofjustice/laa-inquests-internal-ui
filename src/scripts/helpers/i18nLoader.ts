@@ -8,11 +8,6 @@ import i18next from 'i18next';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 
-/**
- * Type guard for locale data
- * @param {unknown} value - The value to check
- * @returns {boolean} True if the value is a valid locale data structure
- */
 function isLocaleData(value: unknown): value is Record<string, Record<string, string>> {
   return typeof value === 'object' && value !== null;
 }
@@ -90,10 +85,7 @@ export { i18next };
 
 /**
  * Translation function wrapper that ensures i18next is ready
- * Usage: t("common.back") or t("pages.caseDetails.tabs.clientDetails")
- * @param {string} key - Translation key with dot notation for namespaces
- * @param {Record<string, unknown>} [options] - Optional interpolation values
- * @returns {string} The translated string
+ * Usage: t("common.back") or t("pages.caseDetails.tabs.clientDetails") 
  */
 export const t = (key: string, options?: Record<string, unknown>): string => {
   // Ensure i18next is initialised before calling translation
@@ -112,12 +104,6 @@ export interface ExpressLocaleLoader {
   t: (key: string, options?: Record<string, unknown>) => string;
 }
 
-/**
- * Nunjucks global function for templates
- * Usage in templates: {{ t("common.back") }} or {{ t("pages.caseDetails.tabs.clientDetails") }}
- * @param {string} key - Translation key
- * @param {Record<string, unknown>} [options] - Optional interpolation values
- * @returns {string} The translated string
- */
+// Nunjucks global function for templates
 export const nunjucksT = (key: string, options?: Record<string, unknown>): string =>
   t(key, options);

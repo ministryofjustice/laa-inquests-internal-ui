@@ -1,7 +1,3 @@
-/**
- * @description Tests that these utility functions handle error for our API requests
- */
-
 import { strict as assert } from 'assert';
 import sinon from 'sinon';
 import {

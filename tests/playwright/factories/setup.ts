@@ -45,10 +45,6 @@ export function resetMSWHandlers(): void {
   server.resetHandlers();
 }
 
-/**
- * Add runtime handlers for specific test scenarios
- * @param {Array} additionalHandlers - Array of MSW handlers to add
- */
 export function addRuntimeHandlers(additionalHandlers: any[]): void {
   server.use(...additionalHandlers);
 }

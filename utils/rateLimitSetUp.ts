@@ -2,12 +2,6 @@ import rateLimit from 'express-rate-limit';
 import type { Application } from 'express';
 import type { Config } from '#types/config-types.js';
 
-/**
- * Sets up rate limiting for the given Express app.
- *
- * @param {Application} app - The Express app instance.
- * @param {Config} config - The configuration object containing rate limiting settings.
- */
 export const rateLimitSetUp = (app: Application, config: Config): void => {
   /**
    * Rate limiter for general routes.

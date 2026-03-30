@@ -1,8 +1,3 @@
-/**
- *
- * @description Tests that a random number is created, that can be applied to file assets etc
- */
-
 import { strict as assert } from 'assert';
 import sinon from 'sinon';
 import fs from 'node:fs';

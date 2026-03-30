@@ -9,19 +9,10 @@ import i18next from 'i18next';
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 
-/**
- * Type guard for locale data
- * @param {unknown} value - The value to check
- * @returns {boolean} True if the value is a valid locale data structure
- */
 function isLocaleData(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-/**
- * Initialize i18next synchronously for E2E tests
- * @returns {typeof i18next} The initialized i18next instance
- */
 export function initI18nSync(): typeof i18next {
   try {
     const localeFile = path.join(process.cwd(), 'locales', 'en.json');
@@ -56,9 +47,4 @@ export function initI18nSync(): typeof i18next {
   }
 }
 
-/**
- * Get translated text for E2E test assertions
- * @param {string} key - The translation key
- * @returns {string} The translated string
- */
 export const t = (key: string): string => i18next.t(key);

@@ -22,9 +22,6 @@ import type { AxiosResponse } from 'axios';
  * Template users can use this as a starting point for their own API services.
  */
 export class ExampleApiService extends BaseApiService {
-  /**
-   * Initialise ExampleApiService with JSONPlaceholder configuration
-   */
   constructor() {
     const EXAMPLE_TIMEOUT_MS = 10000;
     super({
@@ -35,13 +32,6 @@ export class ExampleApiService extends BaseApiService {
     });
   }
 
-  /**
-   * Get users from API - minimal example
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {Record<string, string | number | boolean>} params - Query parameters
-   * @returns {Promise<AxiosResponse>} Promise resolving to raw axios response
-   */
   async getUsers(
     axiosMiddleware: AxiosInstanceWrapper,
     params: Record<string, string | number | boolean> = {}
@@ -49,13 +39,6 @@ export class ExampleApiService extends BaseApiService {
     return await this.get(axiosMiddleware, '/users', params);
   }
 
-  /**
-   * Get single user by ID - minimal example
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {string | number} userId - User ID to retrieve
-   * @returns {Promise<AxiosResponse>} Promise resolving to raw axios response
-   */
   async getUserById(
     axiosMiddleware: AxiosInstanceWrapper,
     userId: string | number
@@ -63,13 +46,6 @@ export class ExampleApiService extends BaseApiService {
     return await this.get(axiosMiddleware, `/users/${userId}`);
   }
 
-  /**
-   * Create a new user - minimal example
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {unknown} userData - User data to create
-   * @returns {Promise<AxiosResponse>} Promise resolving to raw axios response
-   */
   async createUser(
     axiosMiddleware: AxiosInstanceWrapper,
     userData: unknown

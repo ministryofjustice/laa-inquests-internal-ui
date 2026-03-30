@@ -1,7 +1,3 @@
-/**
- * @description Test for i18nLoader functions
- */
-
 import { expect } from 'chai';
 import sinon from 'sinon';
 import fs from 'node:fs';

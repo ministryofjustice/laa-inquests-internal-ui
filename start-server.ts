@@ -19,14 +19,7 @@ const dirName = path.dirname(fileName);
 let serverProcess: ChildProcess | null = null; // Variable to hold the server process
 let livereloadServer: ReturnType<typeof livereload.createServer> | null = null; // Variable to hold the livereload server
 
-/**
- * Starts the server by spawning a new process.
- * If an existing server process is running, it kills the process before starting a new one.
- * If the specified port is in use, it attempts to start the server on the next available port.
- *
- * @param {number} port - The port number to start the server on.
- * @returns {void}
- */
+// Spins up server process on specified port. Called from within start()
 const startServer = (port: number): void => {
 	// If there's an existing server process, kill it
 	// eslint-disable-next-line eqeqeq -- need looser assertion against null
@@ -63,13 +56,7 @@ const startServer = (port: number): void => {
 	}, ONE_SECOND_DELAY); // 1-second delay to ensure the port is released
 };
 
-/**
- * Starts the build process and server.
- * If in development mode, sets up livereload and file watching for automatic rebuilds.
- *
- * @async
- * @returns {Promise<void>} A promise that resolves when the server and file watching setup are complete.
- */
+// Entry point function used below
 const start = async (): Promise<void> => {
 	// Log the current NODE_ENV and port
 	console.log(`Current NODE_ENV: ${config.app.environment}`);
@@ -124,13 +111,6 @@ const start = async (): Promise<void> => {
 	}
 };
 
-/**
- * Sanitizes error messages to remove sensitive information before logging.
- * This function can be customized to remove or mask specific details.
- *
- * @param {unknown} error - The error object to sanitize.
- * @returns {object} A sanitized version of the error object.
- */
 const sanitizeError = (error: unknown): object => {
 	// Type guard to check if error is an Error object
 	if (error instanceof Error) {

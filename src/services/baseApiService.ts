@@ -47,10 +47,6 @@ export interface BaseApiConfig {
 export abstract class BaseApiService {
   protected config: Required<BaseApiConfig>;
 
-  /**
-   * Initialise BaseApiService with configuration
-   * @param {BaseApiConfig} config Configuration object for the API service
-   */
   constructor(config: BaseApiConfig) {
     const { timeout = DEFAULT_TIMEOUT_MS, apiPrefix = '', enableLogging = true, ...rest } = config;
     this.config = {
@@ -60,14 +56,7 @@ export abstract class BaseApiService {
       ...rest
     };
   }
-
-  /**
-   * Configure axios instance with API-specific settings
-   * Extracted from MCC's ApiService.configureAxiosInstance method
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from Express request
-   * @returns {AxiosInstanceWrapper} Configured axios instance
-   */
+ 
   protected configureAxiosInstance(axiosMiddleware: AxiosInstanceWrapper): AxiosInstanceWrapper {
     const { axiosInstance } = axiosMiddleware;
     const { defaults } = axiosInstance;
@@ -94,60 +83,26 @@ export abstract class BaseApiService {
     return axiosMiddleware;
   }
 
-  /**
-   * Log API request using MCC's logging pattern
-   * 
-   * @param {string} method - HTTP method
-   * @param {string} endpoint - API endpoint
-   */
   protected logApiCall(method: string, endpoint: string): void {
     if (this.config.enableLogging) {
       devLog(`API: ${method} ${this.config.apiPrefix}${endpoint}`);
     }
   }
 
-  /**
-   * Log API response using MCC's logging pattern
-   * 
-   * @param {string} method - HTTP method  
-   * @param {string} endpoint - API endpoint
-   * @param {unknown} data - Response data
-   */
   protected logApiResponse(method: string, endpoint: string, data: unknown): void {
     if (this.config.enableLogging) {
       devLog(`API: ${method} ${this.config.apiPrefix}${endpoint} response: ${JSON.stringify(data, null, JSON_STRINGIFY_INDENT)}`);
     }
   }
 
-  /**
-   * Handle API errors using MCC's error handling pattern
-   * 
-   * @param {unknown} error - Error from API call
-   * @param {string} context - Context string for logging
-   * @returns {string} User-friendly error message
-   */
   protected static handleApiError(error: unknown, context: string): string {
     return extractAndLogError(error, context);
   }
 
-  /**
-   * Build full endpoint URL with API prefix
-   * 
-   * @param {string} endpoint - Relative endpoint path
-   * @returns {string} Full endpoint path with prefix
-   */
   protected buildEndpoint(endpoint: string): string {
     return `${this.config.apiPrefix}${endpoint}`;
   }
 
-  /**
-   * Make a GET request with MCC's patterns
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {string} endpoint - API endpoint path
-   * @param {object} params - Query parameters
-   * @returns {Promise<AxiosResponse>} Promise resolving to axios response
-   */
   protected async get<T = unknown>(
     axiosMiddleware: AxiosInstanceWrapper,
     endpoint: string,
@@ -163,14 +118,6 @@ export abstract class BaseApiService {
     return response;
   }
 
-  /**
-   * Make a POST request with MCC's patterns
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {string} endpoint - API endpoint path
-   * @param {unknown} data - Request body data
-   * @returns {Promise<AxiosResponse>} Promise resolving to axios response
-   */
   protected async post<T = unknown>(
     axiosMiddleware: AxiosInstanceWrapper,
     endpoint: string,
@@ -186,14 +133,6 @@ export abstract class BaseApiService {
     return response;
   }
 
-  /**
-   * Make a PUT request with MCC's patterns
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {string} endpoint - API endpoint path
-   * @param {unknown} data - Request body data
-   * @returns {Promise<AxiosResponse>} Promise resolving to axios response
-   */
   protected async put<T = unknown>(
     axiosMiddleware: AxiosInstanceWrapper,
     endpoint: string,
@@ -209,14 +148,6 @@ export abstract class BaseApiService {
     return response;
   }
 
-  /**
-   * Make a PATCH request with MCC's patterns
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {string} endpoint - API endpoint path
-   * @param {unknown} data - Request body data
-   * @returns {Promise<AxiosResponse>} Promise resolving to axios response
-   */
   protected async patch<T = unknown>(
     axiosMiddleware: AxiosInstanceWrapper,
     endpoint: string,
@@ -232,13 +163,6 @@ export abstract class BaseApiService {
     return response;
   }
 
-  /**
-   * Make a DELETE request with MCC's patterns
-   * 
-   * @param {AxiosInstanceWrapper} axiosMiddleware - Axios middleware from request
-   * @param {string} endpoint - API endpoint path
-   * @returns {Promise<AxiosResponse>} Promise resolving to axios response
-   */
   protected async delete<T = unknown>(
     axiosMiddleware: AxiosInstanceWrapper,
     endpoint: string

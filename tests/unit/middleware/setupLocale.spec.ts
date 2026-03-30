@@ -1,7 +1,3 @@
-/**
- * @description Test for setupLocaleMiddleware function
- */
-
 import { setupLocaleMiddleware } from '#middleware/setupLocale.js';
 import { initializeI18nextSync } from '#src/scripts/helpers/index.js';
 import { expect } from 'chai';

@@ -1,7 +1,3 @@
-/**
- * @description Tests for the utility function formatDate works as expected
- */
-
 import { expect } from 'chai';
 import { formatDate } from '#src/scripts/helpers/dateFormatter.js';
 

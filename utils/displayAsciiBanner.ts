@@ -1,17 +1,7 @@
-/**
- * @file Displays an ASCII Art banner on application startup.
- * Uses `figlet` for ASCII rendering and `chalk` for color formatting.
- */
-
 import figlet from 'figlet';
 import chalk from 'chalk';
 import type { Config } from '#types/config-types.js';
 
-/**
- * Displays an ASCII Art banner with department name in the console.
- * @param {import('#types/config-types.js').Config} config - The application config object
- * @returns {void}
- */
 const displayAsciiBanner = (config: Config): void => {
     try {
         const data = figlet.textSync(config.SERVICE_NAME ?? 'Service');

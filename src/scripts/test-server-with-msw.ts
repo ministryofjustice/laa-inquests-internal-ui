@@ -18,13 +18,6 @@ const ERROR_EXIT_CODE = 1;
 
 // Enable request interception with simple warning for unhandled requests
 mswServer.listen({
-  /**
-   * Handler for unhandled requests to provide warning feedback
-   * @param {Request} req - The unhandled request
-   * @param {object} print - Logging utilities with warning method
-   * @param {Function} print.warning - Warning logging function
-   * @returns {void}
-   */
   onUnhandledRequest: (req: Request, print: { warning: () => void }): void => {
     print.warning();
   }
@@ -52,12 +45,6 @@ import(appModulePath)
     process.exit(ERROR_EXIT_CODE);
   });
 
-// Graceful shutdown
-/**
- * Handles graceful shutdown of the server when receiving termination signals
- * @param {string} signal - The termination signal received (SIGTERM, SIGINT, etc.)
- * @returns {void}
- */
 const gracefulShutdown = (signal: string): void => {
   console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
 

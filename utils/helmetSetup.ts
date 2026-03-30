@@ -1,8 +1,3 @@
-/**
- * Sets up Helmet middleware for the Express application to configure Content Security Policy (CSP).
- *
- * @param {import('express').Application} app - The Express application instance.
- */
 import helmet from 'helmet';
 import crypto from 'node:crypto';
 import type { Request, Response, NextFunction, Application } from 'express';
@@ -10,23 +5,13 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 const RANDOMBYTES = 16;
 
-/**
- * Middleware to generate a unique CSP nonce for each request.
- *
- * @param {Request} req - Express request object.
- * @param {Response} res - Express response object.
- * @param {NextFunction} next - Express next function.
- */
+// Middleware to generate a unique CSP nonce for each request.
 export const nonceMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   res.locals.cspNonce = crypto.randomBytes(RANDOMBYTES).toString('base64'); // Generate a secure random nonce
   next();
 };
 
-/**
- * Sets up Helmet's Content Security Policy (CSP) with a dynamic nonce.
- *
- * @param {Application} app - The Express application instance.
- */
+// Sets up Helmet's Content Security Policy (CSP) with a dynamic nonce.
 export const helmetSetup = (app: Application): void => {
   app.use(nonceMiddleware); // Apply nonce middleware before Helmet
 

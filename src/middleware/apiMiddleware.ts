@@ -43,20 +43,10 @@ declare global {
   }
 }
 
-/**
- * Convert unknown error to Error instance
- * @param {unknown} error Error to convert
- * @returns {Error} Error instance
- */
 function toError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
-/**
- * Type guard for axios error with response
- * @param {unknown} error Error to check
- * @returns {boolean} True if error has response with status
- */
 function isAxiosErrorWithResponse(error: unknown): error is AxiosError & { response: { status: number } } {
   return error !== null &&
          typeof error === 'object' &&
@@ -67,11 +57,6 @@ function isAxiosErrorWithResponse(error: unknown): error is AxiosError & { respo
          typeof (error.response as { status: unknown }).status === 'number';
 }
 
-/**
- * Create API middleware with configuration
- * @param {ApiMiddlewareConfig} config Configuration for the API middleware
- * @returns {Function} Express middleware function
- */
 export function createApiMiddleware(config: ApiMiddlewareConfig = {}) {
   const {
     timeout = DEFAULT_TIMEOUT,

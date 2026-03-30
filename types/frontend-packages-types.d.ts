@@ -3,17 +3,9 @@
  */
 
 declare module 'govuk-frontend' {
-	/**
-	 * Initializes all GOV.UK Frontend components on the page.
-	 * @returns {void}
-	 */
 	export function initAll(): void;
 }
 
 declare module '@ministryofjustice/frontend' {
-	/**
-	 * Initializes all MOJ Frontend components on the page.
-	 * @returns {void}
-	 */
 	export function initAll(): void;
 }

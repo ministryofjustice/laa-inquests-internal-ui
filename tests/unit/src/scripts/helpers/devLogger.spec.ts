@@ -1,7 +1,3 @@
-/**
- * @description Tests that the utility functions work in the expected environments
- */
-
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {

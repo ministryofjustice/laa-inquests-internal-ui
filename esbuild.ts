@@ -15,12 +15,8 @@ const NO_MORE_ASYNC_OPERATIONS = 0;
 const UNCAUGHT_FATAL_EXCEPTION = 1;
 const SECOND_IN_ARRAY = 1;
 
-/**
- * Copies GOV.UK (fonts and images from `govuk-frontend`), MOJ Frontend (images from `@ministryofjustice/frontend`) and other assets
- * to the `public/assets` directory.
- * @async
- * @returns {Promise<void>} Resolves when the assets are copied successfully.
- */
+/* Copies GOV.UK (fonts and images from `govuk-frontend`), MOJ Frontend (images from `@ministryofjustice/frontend`) and other assets 
+ to the `public/assets` directory. */
 const copyAssets = async (): Promise<void> => {
 	try {
 		// GOV.UK assets
@@ -45,10 +41,7 @@ const copyAssets = async (): Promise<void> => {
 	}
 };
 
-/**
- * List of external dependencies that should not be bundled.
- * @constant {string[]}
- */
+// List of external dependencies that should not be bundled.
 const externalModules: string[] = [
 	...builtinModules,
 	'express',
@@ -71,12 +64,6 @@ const externalModules: string[] = [
 	'*.node'
 ];
 
-/**
- * Builds SCSS files with optional watch capability.
- * @async
- * @param {boolean} watch - Whether to enable watch mode
- * @returns {Promise<esbuild.BuildContext | undefined>} Build context if watching, undefined otherwise
- */
 const buildScss = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
 	const options: esbuild.BuildOptions = {
 		entryPoints: ['src/scss/main.scss'],
@@ -89,11 +76,7 @@ const buildScss = async (watch = false): Promise<esbuild.BuildContext | undefine
 					path.resolve('.'), // Current directory
 					path.resolve('node_modules') // Node modules directory
 				],
-				/**
-				 * Transforms SCSS content to update asset paths.
-				 * @param {string} source - Original SCSS source content.
-				 * @returns {string} Transformed SCSS with updated asset paths.
-				 */
+				// Transforms SCSS content to update asset paths.
 				transform: (source: string): string =>
 					source
 						.replace(/url\(["']?\/assets\/fonts\/([^"'\)]+)["']?\)/gv, 'url("/assets/fonts/$1")')
@@ -121,12 +104,6 @@ const buildScss = async (watch = false): Promise<esbuild.BuildContext | undefine
 	}
 };
 
-/**
- * Builds `app.js` with optional watch capability.
- * @async
- * @param {boolean} watch - Whether to enable watch mode
- * @returns {Promise<esbuild.BuildContext | undefined>} Build context if watching, undefined otherwise
- */
 const buildAppJs = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
 	const options: esbuild.BuildOptions = {
 		entryPoints: ['src/app.ts'],
@@ -158,12 +135,6 @@ const buildAppJs = async (watch = false): Promise<esbuild.BuildContext | undefin
 	}
 };
 
-/**
- * Builds `custom.js` with optional watch capability.
- * @async
- * @param {boolean} watch - Whether to enable watch mode
- * @returns {Promise<esbuild.BuildContext | undefined>} Build context if watching, undefined otherwise
- */
 const buildCustomJs = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
 	const options: esbuild.BuildOptions = {
 		entryPoints: ['src/scripts/custom.ts'],
@@ -189,12 +160,6 @@ const buildCustomJs = async (watch = false): Promise<esbuild.BuildContext | unde
 	}
 };
 
-/**
- * Build GOV.UK frontend & MOJ frontend files separately with optional watch capability.
- * @async
- * @param {boolean} watch - Whether to enable watch mode
- * @returns {Promise<esbuild.BuildContext | undefined>} Build context if watching, undefined otherwise
- */
 const buildFrontendPackages = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
 	const options: esbuild.BuildOptions = {
 		entryPoints: [
@@ -223,11 +188,6 @@ const buildFrontendPackages = async (watch = false): Promise<esbuild.BuildContex
 	}
 };
 
-/**
- * Main watch process that sets up watchers for all build tasks.
- * @async
- * @returns {Promise<void>} Resolves when all watchers are set up.
- */
 const watchBuild = async (): Promise<void> => {
 	try {
 		// Copy assets initially
@@ -248,10 +208,6 @@ const watchBuild = async (): Promise<void> => {
 			persistent: true
 		});
 
-		/**
-		 * Handles asset file changes by copying assets.
-		 * @returns {void}
-		 */
 		const handleAssetChange = (): void => {
 			copyAssets().catch((error: unknown) => {
 				console.error('❌ Failed to copy assets on change:', error);
@@ -262,11 +218,6 @@ const watchBuild = async (): Promise<void> => {
 
 		console.log('✅ Watch mode started successfully. Watching for file changes...');
 
-		// Keep the process alive
-		/**
-		 * Handles SIGINT signal for graceful shutdown.
-		 * @returns {void}
-		 */
 		const handleSigint = (): void => {
 			console.log('\n🛑 Stopping watch mode...');
 			void Promise.all(
@@ -290,11 +241,6 @@ const watchBuild = async (): Promise<void> => {
 	}
 };
 
-/**
- * Single build process (non-watch mode).
- * @async
- * @returns {Promise<void>} Resolves when the entire build process is completed successfully.
- */
 const build = async (): Promise<void> => {
 	try {
 		console.log('🚀 Starting build process...');

@@ -1,7 +1,3 @@
-/**
- * @description Test that ASCII Art banner displays on application startup
- */
-
 import { displayAsciiBanner } from '#utils/displayAsciiBanner.js';
 import { strict as assert } from 'assert';
 import sinon from 'sinon';

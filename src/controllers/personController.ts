@@ -21,21 +21,10 @@ const DEFAULT_PERSON_DATA = {
   dateOfBirth: { day: '27', month: '3', year: '1986' }
 };
 
-/**
- * Safely gets a string value from session data or returns default
- * @param {unknown} value - The value to check
- * @param {string} defaultValue - The default value to use
- * @returns {string} The safe string value
- */
 function safeStringValue(value: unknown, defaultValue: string): string {
   return (typeof value === 'string' && value !== '') ? value : defaultValue;
 }
 
-/**
- * Safely gets date of birth object or returns default
- * @param {unknown} value - The date of birth value to check
- * @returns {{ day: string; month: string; year: string }} The safe date of birth object
- */
 function safeDateOfBirth(value: unknown): { day: string; month: string; year: string } {
   if (typeof value === 'object' && value !== null &&
       'day' in value && 'month' in value && 'year' in value) {
@@ -49,11 +38,6 @@ function safeDateOfBirth(value: unknown): { day: string; month: string; year: st
   return DEFAULT_PERSON_DATA.dateOfBirth;
 }
 
-/**
- * Get current person data from session or return defaults
- * @param {Request} req - Express request object with session
- * @returns {object} Current person data matching DEFAULT_PERSON_DATA structure
- */
 function getCurrentPersonData(req: Request): typeof DEFAULT_PERSON_DATA {
   const sessionData = getSessionData(req, 'currentPerson');
   // eslint-disable-next-line eqeqeq -- need looser assertion against null
@@ -69,12 +53,6 @@ function getCurrentPersonData(req: Request): typeof DEFAULT_PERSON_DATA {
   return DEFAULT_PERSON_DATA;
 }
 
-/**
- * GET controller for rendering the person change form
- * @param {RequestWithCSRF} req - Express request object
- * @param {Response} res - Express response object
- * @param {NextFunction} next - Express next function
- */
 export function getPerson(req: RequestWithCSRF, res: Response, next: NextFunction): void {
   try {
     const csrfToken = typeof req.csrfToken === 'function' ? req.csrfToken() : undefined;
@@ -107,13 +85,6 @@ export function getPerson(req: RequestWithCSRF, res: Response, next: NextFunctio
   }
 }
 
-/**
- * POST controller for handling person change requests
- * Processes validation results and formats errors for GOV.UK component display
- * @param {RequestWithCSRF} req - Express request object
- * @param {Response} res - Express response object
- * @param {NextFunction} next - Express next function
- */
 export function postPerson(req: RequestWithCSRF, res: Response, next: NextFunction): void {
   try {
     const csrfToken = typeof req.csrfToken === 'function' ? req.csrfToken() : undefined;
