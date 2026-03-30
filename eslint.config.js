@@ -1,9 +1,6 @@
 import globals from 'globals';
-import jsdocPlugin from 'eslint-plugin-jsdoc';
 import tsParser from '@typescript-eslint/parser';
 import love from 'eslint-config-love';
-
-// Alter this config file to meet your project's needs and standards.
 
 export default [
   {
@@ -35,9 +32,6 @@ export default [
         ...globals.node,
       },
     },
-    plugins: {
-      jsdoc: jsdocPlugin
-    },
     rules: {
       'indent': 'off', // Prettier is handling this
       'linebreak-style': 'off', // Prettier is handling this
@@ -47,35 +41,6 @@ export default [
       'unused-disable-directive': 'off', // stops complaining about single line disable next line
       'prefer-named-capture-group': 'off',
       'no-param-reassign': ['error', { props: false }], // Allow modifying properties of function parameters (common in Express middleware and reducers)
-      'no-negated-condition': 'off', // Allow negated conditions as they can improve readability in certain contexts
-      'jsdoc/check-alignment': 'error',
-      'jsdoc/check-param-names': 'error',
-      'jsdoc/check-tag-names': 'error',
-      'jsdoc/check-types': 'error',
-      'jsdoc/implements-on-classes': 'error',
-      'jsdoc/newline-after-description': 'off',
-      'jsdoc/no-undefined-types': 'error',
-      'jsdoc/require-description': 'error',
-      'jsdoc/require-jsdoc': [
-        'error',
-        {
-          require: {
-            FunctionDeclaration: true,
-            MethodDefinition: true,
-            ClassDeclaration: true,
-            ArrowFunctionExpression: true,
-            FunctionExpression: true,
-          },
-        },
-      ],
-      'jsdoc/require-param': 'error',
-      'jsdoc/require-param-description': 'error',
-      'jsdoc/require-param-name': 'error',
-      'jsdoc/require-param-type': 'error',
-      'jsdoc/require-returns': 'error',
-      'jsdoc/require-returns-check': 'error',
-      'jsdoc/require-returns-description': 'error',
-      'jsdoc/require-returns-type': 'error',
       // TypeScript declaration file best practices
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/consistent-type-imports': 'error',
