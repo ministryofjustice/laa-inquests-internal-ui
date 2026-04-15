@@ -26,10 +26,10 @@ describe('Test Application API Adaptor', () => {
     });
     await adaptor.getApplication("123");
     assert(axiosGetStub.calledOnce);
-    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/application/123`);
+    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/cases/123`);
 
     await adaptor.getApplication("234");
-    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/application/234`);
+    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/cases/234`);
   });
   it('Test get Applications calls returns application data', async () => {
     const baseUrl = "https://www.gov.uk";

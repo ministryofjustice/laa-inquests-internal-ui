@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response, Router } from "express";
-// import { logger } from "#src/infrastructure/logger/logger.js";
 import type { ApplicationDisplayAdaptor } from "#src/adaptors/application-display.adaptor.js";
 
 function createApplicationRouter(
@@ -12,7 +11,7 @@ function createApplicationRouter(
       const {
         params: { applicationId },
       } = req;
-      const applicationIdParam: string = applicationId.toString();
+      const applicationIdParam: string = applicationId;
       try {
         await applicationDisplayAdaptor.renderApplicationPage(
           req,
@@ -20,12 +19,6 @@ function createApplicationRouter(
           applicationIdParam,
         );
       } catch (err: unknown) {
-        // logger.logError(
-        //   req.method,
-        //   `Error Getting Application "${applicationIdParam}"`,
-        //   err,
-        //   req,
-        // );
         next(err);
       }
     },
