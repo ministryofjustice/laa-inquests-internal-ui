@@ -19,7 +19,7 @@ describe('Test Application API Adaptor', () => {
       id: "123",
       status: "Open",
       provider: "Test Provider",
-      dateSubmitted: "13/04/2026"
+      date_submitted: "13/04/2026"
     }
     axiosGetStub.resolves({
       data: expectedApplication,
@@ -37,7 +37,7 @@ describe('Test Application API Adaptor', () => {
       id: "123",
       status: "Open",
       provider: "Test Provider",
-      dateSubmitted: "13/04/2026"
+      date_submitted: "13/04/2026"
     }
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationDataStoreAdaptor(fakeAxios, baseUrl);
