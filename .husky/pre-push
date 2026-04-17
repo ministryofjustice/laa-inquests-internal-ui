@@ -1,0 +1,4 @@
+echo "Pre Push Checks"
+
+echo "Running Unit Tests"
+yarn test:unit
