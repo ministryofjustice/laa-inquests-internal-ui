@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import type { Application } from 'express';
-import type { Config } from '#types/config-types.js';
+import type { Config } from '#src/types/config-types.js';
 
 export const rateLimitSetUp = (app: Application, config: Config): void => {
   /**

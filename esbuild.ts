@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 import fs from 'fs-extra';
 import path from 'node:path';
 import chokidar from 'chokidar';
-import { getBuildNumber } from './utils/buildHelper.js';
-import type { SassPluginOptions } from './types/sass-plugin-types.js';
+import { getBuildNumber } from './src/utils/helpers/buildHelper.js';
+import type { SassPluginOptions } from './src/types/sass-plugin-types.js';
 
 // Load environment variables
 dotenv.config();
@@ -15,7 +15,7 @@ const NO_MORE_ASYNC_OPERATIONS = 0;
 const UNCAUGHT_FATAL_EXCEPTION = 1;
 const SECOND_IN_ARRAY = 1;
 
-/* Copies GOV.UK (fonts and images from `govuk-frontend`), MOJ Frontend (images from `@ministryofjustice/frontend`) and other assets 
+/* Copies GOV.UK (fonts and images from `govuk-frontend`), MOJ Frontend (images from `@ministryofjustice/frontend`) and other assets
  to the `public/assets` directory. */
 const copyAssets = async (): Promise<void> => {
 	try {

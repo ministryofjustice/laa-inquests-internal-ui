@@ -1,16 +1,16 @@
 /**
  * Base API Service
- * 
+ *
  * Generalised foundation for creating API services based on MCC's apiService.ts patterns.
  * Provides common HTTP client configuration, logging, and error handling utilities.
- * 
+ *
  * Domain services extend this class to implement specific API logic while reusing
  * connection protocol and configuration patterns.
- * 
+ *
  * Based on MCC's production-tested patterns from src/services/apiService.ts
  */
 
-import type { AxiosInstanceWrapper } from '#types/axios-instance-wrapper.js';
+import type { AxiosInstanceWrapper } from '#src/types/axios-instance-wrapper.js';
 import type { AxiosResponse } from 'axios';
 import { devLog, extractAndLogError } from '#src/scripts/helpers/index.js';
 
@@ -32,13 +32,13 @@ export interface BaseApiConfig {
 
 /**
  * Base API Service Class
- * 
+ *
  * Provides common functionality extracted from MCC's ApiService:
  * - Axios instance configuration with API-specific settings
  * - Request/response logging using MCC's patterns
  * - Common error handling utilities
  * - URL construction with API prefixes
- * 
+ *
  * Domain services extend this class and implement their own:
  * - Response transformation logic
  * - Business-specific error handling
@@ -56,7 +56,7 @@ export abstract class BaseApiService {
       ...rest
     };
   }
- 
+
   protected configureAxiosInstance(axiosMiddleware: AxiosInstanceWrapper): AxiosInstanceWrapper {
     const { axiosInstance } = axiosMiddleware;
     const { defaults } = axiosInstance;

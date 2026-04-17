@@ -22,7 +22,7 @@ export const nunjucksSetup = (app: Application): void => {
   // Tell Nunjucks where to look for njk files
   const nunjucksEnv = nunjucks.configure(
     [
-      path.join(path.resolve(), 'views'), // Main views directory
+      path.join(path.resolve(), 'src/views'), // Main views directory
       'node_modules/govuk-frontend/dist', // GOV.UK Frontend templates
       'node_modules/govuk-frontend/dist/components/', // GOV.UK components
       'node_modules/@ministryofjustice/frontend', // MoJ Design System components

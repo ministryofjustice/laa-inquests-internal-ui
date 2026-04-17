@@ -1,7 +1,7 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 
-import createApplicationRouter from "#routes/application.router.js";
+import createApplicationRouter from "#src/routes/application.router.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/application-display.adaptor.js";
 import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplicationAdaptor.js";
 import axios from "axios";

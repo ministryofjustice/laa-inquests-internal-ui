@@ -1,15 +1,15 @@
 /**
  * Enhanced API Middleware
- * 
+ *
  * Generalized version of MCC's axios middleware pattern.
  * Creates configurable axios instances with authentication, logging, and error handling.
- * 
+ *
  * Based on MCC's utils/axiosSetup.ts patterns.
  */
 
 import { create } from 'middleware-axios';
 import type { Request, Response, NextFunction } from 'express';
-import type { AxiosInstanceWrapper } from '#types/axios-instance-wrapper.js';
+import type { AxiosInstanceWrapper } from '#src/types/axios-instance-wrapper.js';
 import type { InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { devLog, devError } from '#src/scripts/helpers/index.js';
 

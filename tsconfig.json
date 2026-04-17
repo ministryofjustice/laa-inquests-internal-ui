@@ -23,14 +23,14 @@
 	"include": [
 		"src/**/*",
 		"middleware/**/*",
-		"utils/**/*.ts",
+		"src/utils/**/*.ts",
 		"routes/**/*",
 		"scripts/**/*.ts",
 		"server.ts",
 		"esbuild.ts",
 		"start-server.ts",
 		"config.ts",
-		"types/**/*.ts",
+		"src/types/**/*.ts",
 		"playwright.config.ts",
 		"tests/**/*.spec.ts",
 		"tests/**/*.ts"

@@ -1,4 +1,4 @@
-import { setupMiddlewares } from '#middleware/commonMiddleware.js';
+import { setupMiddlewares } from '#src/middleware/commonMiddleware.js';
 import express from 'express';
 import { expect } from 'chai';
 

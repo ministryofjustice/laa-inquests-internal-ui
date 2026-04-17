@@ -3,12 +3,12 @@ import express from 'express';
 import chalk from 'chalk';
 import morgan from 'morgan';
 import compression from 'compression';
-import { setupCsrf, setupMiddlewares, setupConfig, setupLocaleMiddleware } from '#middleware/index.js';
+import { setupCsrf, setupMiddlewares, setupConfig, setupLocaleMiddleware } from '#src/middleware/index.js';
 import session from 'express-session';
-import { nunjucksSetup, rateLimitSetUp, helmetSetup, axiosMiddleware, displayAsciiBanner } from '#utils/index.js';
+import { nunjucksSetup, rateLimitSetUp, helmetSetup, axiosMiddleware, displayAsciiBanner } from '#src/utils/helpers/index.js';
 import { initializeI18nextSync } from '#src/scripts/helpers/index.js';
 import config from '#config.js';
-import indexRouter from '#routes/index.js';
+import indexRouter from '#src/routes/index.js';
 import livereload from 'connect-livereload';
 
 const TRUST_FIRST_PROXY = 1;

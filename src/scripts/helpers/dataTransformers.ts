@@ -4,13 +4,13 @@
  * Utility functions for safely transforming and validating data from JSON fixtures
  */
 
-import type { FieldConfig } from '#types/form-controller-types.js';
+import type { FieldConfig } from '#src/types/form-controller-types.js';
 
 export function safeNestedField(obj: unknown, path: string): unknown {
   if (!isRecord(obj)) return undefined;
-  
+
   const segments = path.split('.');
-  
+
   return segments.reduce<unknown>((current, segment) => {
     if (!isRecord(current) || !hasProperty(current, segment)) {
       return undefined;
@@ -136,7 +136,7 @@ export function extractCurrentFields(
 ): Record<string, unknown> {
   return fieldConfigs.reduce<Record<string, unknown>>((formData, config) => {
     const { field, currentName, keepOriginal = false, includeExisting = false } = config;
-    
+
     // Extract field value
     const fieldValue = getFieldValue(data, config);
 

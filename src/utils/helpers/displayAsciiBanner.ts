@@ -1,6 +1,6 @@
 import figlet from 'figlet';
 import chalk from 'chalk';
-import type { Config } from '#types/config-types.js';
+import type { Config } from '#src/types/config-types.js';
 
 const displayAsciiBanner = (config: Config): void => {
     try {

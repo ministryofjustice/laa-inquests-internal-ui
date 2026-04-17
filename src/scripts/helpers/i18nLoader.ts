@@ -18,7 +18,7 @@ function isLocaleData(value: unknown): value is Record<string, Record<string, st
  */
 export function initializeI18nextSync(): void {
   try {
-    const localeFile = path.join(process.cwd(), 'locales', 'en.json');
+    const localeFile = path.join(process.cwd(), 'src/locales', 'en.json');
 
     try {
       const localeContent = readFileSync(localeFile, 'utf8');
@@ -85,7 +85,7 @@ export { i18next };
 
 /**
  * Translation function wrapper that ensures i18next is ready
- * Usage: t("common.back") or t("pages.caseDetails.tabs.clientDetails") 
+ * Usage: t("common.back") or t("pages.caseDetails.tabs.clientDetails")
  */
 export const t = (key: string, options?: Record<string, unknown>): string => {
   // Ensure i18next is initialised before calling translation

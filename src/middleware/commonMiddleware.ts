@@ -2,7 +2,7 @@ import type { Application } from 'express';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import config from '../config.js';
+import config from 'config.js';
 
 export const setupMiddlewares = (app: Application): void => {
   app.use(cookieParser());
