@@ -6,29 +6,43 @@
  */
 
 export function devLog(message: string): void {
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined) {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === undefined
+  ) {
     console.log(message);
   }
 }
 
 export function devWarn(message: string): void {
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined) {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === undefined
+  ) {
     console.warn(message);
   }
 }
 
 export function devError(message: string): void {
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined) {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === undefined
+  ) {
     console.error(message);
   }
 }
 
 export function devDebug(message: string): void {
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined) {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NODE_ENV === undefined
+  ) {
     console.debug(message);
   }
 }
 
 export function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === undefined;
+  return (
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === undefined
+  );
 }

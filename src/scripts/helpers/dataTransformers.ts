@@ -4,13 +4,13 @@
  * Utility functions for safely transforming and validating data from JSON fixtures
  */
 
-import type { FieldConfig } from '#types/form-controller-types.js';
+import type { FieldConfig } from "#types/form-controller-types.js";
 
 export function safeNestedField(obj: unknown, path: string): unknown {
   if (!isRecord(obj)) return undefined;
-  
-  const segments = path.split('.');
-  
+
+  const segments = path.split(".");
+
   return segments.reduce<unknown>((current, segment) => {
     if (!isRecord(current) || !hasProperty(current, segment)) {
       return undefined;
@@ -22,43 +22,43 @@ export function safeNestedField(obj: unknown, path: string): unknown {
 
 export function safeString(value: unknown): string {
   if (value === null || value === undefined) {
-    return '';
+    return "";
   }
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value;
   }
-  if (typeof value === 'number' || typeof value === 'boolean') {
+  if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
-  return '';
+  return "";
 }
 
 export function safeOptionalString(value: unknown): string | undefined {
   if (value === null || value === undefined) {
     return undefined;
   }
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value;
   }
-  if (typeof value === 'number' || typeof value === 'boolean') {
+  if (typeof value === "number" || typeof value === "boolean") {
     return String(value);
   }
   return undefined;
 }
 
 export function booleanToString(value: unknown): string {
-  if (typeof value === 'boolean') {
+  if (typeof value === "boolean") {
     return value.toString();
   }
   // Handle string boolean values as fallback
-  if (value === 'true' || value === 'false') {
+  if (value === "true" || value === "false") {
     return safeString(value);
   }
-  return '';
+  return "";
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function safeStringFromRecord(obj: unknown, key: string): string | null {
@@ -67,10 +67,13 @@ export function safeStringFromRecord(obj: unknown, key: string): string | null {
   }
 
   const { [key]: value } = obj;
-  return typeof value === 'string' && value.trim() !== '' ? value : null;
+  return typeof value === "string" && value.trim() !== "" ? value : null;
 }
 
-export function hasProperty(obj: unknown, key: string): obj is Record<string, unknown> {
+export function hasProperty(
+  obj: unknown,
+  key: string,
+): obj is Record<string, unknown> {
   return isRecord(obj) && key in obj;
 }
 
@@ -78,42 +81,54 @@ export function capitaliseFirst(str: string): string {
   const FIRST_CHAR_INDEX = 0;
   const REST_CHARS_START = 1;
 
-  if (str === '' || str.length === FIRST_CHAR_INDEX) {
-    return '';
+  if (str === "" || str.length === FIRST_CHAR_INDEX) {
+    return "";
   }
-  return str.charAt(FIRST_CHAR_INDEX).toUpperCase() + str.slice(REST_CHARS_START);
+  return (
+    str.charAt(FIRST_CHAR_INDEX).toUpperCase() + str.slice(REST_CHARS_START)
+  );
 }
 
 export function safeBodyString(body: unknown, key: string): unknown {
-  return hasProperty(body, key) ? body[key] : '';
+  return hasProperty(body, key) ? body[key] : "";
 }
 
-export function extractFormFields(body: unknown, keys: string[]): Record<string, unknown> {
+export function extractFormFields(
+  body: unknown,
+  keys: string[],
+): Record<string, unknown> {
   return keys.reduce<Record<string, unknown>>((acc, key) => {
     acc[key] = safeBodyString(body, key);
     return acc;
   }, {});
 }
 
-function isTypeValid(value: unknown, expectedType: 'string' | 'boolean' | 'number' | 'array'): boolean {
+function isTypeValid(
+  value: unknown,
+  expectedType: "string" | "boolean" | "number" | "array",
+): boolean {
   switch (expectedType) {
-    case 'string':
-      return typeof value === 'string';
-    case 'boolean':
-      return typeof value === 'boolean';
-    case 'number':
-      return typeof value === 'number';
-    case 'array':
+    case "string":
+      return typeof value === "string";
+    case "boolean":
+      return typeof value === "boolean";
+    case "number":
+      return typeof value === "number";
+    case "array":
       return Array.isArray(value);
   }
 }
 
-export function safeApiField(data: unknown, fieldName: string, expectedType?: 'string' | 'boolean' | 'number' | 'array'): unknown {
+export function safeApiField(
+  data: unknown,
+  fieldName: string,
+  expectedType?: "string" | "boolean" | "number" | "array",
+): unknown {
   const value: unknown = safeNestedField(data, fieldName);
 
   // If expectedType is specified, check the type
   if (expectedType !== undefined && !isTypeValid(value, expectedType)) {
-    return expectedType === 'array' ? [] : '';
+    return expectedType === "array" ? [] : "";
   }
   return value;
 }
@@ -132,11 +147,16 @@ function getOriginalValue(data: unknown, config: FieldConfig): unknown {
 
 export function extractCurrentFields(
   data: unknown,
-  fieldConfigs: FieldConfig[]
+  fieldConfigs: FieldConfig[],
 ): Record<string, unknown> {
   return fieldConfigs.reduce<Record<string, unknown>>((formData, config) => {
-    const { field, currentName, keepOriginal = false, includeExisting = false } = config;
-    
+    const {
+      field,
+      currentName,
+      keepOriginal = false,
+      includeExisting = false,
+    } = config;
+
     // Extract field value
     const fieldValue = getFieldValue(data, config);
 
@@ -163,15 +183,17 @@ export function extractCurrentFields(
 }
 
 export function normaliseSelectedCheckbox(value: unknown): string[] {
-  if (Array.isArray(value)) return value.filter((x): x is string => typeof x === 'string');
-  if (typeof value === 'string' && value.trim() !== '') return [value];
+  if (Array.isArray(value)) {
+    return value.filter((x): x is string => typeof x === "string");
+  }
+  if (typeof value === "string" && value.trim() !== "") return [value];
   return [];
 }
 
 export const isYes = (value: unknown): boolean => {
   const selection = safeString(value).trim().toLowerCase();
-  if (selection === 'yes' || selection === 'true') return true;
-  if (selection === 'no' || selection === 'false') return false;
+  if (selection === "yes" || selection === "true") return true;
+  if (selection === "no" || selection === "false") return false;
   // fall back: treat non-empty as truthy
   return Boolean(selection);
 };

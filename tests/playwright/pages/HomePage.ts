@@ -1,5 +1,5 @@
-import type { Page, Locator } from '@playwright/test';
-import { TEST_CONFIG } from '../playwright.config.js';
+import type { Page, Locator } from "@playwright/test";
+import { TEST_CONFIG } from "../playwright.config.js";
 
 /**
  * Page object for the home page
@@ -10,19 +10,19 @@ export class HomePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.url = TEST_CONFIG.BASE_URL + '/';
+    this.url = TEST_CONFIG.BASE_URL + "/";
   }
 
   get heading(): Locator {
-    return this.page.locator('h1.govuk-heading-xl');
+    return this.page.locator("h1.govuk-heading-xl");
   }
 
   get mountainsTable(): Locator {
-    return this.page.locator('table');
+    return this.page.locator("table");
   }
 
   get tableCaption(): Locator {
-    return this.page.locator('caption');
+    return this.page.locator("caption");
   }
 
   getMountainRow(mountainName: string): Locator {
@@ -34,26 +34,26 @@ export class HomePage {
   }
 
   async waitForLoad(): Promise<void> {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async getServiceName(): Promise<string> {
-    return await this.heading.textContent() || '';
+    return (await this.heading.textContent()) || "";
   }
 
   async getMountainNames(): Promise<string[]> {
-    const rows = this.page.locator('tbody tr');
+    const rows = this.page.locator("tbody tr");
     const count = await rows.count();
     const names: string[] = [];
-    
+
     for (let i = 0; i < count; i++) {
-      const firstCell = rows.nth(i).locator('td').first();
+      const firstCell = rows.nth(i).locator("td").first();
       const name = await firstCell.textContent();
       if (name) {
         names.push(name.trim());
       }
     }
-    
+
     return names;
   }
 }

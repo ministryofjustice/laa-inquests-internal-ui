@@ -14,8 +14,7 @@ inputs:
     description: "Kubernetes cluster namespace"
     required: true
   app-environment:
-    description:
-      "Environment to which the app is being deployed [staging, production, etc]"
+    description: "Environment to which the app is being deployed [staging, production, etc]"
     required: true
   ecr-repository:
     description: "ECR repository"

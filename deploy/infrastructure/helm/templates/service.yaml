@@ -1,15 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "laa-inquests-ui.fullname" . }}
-  labels:
-    {{- include "laa-inquests-ui.labels" . | nindent 4 }}
+  name: { { include "laa-inquests-ui.fullname" . } }
+  labels: { { - include "laa-inquests-ui.labels" . | nindent 4 } }
 spec:
-  type: {{ .Values.service.type }}
+  type: { { .Values.service.type } }
   ports:
-    - port: {{ .Values.service.port }}
+    - port: { { .Values.service.port } }
       targetPort: http
       protocol: TCP
       name: http
-  selector:
-    {{- include "laa-inquests-ui.selectorLabels" . | nindent 4 }}
+  selector: { { - include "laa-inquests-ui.selectorLabels" . | nindent 4 } }

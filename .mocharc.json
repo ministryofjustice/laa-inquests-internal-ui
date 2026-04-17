@@ -1,12 +1,6 @@
 {
-	"node-option": [
-		"no-warnings",
-		"import=tsx"
-	],
-	"extensions": [
-		"ts",
-		"tsx"
-	],
-	"spec": "tests/unit/**/*.spec.ts",
-	"reporter": "list"
+  "node-option": ["no-warnings", "import=tsx"],
+  "extensions": ["ts", "tsx"],
+  "spec": "tests/unit/**/*.spec.ts",
+  "reporter": "list"
 }

@@ -7,15 +7,14 @@
  * @see https://mswjs.io/docs/best-practices/structuring-handlers
  */
 
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from "msw";
 
 // Import the actual API handlers
-import { apiHandlers } from '#tests/playwright/factories/handlers/api.js';
+import { apiHandlers } from "#tests/playwright/factories/handlers/api.js";
 
 // Add debug handler to log all intercepted requests
-const debugHandler = http.all('*', ({ request }) => {
+const debugHandler = http.all("*", ({ request }) => {
   // Return undefined to pass through to actual handlers
-
 });
 
 /**
@@ -27,9 +26,11 @@ export const handlers = [
   ...apiHandlers,
 
   // Health check endpoint for testing
-  http.get('/health', () => HttpResponse.json({
-      status: 'ok',
+  http.get("/health", () =>
+    HttpResponse.json({
+      status: "ok",
       timestamp: new Date().toISOString(),
-      msw: 'active'
-    }))
+      msw: "active",
+    }),
+  ),
 ];

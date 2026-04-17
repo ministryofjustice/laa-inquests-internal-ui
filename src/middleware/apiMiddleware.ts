@@ -1,17 +1,17 @@
 /**
  * Enhanced API Middleware
- * 
+ *
  * Generalized version of MCC's axios middleware pattern.
  * Creates configurable axios instances with authentication, logging, and error handling.
- * 
+ *
  * Based on MCC's utils/axiosSetup.ts patterns.
  */
 
-import { create } from 'middleware-axios';
-import type { Request, Response, NextFunction } from 'express';
-import type { AxiosInstanceWrapper } from '#types/axios-instance-wrapper.js';
-import type { InternalAxiosRequestConfig, AxiosError } from 'axios';
-import { devLog, devError } from '#src/scripts/helpers/index.js';
+import { create } from "middleware-axios";
+import type { Request, Response, NextFunction } from "express";
+import type { AxiosInstanceWrapper } from "#types/axios-instance-wrapper.js";
+import type { InternalAxiosRequestConfig, AxiosError } from "axios";
+import { devLog, devError } from "#src/scripts/helpers/index.js";
 
 const DEFAULT_TIMEOUT = 5000;
 const HTTP_UNAUTHORIZED = 401;
@@ -47,14 +47,18 @@ function toError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
-function isAxiosErrorWithResponse(error: unknown): error is AxiosError & { response: { status: number } } {
-  return error !== null &&
-         typeof error === 'object' &&
-         'response' in error &&
-         error.response !== null &&
-         typeof error.response === 'object' &&
-         'status' in error.response &&
-         typeof (error.response as { status: unknown }).status === 'number';
+function isAxiosErrorWithResponse(
+  error: unknown,
+): error is AxiosError & { response: { status: number } } {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "response" in error &&
+    error.response !== null &&
+    typeof error.response === "object" &&
+    "status" in error.response &&
+    typeof (error.response as { status: unknown }).status === "number"
+  );
 }
 
 export function createApiMiddleware(config: ApiMiddlewareConfig = {}) {
@@ -62,7 +66,7 @@ export function createApiMiddleware(config: ApiMiddlewareConfig = {}) {
     timeout = DEFAULT_TIMEOUT,
     defaultHeaders = {},
     enableLogging = true,
-    authService = null
+    authService = null,
   } = config;
 
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -70,8 +74,8 @@ export function createApiMiddleware(config: ApiMiddlewareConfig = {}) {
     const axiosWrapper = create({
       timeout,
       headers: {
-        'Content-Type': 'application/json',
-        ...defaultHeaders
+        "Content-Type": "application/json",
+        ...defaultHeaders,
       },
     });
 
@@ -79,29 +83,35 @@ export function createApiMiddleware(config: ApiMiddlewareConfig = {}) {
     if (enableLogging) {
       axiosWrapper.axiosInstance.interceptors.request.use(
         (config: InternalAxiosRequestConfig) => {
-          devLog(`API Request: ${config.method?.toUpperCase()} ${config.baseURL ?? ''}${config.url ?? ''}`);
+          devLog(
+            `API Request: ${config.method?.toUpperCase()} ${config.baseURL ?? ""}${config.url ?? ""}`,
+          );
           return config;
         },
         async (error: unknown) => {
           devError(`API Request Error: ${toError(error).message}`);
           return await Promise.reject(toError(error));
-        }
+        },
       );
 
       // Add response logging interceptor
       axiosWrapper.axiosInstance.interceptors.response.use(
         (response) => {
-          devLog(`API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
+          devLog(
+            `API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
+          );
           return response;
         },
         async (error: unknown) => {
           if (isAxiosErrorWithResponse(error)) {
-            devError(`API Response Error: ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+            devError(
+              `API Response Error: ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+            );
           } else {
             devError(`API Network Error: ${toError(error).message}`);
           }
           return await Promise.reject(toError(error));
-        }
+        },
       );
     }
 
@@ -113,29 +123,36 @@ export function createApiMiddleware(config: ApiMiddlewareConfig = {}) {
           try {
             config.headers.Authorization = await authService.getAuthHeader();
             if (enableLogging) {
-              devLog('Added JWT authorization header to API request');
+              devLog("Added JWT authorization header to API request");
             }
           } catch (error) {
-            devError(`Failed to add JWT authorization header: ${toError(error).message}`);
+            devError(
+              `Failed to add JWT authorization header: ${toError(error).message}`,
+            );
             // Continue without auth header - API will handle 401 response
           }
           return config;
         },
-        async (error: unknown) => await Promise.reject(toError(error))
+        async (error: unknown) => await Promise.reject(toError(error)),
       );
 
       // Response interceptor for 401 error handling (based on MCC pattern)
       axiosWrapper.axiosInstance.interceptors.response.use(
         (response) => response,
         async (error: unknown) => {
-          if (isAxiosErrorWithResponse(error) && error.response.status === HTTP_UNAUTHORIZED) {
+          if (
+            isAxiosErrorWithResponse(error) &&
+            error.response.status === HTTP_UNAUTHORIZED
+          ) {
             if (enableLogging) {
-              devError('API returned 401 Unauthorized - clearing cached tokens');
+              devError(
+                "API returned 401 Unauthorized - clearing cached tokens",
+              );
             }
             authService.clearTokens();
           }
           return await Promise.reject(toError(error));
-        }
+        },
       );
     }
 

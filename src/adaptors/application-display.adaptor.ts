@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplicationAdaptor.js";
+import type { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplicationAdaptor.js";
 
 export class ApplicationDisplayAdaptor {
   applicationDataStore: ApplicationDataStoreAdaptor;
@@ -13,10 +13,11 @@ export class ApplicationDisplayAdaptor {
     res: Response,
     applicationId: string,
   ): Promise<void> {
-    const displayApplication = await this.applicationDataStore.getApplication(applicationId);
+    const displayApplication =
+      await this.applicationDataStore.getApplication(applicationId);
     console.log(displayApplication);
     res.render("application/index", {
-      displayApplication
+      displayApplication,
     });
   }
 }

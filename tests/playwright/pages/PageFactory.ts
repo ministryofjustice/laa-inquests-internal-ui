@@ -1,5 +1,5 @@
-import type { Page } from '@playwright/test';
-import { HomePage } from './HomePage.js';
+import type { Page } from "@playwright/test";
+import { HomePage } from "./HomePage.js";
 
 export class PageFactory {
   private readonly page: Page;
