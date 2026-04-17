@@ -1,13 +1,13 @@
 import { test as base, expect } from '@playwright/test';
 import { AxeBuilder } from '@axe-core/playwright';
-import { PageFactory } from '../pages/PageFactory.js';
+import { PageFactory } from '#tests/playwright/fixtures/pages/PageFactory.js';
 
 /**
  * Custom test fixture with accessibility testing
  */
 interface TestFixtures {
   checkAccessibility: () => Promise<void>;
-  pages: PageFactory; 
+  pages: PageFactory;
 }
 
 export const test = base.extend<TestFixtures>({

@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 import fs from 'fs-extra';
 import path from 'node:path';
 import chokidar from 'chokidar';
-import { getBuildNumber } from './src/utils/helpers/buildHelper.js';
-import type { SassPluginOptions } from './src/types/sass-plugin-types.js';
+import { getBuildNumber } from './src/infrastructure/build/getBuildInfo.js';
+import type { SassPluginOptions } from './src/infrastructure/build/sass.types.js';
 
 // Load environment variables
 dotenv.config();
@@ -66,7 +66,7 @@ const externalModules: string[] = [
 
 const buildScss = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
 	const options: esbuild.BuildOptions = {
-		entryPoints: ['src/scss/main.scss'],
+		entryPoints: ['src/infrastructure/build/scss/main.scss'],
 		bundle: true,
 		outfile: `public/css/main.${buildNumber}.css`,
 		external: ['*.woff', '*.woff2', '*.svg', '*.png', '*.jpg', '*.jpeg', '*.gif'],
@@ -135,35 +135,10 @@ const buildAppJs = async (watch = false): Promise<esbuild.BuildContext | undefin
 	}
 };
 
-const buildCustomJs = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
-	const options: esbuild.BuildOptions = {
-		entryPoints: ['src/scripts/custom.ts'],
-		bundle: true,
-		platform: 'browser',
-		target: 'esnext',
-		format: 'esm',
-		sourcemap: process.env.NODE_ENV !== 'production',
-		minify: process.env.NODE_ENV === 'production',
-		outfile: `public/js/custom.${buildNumber}.min.js`
-	};
-
-	if (watch) {
-		const context = await esbuild.context(options);
-		await context.watch();
-		return context;
-	} else {
-		await esbuild.build(options).catch((error: unknown) => {
-			console.error('❌ custom.js build failed:', error);
-			process.exit(UNCAUGHT_FATAL_EXCEPTION);
-		});
-		return undefined;
-	}
-};
-
 const buildFrontendPackages = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
 	const options: esbuild.BuildOptions = {
 		entryPoints: [
-			'src/scripts/frontendPackagesEntry.ts'
+			"src/infrastructure/build/frontend-packages-entry.ts"
 		],
 		bundle: true,
 		platform: 'browser',
@@ -197,7 +172,6 @@ const watchBuild = async (): Promise<void> => {
 		const contexts = await Promise.all([
 			buildScss(true),
 			buildAppJs(true),
-			buildCustomJs(true),
 			buildFrontendPackages(true)
 		]);
 
@@ -252,7 +226,6 @@ const build = async (): Promise<void> => {
 		await Promise.all([
 			buildScss(false),
 			buildAppJs(false),
-			buildCustomJs(false),
 			buildFrontendPackages(false)
 		]);
 

@@ -19,7 +19,7 @@ export const TEST_CONFIG = {
  * Playwright configuration
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: './e2e',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === 'true' ? 2 : 0,
@@ -36,7 +36,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'yarn tsx src/scripts/test-server-with-msw.js',
+    command: 'yarn tsx tests/playwright/factories/handlers/testMsw.js',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: process.env.CI !== 'true',
     stdout: 'pipe',
