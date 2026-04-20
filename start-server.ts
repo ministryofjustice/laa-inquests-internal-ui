@@ -4,8 +4,8 @@ import path from "node:path"; // Import path module for handling file paths
 import { fileURLToPath } from "node:url"; // Import fileURLToPath to convert file URLs to paths
 import type { ChildProcess } from "node:child_process";
 import { spawn } from "node:child_process"; // Import spawn from child_process to spawn new processes
-import config from "./config.js"; // Import the config
 import { build } from "./esbuild.js"; // Import the build function with correct extension
+import config from "./src/infrastructure/config/config.js"; // Import the config
 
 const NO_MORE_ASYNC_OPERATIONS = 0;
 const UNCAUGHT_FATAL_EXCEPTION = 1;

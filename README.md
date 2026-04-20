@@ -1,4 +1,4 @@
-# Legal Aid Agency - Express with TypeScript template (ETT)
+# Legal Aid Agency - Inquests Internal UI
 
 [![Standards Icon]][Standards Link]
 
