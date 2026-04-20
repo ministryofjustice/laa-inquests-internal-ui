@@ -1,9 +1,15 @@
-import { create } from 'middleware-axios';
-import type { Request, Response, NextFunction } from 'express';
-import type { InternalAxiosRequestConfig } from 'axios';
+import { create } from "middleware-axios";
+import type { Request, Response, NextFunction } from "express";
+import type { InternalAxiosRequestConfig } from "axios";
 
-import { isAxiosErrorWithResponse, toError } from "#src/infrastructure/express/middleware/axios/errors.js";
-import { devLog, devError } from "#src/infrastructure/express/middleware/logger.js";
+import {
+  isAxiosErrorWithResponse,
+  toError,
+} from "#src/infrastructure/express/middleware/axios/errors.js";
+import {
+  devLog,
+  devError,
+} from "#src/infrastructure/express/middleware/logger.js";
 
 const DEFAULT_TIMEOUT = 5000;
 const HTTP_UNAUTHORIZED = 401;

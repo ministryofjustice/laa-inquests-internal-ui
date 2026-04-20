@@ -20,7 +20,11 @@ function isLocaleData(
  */
 export function initializeI18nextSync(): void {
   try {
-    const localeFile = path.join(process.cwd(), 'src/infrastructure/locales', 'en.json');
+    const localeFile = path.join(
+      process.cwd(),
+      "src/infrastructure/locales",
+      "en.json",
+    );
 
     try {
       const localeContent = readFileSync(localeFile, "utf8");

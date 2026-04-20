@@ -16,7 +16,7 @@
     "strict": true, // Enable all strict type-checking options
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file
     "baseUrl": ".",
-		"ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "#*": ["./*"]
     }

@@ -5,10 +5,10 @@
  * Verifies HTTP client configuration, logging, and error handling functionality.
  */
 
-import { expect } from 'chai';
-import { BaseApiService } from '#src/infrastructure/express/middleware/axios/baseApiService.js';
-import type { AxiosInstanceWrapper } from '#src/infrastructure/express/middleware/axios/index.types.js';
-import { create } from 'middleware-axios';
+import { expect } from "chai";
+import { BaseApiService } from "#src/infrastructure/express/middleware/axios/baseApiService.js";
+import type { AxiosInstanceWrapper } from "#src/infrastructure/express/middleware/axios/index.types.js";
+import { create } from "middleware-axios";
 
 // Test implementation of BaseApiService
 class TestApiService extends BaseApiService {

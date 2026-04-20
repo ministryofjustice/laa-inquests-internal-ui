@@ -1,5 +1,5 @@
-import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
-import type { Config } from '#src/infrastructure/config/config.types.js';
+import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
+import type { Config } from "#src/infrastructure/config/config.types.js";
 
 export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
   /**
@@ -19,5 +19,5 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
   });
 
   // Apply the general rate limiter to all requests
-  return generalLimiter
+  return generalLimiter;
 };

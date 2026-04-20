@@ -8,11 +8,7 @@
  * - Structured logging
  */
 
-<<<<<<< HEAD:src/infrastructure/express/middleware/errors.ts
-import { devError } from '#src/infrastructure/express/middleware/logger.js';
-=======
-import { devError } from "./index.js";
->>>>>>> main:src/scripts/helpers/errorHandler.ts
+import { devError } from "#src/infrastructure/express/middleware/logger.js";
 
 // HTTP Status Code Constants
 const HTTP_BAD_REQUEST = 400;

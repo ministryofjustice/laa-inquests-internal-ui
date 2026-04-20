@@ -6,8 +6,8 @@ import {
   initializeI18nextSync,
   i18next,
   t,
-  nunjucksT
-} from '#src/infrastructure/express/middleware/nunjucks/i18nLoader.js';
+  nunjucksT,
+} from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 describe("i18nLoader", () => {
   let consoleWarnStub: sinon.SinonStub;

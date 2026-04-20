@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url"; // Import fileURLToPath to convert fil
 import type { ChildProcess } from "node:child_process";
 import { spawn } from "node:child_process"; // Import spawn from child_process to spawn new processes
 import { build } from "./esbuild.js"; // Import the build function with correct extension
-import config from './src/infrastructure/config/config.js'; // Import the config
+import config from "./src/infrastructure/config/config.js"; // Import the config
 
 const NO_MORE_ASYNC_OPERATIONS = 0;
 const UNCAUGHT_FATAL_EXCEPTION = 1;

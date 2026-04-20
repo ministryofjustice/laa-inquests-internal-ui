@@ -1,5 +1,5 @@
-import type { Page, Locator } from '@playwright/test';
-import { TEST_CONFIG } from '#tests/playwright/playwright.config.js';
+import type { Page, Locator } from "@playwright/test";
+import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 
 /**
  * Page object for the home page

@@ -1,15 +1,14 @@
-import nunjucks from 'nunjucks';
-import path from 'node:path';
-import type { Application } from 'express';
-import { getLatestBuildFile } from '#src/infrastructure/build/getBuildInfo.js';
-import { nunjucksT } from '#src/infrastructure/express/middleware/nunjucks/i18nLoader.js';
+import nunjucks from "nunjucks";
+import path from "node:path";
+import type { Application } from "express";
+import { getLatestBuildFile } from "#src/infrastructure/build/getBuildInfo.js";
+import { nunjucksT } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 // Sets up Nunjucks as the template engine
 export const setupNunjucks = (app: Application): void => {
-
   // Set asset path in locals
   const { locals } = app;
-  locals.asset_path = '/assets/';
+  locals.asset_path = "/assets/";
 
   // Retrieves the latest build file for the given prefix and extension.
   locals.getAsset = (prefix: string, ext: string): string => {
@@ -21,10 +20,10 @@ export const setupNunjucks = (app: Application): void => {
   // Tell Nunjucks where to look for njk files
   const nunjucksEnv = nunjucks.configure(
     [
-      path.join(path.resolve(), 'src/views'), // Main views directory
-      'node_modules/govuk-frontend/dist', // GOV.UK Frontend templates
-      'node_modules/govuk-frontend/dist/components/', // GOV.UK components
-      'node_modules/@ministryofjustice/frontend', // MoJ Design System components
+      path.join(path.resolve(), "src/views"), // Main views directory
+      "node_modules/govuk-frontend/dist", // GOV.UK Frontend templates
+      "node_modules/govuk-frontend/dist/components/", // GOV.UK components
+      "node_modules/@ministryofjustice/frontend", // MoJ Design System components
     ],
     {
       autoescape: true, // Enable auto escaping to prevent XSS attacks

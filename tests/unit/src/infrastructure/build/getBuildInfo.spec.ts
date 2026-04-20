@@ -1,7 +1,10 @@
 import { strict as assert } from "assert";
 import sinon from "sinon";
 import fs from "node:fs";
-import { getBuildNumber, getLatestBuildFile } from "#src/infrastructure/build/getBuildInfo.js";
+import {
+  getBuildNumber,
+  getLatestBuildFile,
+} from "#src/infrastructure/build/getBuildInfo.js";
 
 describe("getBuildInfo", () => {
   describe("getBuildNumber", () => {

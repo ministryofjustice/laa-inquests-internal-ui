@@ -1,10 +1,15 @@
-import { t, type ExpressLocaleLoader } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
-import type { Request, Response, NextFunction } from 'express';
-
+import {
+  t,
+  type ExpressLocaleLoader,
+} from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
+import type { Request, Response, NextFunction } from "express";
 
 // Middleware to inject locale data into template locals
-export function setupLocaleData(req: Request, res: Response, next: NextFunction): void {
-
+export function setupLocaleData(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   const localeData: ExpressLocaleLoader = {
     t,
   };

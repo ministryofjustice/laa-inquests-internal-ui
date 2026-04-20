@@ -10,10 +10,10 @@
  * Based on MCC's production-tested patterns from src/services/apiService.ts
  */
 
-import type { AxiosInstanceWrapper } from '#src/infrastructure/express/middleware/axios/index.types.js';
-import type { AxiosResponse } from 'axios';
-import { devLog } from '#src/infrastructure/express/middleware/logger.js';
-import { extractAndLogError } from '#src/infrastructure/express/middleware/errors.js'
+import type { AxiosInstanceWrapper } from "#src/infrastructure/express/middleware/axios/index.types.js";
+import type { AxiosResponse } from "axios";
+import { devLog } from "#src/infrastructure/express/middleware/logger.js";
+import { extractAndLogError } from "#src/infrastructure/express/middleware/errors.js";
 
 // Constants to avoid magic numbers
 const DEFAULT_TIMEOUT_MS = 5000;
@@ -63,7 +63,9 @@ export abstract class BaseApiService {
     };
   }
 
-  protected configureAxiosInstance(axiosMiddleware: AxiosInstanceWrapper): AxiosInstanceWrapper {
+  protected configureAxiosInstance(
+    axiosMiddleware: AxiosInstanceWrapper,
+  ): AxiosInstanceWrapper {
     const { axiosInstance } = axiosMiddleware;
     const { defaults } = axiosInstance;
     const { config } = this;

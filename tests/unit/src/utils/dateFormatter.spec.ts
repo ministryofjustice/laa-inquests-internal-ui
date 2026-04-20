@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { formatDate } from '#src/utils/dateFormatter.js';
+import { expect } from "chai";
+import { formatDate } from "#src/utils/dateFormatter.js";
 
 describe("formatDate()", () => {
   it("formats a valid ISO date string correctly", () => {

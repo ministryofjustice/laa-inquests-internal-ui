@@ -1,6 +1,10 @@
 import type { Request } from "express";
 
-export function storeSessionData(req: Request, namespace: string, data: Record<string, string>): void {
+export function storeSessionData(
+  req: Request,
+  namespace: string,
+  data: Record<string, string>,
+): void {
   // Store our typed data directly in the session
   req.session[namespace] = data;
 }
@@ -26,7 +30,9 @@ export function clearSessionData(req: Request, namespace: string): void {
 export function clearAllOriginalFormData(req: Request): void {
   // Get all session keys and filter for ones containing 'Original'
   const sessionKeys = Object.keys(req.session);
-  const originalDataKeys = sessionKeys.filter(key => key.includes('Original'));
+  const originalDataKeys = sessionKeys.filter((key) =>
+    key.includes("Original"),
+  );
 
   // Clear each original form data key
   originalDataKeys.forEach((key) => {

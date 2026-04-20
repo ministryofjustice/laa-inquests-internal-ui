@@ -19,7 +19,7 @@ export const TEST_CONFIG = {
  * Playwright configuration
  */
 export default defineConfig({
-  testDir: './e2e',
+  testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 2 : 0,
@@ -36,11 +36,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'yarn tsx tests/playwright/factories/handlers/testMsw.js',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: process.env.CI !== 'true',
-    stdout: 'pipe',
-    stderr: 'pipe',
+    command: "yarn tsx tests/playwright/factories/handlers/testMsw.js",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: process.env.CI !== "true",
+    stdout: "pipe",
+    stderr: "pipe",
     timeout: 60000,
     cwd: "../..", // Run from project root since config is now in tests/playwright/ subdirectory
     env: {

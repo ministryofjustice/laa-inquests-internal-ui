@@ -1,6 +1,6 @@
 import { csrfSync } from "csrf-sync";
-import type { Application, Request, Response, NextFunction } from 'express';
-import '#src/infrastructure/express/middleware/security/csrf.types.js';
+import type { Application, Request, Response, NextFunction } from "express";
+import "#src/infrastructure/express/middleware/security/csrf.types.js";
 
 const hasCSRFToken = (body: unknown): body is { _csrf: unknown } =>
   body !== null &&

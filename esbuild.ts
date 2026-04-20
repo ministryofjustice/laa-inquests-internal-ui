@@ -1,12 +1,12 @@
-import esbuild from 'esbuild';
-import { sassPlugin } from 'esbuild-sass-plugin';
-import { builtinModules } from 'node:module';
-import dotenv from 'dotenv';
-import fs from 'fs-extra';
-import path from 'node:path';
-import chokidar from 'chokidar';
-import { getBuildNumber } from './src/infrastructure/build/getBuildInfo.js';
-import type { SassPluginOptions } from './src/infrastructure/build/sass.types.js';
+import esbuild from "esbuild";
+import { sassPlugin } from "esbuild-sass-plugin";
+import { builtinModules } from "node:module";
+import dotenv from "dotenv";
+import fs from "fs-extra";
+import path from "node:path";
+import chokidar from "chokidar";
+import { getBuildNumber } from "./src/infrastructure/build/getBuildInfo.js";
+import type { SassPluginOptions } from "./src/infrastructure/build/sass.types.js";
 
 // Load environment variables
 dotenv.config();
@@ -68,32 +68,48 @@ const externalModules: string[] = [
   "*.node",
 ];
 
-const buildScss = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
-	const options: esbuild.BuildOptions = {
-		entryPoints: ['src/infrastructure/build/scss/main.scss'],
-		bundle: true,
-		outfile: `public/css/main.${buildNumber}.css`,
-		external: ['*.woff', '*.woff2', '*.svg', '*.png', '*.jpg', '*.jpeg', '*.gif'],
-		plugins: [
-			sassPlugin({
-				loadPaths: [
-					path.resolve('.'), // Current directory
-					path.resolve('node_modules') // Node modules directory
-				],
-				// Transforms SCSS content to update asset paths.
-				transform: (source: string): string =>
-					source
-						.replace(/url\(["']?\/assets\/fonts\/([^"'\)]+)["']?\)/gv, 'url("/assets/fonts/$1")')
-						.replace(/url\(["']?\/assets\/images\/([^"'\)]+)["']?\)/gv, 'url("/assets/images/$1")')
-			} satisfies SassPluginOptions)
-		],
-		loader: {
-			'.scss': 'css',
-			'.css': 'css'
-		},
-		minify: process.env.NODE_ENV === 'production',
-		sourcemap: process.env.NODE_ENV !== 'production'
-	};
+const buildScss = async (
+  watch = false,
+): Promise<esbuild.BuildContext | undefined> => {
+  const options: esbuild.BuildOptions = {
+    entryPoints: ["src/infrastructure/build/scss/main.scss"],
+    bundle: true,
+    outfile: `public/css/main.${buildNumber}.css`,
+    external: [
+      "*.woff",
+      "*.woff2",
+      "*.svg",
+      "*.png",
+      "*.jpg",
+      "*.jpeg",
+      "*.gif",
+    ],
+    plugins: [
+      sassPlugin({
+        loadPaths: [
+          path.resolve("."), // Current directory
+          path.resolve("node_modules"), // Node modules directory
+        ],
+        // Transforms SCSS content to update asset paths.
+        transform: (source: string): string =>
+          source
+            .replace(
+              /url\(["']?\/assets\/fonts\/([^"'\)]+)["']?\)/gv,
+              'url("/assets/fonts/$1")',
+            )
+            .replace(
+              /url\(["']?\/assets\/images\/([^"'\)]+)["']?\)/gv,
+              'url("/assets/images/$1")',
+            ),
+      } satisfies SassPluginOptions),
+    ],
+    loader: {
+      ".scss": "css",
+      ".css": "css",
+    },
+    minify: process.env.NODE_ENV === "production",
+    sourcemap: process.env.NODE_ENV !== "production",
+  };
 
   if (watch) {
     const context = await esbuild.context(options);
@@ -141,20 +157,20 @@ const buildAppJs = async (
   }
 };
 
-const buildFrontendPackages = async (watch = false): Promise<esbuild.BuildContext | undefined> => {
-	const options: esbuild.BuildOptions = {
-		entryPoints: [
-			"src/infrastructure/build/frontend-packages-entry.ts"
-		],
-		bundle: true,
-		platform: 'browser',
-		target: 'esnext',
-		format: 'esm',
-		sourcemap: process.env.NODE_ENV !== 'production',
-		minify: process.env.NODE_ENV === 'production',
-		treeShaking: false, // Disable tree shaking to preserve side-effect imports
-		outfile: `public/js/frontend-packages.${buildNumber}.min.js`
-	};
+const buildFrontendPackages = async (
+  watch = false,
+): Promise<esbuild.BuildContext | undefined> => {
+  const options: esbuild.BuildOptions = {
+    entryPoints: ["src/infrastructure/build/frontend-packages-entry.ts"],
+    bundle: true,
+    platform: "browser",
+    target: "esnext",
+    format: "esm",
+    sourcemap: process.env.NODE_ENV !== "production",
+    minify: process.env.NODE_ENV === "production",
+    treeShaking: false, // Disable tree shaking to preserve side-effect imports
+    outfile: `public/js/frontend-packages.${buildNumber}.min.js`,
+  };
 
   if (watch) {
     const context = await esbuild.context(options);
@@ -177,12 +193,12 @@ const watchBuild = async (): Promise<void> => {
     // Copy assets initially
     await copyAssets();
 
-		// Start all watchers
-		const contexts = await Promise.all([
-			buildScss(true),
-			buildAppJs(true),
-			buildFrontendPackages(true)
-		]);
+    // Start all watchers
+    const contexts = await Promise.all([
+      buildScss(true),
+      buildAppJs(true),
+      buildFrontendPackages(true),
+    ]);
 
     // Watch for asset changes and copy them
     const filesToIgnore =
@@ -245,12 +261,12 @@ const build = async (): Promise<void> => {
     // Copy assets
     await copyAssets();
 
-		// Build all files
-		await Promise.all([
-			buildScss(false),
-			buildAppJs(false),
-			buildFrontendPackages(false)
-		]);
+    // Build all files
+    await Promise.all([
+      buildScss(false),
+      buildAppJs(false),
+      buildFrontendPackages(false),
+    ]);
 
     console.log("✅ Build completed successfully.");
   } catch (error: unknown) {

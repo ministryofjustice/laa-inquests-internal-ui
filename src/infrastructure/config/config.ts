@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-import type { Config } from '#src/infrastructure/config/config.types.js';
+import dotenv from "dotenv";
+import type { Config } from "#src/infrastructure/config/config.types.js";
 dotenv.config();
 
 const DEFAULT_RATE_LIMIT_MAX = 100;

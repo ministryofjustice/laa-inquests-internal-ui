@@ -5,8 +5,8 @@ import {
   devWarn,
   devError,
   devDebug,
-  isDevelopment
-} from '#src/infrastructure/express/middleware/logger.js';
+  isDevelopment,
+} from "#src/infrastructure/express/middleware/logger.js";
 
 describe("Development Logging Utilities", () => {
   let consoleLogStub: sinon.SinonStub;

@@ -1,7 +1,7 @@
-import { setupLocaleData } from '#src/infrastructure/express/middleware/nunjucks/setupLocaleData.js';
-import { initializeI18nextSync } from '#src/infrastructure/express/middleware/nunjucks/i18nLoader.js';
-import { expect } from 'chai';
-import type { Request, Response, NextFunction } from 'express';
+import { setupLocaleData } from "#src/infrastructure/express/middleware/nunjucks/setupLocaleData.js";
+import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
+import { expect } from "chai";
+import type { Request, Response, NextFunction } from "express";
 
 describe("setupLocaleMiddleware", () => {
   before(() => {

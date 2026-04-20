@@ -8,7 +8,7 @@ import {
   isServerError,
   createProcessedError,
   extractAndLogError,
-} from '#src/infrastructure/express/middleware/errors.js';
+} from "#src/infrastructure/express/middleware/errors.js";
 
 describe("errorHandler", () => {
   beforeEach(() => {
