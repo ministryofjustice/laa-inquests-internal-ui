@@ -1,7 +1,7 @@
 import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
-import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.adaptor.js";
+import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
 import { Application } from "#src/adaptors/models/application.types.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
