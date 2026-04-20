@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.adaptor.js";
+import type { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
 
 export class ApplicationDisplayAdaptor {
   applicationDataStore: ApplicationDataStoreAdaptor;
