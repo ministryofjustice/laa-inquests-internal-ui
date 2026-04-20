@@ -1,0 +1,23 @@
+echo "Pre Commit Checks"
+set -e
+echo "Running Linting Fix"
+
+yarn eslint . --fix --concurrency=auto
+
+echo "Running Prettier Fix"
+set +e
+yarn prettier . --check
+code=$?
+set -e
+
+echo "Code is: $code"
+
+if [[ $code -ne 0 ]]
+then
+echo "Running Prettier --write"
+yarn prettier . --write
+echo "Exiting $code"
+exit $code
+fi
+
+git status

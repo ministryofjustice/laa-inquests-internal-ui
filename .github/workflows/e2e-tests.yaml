@@ -65,6 +65,5 @@ jobs:
 
       - name: Notify on test failure
         if: failure()
-        run:
-          echo "::error::Playwright tests failed! Check the test report for
+        run: echo "::error::Playwright tests failed! Check the test report for
           details."

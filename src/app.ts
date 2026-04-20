@@ -9,16 +9,16 @@ const app = express();
 
 setupMiddleware(app)
 
-if (process.env.NODE_ENV === 'production') {
-	app.use(morgan('combined'));
+if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined"));
 } else {
-	app.use(morgan('dev'));
+  app.use(morgan("dev"));
 }
 
-app.use('/', indexRouter);
+app.use("/", indexRouter);
 
-if (process.env.NODE_ENV === 'development') {
-	app.use(livereload());
+if (process.env.NODE_ENV === "development") {
+  app.use(livereload());
 }
 
 app.listen(config.app.port, () => {

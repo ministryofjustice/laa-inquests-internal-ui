@@ -9,12 +9,19 @@ export const helmetConfig = {
             // Dynamic nonce function for CSP - using the correct helmet function signature
             (_: IncomingMessage, res: ServerResponse) => {
               // Type guard to check if res has locals property (Express response)
-              if ('locals' in res && typeof res.locals === 'object' && res.locals !== null) {
-                const cspNonce = 'cspNonce' in res.locals ? res.locals.cspNonce : undefined;
-                return typeof cspNonce === 'string' ? `'nonce-${cspNonce}'` : "'unsafe-inline'";
+              if (
+                "locals" in res &&
+                typeof res.locals === "object" &&
+                res.locals !== null
+              ) {
+                const cspNonce =
+                  "cspNonce" in res.locals ? res.locals.cspNonce : undefined;
+                return typeof cspNonce === "string"
+                  ? `'nonce-${cspNonce}'`
+                  : "'unsafe-inline'";
               }
               return "'unsafe-inline'";
-            }
+            },
           ],
           styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles if needed
           fontSrc: ["'self'", "data:"], // Allow data: URIs for fonts

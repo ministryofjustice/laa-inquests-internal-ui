@@ -1,15 +1,18 @@
-import type { Request } from 'express';
+import type { Request } from "express";
 
 export function storeSessionData(req: Request, namespace: string, data: Record<string, string>): void {
   // Store our typed data directly in the session
   req.session[namespace] = data;
 }
 
-export function getSessionData(req: Request, namespace: string): Record<string, string> | null {
+export function getSessionData(
+  req: Request,
+  namespace: string,
+): Record<string, string> | null {
   const { session } = req;
   const { [namespace]: data } = session;
   // Return the data if it's a Record, otherwise null for undefined or string
-  return (typeof data === 'object') ? data : null;
+  return typeof data === "object" ? data : null;
 }
 
 export function clearSessionData(req: Request, namespace: string): void {
@@ -26,18 +29,22 @@ export function clearAllOriginalFormData(req: Request): void {
   const originalDataKeys = sessionKeys.filter(key => key.includes('Original'));
 
   // Clear each original form data key
-  originalDataKeys.forEach(key => {
+  originalDataKeys.forEach((key) => {
     req.session[key] = undefined;
   });
 }
 
-export function storeOriginalFormData(req: Request, namespace: string, formData: Record<string, unknown>): void {
+export function storeOriginalFormData(
+  req: Request,
+  namespace: string,
+  formData: Record<string, unknown>,
+): void {
   // Convert all form values to strings for consistent comparison
   const stringifiedData: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(formData)) {
     // Convert all values to strings, handling null/undefined as empty string
-    stringifiedData[key] = value?.toString() ?? '';
+    stringifiedData[key] = value?.toString() ?? "";
   }
 
   storeSessionData(req, namespace, stringifiedData);

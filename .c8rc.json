@@ -1,9 +1,5 @@
 {
-  "reporter": [
-    "text",
-    "lcov",
-    "html"
-  ],
+  "reporter": ["text", "lcov", "html"],
   "include": [
     "src/**/*.ts",
     "routes/**/*.ts",

@@ -13,7 +13,8 @@ export const setupNunjucks = (app: Application): void => {
 
   // Retrieves the latest build file for the given prefix and extension.
   locals.getAsset = (prefix: string, ext: string): string => {
-    const directory = ext === 'js' || ext === 'min.js' ? 'public/js' : 'public/css';
+    const directory =
+      ext === "js" || ext === "min.js" ? "public/js" : "public/css";
     return getLatestBuildFile(directory, prefix, ext);
   };
 
@@ -29,9 +30,9 @@ export const setupNunjucks = (app: Application): void => {
       autoescape: true, // Enable auto escaping to prevent XSS attacks
       express: app, // Bind Nunjucks to the Express app instance
       watch: true, // Watch for changes in template files during development
-    }
+    },
   );
 
   // Add global variables
-  nunjucksEnv.addGlobal('t', nunjucksT);
+  nunjucksEnv.addGlobal("t", nunjucksT);
 };

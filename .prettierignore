@@ -1,0 +1,4 @@
+deploy/infrastructure/helm/**/*.yaml
+deploy/infrastructure/helm/*.yaml
+zap-results/zap-baseline-report.json
+coverage/

@@ -13,10 +13,11 @@ export class ApplicationDisplayAdaptor {
     res: Response,
     applicationId: string,
   ): Promise<void> {
-    const displayApplication = await this.applicationDataStore.getApplication(applicationId);
+    const displayApplication =
+      await this.applicationDataStore.getApplication(applicationId);
     console.log(displayApplication);
     res.render("application/index", {
-      displayApplication
+      displayApplication,
     });
   }
 }

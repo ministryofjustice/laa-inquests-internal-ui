@@ -6,7 +6,7 @@ import type { Request, Response, NextFunction } from 'express';
 export function setupLocaleData(req: Request, res: Response, next: NextFunction): void {
 
   const localeData: ExpressLocaleLoader = {
-    t
+    t,
   };
 
   const { t: localeT } = localeData;

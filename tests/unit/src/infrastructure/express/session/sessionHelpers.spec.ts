@@ -11,9 +11,9 @@
  * Shows patterns for testing form data storage and retrieval.
  */
 
-import { describe, it, beforeEach } from 'mocha';
-import { expect } from 'chai';
-import type { Request } from 'express';
+import { describe, it, beforeEach } from "mocha";
+import { expect } from "chai";
+import type { Request } from "express";
 import {
   storeSessionData,
   getSessionData,
@@ -24,7 +24,7 @@ import {
 // Mock request factory with session
 function createMockRequest(sessionData: Record<string, any> = {}): Request {
   return {
-    session: { ...sessionData }
+    session: { ...sessionData },
   } as Request;
 }
 
@@ -41,9 +41,9 @@ describe('Session Helpers', () => {
     });
   });
 
-  describe('getSessionData()', () => {
-    it('retrieves data from specified namespace', () => {
-      const sessionData = { testNamespace: { name: 'John', age: '30' } };
+  describe("getSessionData()", () => {
+    it("retrieves data from specified namespace", () => {
+      const sessionData = { testNamespace: { name: "John", age: "30" } };
       const req = createMockRequest(sessionData);
 
       const result = getSessionData(req, 'testNamespace');
@@ -51,7 +51,7 @@ describe('Session Helpers', () => {
       expect(result).to.deep.equal({ name: 'John', age: '30' });
     });
 
-    it('returns null when namespace does not exist', () => {
+    it("returns null when namespace does not exist", () => {
       const req = createMockRequest();
 
       const result = getSessionData(req, 'nonexistent');
@@ -70,8 +70,8 @@ describe('Session Helpers', () => {
     });
   });
 
-  describe('storeOriginalFormData()', () => {
-    it('converts and stores form data as strings', () => {
+  describe("storeOriginalFormData()", () => {
+    it("converts and stores form data as strings", () => {
       const req = createMockRequest({});
       const formData = { name: 'John', age: 30, active: true, empty: null };
 

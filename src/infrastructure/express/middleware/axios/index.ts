@@ -31,7 +31,7 @@ export function setupAxiosMiddleware(config: ApiMiddlewareConfig = {}) {
     timeout = DEFAULT_TIMEOUT,
     defaultHeaders = {},
     enableLogging = true,
-    authService = null
+    authService = null,
   } = config;
 
   return (req: Request, _: Response, next: NextFunction): void => {
@@ -39,8 +39,8 @@ export function setupAxiosMiddleware(config: ApiMiddlewareConfig = {}) {
     const axiosWrapper = create({
       timeout,
       headers: {
-        'Content-Type': 'application/json',
-        ...defaultHeaders
+        "Content-Type": "application/json",
+        ...defaultHeaders,
       },
     });
 
@@ -48,29 +48,35 @@ export function setupAxiosMiddleware(config: ApiMiddlewareConfig = {}) {
     if (enableLogging) {
       axiosWrapper.axiosInstance.interceptors.request.use(
         (config: InternalAxiosRequestConfig) => {
-          devLog(`API Request: ${config.method?.toUpperCase()} ${config.baseURL ?? ''}${config.url ?? ''}`);
+          devLog(
+            `API Request: ${config.method?.toUpperCase()} ${config.baseURL ?? ""}${config.url ?? ""}`,
+          );
           return config;
         },
         async (error: unknown) => {
           devError(`API Request Error: ${toError(error).message}`);
           return await Promise.reject(toError(error));
-        }
+        },
       );
 
       // Add response logging interceptor
       axiosWrapper.axiosInstance.interceptors.response.use(
         (response) => {
-          devLog(`API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`);
+          devLog(
+            `API Response: ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
+          );
           return response;
         },
         async (error: unknown) => {
           if (isAxiosErrorWithResponse(error)) {
-            devError(`API Response Error: ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+            devError(
+              `API Response Error: ${error.response.status} ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+            );
           } else {
             devError(`API Network Error: ${toError(error).message}`);
           }
           return await Promise.reject(toError(error));
-        }
+        },
       );
     }
 
@@ -82,29 +88,36 @@ export function setupAxiosMiddleware(config: ApiMiddlewareConfig = {}) {
           try {
             config.headers.Authorization = await authService.getAuthHeader();
             if (enableLogging) {
-              devLog('Added JWT authorization header to API request');
+              devLog("Added JWT authorization header to API request");
             }
           } catch (error) {
-            devError(`Failed to add JWT authorization header: ${toError(error).message}`);
+            devError(
+              `Failed to add JWT authorization header: ${toError(error).message}`,
+            );
             // Continue without auth header - API will handle 401 response
           }
           return config;
         },
-        async (error: unknown) => await Promise.reject(toError(error))
+        async (error: unknown) => await Promise.reject(toError(error)),
       );
 
       // Response interceptor for 401 error handling (based on MCC pattern)
       axiosWrapper.axiosInstance.interceptors.response.use(
         (response) => response,
         async (error: unknown) => {
-          if (isAxiosErrorWithResponse(error) && error.response.status === HTTP_UNAUTHORIZED) {
+          if (
+            isAxiosErrorWithResponse(error) &&
+            error.response.status === HTTP_UNAUTHORIZED
+          ) {
             if (enableLogging) {
-              devError('API returned 401 Unauthorized - clearing cached tokens');
+              devError(
+                "API returned 401 Unauthorized - clearing cached tokens",
+              );
             }
             authService.clearTokens();
           }
           return await Promise.reject(toError(error));
-        }
+        },
       );
     }
 
