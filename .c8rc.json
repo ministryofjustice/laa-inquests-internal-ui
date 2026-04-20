@@ -1,8 +1,6 @@
 {
   "reporter": ["text", "lcov", "html"],
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
     "playwright.config.ts",
     "test",
