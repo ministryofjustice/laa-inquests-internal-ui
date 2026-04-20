@@ -24,11 +24,6 @@ const copyAssets = async (): Promise<void> => {
       path.resolve("./node_modules/govuk-frontend/dist/govuk/assets"),
       path.resolve("./public/assets"),
     );
-    // Copy GOVUK rebrand assets for brand refresh
-    await fs.copy(
-      path.resolve("./node_modules/govuk-frontend/dist/govuk/assets/rebrand"),
-      path.resolve("./public/assets/rebrand"),
-    );
     // Copy MOJ Frontend assets
     await fs.copy(
       path.resolve(
@@ -37,7 +32,7 @@ const copyAssets = async (): Promise<void> => {
       path.resolve("./public/assets/images"),
     );
     console.log(
-      "✅ GOV.UK assets (including rebrand) & MOJ Frontend assets copied successfully.",
+      "✅ GOV.UK assets & MOJ Frontend assets copied successfully.",
     );
   } catch (error) {
     console.error("❌ Failed to copy assets:", error);
@@ -90,6 +85,7 @@ const buildScss = async (
           path.resolve("."), // Current directory
           path.resolve("node_modules"), // Node modules directory
         ],
+        quietDeps: true,
         // Transforms SCSS content to update asset paths.
         transform: (source: string): string =>
           source
