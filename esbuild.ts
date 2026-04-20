@@ -31,9 +31,7 @@ const copyAssets = async (): Promise<void> => {
       ),
       path.resolve("./public/assets/images"),
     );
-    console.log(
-      "✅ GOV.UK assets & MOJ Frontend assets copied successfully.",
-    );
+    console.log("✅ GOV.UK assets & MOJ Frontend assets copied successfully.");
   } catch (error) {
     console.error("❌ Failed to copy assets:", error);
     process.exit(UNCAUGHT_FATAL_EXCEPTION);
