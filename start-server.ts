@@ -64,7 +64,7 @@ const startServer = (port: number): void => {
 const start = async (): Promise<void> => {
   // Log the current NODE_ENV and port
   console.log(`Current NODE_ENV: ${config.app.environment}`);
-  console.log(`Server running on port: ${config.app.port}`);
+  console.log(`Server running on http://localhost:${config.app.port}/`);
 
   // Build the project
   await build();

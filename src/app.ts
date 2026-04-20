@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.listen(config.app.port, () => {
-  console.log(`Listening on port ${config.app.port}...`);
+  console.log(`Listening on http://localhost:${config.app.port}/...`);
 });
 
 export default app;
