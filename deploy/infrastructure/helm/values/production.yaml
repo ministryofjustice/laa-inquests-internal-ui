@@ -60,6 +60,7 @@ env:
 
 ingress:
   enabled: true
+  className: modsec
   hosts:
     - host: laa-inquests-ui-prod.apps.live.cloud-platform.service.justice.gov.uk
       paths:
@@ -68,6 +69,15 @@ ingress:
   annotations:
     external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-ui-laa-inquests-ui-prod-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
+    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+    nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"
+    nginx.ingress.kubernetes.io/modsecurity-transaction-id: "$request_id"
+    nginx.ingress.kubernetes.io/modsecurity-snippet: |
+      SecRuleEngine On
+      SecDefaultAction "phase:2,pass,log,tag:github_team=laa-inquests"
+      SecRule REMOTE_ADDR "!@ipMatch 35.176.93.186/32" "id:1001,deny,status:403,tag:github_team=laa-inquests"    
+    # VPN IP range. Taken from: https://github.com/ministryofjustice/moj-ip-addresses/blob/main/moj-cidr-addresses.yml#L267
+    # Note this is just the GlobalProtect VPN range. We may need to support other VPNs in future.
 
 service:
   type: ClusterIP
