@@ -62,7 +62,8 @@ ingress:
     nginx.ingress.kubernetes.io/modsecurity-snippet: |
       SecRuleEngine On
       SecDefaultAction "phase:2,pass,log,tag:github_team=laa-inquests"
-      SecRule REMOTE_ADDR "!@ipMatch 35.176.93.186/32" "id:1001,deny,status:403,tag:github_team=laa-inquests"    # VPN IP range. Taken from: https://github.com/ministryofjustice/moj-ip-addresses/blob/main/moj-cidr-addresses.yml#L267
+      SecRule REMOTE_ADDR "!@ipMatch 35.176.93.186/32" "id:1001,deny,status:403,tag:github_team=laa-inquests"    
+    # VPN IP range. Taken from: https://github.com/ministryofjustice/moj-ip-addresses/blob/main/moj-cidr-addresses.yml#L267
     # Note this is just the GlobalProtect VPN range. We may need to support other VPNs in future.
 
 resources:
