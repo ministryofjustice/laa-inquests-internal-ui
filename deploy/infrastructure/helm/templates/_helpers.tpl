@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "laa-inquests-ui.name" -}}
+{{- define "laa-inquests-internal-ui.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "laa-inquests-ui.fullname" -}}
+{{- define "laa-inquests-internal-ui.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "laa-inquests-ui.chart" -}}
+{{- define "laa-inquests-internal-ui.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "laa-inquests-ui.labels" -}}
-helm.sh/chart: {{ include "laa-inquests-ui.chart" . }}
-{{ include "laa-inquests-ui.selectorLabels" . }}
+{{- define "laa-inquests-internal-ui.labels" -}}
+helm.sh/chart: {{ include "laa-inquests-internal-ui.chart" . }}
+{{ include "laa-inquests-internal-ui.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "laa-inquests-ui.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "laa-inquests-ui.name" . }}
+{{- define "laa-inquests-internal-ui.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "laa-inquests-internal-ui.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "laa-inquests-ui.serviceAccountName" -}}
+{{- define "laa-inquests-internal-ui.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "laa-inquests-ui.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "laa-inquests-internal-ui.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

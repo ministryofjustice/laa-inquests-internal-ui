@@ -2,7 +2,7 @@
 
 environment=${1:-"uat"}
 
-deployments=$(helm -n laa-inquests-ui-${environment} list | grep -v "NAME" | grep -v "^laa-inquests-ui\>" | cut -f 1)
+deployments=$(helm -n laa-inquests-internal-ui-${environment} list | grep -v "NAME" | grep -v "^laa-inquests-internal-ui\>" | cut -f 1)
 
 if [[ "$deployments" == "" ]]; then
     echo "No ephemeral environments found in the ${environment} namespace"
@@ -34,5 +34,5 @@ read -r -p "Are you sure you want to delete the deployment ${deployment} [y/N]? 
 
 if [[ "$confirmation" == "y"  ]] || [[ "$confirmation" == "Y"  ]]
 then
-    helm -n laa-inquests-ui-${environment} delete "${deployment}"
+    helm -n laa-inquests-internal-ui-${environment} delete "${deployment}"
 fi

@@ -6,9 +6,9 @@ deploy_branch() {
 # Convert the branch name into a string that can be turned into a valid URL
   BRANCH_RELEASE_NAME=$(echo "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
 # Set the deployment host, this will add the prefix of the branch name e.g el-257-deploy-with-circleci or just main
-  RELEASE_HOST="$BRANCH_RELEASE_NAME-laa-inquests-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  RELEASE_HOST="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
 # Set the ingress name, needs release name, namespace and -green suffix
-  IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-ui-$K8S_NAMESPACE-green"
+  IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$K8S_NAMESPACE-green"
   echo "Github ref: $branch_name; release name: $BRANCH_RELEASE_NAME; identifier: $IDENTIFIER; release host: $RELEASE_HOST"
   echo "Deploying commit: $GITHUB_SHA under release name: '$BRANCH_RELEASE_NAME'..."
 
@@ -37,8 +37,8 @@ deploy_branch() {
 }
 
 deploy_main() {
-  RELEASE_HOST="laa-inquests-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
-  helm upgrade laa-inquests-ui ./deploy/infrastructure/helm/. \
+  RELEASE_HOST="laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  helm upgrade laa-inquests-internal-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
                           --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \

@@ -72,13 +72,13 @@ jobs:
       - name: Build local Docker image
         run: |
           docker build \
-            --tag laa-inquests-ui:scan \
+            --tag laa-inquests-internal-ui:scan \
             --file Dockerfile .
 
       - name: Run Snyk to scan Docker image
         uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04
         with:
-          image: laa-inquests-ui:scan
+          image: laa-inquests-internal-ui:scan
           args: --docker --severity-threshold=high --policy-path=.snyk
         env:
           SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
@@ -90,7 +90,7 @@ jobs:
           SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
         with:
           command: monitor
-          image: laa-inquests-ui:scan
+          image: laa-inquests-internal-ui:scan
           args: --file=Dockerfile --policy-path=.snyk
 
   unit-tests:

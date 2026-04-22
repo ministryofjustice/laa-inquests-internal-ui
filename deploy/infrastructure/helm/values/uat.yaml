@@ -1,4 +1,4 @@
-# Default values for laa-inquests-ui.
+# Default values for laa-inquests-internal-ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -49,12 +49,12 @@ ingress:
   enabled: true
   className: modsec-non-prod
   hosts:
-    - host: laa-inquests-ui-uat.apps.live.cloud-platform.service.justice.gov.uk
+    - host: laa-inquests-internal-ui-uat.apps.live.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-ui-laa-inquests-ui-uat-green"
+    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-internal-ui-laa-inquests-internal-ui-uat-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"

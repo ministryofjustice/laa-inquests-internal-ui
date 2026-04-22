@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "laa-inquests-ui.fullname" . }}
+  name: {{ include "laa-inquests-internal-ui.fullname" . }}
   labels:
-    {{- include "laa-inquests-ui.labels" . | nindent 4 }}
+    {{- include "laa-inquests-internal-ui.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "laa-inquests-ui.selectorLabels" . | nindent 6 }}
+      {{- include "laa-inquests-internal-ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "laa-inquests-ui.labels" . | nindent 8 }}
+        {{- include "laa-inquests-internal-ui.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "laa-inquests-ui.serviceAccountName" . }}
+      serviceAccountName: {{ include "laa-inquests-internal-ui.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
