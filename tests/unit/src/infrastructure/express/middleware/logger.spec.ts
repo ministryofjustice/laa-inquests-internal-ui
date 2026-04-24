@@ -1,79 +1,202 @@
-import { expect } from "chai";
+import { describe, it } from "mocha";
+import { assert } from "chai";
 import sinon from "sinon";
-import {
-  devLog,
-  devWarn,
-  devError,
-  devDebug,
-  isDevelopment,
-} from "#src/infrastructure/express/middleware/logger.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { stubObject } from "ts-sinon";
+import type { Request } from "express";
+import config from "#src/infrastructure/config/config.js";
+import type { OpenSearchLog } from "#src/infrastructure/express/middleware/logger/opensearchlog.types.js";
 
-describe("Development Logging Utilities", () => {
-  let consoleLogStub: sinon.SinonStub;
-  let consoleWarnStub: sinon.SinonStub;
-  let consoleErrorStub: sinon.SinonStub;
-  let consoleDebugStub: sinon.SinonStub;
-  let originalNodeEnv: string | undefined;
+const functionName = "test-function";
+const message = "this is a message";
+const requestStub = stubObject({
+  path: "/mock-data",
+  session: {
+    idToken: "id_123",
+    userId: " user_abc",
+  },
+}) as unknown as Request;
 
+const now = new Date();
+let clock: sinon.SinonFakeTimers;
+const expectedLog: OpenSearchLog = {
+  timestamp: now.toISOString(),
+  level: "",
+  serviceName: config.SERVICE_NAME as string,
+  environment: "development",
+  correlationId: requestStub.session.idToken as string,
+  message,
+  context: {
+    userId: requestStub.session.userId as string,
+    functionName,
+  },
+};
+
+describe("log", () => {
+  let logSpy: sinon.SinonSpy;
   before(() => {
-    originalNodeEnv = process.env.NODE_ENV;
-  });
+    logSpy = sinon.spy(console, "log");
 
+    clock = sinon.useFakeTimers(now.getTime());
+  });
   beforeEach(() => {
-    consoleLogStub = sinon.stub(console, "log");
-    consoleWarnStub = sinon.stub(console, "warn");
-    consoleErrorStub = sinon.stub(console, "error");
-    consoleDebugStub = sinon.stub(console, "debug");
+    config.app.environment = "test";
+    logSpy.resetHistory();
+  });
+  after(() => {
+    logSpy.restore();
+    clock.restore();
   });
 
-  afterEach(() => {
-    // Restore stubs
-    sinon.restore();
-    // Reset NODE_ENV to original after each test
-    process.env.NODE_ENV = originalNodeEnv;
+  it("calls console log with the enriched non-json data for non-prod", () => {
+    logger.logInfo(functionName, message, requestStub);
+
+    const consoleArgs = logSpy.getCalls()[0].args as string[];
+
+    assert(logSpy.calledOnce);
+    assertConsoleStrings(consoleArgs);
   });
 
-  it("logs messages only in development or undefined NODE_ENV", () => {
-    process.env.NODE_ENV = "development";
+  it("calls console log with the enriched json for prod", () => {
+    config.app.environment = "prod";
 
-    devLog("log message");
-    devWarn("warn message");
-    devError("error message");
-    devDebug("debug message");
+    const expected = JSON.stringify({
+      ...expectedLog,
+      level: "info",
+      environment: "prod",
+    });
 
-    expect(consoleLogStub.calledWith("log message")).to.be.true;
-    expect(consoleWarnStub.calledWith("warn message")).to.be.true;
-    expect(consoleErrorStub.calledWith("error message")).to.be.true;
-    expect(consoleDebugStub.calledWith("debug message")).to.be.true;
+    logger.logInfo(functionName, message, requestStub);
+
+    const consoleArgs = logSpy.getCalls()[0].args;
+
+    assert(logSpy.calledOnce);
+    assert.deepEqual(consoleArgs, [expected]);
   });
 
-  it("does not log messages in production NODE_ENV", () => {
-    process.env.NODE_ENV = "production";
+  it("doesn't pull out the correlation or user IDs when no request", () => {
+    config.app.environment = "prod";
 
-    devLog("log message");
-    devWarn("warn message");
-    devError("error message");
-    devDebug("debug message");
+    const expected = JSON.stringify({
+      ...expectedLog,
+      level: "info",
+      environment: "prod",
+      correlationId: "server",
+      context: { ...expectedLog.context, userId: "none" },
+    });
 
-    expect(consoleLogStub.called).to.be.false;
-    expect(consoleWarnStub.called).to.be.false;
-    expect(consoleErrorStub.called).to.be.false;
-    expect(consoleDebugStub.called).to.be.false;
-  });
+    logger.logInfo(functionName, message);
 
-  it("isDevelopment returns true in development or undefined", () => {
-    process.env.NODE_ENV = "development";
-    expect(isDevelopment()).to.be.true;
+    const consoleArgs = logSpy.getCalls()[0].args;
 
-    delete process.env.NODE_ENV;
-    expect(isDevelopment()).to.be.true;
-  });
+    assert(logSpy.calledOnce);
 
-  it("isDevelopment returns false otherwise", () => {
-    process.env.NODE_ENV = "production";
-    expect(isDevelopment()).to.be.false;
-
-    process.env.NODE_ENV = "test";
-    expect(isDevelopment()).to.be.false;
+    assert.deepEqual(consoleArgs, [expected]);
   });
 });
+
+describe("error", () => {
+  let errorSpy: sinon.SinonSpy;
+  before(() => {
+    errorSpy = sinon.spy(console, "error");
+
+    clock = sinon.useFakeTimers(now.getTime());
+  });
+  beforeEach(() => {
+    config.app.environment = "test";
+    errorSpy.resetHistory();
+  });
+  after(() => {
+    errorSpy.restore();
+    clock.restore();
+  });
+  it("calls console log with the enriched non-json data for non-prod", () => {
+    logger.logError(functionName, message, "", requestStub);
+    assert(errorSpy.calledOnce);
+
+    const consoleArgs = errorSpy.getCalls()[0].args as string[];
+    assertConsoleStrings(consoleArgs);
+  });
+
+  it("calls console log with the enriched json for prod with string error", () => {
+    config.app.environment = "prod";
+    const errorMessage = "string error";
+    logger.logError(functionName, message, errorMessage, requestStub);
+
+    const consoleArgs = errorSpy.getCalls()[0].args;
+
+    assert(errorSpy.calledOnce);
+
+    const expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: ${errorMessage}`,
+      environment: "prod",
+    });
+
+    assert.deepEqual(consoleArgs, [expected]);
+  });
+
+  it("calls console log with the enriched json for prod with typed error", () => {
+    config.app.environment = "prod";
+    const errorMessage = new Error("typed Error");
+    logger.logError(functionName, message, errorMessage, requestStub);
+
+    const consoleArgs = errorSpy.getCalls()[0].args;
+
+    assert(errorSpy.calledOnce);
+
+    const expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: ${errorMessage.message}`,
+      environment: "prod",
+    });
+    assert.deepEqual(consoleArgs, [expected]);
+  });
+  it("calls console log with the enriched json for prod with unknown error", () => {
+    config.app.environment = "prod";
+    const errorMessage = null;
+    logger.logError(functionName, message, errorMessage, requestStub);
+
+    const consoleArgs = errorSpy.getCalls()[0].args;
+
+    assert(errorSpy.calledOnce);
+
+    const expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: Missing Error Message`,
+      environment: "prod",
+    });
+    assert.deepEqual(consoleArgs, [expected]);
+  });
+
+  it("doesn't pull out the correlation or user IDs when no request", () => {
+    config.app.environment = "prod";
+    const errorMessage = "string error";
+    logger.logError(functionName, message, errorMessage);
+
+    const consoleArgs = errorSpy.getCalls()[0].args;
+
+    assert(errorSpy.calledOnce);
+
+    const expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: ${errorMessage}`,
+      environment: "prod",
+      correlationId: "server",
+      context: { ...expectedLog.context, userId: "none" },
+    });
+    assert.deepEqual(consoleArgs, [expected]);
+  });
+});
+
+function assertConsoleStrings(consoleArgs: string[]): void {
+  assert.include(consoleArgs.join(), now.toISOString());
+  assert.include(consoleArgs.join(), `[Function: '${functionName}']`);
+  assert.include(consoleArgs.join(), `[CorID: ${requestStub.session.idToken}]`);
+  assert.include(consoleArgs.join(), `[UserId: ${requestStub.session.userId}]`);
+  assert.include(consoleArgs.join(), message);
+}
