@@ -26,7 +26,6 @@ import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setu
 import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsrf.js";
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import crypto from "node:crypto";
-import { setupAxiosMiddleware } from "./infrastructure/express/middleware/axios/index.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -73,7 +72,6 @@ app.use((_: Request, res: Response, next: NextFunction): void => {
   next();
 });
 app.use(setupLocaleData);
-app.use(setupAxiosMiddleware());
 app.use(nonceMiddleware);
 app.use(helmet(helmetConfig));
 setupNunjucks(app);
