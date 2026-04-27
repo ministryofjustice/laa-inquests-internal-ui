@@ -48,7 +48,8 @@ describe("log", () => {
     clock.restore();
   });
 
-  it("calls console log with the enriched non-json data for non-prod", () => {
+  it("calls console log with the enriched non-json data for development", () => {
+    config.app.environment = "development";
     logger.logInfo(functionName, message, requestStub);
 
     const consoleArgs = logSpy.getCalls()[0].args as string[];
@@ -57,10 +58,10 @@ describe("log", () => {
     assertConsoleStrings(consoleArgs);
   });
 
-  it("calls console log with the enriched json for prod", () => {
+  it("calls console log with the enriched json for non-development", () => {
     config.app.environment = "prod";
 
-    const expected = JSON.stringify({
+    let expected = JSON.stringify({
       ...expectedLog,
       level: "info",
       environment: "prod",
@@ -68,9 +69,24 @@ describe("log", () => {
 
     logger.logInfo(functionName, message, requestStub);
 
-    const consoleArgs = logSpy.getCalls()[0].args;
+    let consoleArgs = logSpy.getCalls()[0].args;
 
     assert(logSpy.calledOnce);
+    assert.deepEqual(consoleArgs, [expected]);
+
+    config.app.environment = "staging";
+
+    expected = JSON.stringify({
+      ...expectedLog,
+      level: "info",
+      environment: "staging",
+    });
+
+    logger.logInfo(functionName, message, requestStub);
+
+    consoleArgs = logSpy.getCalls()[1].args;
+
+    assert(logSpy.calledTwice);
     assert.deepEqual(consoleArgs, [expected]);
   });
 
@@ -110,7 +126,8 @@ describe("error", () => {
     errorSpy.restore();
     clock.restore();
   });
-  it("calls console log with the enriched non-json data for non-prod", () => {
+  it("calls console log with the enriched non-json data for development", () => {
+    config.app.environment = "development";
     logger.logError(functionName, message, "", requestStub);
     assert(errorSpy.calledOnce);
 
@@ -118,16 +135,16 @@ describe("error", () => {
     assertConsoleStrings(consoleArgs);
   });
 
-  it("calls console log with the enriched json for prod with string error", () => {
+  it("calls console log with the enriched json for non-development with string error", () => {
     config.app.environment = "prod";
-    const errorMessage = "string error";
+    let errorMessage = "string error";
     logger.logError(functionName, message, errorMessage, requestStub);
 
-    const consoleArgs = errorSpy.getCalls()[0].args;
+    let consoleArgs = errorSpy.getCalls()[0].args;
 
     assert(errorSpy.calledOnce);
 
-    const expected = JSON.stringify({
+    let expected = JSON.stringify({
       ...expectedLog,
       level: "error",
       message: `${message} - Error: ${errorMessage}`,
@@ -135,39 +152,88 @@ describe("error", () => {
     });
 
     assert.deepEqual(consoleArgs, [expected]);
-  });
 
-  it("calls console log with the enriched json for prod with typed error", () => {
-    config.app.environment = "prod";
-    const errorMessage = new Error("typed Error");
+    config.app.environment = "staging";
+    errorMessage = "string error";
     logger.logError(functionName, message, errorMessage, requestStub);
 
-    const consoleArgs = errorSpy.getCalls()[0].args;
+    consoleArgs = errorSpy.getCalls()[1].args;
+
+    assert(errorSpy.calledTwice);
+
+    expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: ${errorMessage}`,
+      environment: "staging",
+    });
+
+    assert.deepEqual(consoleArgs, [expected]);
+  });
+
+  it("calls console log with the enriched json for non-development with typed error", () => {
+    config.app.environment = "prod";
+    let errorMessage = new Error("typed Error");
+    logger.logError(functionName, message, errorMessage, requestStub);
+
+    let consoleArgs = errorSpy.getCalls()[0].args;
 
     assert(errorSpy.calledOnce);
 
-    const expected = JSON.stringify({
+    let expected = JSON.stringify({
       ...expectedLog,
       level: "error",
       message: `${message} - Error: ${errorMessage.message}`,
       environment: "prod",
     });
     assert.deepEqual(consoleArgs, [expected]);
-  });
-  it("calls console log with the enriched json for prod with unknown error", () => {
-    config.app.environment = "prod";
-    const errorMessage = null;
+
+    config.app.environment = "staging";
+    errorMessage = new Error("typed Error");
     logger.logError(functionName, message, errorMessage, requestStub);
 
-    const consoleArgs = errorSpy.getCalls()[0].args;
+    consoleArgs = errorSpy.getCalls()[1].args;
+
+    assert(errorSpy.calledTwice);
+
+    expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: ${errorMessage.message}`,
+      environment: "staging",
+    });
+    assert.deepEqual(consoleArgs, [expected]);
+  });
+  it("calls console log with the enriched json for non-development with unknown error", () => {
+    config.app.environment = "prod";
+    let errorMessage = null;
+    logger.logError(functionName, message, errorMessage, requestStub);
+
+    let consoleArgs = errorSpy.getCalls()[0].args;
 
     assert(errorSpy.calledOnce);
 
-    const expected = JSON.stringify({
+    let expected = JSON.stringify({
       ...expectedLog,
       level: "error",
       message: `${message} - Error: Missing Error Message`,
       environment: "prod",
+    });
+    assert.deepEqual(consoleArgs, [expected]);
+
+    config.app.environment = "staging";
+    errorMessage = null;
+    logger.logError(functionName, message, errorMessage, requestStub);
+
+    consoleArgs = errorSpy.getCalls()[1].args;
+
+    assert(errorSpy.calledTwice);
+
+    expected = JSON.stringify({
+      ...expectedLog,
+      level: "error",
+      message: `${message} - Error: Missing Error Message`,
+      environment: "staging",
     });
     assert.deepEqual(consoleArgs, [expected]);
   });

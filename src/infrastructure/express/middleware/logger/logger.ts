@@ -72,7 +72,10 @@ function buildMessage(
   correlationId: string | undefined,
   userId?: string,
 ): string | OpenSearchLog {
-  if (config.app.environment === "prod") {
+  if (
+    config.app.environment !== "development" &&
+    config.app.environment !== "test"
+  ) {
     return JSON.stringify({
       timestamp: new Date().toISOString(),
       level: logLevel,
