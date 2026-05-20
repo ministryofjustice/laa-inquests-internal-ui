@@ -77,6 +77,20 @@
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
+    },
+    "merits": {
+      "header": "Make a decision",
+      "extraDetail": "Use this section to provide more details about your decision. This will be shared with the provider and recorded in application history.",
+      "proceedingsOverview": {
+        "title": "Overview",
+        "certificateTypeTitle": "Certificate type",
+        "meritsAssessmentTitle": "Merits assessment"
+      },
+      "radio": {
+        "label": "What is your overall decision?",
+        "grantLabel": "Grant",
+        "refuseLabel": "Refuse"
+      }
     }
   },
   "forms": {

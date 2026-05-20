@@ -9,6 +9,7 @@ import { logger } from "../middleware/logger/logger.js";
 
 // Create a new router
 const router = express.Router();
+const decisionRouter = express.Router();
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
@@ -57,8 +58,61 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
 );
 
+interface Proceeding {
+  certificateType: string;
+  meritsDecision: string;
+}
+
+interface ApplicationResponse {
+  proceedings: Proceeding[];
+}
+
+decisionRouter.get(
+  "/:applicationId/decision",
+  async (req: Request, res: Response) => {
+    const {
+      params: { applicationId },
+    } = req;
+    const appId = applicationId as string;
+    const backUrl = `/applications/${appId}/history`;
+
+    const data = await axios.get<ApplicationResponse>(
+      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
+    );
+
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Keeping here temporarily, will remove in refactor
+    const [firstProceeding] = data.data.proceedings;
+    const { certificateType, meritsDecision } = firstProceeding;
+
+    const toTitleCase = (str: string): string =>
+      str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+    const formattedProceeding = toTitleCase(certificateType);
+    const formattedMeritsAssessment = toTitleCase(meritsDecision);
+    res.render("application/decision/index", {
+      backUrl,
+      applicationId: appId,
+      certificateType: formattedProceeding,
+      meritsAssessment: formattedMeritsAssessment,
+    });
+  },
+);
+
+decisionRouter.post(
+  "/:applicationId/decision",
+  (req: Request, res: Response) => {
+    const {
+      params: { applicationId },
+    } = req;
+    res.redirect(
+      `/applications/${applicationId as string}/decision/justification`,
+    );
+  },
+);
+
 router.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
+  decisionRouter,
 ]);
 
 export default router;
