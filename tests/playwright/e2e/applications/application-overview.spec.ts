@@ -73,4 +73,20 @@ test.describe("Application overview page", () => {
     await expect(evidenceCard.getByRole("link", { name: "Inquest ABC Coroners letter.pdf" })).toBeVisible();
   });
 
+  test("application details tab should have a make assessment button", async ({ page }) => {
+    const applicationId = "1237634";
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "Application details" }).click();
+
+    const makeAssessmentButton = page.locator("#application-details").getByRole("button", { name: "Make assessment" });
+    await expect(makeAssessmentButton).toBeVisible();
+    await expect(makeAssessmentButton).toHaveAttribute("href", `/applications/${applicationId}/decision`);
+    await makeAssessmentButton.click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain(
+      `/applications/${applicationId}/decision`,
+    );
+  });
+
 });

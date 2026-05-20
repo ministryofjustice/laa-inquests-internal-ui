@@ -17,21 +17,6 @@ router.get("/", (req: Request, res: Response): void => {
   res.render("main/index");
 });
 
-router.get(
-  "/application/:applicationId",
-  (req: Request, res: Response): void => {
-    const {
-      params: { applicationId },
-    } = req;
-    logger.logInfo(
-      "GET Application by ID",
-      `Application with ID: ${applicationId as string} has been accessed.`,
-      req,
-    );
-    res.render("application/index");
-  },
-);
-
 // liveness and readiness probes for Helm deployments
 router.get("/status", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("OK");
