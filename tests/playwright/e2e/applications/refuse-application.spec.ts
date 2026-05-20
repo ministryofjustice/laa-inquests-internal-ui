@@ -6,7 +6,7 @@ const makeADecisionPage = `/applications/${applicationId}/decision`; // data? up
 const backUrl = `/applications/${applicationId}/history`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
 
-test.describe.only("Refuse application", () => {
+test.describe("Refuse application", () => {
   test("provider can view Make a decision page", async ({ page }) => {
     await page.goto(makeADecisionPage);
 
