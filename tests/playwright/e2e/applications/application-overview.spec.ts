@@ -3,10 +3,12 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Application overview page", () => {
 
+  const applicationId = "1";
+
   test("application overview page should have the correct title and back link", async ({ page }) => {
 
-    const applicationId = "1";
     await page.goto(`/applications/${applicationId}/overview`);
+
     const backButton = page.getByRole("link", { name: "Back", exact: true });
     const applicationHeading = await page.getByRole("heading", {
       level: 1,
@@ -22,9 +24,15 @@ test.describe("Application overview page", () => {
     );
   });
 
-  test("application overview page should have tabs", async ({ page }) => {
-    const applicationId = "1237634";
+  test("application overview page has status tag", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
+    const statusTag = page.locator(".govuk-tag:not(.govuk-phase-banner__content__tag)");
+    await expect(statusTag).toBeVisible();
+  });
+
+  test("application overview page should have tabs", async ({ page }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+    await page.waitForLoadState("domcontentloaded");
 
     await expect(page.getByRole("tab", { name: "Application details" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "People" })).toBeVisible();
@@ -32,7 +40,6 @@ test.describe("Application overview page", () => {
   });
 
   test("application details tab should have the overview content", async ({ page }) => {
-    const applicationId = "1237634";
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -46,7 +53,6 @@ test.describe("Application overview page", () => {
   });
 
   test("application details tab should have the proceedings content", async ({ page }) => {
-    const applicationId = "1237634";
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -61,7 +67,6 @@ test.describe("Application overview page", () => {
   });
 
   test("application details tab should have the uploaded evidence content", async ({ page }) => {
-    const applicationId = "1237634";
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -74,7 +79,7 @@ test.describe("Application overview page", () => {
   });
 
   test("application details tab should have a make assessment button", async ({ page }) => {
-    const applicationId = "1237634";
+    
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();

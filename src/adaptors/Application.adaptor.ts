@@ -3,10 +3,10 @@ import type { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/a
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class ApplicationAdaptor {
-  applicationDataStore: ViewApplicationAdaptor;
+  viewApplicationAdaptor: ViewApplicationAdaptor;
 
-  constructor(applicationDataStore: ViewApplicationAdaptor) {
-    this.applicationDataStore = applicationDataStore;
+  constructor(viewApplicationAdaptor: ViewApplicationAdaptor) {
+    this.viewApplicationAdaptor = viewApplicationAdaptor;
   }
 
   async renderApplicationPage(
@@ -19,11 +19,9 @@ export class ApplicationAdaptor {
       `Application with ID: ${applicationId} has been accessed.`,
       req,
     );
-    // const displayApplication =
-    //   await this.applicationDataStore.getApplication(applicationId);
+    const application = await this.viewApplicationAdaptor.getApplication(applicationId);
     res.render("application/application-overview", {
-      // displayApplication,
-      applicationId,
+      application
     });
   }
 }
