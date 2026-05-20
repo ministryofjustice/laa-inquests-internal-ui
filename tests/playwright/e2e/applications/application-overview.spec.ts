@@ -26,9 +26,51 @@ test.describe("Application overview page", () => {
     const applicationId = "1237634";
     await page.goto(`/applications/${applicationId}/overview`);
 
-    await expect(page.getByRole("tab", { name: "Applicaition details" })).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Application details" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "People" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "History" })).toBeVisible();
+  });
+
+  test("application details tab should have the overview content", async ({ page }) => {
+    const applicationId = "1237634";
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "Application details" }).click();
+
+    await expect(page.getByRole("heading", { level: 2, name: "Overview" })).toBeVisible();
+    const applicationDetailsPanel = page.locator("#application-details");
+    const overviewSummaryList = applicationDetailsPanel.locator(".govuk-summary-list", { hasText: "Application type" });
+    await expect(overviewSummaryList.getByText("Application type")).toBeVisible();
+    await expect(overviewSummaryList.getByText("Certificate type")).toBeVisible();
+    await expect(overviewSummaryList.getByText("Merits application")).toBeVisible();
+  });
+
+  test("application details tab should have the proceedings content", async ({ page }) => {
+    const applicationId = "1237634";
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "Application details" }).click();
+
+    await expect(page.getByRole("heading", { level: 2, name: "Proceedings" })).toBeVisible();
+    const applicationDetailsPanel = page.locator("#application-details");
+    const inquestCard = applicationDetailsPanel.locator(".govuk-summary-card", { hasText: "1. Inquest" });
+    await expect(inquestCard.getByText("Client role")).toBeVisible();
+    await expect(inquestCard.getByText("Level of service")).toBeVisible();
+    await expect(inquestCard.getByText("Scope limitation")).toBeVisible();
+    await expect(inquestCard.getByText("Cost limit")).toBeVisible();
+  });
+
+  test("application details tab should have the uploaded evidence content", async ({ page }) => {
+    const applicationId = "1237634";
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "Application details" }).click();
+
+    await expect(page.getByRole("heading", { level: 2, name: "Uploaded evidence" })).toBeVisible();
+    const applicationDetailsPanel = page.locator("#application-details");
+    const evidenceCard = applicationDetailsPanel.locator(".govuk-summary-card", { hasText: "Supporting evidence" });
+    await expect(evidenceCard.getByText("Coroners letter")).toBeVisible();
+    await expect(evidenceCard.getByRole("link", { name: "Inquest ABC Coroners letter.pdf" })).toBeVisible();
   });
 
 });

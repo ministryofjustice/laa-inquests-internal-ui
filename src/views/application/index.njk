@@ -12,16 +12,72 @@
 
     <h1 class="govuk-heading-xl">{{ applicationId }}</h1>
 
-    {# <p class="govuk-body">
-        {{ t('pages.home.defaultTemplate') }}
-    </p> #}
+    {% set applicationDetailsHtml %}
+        <h2 class="govuk-heading-m">Overview</h2>
+        {{ govukSummaryList({
+            rows: [
+                {
+                    key: { text: "Application type" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Certificate type" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Merits application" },
+                    value: { text: "test" }
+                }
+            ]
+        }) }}
+        <h2 class="govuk-heading-m">Proceedings</h2>
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "1. Inquest"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "Client role" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Level of service" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Scope limitation" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Cost limit" },
+                    value: { text: "test" }
+                }
+            ]
+        }) }}
+        <h2 class="govuk-heading-m">Uploaded evidence</h2>
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "Supporting evidence"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "Coroners letter" },
+                    value: { html: '<a href="#">Inquest ABC Coroners letter.pdf</a>' }
+                }
+            ]
+        }) }}
+    {% endset %}
 
     {{ govukTabs({
         items: [
             {
                 label: "Application details",
                 id: "application-details",
-                panel: { html: "" }
+                panel: { html: applicationDetailsHtml }
             },
             {
                 label: "People",
@@ -35,19 +91,5 @@
             }
         ]
     }) }}
-
-    {# {{ govukSummaryList({
-        card: {
-            title: {
-            text: "Application details"
-            }
-        },
-        rows: [
-            { key: { text: "Id" }, value: { text: displayApplication.id } },
-            { key: { text: "status" }, value: { text: displayApplication.status } },
-            { key: { text: "provider" }, value: { text: displayApplication.provider } },
-            { key: { text: "date submitted" }, value: { text: displayApplication.date_submitted} }
-        ]
-}) }} #}
 
 {% endblock %}
