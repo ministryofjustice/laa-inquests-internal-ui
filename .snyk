@@ -45,3 +45,7 @@ ignore:
         reason:
           "Temp ignore as bundled with npm and reached highest version to use
           with current env."
+  "SNYK-JS-BRACEEXPANSION-16755174":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm. Resolved when npm releases version with brace-expansion@5.0.6."
