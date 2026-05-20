@@ -19,9 +19,10 @@ export class ApplicationAdaptor {
       `Application with ID: ${applicationId} has been accessed.`,
       req,
     );
-    const application = await this.viewApplicationAdaptor.getApplication(applicationId);
+    const application =
+      await this.viewApplicationAdaptor.getApplication(applicationId);
     res.render("application/application-overview", {
-      application
+      application,
     });
   }
 }
