@@ -1,14 +1,42 @@
 {% extends "base.njk" %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
 
 {% block content %}
-    <h1 class="govuk-heading-xl">Application</h1>
 
-    <p class="govuk-body">
+    {{ govukBackLink({
+        text: "Back",
+        href: "#"
+    }) }}
+
+    <h1 class="govuk-heading-xl">{{ applicationId }}</h1>
+
+    {# <p class="govuk-body">
         {{ t('pages.home.defaultTemplate') }}
-    </p>
+    </p> #}
 
-    {{ govukSummaryList({
+    {{ govukTabs({
+        items: [
+            {
+                label: "Application details",
+                id: "application-details",
+                panel: { html: "" }
+            },
+            {
+                label: "People",
+                id: "people",
+                panel: { html: "" }
+            },
+            {
+                label: "History",
+                id: "history",
+                panel: { html: "" }
+            }
+        ]
+    }) }}
+
+    {# {{ govukSummaryList({
         card: {
             title: {
             text: "Application details"
@@ -20,6 +48,6 @@
             { key: { text: "provider" }, value: { text: displayApplication.provider } },
             { key: { text: "date submitted" }, value: { text: displayApplication.date_submitted} }
         ]
-}) }}
+}) }} #}
 
 {% endblock %}

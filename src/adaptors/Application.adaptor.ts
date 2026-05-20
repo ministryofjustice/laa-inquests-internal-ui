@@ -19,10 +19,11 @@ export class ApplicationAdaptor {
       `Application with ID: ${applicationId} has been accessed.`,
       req,
     );
-    const displayApplication =
-      await this.applicationDataStore.getApplication(applicationId);
+    // const displayApplication =
+    //   await this.applicationDataStore.getApplication(applicationId);
     res.render("application/index", {
-      displayApplication,
+      // displayApplication,
+      applicationId,
     });
   }
 }
