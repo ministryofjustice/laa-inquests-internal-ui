@@ -59,6 +59,7 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
 );
 
 interface Proceeding {
+  proceedingDescription: string;
   certificateType: string;
   meritsDecision: string;
 }
@@ -80,20 +81,19 @@ decisionRouter.get(
       `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
     );
 
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Keeping here temporarily, will remove in refactor
-    const [firstProceeding] = data.data.proceedings;
-    const { certificateType, meritsDecision } = firstProceeding;
-
     const toTitleCase = (str: string): string =>
       str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-    const formattedProceeding = toTitleCase(certificateType);
-    const formattedMeritsAssessment = toTitleCase(meritsDecision);
+    const proceedings = data.data.proceedings.map((p) => ({
+      proceedingDescription: p.proceedingDescription,
+      certificateType: toTitleCase(p.certificateType),
+      meritsAssessment: toTitleCase(p.meritsDecision),
+    }));
+
     res.render("application/decision/index", {
       backUrl,
       applicationId: appId,
-      certificateType: formattedProceeding,
-      meritsAssessment: formattedMeritsAssessment,
+      proceedings,
     });
   },
 );

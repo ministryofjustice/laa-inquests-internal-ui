@@ -1,7 +1,7 @@
 import { Locator, Page } from "playwright";
 import { test, expect } from "../../fixtures/index.js";
 
-const applicationId = "1";
+const applicationId = "50";
 const makeADecisionPage = `/applications/${applicationId}/decision`; // data? update when we use MSW?
 const backUrl = `/applications/${applicationId}/history`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
@@ -29,21 +29,35 @@ test.describe("Refuse application", () => {
     const paragraphElement = form.getByText(paragraphText);
     await expect(paragraphElement).toBeVisible();
 
-    const proceedingsOverviewLabel = form.getByRole("heading", {
-      name: "Overview",
+    const firstProceedingLabel = form.getByRole("heading", {
+      name: "Death in Custody - Clinical Negligence",
       level: 2,
     });
-    await expect(proceedingsOverviewLabel).toBeVisible();
+    await expect(firstProceedingLabel).toBeVisible();
 
-    const certificateTypeLabel = form.getByText("Certificate type");
-    await expect(certificateTypeLabel).toBeVisible();
-    const certificateTypeValue = form.getByText("Substantive");
-    await expect(certificateTypeValue).toBeVisible();
+    const secondProceedingLabel = form.getByRole("heading", {
+      name: "CAPA",
+      level: 2,
+    });
+    await expect(secondProceedingLabel).toBeVisible();
 
-    const meritsAssessmentLabel = form.getByText("Merits assessment");
-    await expect(meritsAssessmentLabel).toBeVisible();
-    const meritsAssessmentValue = form.getByText("Pending");
-    await expect(meritsAssessmentValue).toBeVisible();
+    const firstCard = form.locator(".govuk-summary-card").filter({
+      has: page.getByRole("heading", {
+        name: "Death in Custody - Clinical Negligence",
+      }),
+    });
+    await expect(firstCard.getByText("Certificate type")).toBeVisible();
+    await expect(firstCard.getByText("Substantive")).toBeVisible();
+    await expect(firstCard.getByText("Merits assessment")).toBeVisible();
+    await expect(firstCard.getByText("Pending")).toBeVisible();
+
+    const secondCard = form.locator(".govuk-summary-card").filter({
+      has: page.getByRole("heading", { name: "CAPA" }),
+    });
+    await expect(secondCard.getByText("Certificate type")).toBeVisible();
+    await expect(secondCard.getByText("Substantive")).toBeVisible();
+    await expect(secondCard.getByText("Merits assessment")).toBeVisible();
+    await expect(secondCard.getByText("Pending")).toBeVisible();
 
     const decisionRadiosLabel = form.getByText(
       "What is your overall decision?",

@@ -15,10 +15,11 @@
     <h1 class="govuk-heading-l">{{ t('pages.merits.header') }}</h1>
     <h2 class="govuk-heading-m">{{ applicationId }}</h2>
     <p class="govuk-body">{{ t('pages.merits.extraDetail') }}</p>
+    {% for proceeding in proceedings %}
     {{ govukSummaryList({
         card: {
             title: {
-                text: t('pages.merits.proceedingsOverview.title')
+                text: proceeding.proceedingDescription
             }
         },
         rows: [
@@ -27,7 +28,7 @@
                     text: t('pages.merits.proceedingsOverview.certificateTypeTitle')
                 },
                 value: {
-                    html: certificateType
+                    html: proceeding.certificateType
                 }
             },
             {
@@ -36,12 +37,13 @@
                 },
                 value: {
                     html: govukTag({
-                        text: meritsAssessment
+                        text: proceeding.meritsAssessment
                     })
                 }
             }
         ]}) 
     }}
+    {% endfor %}
     {{ govukRadios({
     name: "overall-decision",
     fieldset: {
