@@ -69,7 +69,7 @@ test.describe("Application overview page", () => {
     await expect(page.getByRole("heading", { level: 2, name: "Uploaded evidence" })).toBeVisible();
     const applicationDetailsPanel = page.locator("#application-details");
     const evidenceCard = applicationDetailsPanel.locator(".govuk-summary-card", { hasText: "Supporting evidence" });
-    await expect(evidenceCard.getByText("Coroners letter")).toBeVisible();
+    await expect(evidenceCard.locator("dt", { hasText: "Coroners letter" })).toBeVisible();
     await expect(evidenceCard.getByRole("link", { name: "Inquest ABC Coroners letter.pdf" })).toBeVisible();
   });
 

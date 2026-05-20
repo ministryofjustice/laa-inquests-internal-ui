@@ -21,7 +21,7 @@ export class ApplicationAdaptor {
     );
     // const displayApplication =
     //   await this.applicationDataStore.getApplication(applicationId);
-    res.render("application/index", {
+    res.render("application/application-overview", {
       // displayApplication,
       applicationId,
     });
