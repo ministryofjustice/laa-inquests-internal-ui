@@ -7,14 +7,19 @@
 
 {% block content %}
 
+<div class="govuk-width-container">
+
     {{ govukBackLink({
         text: "Back",
         href: "#"
     }) }}
 
-    {{ govukTag({
-        text: "Awaiting assessment"
-    }) }}
+    <p class="govuk-body govuk-!-margin-bottom-2">
+        {{ govukTag({
+            text: "Awaiting assessment",
+            classes: "govuk-tag--grey"
+        }) }}
+    </p>
 
     <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
 
@@ -101,5 +106,7 @@
             }
         ]
     }) }}
+
+</div>
 
 {% endblock %}
