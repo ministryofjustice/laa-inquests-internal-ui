@@ -10,17 +10,66 @@ afterEach(() => {
   axiosGetStub.reset();
 });
 
+const expectedApplication = {
+      "laaReference": 1,
+      "createdAt": "2026-05-18T15:49:07.455255",
+      "updatedAt": "2026-05-18T15:49:07.455279",
+      "status": "LIVE",
+      "usedDelegatedFunctions": true,
+      "applicationType": "INITIAL",
+      "autoGrant": true,
+      "overallDecision": "PENDING",
+      "proceedings": [
+        {
+          "proceedingId": "PC049",
+          "proceedingDescription": "CAPA",
+          "categoryOfLaw": "INQUESTS",
+          "certificateType": "SUBSTANTIVE",
+          "levelOfService": "FULL_REPRESENTATION",
+          "matterType": "INQUESTS",
+          "scopeLimitationHeading": "FINAL_HEARING",
+          "scopeDescription": "This is the scope description",
+          "substantiveCostLimitation": 25000,
+          "clientInvolvementType": "RESPONDENT",
+          "meritsDecision": "PENDING"
+        }
+      ],
+      "publicBodies": [
+        {
+          "publicBodyId": "Department for Transport",
+          "publicBodyDescription": "Department for Transport"
+        }
+      ],
+      "client": {
+        "clientId": 1,
+        "clientFirstName": "test",
+        "clientLastName": "surname",
+        "clientLastNameAtBirth": "Last name at birth",
+        "dateOfBirth": "01-01-1990",
+        "nationalInsuranceNumber": "PC123456C",
+        "correspondenceAddress": null,
+        "homeAddress": null,
+        "hasAppliedPreviously": false,
+        "prevApplicationReference": null
+      },
+      "deceased": {
+        "deceasedId": 1,
+        "deceasedFirstName": "bob",
+        "deceasedLastName": "boberton",
+        "deceasedDateOfBirth": "01-01-2000",
+        "deceasedDateOfDeath": "01-01-2025",
+        "coronersReference": "123456",
+        "furtherInformation": "test information",
+        "clientRelationshipToDeceased": "guardian"
+      }
+    };
+
 describe("Test Application API Adaptor", () => {
-  it("Test get Applications calls axios", async () => {
-    const baseUrl = "https://www.gov.uk";
+  it("Test get Application calls axios", async () => {
+    const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
-    const expectedApplication = {
-      id: "123",
-      status: "Open",
-      provider: "Test Provider",
-      date_submitted: "13/04/2026",
-    };
+
     axiosGetStub.resolves({
       data: expectedApplication,
     });
@@ -31,14 +80,9 @@ describe("Test Application API Adaptor", () => {
     await adaptor.getApplication("234");
     sinon.assert.calledWith(axiosGetStub, `${baseUrl}/applications/234`);
   });
+
   it("Test get Applications calls returns application data", async () => {
-    const baseUrl = "https://www.gov.uk";
-    const expectedApplication = {
-      id: "123",
-      status: "Open",
-      provider: "Test Provider",
-      date_submitted: "13/04/2026",
-    };
+    const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
 
