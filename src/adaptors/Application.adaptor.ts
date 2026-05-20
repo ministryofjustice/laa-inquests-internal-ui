@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
-import type { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
+import type { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
-export class ApplicationDisplayAdaptor {
-  applicationDataStore: ApplicationDataStoreAdaptor;
+export class ApplicationAdaptor {
+  applicationDataStore: ViewApplicationAdaptor;
 
-  constructor(applicationDataStore: ApplicationDataStoreAdaptor) {
+  constructor(applicationDataStore: ViewApplicationAdaptor) {
     this.applicationDataStore = applicationDataStore;
   }
 

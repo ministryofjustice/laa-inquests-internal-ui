@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response, Router } from "express";
-import type { ApplicationDisplayAdaptor } from "#src/adaptors/application.js";
+import type { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 
 function createApplicationRouter(
   applicationRouter: Router,
-  applicationDisplayAdaptor: ApplicationDisplayAdaptor,
+  applicationDisplayAdaptor: ApplicationAdaptor,
 ): Router {
   applicationRouter.get(
-    "/:applicationId",
+    "/:applicationId/overview",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
         params: { applicationId },
