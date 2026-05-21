@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
+import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -42,6 +43,10 @@ const viewApplicationAdaptor = new ViewApplicationAdaptor(
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
 );
+const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
+  viewApplicationAdaptor,
+  new SessionHelper(),
+);
 
 interface Proceeding {
   proceedingDescription: string;
@@ -55,34 +60,15 @@ interface ApplicationResponse {
 
 decisionRouter.get(
   "/:applicationId/decision",
-  async (req: Request, res: Response) => {
-    const {
-      params: { applicationId },
-    } = req;
-    const appId = applicationId as string;
-    const backUrl = `/applications/${appId}/overview`;
+  async (req: Request, res: Response): Promise<void> => {
+    await applicationDecisionAdaptor.renderApplicationDecisionForm(req, res);
+  },
+);
 
-    const data = await axios.get<ApplicationResponse>(
-      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
-    );
-
-    const toTitleCase = (str: string): string =>
-      str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
-    const firstProceeding = data.data.proceedings[0];
-    const formattedProceeding = {
-      certificateType: toTitleCase(firstProceeding.certificateType),
-      meritsDecision: toTitleCase(firstProceeding.meritsDecision),
-    };
-
-    res.render("application/decision/index", {
-      backUrl,
-      applicationId: appId,
-      proceeding: formattedProceeding,
-      overallDecision: new SessionHelper().getSessionData(req, "decision")
-        ?.overallDecision,
-    });
+decisionRouter.post(
+  "/:applicationId/decision",
+  (req: Request, res: Response): void => {
+    applicationDecisionAdaptor.processApplicationDecisionForm(req, res);
   },
 );
 
@@ -177,27 +163,6 @@ decisionRouter.post(
     });
     res.redirect(
       `/applications/${laaReference as string}/decision/confirmation`,
-    );
-  },
-);
-
-decisionRouter.post(
-  "/:applicationId/decision",
-  (req: Request, res: Response) => {
-    const {
-      params: { applicationId },
-    } = req;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
-    const overallDecision = req.body["overall-decision"] as string;
-    const sessionHelper = new SessionHelper();
-    const existing = sessionHelper.getSessionData(req, "decision") ?? {};
-
-    sessionHelper.storeSessionData(req, "decision", {
-      ...existing,
-      overallDecision,
-    });
-    res.redirect(
-      `/applications/${applicationId as string}/decision/justification`,
     );
   },
 );
