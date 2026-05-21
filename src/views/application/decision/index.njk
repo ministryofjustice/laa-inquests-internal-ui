@@ -7,19 +7,19 @@
 {% block pageContent %}
 <form data-testid="make-a-decision" method="post" action="/applications/{{ applicationId }}/decision">
 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-    <h1 class="govuk-heading-l">{{ t('pages.merits.header') }}</h1>
+    <h1 class="govuk-heading-l">{{ t('pages.decision.merits.header') }}</h1>
     <h2 class="govuk-heading-m">{{ applicationId }}</h2>
-    <p class="govuk-body">{{ t('pages.merits.extraDetail') }}</p>
+    <p class="govuk-body">{{ t('pages.decision.merits.extraDetail') }}</p>
     {{ govukSummaryList({
         card: {
             title: {
-                text: t('pages.merits.proceedingsOverview.title')
+                text: t('pages.decision.merits.proceedingsOverview.title')
             }
         },
         rows: [
             {
                 key: {
-                    text: t('pages.merits.proceedingsOverview.certificateTypeTitle')
+                    text: t('pages.decision.merits.proceedingsOverview.certificateTypeTitle')
                 },
                 value: {
                     html: proceeding.certificateType
@@ -27,7 +27,7 @@
             },
             {
                 key: {
-                    text: t('pages.merits.proceedingsOverview.meritsAssessmentTitle')
+                    text: t('pages.decision.merits.proceedingsOverview.meritsAssessmentTitle')
                 },
                 value: {
                     html: govukTag({
@@ -42,18 +42,18 @@
     value: overallDecision,
     fieldset: {
         legend: {
-            text: t('pages.merits.radio.label'),
+            text: t('pages.decision.merits.radio.label'),
             classes: "govuk-fieldset__legend--s"
         }
     },
     items: [
         {
             value: "Grant",
-            text: t('pages.merits.radio.grantLabel')
+            text: t('pages.decision.merits.radio.grantLabel')
         },
         {
             value: "refuse",
-            text: t('pages.merits.radio.refuseLabel')
+            text: t('pages.decision.merits.radio.refuseLabel')
         }
     ]
     }) }}
