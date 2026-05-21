@@ -1,15 +1,10 @@
-{% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 
-{% block content %}
-{{ govukBackLink({
-    text: t('common.back'),
-    href: backUrl
-}) }}
+{% block pageContent %}
 <form data-testid="make-a-decision" method="post" action="/applications/{{ applicationId }}/decision">
 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
     <h1 class="govuk-heading-l">{{ t('pages.merits.header') }}</h1>
@@ -68,4 +63,4 @@
     }) }}
 </form>
 
-{% endblock %}
+{% endblock pageContent %}

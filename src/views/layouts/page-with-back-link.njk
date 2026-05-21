@@ -1,0 +1,13 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: t('common.back'),
+    href: backUrl
+  }) }}
+{% endblock %}
+
+{% block content %}
+  {% block pageContent %}{% endblock %}
+{% endblock %}

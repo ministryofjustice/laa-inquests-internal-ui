@@ -13,6 +13,7 @@ test.describe("Refuse application", () => {
     const form = await page.getByTestId("make-a-decision");
 
     await validateGovUKPage(page);
+    await validatePageWrapper(page);
     await validateHeader(page, "Make a decision", 1);
     await validateBackButton(page, backUrl);
     await validateFormAttributes(form, makeADecisionPage);
@@ -108,6 +109,19 @@ async function validateGovUKPage(page: Page): Promise<void> {
     has: page.getByRole("link", { name: "GOV.UK" }),
   });
   await expect(govUkHeader).toBeVisible();
+}
+
+async function validatePageWrapper(page: Page): Promise<void> {
+  const widthContainer = page.locator(".govuk-width-container");
+  await expect(widthContainer).toBeVisible();
+
+  const mainContent = page.locator("main.govuk-main-wrapper");
+  await expect(mainContent).toBeVisible();
+
+  const backLinkBeforeMain = page.locator(
+    ".govuk-width-container > .govuk-back-link",
+  );
+  await expect(backLinkBeforeMain).toBeVisible();
 }
 
 async function validateHeader(
