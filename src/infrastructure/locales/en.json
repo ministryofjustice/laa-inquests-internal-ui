@@ -79,6 +79,15 @@
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
     "decision": {
+      "confirmation": {
+        "header": "Check your answers",
+        "cardTitle": "Refuse",
+        "certificateTypeTitle": "Certificate type",
+        "meritsAssessmentTitle": "Merits assessment",
+        "refusalReasonTitle": "Refusal reason",
+        "justificationTitle": "Justification",
+        "submitButton": "Submit declaration"
+      },
       "justification": {
         "header": "Make a decision",
         "radio": {

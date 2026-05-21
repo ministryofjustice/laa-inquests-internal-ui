@@ -1,0 +1,57 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
+
+{% block pageContent %}
+<form data-testid="check-your-answers" method="post" action="/applications/{{ applicationId }}/decision/confirmation">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+  <h1 class="govuk-heading-l">{{ t('pages.decision.confirmation.header') }}</h1>
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.decision.confirmation.cardTitle')
+      }
+    },
+    rows: [
+      {
+        key: {
+          text: t('pages.decision.confirmation.certificateTypeTitle')
+        },
+        value: {
+          text: proceeding.certificateType
+        }
+      },
+      {
+        key: {
+          text: t('pages.decision.confirmation.meritsAssessmentTitle')
+        },
+        value: {
+            html: govukTag({
+                text: proceeding.meritsDecision
+            })
+        }
+    },
+      {
+        key: {
+          text: t('pages.decision.confirmation.refusalReasonTitle')
+        },
+        value: {
+          text: refusalReasonLabel
+        }
+      },
+      {
+        key: {
+          text: t('pages.decision.confirmation.justificationTitle')
+        },
+        value: {
+          text: justification
+        }
+      }
+    ]
+  }) }}
+  {{ govukButton({
+    text: t('pages.decision.confirmation.submitButton')
+  }) }}
+</form>
+{% endblock pageContent %}

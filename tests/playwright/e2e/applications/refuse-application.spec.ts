@@ -6,6 +6,7 @@ const makeADecisionPage = `/applications/${applicationId}/decision`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
 const confirmationPage = `/applications/${applicationId}/decision/confirmation`;
+const justificationText = "Test note";
 
 test.describe.serial("Refuse application journey", () => {
   let sharedPage: Page;
@@ -82,13 +83,44 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       form.getByRole("radio", { name: "Duplicate case" }),
     ).toBeVisible();
+
+    await expect(form.getByLabel("Justification")).toBeVisible();
   });
 
   test("provider selects a reason and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await form.getByRole("radio", { name: "Not in scope" }).check();
+    await form.getByLabel("Justification").fill(justificationText);
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(confirmationPage);
+  });
+
+  test("provider views the Check your answers page", async () => {
+    await validateGovPage(sharedPage, {
+      headerText: "Check your answers",
+      backUrl: justificationPage,
+    });
+
+    const form = sharedPage.getByTestId("check-your-answers");
+    await expect(form).toHaveAttribute("method", "post");
+    await expect(form).toHaveAttribute("action", confirmationPage);
+    await validateCSRFToken(form);
+
+    const summaryCard = form.locator(".govuk-summary-card");
+    const cardTitle = summaryCard.locator(".govuk-summary-card__title");
+    await expect(cardTitle).toHaveText("Refuse");
+
+    await expect(summaryCard.getByText("Certificate type")).toBeVisible();
+    await expect(summaryCard.getByText("Substantive")).toBeVisible();
+    await expect(summaryCard.getByText("Merits assessment")).toBeVisible();
+    await expect(summaryCard.getByText("Pending")).toBeVisible();
+
+    await expect(summaryCard.getByText("Refusal reason")).toBeVisible();
+    await expect(summaryCard.getByText("Not in scope")).toBeVisible();
+    await expect(summaryCard.getByText("Justification")).toBeVisible();
+    await expect(summaryCard.getByText(justificationText)).toBeVisible();
+
+    await validateSubmitButton(form, "Submit declaration");
   });
 });
 
@@ -106,10 +138,13 @@ async function validateFormAttributes(
   await expect(form).toHaveAttribute("action", action);
 }
 
-async function validateContinueButton(form: Locator): Promise<void> {
+async function validateSubmitButton(
+  form: Locator,
+  buttonText: string = "Continue",
+): Promise<void> {
   const continueButton = form.getByRole("button");
   await expect(continueButton).toBeVisible();
-  await expect(continueButton).toHaveText("Continue");
+  await expect(continueButton).toHaveText(buttonText);
   await expect(continueButton).toHaveAttribute("type", "submit");
 }
 
@@ -129,7 +164,7 @@ async function validateGovForm(
 ): Promise<void> {
   await validateFormAttributes(form, action);
   await validateCSRFToken(form);
-  await validateContinueButton(form);
+  await validateSubmitButton(form);
 }
 
 async function validateGovHeader(page: Page): Promise<void> {

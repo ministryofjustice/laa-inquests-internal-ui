@@ -6,6 +6,10 @@ import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
 import { logger } from "../middleware/logger/logger.js";
+import {
+  storeSessionData,
+  getSessionData,
+} from "#src/infrastructure/express/session/sessionHelpers.js";
 
 // Create a new router
 const router = express.Router();
@@ -100,6 +104,50 @@ decisionRouter.get(
 );
 
 decisionRouter.get(
+  "/:applicationId/decision/confirmation",
+  async (req: Request, res: Response) => {
+    const {
+      params: { applicationId },
+    } = req;
+    const appId = applicationId as string;
+    const backUrl = `/applications/${appId}/decision/justification`;
+
+    const data = await axios.get<ApplicationResponse>(
+      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
+    );
+
+    const toTitleCase = (str: string): string =>
+      str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
+    const firstProceeding = data.data.proceedings[0];
+    const formattedProceeding = {
+      certificateType: toTitleCase(firstProceeding.certificateType),
+      meritsDecision: toTitleCase(firstProceeding.meritsDecision),
+    };
+
+    const refusalReasonLabels: Record<string, string> = {
+      "not-in-scope": "Not in scope",
+      "insufficient-information": "Insufficient information",
+      "duplicate-case": "Duplicate case",
+    };
+
+    const sessionData = getSessionData(req, "decision") ?? {};
+    const refusalReasonLabel =
+      refusalReasonLabels[sessionData.refusalReason] ??
+      sessionData.refusalReason;
+
+    res.render("application/decision/confirmation/index", {
+      backUrl,
+      applicationId: appId,
+      proceeding: formattedProceeding,
+      refusalReasonLabel,
+      justification: sessionData.justification,
+    });
+  },
+);
+
+decisionRouter.get(
   "/:laaReference/decision/justification",
   (req: Request, res: Response) => {
     const {
@@ -119,6 +167,16 @@ decisionRouter.post(
     const {
       params: { laaReference },
     } = req;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
+    const refusalReason = req.body["refusal-reason"] as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
+    const justification = req.body.justification as string;
+    const existing = getSessionData(req, "decision") ?? {};
+    storeSessionData(req, "decision", {
+      ...existing,
+      refusalReason,
+      justification,
+    });
     res.redirect(
       `/applications/${laaReference as string}/decision/confirmation`,
     );
@@ -131,6 +189,9 @@ decisionRouter.post(
     const {
       params: { applicationId },
     } = req;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
+    const overallDecision = req.body["overall-decision"] as string;
+    storeSessionData(req, "decision", { overallDecision });
     res.redirect(
       `/applications/${applicationId as string}/decision/justification`,
     );
