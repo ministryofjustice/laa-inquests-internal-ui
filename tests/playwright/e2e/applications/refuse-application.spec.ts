@@ -36,7 +36,7 @@ test.describe.serial("Refuse application journey", () => {
     await sharedContext.close();
   });
 
-  test("provider views the Make a decision page", async () => {
+  test("caseworker views the Make a decision page", async () => {
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -83,7 +83,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
-  test("provider selects Refuse and continues to justification page", async () => {
+  test("caseworker selects Refuse and continues to justification page", async () => {
     const form = sharedPage.getByTestId("make-a-decision");
     await form
       .getByRole("radio", { name: meritsLocale.radio.refuseLabel })
@@ -92,7 +92,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(justificationPage);
   });
 
-  test("provider views the Select a reason for refusal page", async () => {
+  test("caseworker views the Select a reason for refusal page", async () => {
     await validateGovPage(sharedPage, {
       headerText: justificationLocale.header,
       backUrl: makeADecisionPage,
@@ -121,7 +121,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
-  test("provider selects a reason and continues to confirmation page", async () => {
+  test("caseworker selects a reason and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await form
       .getByRole("radio", { name: justificationLocale.radio.notInScope })
@@ -133,7 +133,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(confirmationPage);
   });
 
-  test("provider views the Check your answers page", async () => {
+  test("caseworker views the Check your answers page", async () => {
     await validateGovPage(sharedPage, {
       headerText: confirmationLocale.header,
       backUrl: justificationPage,
@@ -189,7 +189,7 @@ test.describe.serial("Refuse application journey", () => {
     await validateSubmitButton(form, confirmationLocale.submitButton);
   });
 
-  test("provider clicks Change on a row and is taken back to the justification page", async () => {
+  test("caseworker clicks Change on a justification row and is taken back to the justification page", async () => {
     const form = sharedPage.getByTestId("check-your-answers");
     const summaryCard = form.locator(".govuk-summary-card");
 
@@ -204,7 +204,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(justificationPage);
   });
 
-  test("provider sees pre-populated data on the justification page", async () => {
+  test("caseworker sees pre-populated data on the justification page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
     await expect(
@@ -215,7 +215,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toHaveValue(justificationText);
   });
 
-  test("provider updates the justification and returns to the Check your answers page", async () => {
+  test("caseworker updates the justification and returns to the Check your answers page", async () => {
     const updatedJustificationText = "Updated justification note";
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
