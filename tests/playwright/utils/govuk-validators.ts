@@ -90,3 +90,12 @@ export async function validateCSRFToken(form: Locator): Promise<void> {
   await expect(csrfToken).toBeHidden();
   await expect(csrfToken).not.toBeEmpty();
 }
+
+export async function validateSummaryCardKeys(
+  card: Locator,
+  keys: string[],
+): Promise<void> {
+  for (const key of keys) {
+    await expect(card.locator("dt", { hasText: key })).toBeVisible();
+  }
+}

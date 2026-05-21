@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 import {
   validateGovPage,
   validateHeader,
+  validateSummaryCardKeys,
 } from "../../utils/govuk-validators.js";
 
 const applicationId = "1";
@@ -124,14 +125,20 @@ test.describe("People tab", () => {
     const peoplePanel = page.locator("#people");
     const clientCard = peoplePanel
       .locator(".govuk-summary-card")
-      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Client" }) });
-    await expect(clientCard.locator("dt", { hasText: "First name" })).toBeVisible();
-    await expect(clientCard.locator("dt", { hasText: "Last name" })).toBeVisible();
-    await expect(clientCard.locator("dt", { hasText: "Date of birth" })).toBeVisible();
-    await expect(clientCard.locator("dt", { hasText: "National Insurance number" })).toBeVisible();
-    await expect(clientCard.locator("dt").getByText("Address", { exact: true })).toBeVisible();
-    await expect(clientCard.locator("dt", { hasText: "Correspondence address" })).toBeVisible();
-    await expect(clientCard.locator("dt", { hasText: "Relationship to deceased" })).toBeVisible();
+      .filter({
+        has: page.locator(".govuk-summary-card__title", { hasText: "Client" }),
+      });
+    await expect(
+      clientCard.locator("dt").getByText("Address", { exact: true }),
+    ).toBeVisible();
+    await validateSummaryCardKeys(clientCard, [
+      "First name",
+      "Last name",
+      "Date of birth",
+      "National Insurance number",
+      "Correspondence address",
+      "Relationship to deceased",
+    ]);
   });
 
   test("should have the deceased content", async ({ page }) => {
@@ -142,13 +149,19 @@ test.describe("People tab", () => {
     const peoplePanel = page.locator("#people");
     const deceasedCard = peoplePanel
       .locator(".govuk-summary-card")
-      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Deceased" }) });
-    await expect(deceasedCard.locator("dt", { hasText: "First name" })).toBeVisible();
-    await expect(deceasedCard.locator("dt", { hasText: "Last name" })).toBeVisible();
-    await expect(deceasedCard.locator("dt", { hasText: "Date of death" })).toBeVisible();
-    await expect(deceasedCard.locator("dt", { hasText: "Date of birth" })).toBeVisible();
-    await expect(deceasedCard.locator("dt", { hasText: "Inquest ID" })).toBeVisible();
-    await expect(deceasedCard.locator("dt", { hasText: "Additional inquest info" })).toBeVisible();
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Deceased",
+        }),
+      });
+    await validateSummaryCardKeys(deceasedCard, [
+      "First name",
+      "Last name",
+      "Date of death",
+      "Date of birth",
+      "Inquest ID",
+      "Additional inquest info",
+    ]);
   });
 
   test("should have the provider content", async ({ page }) => {
@@ -159,10 +172,18 @@ test.describe("People tab", () => {
     const peoplePanel = page.locator("#people");
     const providerCard = peoplePanel
       .locator(".govuk-summary-card")
-      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Provider" }) });
-    await expect(providerCard.locator("dt", { hasText: "Firm name" })).toBeVisible();
-    await expect(providerCard.locator("dt", { hasText: "Account number" })).toBeVisible();
-    await expect(providerCard.locator("dt").getByText("Address", { exact: true })).toBeVisible();
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Provider",
+        }),
+      });
+    await validateSummaryCardKeys(providerCard, [
+      "Firm name",
+      "Account number",
+    ]);
+    await expect(
+      providerCard.locator("dt").getByText("Address", { exact: true }),
+    ).toBeVisible();
   });
 
   test("should have the interested parties content", async ({ page }) => {
@@ -173,7 +194,11 @@ test.describe("People tab", () => {
     const peoplePanel = page.locator("#people");
     const interestedPartiesCard = peoplePanel
       .locator(".govuk-summary-card")
-      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Interested parties" }) });
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Interested parties",
+        }),
+      });
     await expect(interestedPartiesCard).toBeVisible();
     await expect(interestedPartiesCard.locator("dt").first()).toBeVisible();
   });
@@ -198,4 +223,3 @@ test.describe("People tab", () => {
     );
   });
 });
-
