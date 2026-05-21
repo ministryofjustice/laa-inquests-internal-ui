@@ -5,10 +5,7 @@ import createApplicationRouter from "#src/infrastructure/express/routes/applicat
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
-import {
-  storeSessionData,
-  getSessionData,
-} from "#src/infrastructure/express/session/sessionHelpers.js";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
 // Create a new router
 const router = express.Router();
@@ -83,7 +80,8 @@ decisionRouter.get(
       backUrl,
       applicationId: appId,
       proceeding: formattedProceeding,
-      overallDecision: getSessionData(req, "decision")?.overallDecision,
+      overallDecision: new SessionHelper().getSessionData(req, "decision")
+        ?.overallDecision,
     });
   },
 );
@@ -122,7 +120,8 @@ decisionRouter.get(
       "duplicate-case": "Duplicate case",
     };
 
-    const sessionData = getSessionData(req, "decision") ?? {};
+    const sessionHelper = new SessionHelper();
+    const sessionData = sessionHelper.getSessionData(req, "decision") ?? {};
     const overallDecisionLabel =
       overallDecisionLabels[sessionData.overallDecision] ??
       sessionData.overallDecision;
@@ -148,7 +147,8 @@ decisionRouter.get(
       params: { laaReference },
     } = req;
     const backUrl = `/applications/${laaReference as string}/decision`;
-    const sessionData = getSessionData(req, "decision") ?? {};
+    const sessionData =
+      new SessionHelper().getSessionData(req, "decision") ?? {};
     res.render("application/decision/justification/index", {
       backUrl,
       laaReference,
@@ -168,8 +168,9 @@ decisionRouter.post(
     const refusalReason = req.body["refusal-reason"] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
     const justification = req.body.justification as string;
-    const existing = getSessionData(req, "decision") ?? {};
-    storeSessionData(req, "decision", {
+    const sessionHelper = new SessionHelper();
+    const existing = sessionHelper.getSessionData(req, "decision") ?? {};
+    sessionHelper.storeSessionData(req, "decision", {
       ...existing,
       refusalReason,
       justification,
@@ -188,9 +189,13 @@ decisionRouter.post(
     } = req;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
     const overallDecision = req.body["overall-decision"] as string;
-    const existing = getSessionData(req, "decision") ?? {};
+    const sessionHelper = new SessionHelper();
+    const existing = sessionHelper.getSessionData(req, "decision") ?? {};
 
-    storeSessionData(req, "decision", { ...existing, overallDecision });
+    sessionHelper.storeSessionData(req, "decision", {
+      ...existing,
+      overallDecision,
+    });
     res.redirect(
       `/applications/${applicationId as string}/decision/justification`,
     );
