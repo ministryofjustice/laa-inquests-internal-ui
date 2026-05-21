@@ -2,17 +2,31 @@ import { Locator, Page } from "playwright";
 import { test, expect } from "../../fixtures/index.js";
 
 const applicationId = "50";
-const makeADecisionPage = `/applications/${applicationId}/decision`; // data? update when we use MSW?
-const backUrl = `/applications/${applicationId}/overview`;
+const makeADecisionPage = `/applications/${applicationId}/decision`;
+const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
+const confirmationPage = `/applications/${applicationId}/decision/confirmation`;
 
-test.describe("Refuse application", () => {
-  test("provider can view Make a decision page", async ({ page }) => {
-    await page.goto(makeADecisionPage);
+test.describe.serial("Refuse application journey", () => {
+  let sharedPage: Page;
 
-    const form = await page.getByTestId("make-a-decision");
+  test.beforeAll(async ({ browser }) => {
+    sharedPage = await browser.newPage();
+  });
 
-    await validateGovPage(page, { headerText: "Make a decision", backUrl });
+  test.afterAll(async () => {
+    await sharedPage.close();
+  });
+
+  test("provider views the Make a decision page", async () => {
+    await sharedPage.goto(makeADecisionPage);
+
+    const form = sharedPage.getByTestId("make-a-decision");
+
+    await validateGovPage(sharedPage, {
+      headerText: "Make a decision",
+      backUrl: overviewPage,
+    });
     await validateGovForm(form, { action: makeADecisionPage });
 
     const referenceLabel = form.getByRole("heading", {
@@ -23,23 +37,10 @@ test.describe("Refuse application", () => {
 
     const paragraphText =
       "Use this section to provide more details about your decision. This will be shared with the provider and recorded in application history.";
-    const paragraphElement = form.getByText(paragraphText);
-    await expect(paragraphElement).toBeVisible();
-
-    const firstProceedingLabel = form.getByRole("heading", {
-      name: "Death in Custody - Clinical Negligence",
-      level: 2,
-    });
-    await expect(firstProceedingLabel).toBeVisible();
-
-    const secondProceedingLabel = form.getByRole("heading", {
-      name: "CAPA",
-      level: 2,
-    });
-    await expect(secondProceedingLabel).toBeVisible();
+    await expect(form.getByText(paragraphText)).toBeVisible();
 
     const firstCard = form.locator(".govuk-summary-card").filter({
-      has: page.getByRole("heading", {
+      has: sharedPage.getByRole("heading", {
         name: "Death in Custody - Clinical Negligence",
       }),
     });
@@ -49,50 +50,37 @@ test.describe("Refuse application", () => {
     await expect(firstCard.getByText("Pending")).toBeVisible();
 
     const secondCard = form.locator(".govuk-summary-card").filter({
-      has: page.getByRole("heading", { name: "CAPA" }),
+      has: sharedPage.getByRole("heading", { name: "CAPA" }),
     });
     await expect(secondCard.getByText("Certificate type")).toBeVisible();
     await expect(secondCard.getByText("Substantive")).toBeVisible();
     await expect(secondCard.getByText("Merits assessment")).toBeVisible();
     await expect(secondCard.getByText("Pending")).toBeVisible();
 
-    const decisionRadiosLabel = form.getByText(
-      "What is your overall decision?",
-    );
-    await expect(decisionRadiosLabel).toBeVisible();
-    const grantRadio = form.getByRole("radio", { name: "Grant" });
-    await expect(grantRadio).toBeVisible();
-    const refuseRadio = form.getByRole("radio", { name: "Refuse" });
-    await expect(refuseRadio).toBeVisible();
+    await expect(
+      form.getByText("What is your overall decision?"),
+    ).toBeVisible();
+    await expect(form.getByRole("radio", { name: "Grant" })).toBeVisible();
+    await expect(form.getByRole("radio", { name: "Refuse" })).toBeVisible();
   });
-  test("provider can continue to the next page", async ({ page }) => {
-    await page.goto(makeADecisionPage);
 
-    const form = await page.getByTestId("make-a-decision");
-    const refuseRadio = form.getByRole("radio", { name: "Refuse" });
-    await refuseRadio.check();
-    await continueToNextPage(form, page);
-    await expect(page).toHaveURL(justificationPage);
+  test("provider selects Refuse and continues to justification page", async () => {
+    const form = sharedPage.getByTestId("make-a-decision");
+    await form.getByRole("radio", { name: "Refuse" }).check();
+    await continueToNextPage(form, sharedPage);
+    await expect(sharedPage).toHaveURL(justificationPage);
   });
-});
 
-test.describe("Refuse application - justification page", () => {
-  test("provider can view Select a reason for refusal page", async ({
-    page,
-  }) => {
-    await page.goto(justificationPage);
-
-    await validateGovPage(page, {
+  test("provider views the Select a reason for refusal page", async () => {
+    await validateGovPage(sharedPage, {
       headerText: "Make a decision",
       backUrl: makeADecisionPage,
     });
 
-    const form = page.getByTestId("select-reason-for-refusal");
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
     await validateGovForm(form, { action: justificationPage });
 
-    const radioLabel = form.getByText("Select a reason for refusal");
-    await expect(radioLabel).toBeVisible();
-
+    await expect(form.getByText("Select a reason for refusal")).toBeVisible();
     await expect(
       form.getByRole("radio", { name: "Not in scope" }),
     ).toBeVisible();
@@ -102,6 +90,13 @@ test.describe("Refuse application - justification page", () => {
     await expect(
       form.getByRole("radio", { name: "Duplicate case" }),
     ).toBeVisible();
+  });
+
+  test("provider selects a reason and continues to confirmation page", async () => {
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
+    await form.getByRole("radio", { name: "Not in scope" }).check();
+    await continueToNextPage(form, sharedPage);
+    await expect(sharedPage).toHaveURL(confirmationPage);
   });
 });
 
@@ -121,7 +116,6 @@ async function validateFormAttributes(
 
 async function validateContinueButton(form: Locator): Promise<void> {
   const continueButton = form.getByRole("button");
-
   await expect(continueButton).toBeVisible();
   await expect(continueButton).toHaveText("Continue");
   await expect(continueButton).toHaveAttribute("type", "submit");
