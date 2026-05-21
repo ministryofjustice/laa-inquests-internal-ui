@@ -1,10 +1,13 @@
 import type { Request, Response } from "express";
-import { getSessionData } from "#src/infrastructure/express/session/sessionHelpers.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
 import { toTitleCase } from "#src/utils/formatter.js";
 
 export class ApplicationDecisionAdaptor {
-  constructor(private readonly viewApplicationAdaptor: ViewApplicationPort) {}
+  constructor(
+    private readonly viewApplicationAdaptor: ViewApplicationPort,
+    private readonly sessionHelper: SessionHelper,
+  ) {}
 
   async renderApplicationDecisionForm(
     req: Request,
@@ -31,7 +34,19 @@ export class ApplicationDecisionAdaptor {
       backUrl,
       applicationId,
       proceeding: formattedProceeding,
-      overallDecision: getSessionData(req, "decision")?.overallDecision,
+      overallDecision: this.sessionHelper.getSessionData(req, "decision")
+        ?.overallDecision,
     });
+  }
+
+  processApplicationDecisionForm(req: Request, res: Response): void {
+    const applicationId = req.params.applicationId as string;
+    const { "overall-decision": overallDecision } = req.body as Record<
+      string,
+      string
+    >;
+
+    this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
+    res.redirect(`/applications/${applicationId}/decision/justification`);
   }
 }

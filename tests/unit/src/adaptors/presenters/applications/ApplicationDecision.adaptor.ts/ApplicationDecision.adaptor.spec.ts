@@ -3,11 +3,13 @@ import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
   let viewApplicationSourceStub: StubbedInstance<ViewApplicationPort>;
+  let sessionHelperStub: StubbedInstance<SessionHelper>;
   let adaptor: ApplicationDecisionAdaptor;
 
   const applicationId = "1";
@@ -29,7 +31,11 @@ describe("ApplicationDecisionAdaptor", () => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
     viewApplicationSourceStub = stubInterface<ViewApplicationPort>();
-    adaptor = new ApplicationDecisionAdaptor(viewApplicationSourceStub);
+    sessionHelperStub = stubInterface<SessionHelper>();
+    adaptor = new ApplicationDecisionAdaptor(
+      viewApplicationSourceStub,
+      sessionHelperStub,
+    );
     requestStub.params = { applicationId };
   });
 
@@ -61,7 +67,7 @@ describe("ApplicationDecisionAdaptor", () => {
       viewApplicationSourceStub.getApplication.resolves({
         proceedings: [mockProceeding],
       } as any);
-      requestStub.session.decision = { overallDecision: "refuse" };
+      sessionHelperStub.getSessionData.returns({ overallDecision: "refuse" });
 
       await adaptor.renderApplicationDecisionForm(requestStub, responseStub);
 
@@ -75,6 +81,35 @@ describe("ApplicationDecisionAdaptor", () => {
         },
         overallDecision: "refuse",
       });
+    });
+  });
+
+  describe("processApplicationDecisionForm", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+      requestStub.body = { "overall-decision": "refuse" };
+    });
+
+    it("saves overallDecision to session", () => {
+      adaptor.processApplicationDecisionForm(requestStub, responseStub);
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      const storeArgs = sessionHelperStub.storeSessionData.getCall(0).args;
+      assert.deepEqual(storeArgs, [
+        requestStub,
+        "decision",
+        { overallDecision: "refuse" },
+      ]);
+    });
+
+    it("redirects to the justification page", () => {
+      adaptor.processApplicationDecisionForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/justification`,
+      );
     });
   });
 });
