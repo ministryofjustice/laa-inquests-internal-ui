@@ -45,6 +45,7 @@ export class ApplicationAdaptor {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- temporary disable for merge
 function mapProceedings(proceedings: Application["proceedings"]) {
   return proceedings.map((p) => ({
     ...p,
