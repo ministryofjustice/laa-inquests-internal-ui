@@ -1,7 +1,14 @@
-import { BrowserContext, Locator, Page } from "playwright";
+import { BrowserContext, Page } from "playwright";
 import { test, expect } from "../../fixtures/index.js";
 import { TEST_CONFIG } from "../../playwright.config.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import {
+  continueToNextPage,
+  validateCSRFToken,
+  validateGovForm,
+  validateGovPage,
+  validateSubmitButton,
+} from "../../utils/govuk-validators.js";
 
 const meritsLocale = en.pages.decision.merits;
 const justificationLocale = en.pages.decision.justification;
@@ -224,90 +231,3 @@ test.describe.serial("Refuse application journey", () => {
     await expect(summaryCard.getByText(updatedJustificationText)).toBeVisible();
   });
 });
-
-async function continueToNextPage(form: Locator, page: Page): Promise<void> {
-  const continueButton = form.getByRole("button");
-  await continueButton.click();
-  await page.waitForLoadState("domcontentloaded");
-}
-
-async function validateFormAttributes(
-  form: Locator,
-  action: string,
-): Promise<void> {
-  await expect(form).toHaveAttribute("method", "post");
-  await expect(form).toHaveAttribute("action", action);
-}
-
-async function validateSubmitButton(
-  form: Locator,
-  buttonText: string = "Continue",
-): Promise<void> {
-  const continueButton = form.getByRole("button");
-  await expect(continueButton).toBeVisible();
-  await expect(continueButton).toHaveText(buttonText);
-  await expect(continueButton).toHaveAttribute("type", "submit");
-}
-
-async function validateGovPage(
-  page: Page,
-  { headerText, backUrl }: { headerText: string; backUrl: string },
-): Promise<void> {
-  await validateGovHeader(page);
-  await validatePageWrapper(page);
-  await validateHeader(page, headerText, 1);
-  await validateBackButton(page, backUrl);
-}
-
-async function validateGovForm(
-  form: Locator,
-  { action }: { action: string },
-): Promise<void> {
-  await validateFormAttributes(form, action);
-  await validateCSRFToken(form);
-  await validateSubmitButton(form);
-}
-
-async function validateGovHeader(page: Page): Promise<void> {
-  const govUkHeader = page.locator("header", {
-    has: page.getByRole("link", { name: "GOV.UK" }),
-  });
-  await expect(govUkHeader).toBeVisible();
-}
-
-async function validatePageWrapper(page: Page): Promise<void> {
-  const mainContent = page.locator("main.govuk-main-wrapper");
-  await expect(mainContent).toBeVisible();
-
-  const backLinkBeforeMain = page.locator(
-    ".govuk-width-container > .govuk-back-link",
-  );
-  await expect(backLinkBeforeMain).toBeVisible();
-}
-
-async function validateHeader(
-  page: Page,
-  headerText: string,
-  headingLevel: number,
-): Promise<void> {
-  const heading = page.getByRole("heading", {
-    level: headingLevel,
-    name: headerText,
-  });
-  await expect(heading).toBeVisible();
-}
-
-async function validateBackButton(
-  page: Page,
-  previousUrl: string,
-): Promise<void> {
-  const backButton = page.getByRole("link", { name: "Back", exact: true });
-  await expect(backButton).toBeVisible();
-  await expect(backButton).toHaveAttribute("href", previousUrl);
-}
-
-export async function validateCSRFToken(form: Locator): Promise<void> {
-  const csrfToken = form.locator("input[name='_csrf']");
-  await expect(csrfToken).toBeHidden();
-  await expect(csrfToken).not.toBeEmpty();
-}
