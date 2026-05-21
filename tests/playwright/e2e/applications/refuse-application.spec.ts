@@ -3,7 +3,7 @@ import { test, expect } from "../../fixtures/index.js";
 
 const applicationId = "50";
 const makeADecisionPage = `/applications/${applicationId}/decision`; // data? update when we use MSW?
-const backUrl = `/applications/${applicationId}/history`;
+const backUrl = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
 
 test.describe("Refuse application", () => {

@@ -75,7 +75,7 @@ decisionRouter.get(
       params: { applicationId },
     } = req;
     const appId = applicationId as string;
-    const backUrl = `/applications/${appId}/history`;
+    const backUrl = `/applications/${appId}/overview`;
 
     const data = await axios.get<ApplicationResponse>(
       `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
