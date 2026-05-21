@@ -4,7 +4,7 @@ import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/V
 import { toTitleCase } from "#src/utils/formatter.js";
 
 export class ApplicationDecisionAdaptor {
-  constructor(private readonly dataStore: ViewApplicationPort) {}
+  constructor(private readonly viewApplicationAdaptor: ViewApplicationPort) {}
 
   async renderApplicationDecisionForm(
     req: Request,
@@ -13,7 +13,8 @@ export class ApplicationDecisionAdaptor {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/overview`;
 
-    const data = await this.dataStore.getApplication(applicationId);
+    const data =
+      await this.viewApplicationAdaptor.getApplication(applicationId);
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
     const firstProceeding = data.proceedings[0];
     const formattedProceeding = {
