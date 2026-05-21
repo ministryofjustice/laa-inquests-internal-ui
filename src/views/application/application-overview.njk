@@ -1,0 +1,112 @@
+{% extends "base.njk" %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+
+    {{ govukBackLink({
+        text: "Back",
+        href: "#"
+    }) }}
+
+    <p class="govuk-body govuk-!-margin-bottom-2">
+        {{ govukTag({
+            text: "Awaiting assessment",
+            classes: "govuk-tag--grey"
+        }) }}
+    </p>
+
+    <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
+
+    {% set applicationDetailsHtml %}
+        <h2 class="govuk-heading-m">Overview</h2>
+        {{ govukSummaryList({
+            rows: [
+                {
+                    key: { text: "Application type" },
+                    value: { text: applicationType }
+                },
+                {
+                    key: { text: "Certificate type" },
+                    value: { text: proceedings[0].certificateType }
+                },
+                {
+                    key: { text: "Merits application" },
+                    value: { html: govukTag({ text: proceedings[0].meritsDecision }) }
+                }
+            ]
+        }) }}
+        <h2 class="govuk-heading-m">Proceedings</h2>
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "1. " ~ proceedings[0].proceedingDescription
+                }
+            },
+            rows: [
+                {
+                    key: { text: "Client role" },
+                    value: { text: proceedings[0].clientInvolvementType }
+                },
+                {
+                    key: { text: "Level of service" },
+                    value: { text: proceedings[0].levelOfService }
+                },
+                {
+                    key: { text: "Scope limitation" },
+                    value: { text: proceedings[0].scopeLimitationHeading }
+                },
+                {
+                    key: { text: "Cost limit" },
+                    value: { text: proceedings[0].substantiveCostLimitation }
+                }
+            ]
+        }) }}
+        <h2 class="govuk-heading-m">Uploaded evidence</h2>
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "Supporting evidence"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "Coroners letter" },
+                    value: { html: '<a href="#">Inquest ABC Coroners letter.pdf</a>' }
+                }
+            ]
+        }) }}        
+        {{ govukButton({
+            text: "Make assessment",
+            href: "/applications/" ~ application.laaReference ~ "/decision"
+        }) }}
+    {% endset %}
+
+    {{ govukTabs({
+        items: [
+            {
+                label: "Application details",
+                id: "application-details",
+                panel: { html: applicationDetailsHtml }
+            },
+            {
+                label: "People",
+                id: "people",
+                panel: { html: "" }
+            },
+            {
+                label: "History",
+                id: "history",
+                panel: { html: "" }
+            }
+        ]
+    }) }}
+
+</div>
+
+{% endblock %}
