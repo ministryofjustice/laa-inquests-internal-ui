@@ -1,7 +1,7 @@
 import { Locator, Page } from "playwright";
 import { test, expect } from "../../fixtures/index.js";
 
-const applicationId = "50";
+const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
@@ -41,21 +41,13 @@ test.describe.serial("Refuse application journey", () => {
 
     const firstCard = form.locator(".govuk-summary-card").filter({
       has: sharedPage.getByRole("heading", {
-        name: "Death in Custody - Clinical Negligence",
+        name: "Overview",
       }),
     });
     await expect(firstCard.getByText("Certificate type")).toBeVisible();
     await expect(firstCard.getByText("Substantive")).toBeVisible();
     await expect(firstCard.getByText("Merits assessment")).toBeVisible();
     await expect(firstCard.getByText("Pending")).toBeVisible();
-
-    const secondCard = form.locator(".govuk-summary-card").filter({
-      has: sharedPage.getByRole("heading", { name: "CAPA" }),
-    });
-    await expect(secondCard.getByText("Certificate type")).toBeVisible();
-    await expect(secondCard.getByText("Substantive")).toBeVisible();
-    await expect(secondCard.getByText("Merits assessment")).toBeVisible();
-    await expect(secondCard.getByText("Pending")).toBeVisible();
 
     await expect(
       form.getByText("What is your overall decision?"),

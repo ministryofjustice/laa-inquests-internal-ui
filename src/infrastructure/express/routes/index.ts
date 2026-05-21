@@ -84,16 +84,17 @@ decisionRouter.get(
     const toTitleCase = (str: string): string =>
       str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-    const proceedings = data.data.proceedings.map((p) => ({
-      proceedingDescription: p.proceedingDescription,
-      certificateType: toTitleCase(p.certificateType),
-      meritsAssessment: toTitleCase(p.meritsDecision),
-    }));
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
+    const firstProceeding = data.data.proceedings[0];
+    const formattedProceeding = {
+      certificateType: toTitleCase(firstProceeding.certificateType),
+      meritsDecision: toTitleCase(firstProceeding.meritsDecision),
+    };
 
     res.render("application/decision/index", {
       backUrl,
       applicationId: appId,
-      proceedings,
+      proceeding: formattedProceeding,
     });
   },
 );
