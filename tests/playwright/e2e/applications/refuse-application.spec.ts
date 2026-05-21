@@ -76,6 +76,35 @@ test.describe("Refuse application", () => {
   });
 });
 
+test.describe("Refuse application - justification page", () => {
+  test("provider can view Select a reason for refusal page", async ({
+    page,
+  }) => {
+    await page.goto(justificationPage);
+
+    await validateGovPage(page, {
+      headerText: "Make a decision",
+      backUrl: makeADecisionPage,
+    });
+
+    const form = page.getByTestId("select-reason-for-refusal");
+    await validateGovForm(form, { action: justificationPage });
+
+    const radioLabel = form.getByText("Select a reason for refusal");
+    await expect(radioLabel).toBeVisible();
+
+    await expect(
+      form.getByRole("radio", { name: "Not in scope" }),
+    ).toBeVisible();
+    await expect(
+      form.getByRole("radio", { name: "Insufficient information" }),
+    ).toBeVisible();
+    await expect(
+      form.getByRole("radio", { name: "Duplicate case" }),
+    ).toBeVisible();
+  });
+});
+
 async function continueToNextPage(form: Locator, page: Page): Promise<void> {
   const continueButton = form.getByRole("button");
   await continueButton.click();

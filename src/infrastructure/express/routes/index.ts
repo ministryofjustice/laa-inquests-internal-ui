@@ -98,6 +98,32 @@ decisionRouter.get(
   },
 );
 
+decisionRouter.get(
+  "/:laaReference/decision/justification",
+  (req: Request, res: Response) => {
+    const {
+      params: { laaReference },
+    } = req;
+    const backUrl = `/applications/${laaReference as string}/decision`;
+    res.render("application/decision/justification/index", {
+      backUrl,
+      laaReference,
+    });
+  },
+);
+
+decisionRouter.post(
+  "/:laaReference/decision/justification",
+  (req: Request, res: Response) => {
+    const {
+      params: { laaReference },
+    } = req;
+    res.redirect(
+      `/applications/${laaReference as string}/decision/confirmation`,
+    );
+  },
+);
+
 decisionRouter.post(
   "/:applicationId/decision",
   (req: Request, res: Response) => {

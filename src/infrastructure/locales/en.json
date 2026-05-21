@@ -78,6 +78,24 @@
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
+    "decision": {
+      "justification": {
+        "header": "Make a decision",
+        "radio": {
+          "label": "Select a reason for refusal",
+          "notInScope": "Not in scope",
+          "notInScopeHint": "Application does not meet general requirement for this matter type.",
+          "insufficientInformation": "Insufficient information",
+          "insufficientInformationHint": "You have provided insufficient information/ documentation to enable the application to be fully considered.",
+          "duplicateCase": "Duplicate case",
+          "duplicateCaseHint": "This application appears to duplicate an existing case already submitted under a different reference."
+        },
+        "textarea": {
+          "label": "Justification",
+          "hint": "This information will be shared with the provider and added to case history."
+        }
+      }
+    },
     "merits": {
       "header": "Make a decision",
       "extraDetail": "Use this section to provide more details about your decision. This will be shared with the provider and recorded in application history.",
