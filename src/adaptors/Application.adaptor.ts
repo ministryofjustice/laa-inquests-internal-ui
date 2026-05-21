@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { formatCurrency } from "#src/utils/formatter.js";
 import {
   APPLICATION_TYPES,
   CERTIFICATE_TYPES,
@@ -51,6 +52,10 @@ export class ApplicationAdaptor {
       (t) => t.scopeOfLimitationId === proceeding?.scopeLimitationHeading,
     )?.lscopeOfLimitationDescription;
 
+    const costLimit = proceeding?.substantiveCostLimitation != null
+      ? formatCurrency(proceeding.substantiveCostLimitation)
+      : undefined;
+
     res.render("application/application-overview", {
       application,
       proceeding,
@@ -59,6 +64,7 @@ export class ApplicationAdaptor {
       clientRole,
       levelOfService,
       scopeLimitation,
+      costLimit,
     });
   }
 }
