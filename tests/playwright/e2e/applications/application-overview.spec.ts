@@ -174,7 +174,8 @@ test.describe("People tab", () => {
     const interestedPartiesCard = peoplePanel
       .locator(".govuk-summary-card")
       .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Interested parties" }) });
-    await expect(interestedPartiesCard.locator("dt", { hasText: "Public authority named" })).toBeVisible();
+    await expect(interestedPartiesCard).toBeVisible();
+    await expect(interestedPartiesCard.locator("dt").first()).toBeVisible();
   });
 
   test("should have a make assessment button", async ({ page }) => {

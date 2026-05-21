@@ -173,18 +173,17 @@
                 }
             ]
         }) }}
+        {% set publicBodyRows = [] %}
+        {% for body in application.publicBodies %}
+            {% set publicBodyRows = publicBodyRows.concat([{ key: { text: body.publicBodyDescription } }]) %}
+        {% endfor %}
         {{ govukSummaryList({
             card: {
                 title: {
                     text: "Interested parties"
                 }
             },
-            rows: [
-                {
-                    key: { text: "Public authority named" },
-                    value: { text: "test" }
-                }
-            ]
+            rows: publicBodyRows
         }) }}
         {{ govukButton({
             text: "Make assessment",
