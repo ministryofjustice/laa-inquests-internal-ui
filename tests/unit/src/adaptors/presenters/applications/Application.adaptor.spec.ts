@@ -106,6 +106,7 @@ describe("Application adaptor", () => {
           substantiveCostLimitation: "£25,000",
         },
       ],
+      backUrl: "#",
     });
   });
 
