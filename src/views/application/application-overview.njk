@@ -33,11 +33,11 @@
                 },
                 {
                     key: { text: "Certificate type" },
-                    value: { text: certificateType }
+                    value: { text: proceedings[0].certificateType }
                 },
                 {
                     key: { text: "Merits application" },
-                    value: { html: govukTag({ text: application.proceedings[0].meritsDecision }) }
+                    value: { html: govukTag({ text: proceedings[0].meritsDecision }) }
                 }
             ]
         }) }}
@@ -45,25 +45,25 @@
         {{ govukSummaryList({
             card: {
                 title: {
-                    text: "1. " ~ application.proceedings[0].proceedingDescription
+                    text: "1. " ~ proceedings[0].proceedingDescription
                 }
             },
             rows: [
                 {
                     key: { text: "Client role" },
-                    value: { text: clientRole }
+                    value: { text: proceedings[0].clientInvolvementType }
                 },
                 {
                     key: { text: "Level of service" },
-                    value: { text: levelOfService }
+                    value: { text: proceedings[0].levelOfService }
                 },
                 {
                     key: { text: "Scope limitation" },
-                    value: { text: scopeLimitation }
+                    value: { text: proceedings[0].scopeLimitationHeading }
                 },
                 {
                     key: { text: "Cost limit" },
-                    value: { text: costLimit }
+                    value: { text: proceedings[0].substantiveCostLimitation }
                 }
             ]
         }) }}
