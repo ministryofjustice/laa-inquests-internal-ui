@@ -29,15 +29,15 @@
             rows: [
                 {
                     key: { text: "Application type" },
-                    value: { text: application.applicationType }
+                    value: { text: applicationType }
                 },
                 {
                     key: { text: "Certificate type" },
-                    value: { text: "test" }
+                    value: { text: certificateType }
                 },
                 {
                     key: { text: "Merits application" },
-                    value: { text: "test" }
+                    value: { html: govukTag({ text: application.proceedings[0].meritsDecision }) }
                 }
             ]
         }) }}
@@ -45,25 +45,25 @@
         {{ govukSummaryList({
             card: {
                 title: {
-                    text: "1. Inquest"
+                    text: "1. " ~ application.proceedings[0].proceedingDescription
                 }
             },
             rows: [
                 {
                     key: { text: "Client role" },
-                    value: { text: "test" }
+                    value: { text: clientRole }
                 },
                 {
                     key: { text: "Level of service" },
-                    value: { text: "test" }
+                    value: { text: levelOfService }
                 },
                 {
                     key: { text: "Scope limitation" },
-                    value: { text: "test" }
+                    value: { text: scopeLimitation }
                 },
                 {
                     key: { text: "Cost limit" },
-                    value: { text: "test" }
+                    value: { text: application.proceedings[0].substantiveCostLimitation }
                 }
             ]
         }) }}
