@@ -1,5 +1,6 @@
-import { Locator, Page } from "playwright";
+import { BrowserContext, Locator, Page } from "playwright";
 import { test, expect } from "../../fixtures/index.js";
+import { TEST_CONFIG } from "../../playwright.config.js";
 
 const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
@@ -9,14 +10,18 @@ const confirmationPage = `/applications/${applicationId}/decision/confirmation`;
 const justificationText = "Test note";
 
 test.describe.serial("Refuse application journey", () => {
+  let sharedContext: BrowserContext;
   let sharedPage: Page;
 
   test.beforeAll(async ({ browser }) => {
-    sharedPage = await browser.newPage();
+    sharedContext = await browser.newContext({
+      baseURL: TEST_CONFIG.BASE_URL,
+    });
+    sharedPage = await sharedContext.newPage();
   });
 
   test.afterAll(async () => {
-    await sharedPage.close();
+    await sharedContext.close();
   });
 
   test("provider views the Make a decision page", async () => {
@@ -115,12 +120,54 @@ test.describe.serial("Refuse application journey", () => {
     await expect(summaryCard.getByText("Merits assessment")).toBeVisible();
     await expect(summaryCard.getByText("Pending")).toBeVisible();
 
-    await expect(summaryCard.getByText("Refusal reason")).toBeVisible();
+    await expect(
+      summaryCard.getByText("Refusal reason", { exact: true }),
+    ).toBeVisible();
     await expect(summaryCard.getByText("Not in scope")).toBeVisible();
-    await expect(summaryCard.getByText("Justification")).toBeVisible();
+    await expect(
+      summaryCard.getByText("Justification", { exact: true }),
+    ).toBeVisible();
     await expect(summaryCard.getByText(justificationText)).toBeVisible();
 
     await validateSubmitButton(form, "Submit declaration");
+  });
+
+  test("provider clicks Change on a row and is taken back to the justification page", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = form.locator(".govuk-summary-card");
+
+    const refusalReasonRow = summaryCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText("Refusal reason", { exact: true }),
+    });
+    await refusalReasonRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(justificationPage);
+  });
+
+  test("provider sees pre-populated data on the justification page", async () => {
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
+
+    await expect(
+      form.getByRole("radio", { name: "Not in scope" }),
+    ).toBeChecked();
+    await expect(form.getByLabel("Justification")).toHaveValue(
+      justificationText,
+    );
+  });
+
+  test("provider updates the justification and returns to the Check your answers page", async () => {
+    const updatedJustificationText = "Updated justification note";
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
+
+    await form.getByLabel("Justification").fill(updatedJustificationText);
+    await continueToNextPage(form, sharedPage);
+    await expect(sharedPage).toHaveURL(confirmationPage);
+
+    const summaryCard = sharedPage
+      .getByTestId("check-your-answers")
+      .locator(".govuk-summary-card");
+    await expect(summaryCard.getByText(updatedJustificationText)).toBeVisible();
   });
 });
 

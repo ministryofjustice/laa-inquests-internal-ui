@@ -38,6 +38,15 @@
         },
         value: {
           text: refusalReasonLabel
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + applicationId + "/decision/justification",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.decision.confirmation.refusalReasonTitle')
+            }
+          ]
         }
       },
       {
@@ -46,6 +55,15 @@
         },
         value: {
           text: justification
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + applicationId + "/decision/justification",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.decision.confirmation.justificationTitle')
+            }
+          ]
         }
       }
     ]

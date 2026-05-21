@@ -99,6 +99,7 @@ decisionRouter.get(
       backUrl,
       applicationId: appId,
       proceeding: formattedProceeding,
+      overallDecision: getSessionData(req, "decision")?.overallDecision,
     });
   },
 );
@@ -154,9 +155,12 @@ decisionRouter.get(
       params: { laaReference },
     } = req;
     const backUrl = `/applications/${laaReference as string}/decision`;
+    const sessionData = getSessionData(req, "decision") ?? {};
     res.render("application/decision/justification/index", {
       backUrl,
       laaReference,
+      refusalReason: sessionData.refusalReason,
+      justification: sessionData.justification,
     });
   },
 );

@@ -9,6 +9,7 @@
   <h1 class="govuk-heading-l">{{ t('pages.decision.justification.header') }}</h1>
   {{ govukRadios({
     name: "refusal-reason",
+    value: refusalReason,
     fieldset: {
       legend: {
         text: t('pages.decision.justification.radio.label'),
@@ -45,6 +46,7 @@
   {{ govukTextarea({
     name: "justification",
     id: "justification",
+    value: justification,
     label: {
       text: t('pages.decision.justification.textarea.label'),
       classes: "govuk-!-font-weight-bold"
