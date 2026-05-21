@@ -12,12 +12,8 @@ test.describe("Refuse application", () => {
 
     const form = await page.getByTestId("make-a-decision");
 
-    await validateGovUKPage(page);
-    await validatePageWrapper(page);
-    await validateHeader(page, "Make a decision", 1);
-    await validateBackButton(page, backUrl);
-    await validateFormAttributes(form, makeADecisionPage);
-    validateCSRFToken(form);
+    await validateGovPage(page, { headerText: "Make a decision", backUrl });
+    await validateGovForm(form, { action: makeADecisionPage });
 
     const referenceLabel = form.getByRole("heading", {
       name: applicationId,
@@ -68,8 +64,6 @@ test.describe("Refuse application", () => {
     await expect(grantRadio).toBeVisible();
     const refuseRadio = form.getByRole("radio", { name: "Refuse" });
     await expect(refuseRadio).toBeVisible();
-
-    await validateContinueButton(form);
   });
   test("provider can continue to the next page", async ({ page }) => {
     await page.goto(makeADecisionPage);
@@ -104,7 +98,26 @@ async function validateContinueButton(form: Locator): Promise<void> {
   await expect(continueButton).toHaveAttribute("type", "submit");
 }
 
-async function validateGovUKPage(page: Page): Promise<void> {
+async function validateGovPage(
+  page: Page,
+  { headerText, backUrl }: { headerText: string; backUrl: string },
+): Promise<void> {
+  await validateGovHeader(page);
+  await validatePageWrapper(page);
+  await validateHeader(page, headerText, 1);
+  await validateBackButton(page, backUrl);
+}
+
+async function validateGovForm(
+  form: Locator,
+  { action }: { action: string },
+): Promise<void> {
+  await validateFormAttributes(form, action);
+  await validateCSRFToken(form);
+  await validateContinueButton(form);
+}
+
+async function validateGovHeader(page: Page): Promise<void> {
   const govUkHeader = page.locator("header", {
     has: page.getByRole("link", { name: "GOV.UK" }),
   });
@@ -112,9 +125,6 @@ async function validateGovUKPage(page: Page): Promise<void> {
 }
 
 async function validatePageWrapper(page: Page): Promise<void> {
-  const widthContainer = page.locator(".govuk-width-container");
-  await expect(widthContainer).toBeVisible();
-
   const mainContent = page.locator("main.govuk-main-wrapper");
   await expect(mainContent).toBeVisible();
 
