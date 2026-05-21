@@ -24,7 +24,7 @@ const DeceasedSchema = z.object({
   clientRelationshipToDeceased: z.string(),
 });
 
-const ProceedingSchema = z.object({
+export const ProceedingSchema = z.object({
   proceedingId: z.string(),
   proceedingDescription: z.string().optional().nullable(),
   categoryOfLaw: z.string(),

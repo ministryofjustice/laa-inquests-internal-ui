@@ -11,58 +11,58 @@ describe("Application adaptor", () => {
   let viewApplicationAdaptorStub: StubbedInstance<ViewApplicationAdaptor>;
 
   const application = {
-      "laaReference": 123,
-      "createdAt": "2026-05-21T08:46:36.793278",
-      "updatedAt": "2026-05-21T08:46:36.793294",
-      "status": "LIVE",
-      "usedDelegatedFunctions": true,
-      "applicationType": "INITIAL",
-      "autoGrant": true,
-      "overallDecision": "PENDING",
-      "proceedings": [
-        {
-          "proceedingId": "MN035",
-          "proceedingDescription": "description of proceeding",
-          "categoryOfLaw": "INQUESTS",
-          "certificateType": "SUBSTANTIVE",
-          "levelOfService": "FULL_REPRESENTATION",
-          "matterType": "INQUESTS",
-          "scopeLimitationHeading": "FINAL_HEARING",
-          "scopeDescription": "This is the scope description",
-          "substantiveCostLimitation": 25000,
-          "clientInvolvementType": "RESPONDENT",
-          "meritsDecision": "PENDING"
-        }
-      ],
-      "publicBodies": [
-        {
-          "publicBodyId": "Cabinet Office",
-          "publicBodyDescription": "Cabinet Office"
-        }
-      ],
-      "client": {
-        "clientId": 51,
-        "clientFirstName": "test",
-        "clientLastName": "test",
-        "clientLastNameAtBirth": "",
-        "dateOfBirth": "01-02-1990",
-        "nationalInsuranceNumber": "QQ123456C",
-        "correspondenceAddress": null,
-        "homeAddress": null,
-        "hasAppliedPreviously": false,
-        "prevApplicationReference": null
+    laaReference: 123,
+    createdAt: "2026-05-21T08:46:36.793278",
+    updatedAt: "2026-05-21T08:46:36.793294",
+    status: "LIVE",
+    usedDelegatedFunctions: true,
+    applicationType: "INITIAL",
+    autoGrant: true,
+    overallDecision: "PENDING",
+    proceedings: [
+      {
+        proceedingId: "MN035",
+        proceedingDescription: "description of proceeding",
+        categoryOfLaw: "INQUESTS",
+        certificateType: "SUBSTANTIVE",
+        levelOfService: "FULL_REPRESENTATION",
+        matterType: "INQUESTS",
+        scopeLimitationHeading: "FINAL_HEARING",
+        scopeDescription: "This is the scope description",
+        substantiveCostLimitation: 25000,
+        clientInvolvementType: "RESPONDENT",
+        meritsDecision: "PENDING",
       },
-      "deceased": {
-        "deceasedId": 51,
-        "deceasedFirstName": "test example",
-        "deceasedLastName": "test",
-        "deceasedDateOfBirth": "01-02-1990",
-        "deceasedDateOfDeath": "01-02-2003",
-        "coronersReference": "3452423",
-        "furtherInformation": "",
-        "clientRelationshipToDeceased": "brother"
-      }
-    };
+    ],
+    publicBodies: [
+      {
+        publicBodyId: "Cabinet Office",
+        publicBodyDescription: "Cabinet Office",
+      },
+    ],
+    client: {
+      clientId: 51,
+      clientFirstName: "test",
+      clientLastName: "test",
+      clientLastNameAtBirth: "",
+      dateOfBirth: "01-02-1990",
+      nationalInsuranceNumber: "QQ123456C",
+      correspondenceAddress: null,
+      homeAddress: null,
+      hasAppliedPreviously: false,
+      prevApplicationReference: null,
+    },
+    deceased: {
+      deceasedId: 51,
+      deceasedFirstName: "test example",
+      deceasedLastName: "test",
+      deceasedDateOfBirth: "01-02-1990",
+      deceasedDateOfDeath: "01-02-2003",
+      coronersReference: "3452423",
+      furtherInformation: "",
+      clientRelationshipToDeceased: "brother",
+    },
+  };
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
@@ -73,7 +73,11 @@ describe("Application adaptor", () => {
 
   it("render application overview page", async () => {
     viewApplicationAdaptorStub.getApplication.resolves(application);
-    await applicationAdaptor.renderApplicationPage(requestStub, responseStub, "123");
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "application/application-overview");
@@ -81,7 +85,11 @@ describe("Application adaptor", () => {
 
   it("render application overview page passes application data and proceedings", async () => {
     viewApplicationAdaptorStub.getApplication.resolves(application);
-    await applicationAdaptor.renderApplicationPage(requestStub, responseStub, "123");
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
     assert.partialDeepStrictEqual(renderArgs[1], {
@@ -100,5 +108,4 @@ describe("Application adaptor", () => {
       ],
     });
   });
-
 });
