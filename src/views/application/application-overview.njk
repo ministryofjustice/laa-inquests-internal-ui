@@ -179,6 +179,19 @@
                 }
             ]
         }) }}
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "Interested parties"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "Public authority named" },
+                    value: { text: "test" }
+                }
+            ]
+        }) }}
     {% endset %}
 
     {{ govukTabs({

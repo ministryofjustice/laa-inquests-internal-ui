@@ -174,5 +174,17 @@ test.describe("People tab", () => {
     await expect(providerCard.locator("dt", { hasText: "Account number" })).toBeVisible();
     await expect(providerCard.locator("dt").getByText("Address", { exact: true })).toBeVisible();
   });
+
+  test("should have the interested parties content", async ({ page }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const interestedPartiesCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Interested parties" }) });
+    await expect(interestedPartiesCard.locator("dt", { hasText: "Public authority named" })).toBeVisible();
+  });
 });
 
