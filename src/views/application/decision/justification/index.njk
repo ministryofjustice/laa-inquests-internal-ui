@@ -1,0 +1,62 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageContent %}
+<form data-testid="select-reason-for-refusal" method="post" action="/applications/{{ laaReference }}/decision/justification">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+  <h1 class="govuk-heading-l">{{ t('pages.decision.justification.header') }}</h1>
+  {{ govukRadios({
+    name: "refusal-reason",
+    value: refusalReason,
+    fieldset: {
+      legend: {
+        text: t('pages.decision.justification.radio.label'),
+        classes: "govuk-fieldset__legend--m"
+      }
+    },
+    items: [
+      {
+        value: "not-in-scope",
+        text: t('pages.decision.justification.radio.notInScope'),
+        label: { classes: "govuk-!-font-weight-bold" },
+        hint: {
+          text: t('pages.decision.justification.radio.notInScopeHint')
+        }
+      },
+      {
+        value: "insufficient-information",
+        text: t('pages.decision.justification.radio.insufficientInformation'),
+        label: { classes: "govuk-!-font-weight-bold" },
+        hint: {
+          text: t('pages.decision.justification.radio.insufficientInformationHint')
+        }
+      },
+      {
+        value: "duplicate-case",
+        text: t('pages.decision.justification.radio.duplicateCase'),
+        label: { classes: "govuk-!-font-weight-bold" },
+        hint: {
+          text: t('pages.decision.justification.radio.duplicateCaseHint')
+        }
+      }
+    ]
+  }) }}
+  {{ govukTextarea({
+    name: "justification",
+    id: "justification",
+    value: justification,
+    label: {
+      text: t('pages.decision.justification.textarea.label'),
+      classes: "govuk-!-font-weight-bold"
+    },
+    hint: {
+      text: t('pages.decision.justification.textarea.hint')
+    }
+  }) }}
+  {{ govukButton({
+    text: "Continue"
+  }) }}
+</form>
+{% endblock pageContent %}
