@@ -28,8 +28,7 @@ export class ApplicationAdaptor {
       `Application with ID: ${applicationId} has been accessed.`,
       req,
     );
-    const application =
-      await this.viewApplicationAdaptor.getApplication(applicationId);
+    const application = await this.viewApplicationAdaptor.getApplication(applicationId);
 
     const proceedings = mapProceedings(application.proceedings);
 
@@ -37,10 +36,11 @@ export class ApplicationAdaptor {
       (t) => t.applicationTypeId === application.applicationType,
     )?.applicationTypeDescription;
 
+    application.applicationType = applicationType || application.applicationType;
+
     res.render("application/application-overview", {
       application,
       proceedings,
-      applicationType,
     });
   }
 }
