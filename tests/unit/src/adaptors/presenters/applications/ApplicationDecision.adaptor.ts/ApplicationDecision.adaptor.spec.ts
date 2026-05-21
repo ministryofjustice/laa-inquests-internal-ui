@@ -4,10 +4,15 @@ import type { Request, Response } from "express";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
+import { TypedRequest } from "#src/infrastructure/express/api.types.js";
+import { IdParams } from "#src/infrastructure/express/api.types.js";
+import { ApplicationDecisionForm } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
-  let requestStub: StubbedInstance<Request>;
+  let requestStub:
+    | StubbedInstance<Request>
+    | StubbedInstance<TypedRequest<ApplicationDecisionForm, IdParams>>;
   let viewApplicationSourceStub: StubbedInstance<ViewApplicationPort>;
   let sessionHelperStub: StubbedInstance<SessionHelper>;
   let adaptor: ApplicationDecisionAdaptor;
@@ -46,7 +51,11 @@ describe("ApplicationDecisionAdaptor", () => {
       } as any);
 
       await assert.rejects(
-        () => adaptor.renderApplicationDecisionForm(requestStub, responseStub),
+        () =>
+          adaptor.renderApplicationDecisionForm(
+            requestStub as Request,
+            responseStub,
+          ),
         new Error("Application has no proceedings"),
       );
     });
@@ -56,7 +65,10 @@ describe("ApplicationDecisionAdaptor", () => {
         proceedings: [mockProceeding],
       } as any);
 
-      await adaptor.renderApplicationDecisionForm(requestStub, responseStub);
+      await adaptor.renderApplicationDecisionForm(
+        requestStub as Request,
+        responseStub,
+      );
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
@@ -69,7 +81,10 @@ describe("ApplicationDecisionAdaptor", () => {
       } as any);
       sessionHelperStub.getSessionData.returns({ overallDecision: "refuse" });
 
-      await adaptor.renderApplicationDecisionForm(requestStub, responseStub);
+      await adaptor.renderApplicationDecisionForm(
+        requestStub as Request,
+        responseStub,
+      );
 
       const renderArgs = responseStub.render.getCall(0).args;
       assert.deepEqual(renderArgs[1], {
@@ -91,7 +106,10 @@ describe("ApplicationDecisionAdaptor", () => {
     });
 
     it("saves overallDecision to session", () => {
-      adaptor.processApplicationDecisionForm(requestStub, responseStub);
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
       const storeArgs = sessionHelperStub.storeSessionData.getCall(0).args;
@@ -103,7 +121,10 @@ describe("ApplicationDecisionAdaptor", () => {
     });
 
     it("redirects to the justification page", () => {
-      adaptor.processApplicationDecisionForm(requestStub, responseStub);
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
 
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(

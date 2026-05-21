@@ -2,6 +2,11 @@ import type { Request, Response } from "express";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
 import { toTitleCase } from "#src/utils/formatter.js";
+import type {
+  TypedRequest,
+  IdParams,
+} from "#src/infrastructure/express/api.types.js";
+import type { ApplicationDecisionForm } from "./models/form.types.js";
 
 export class ApplicationDecisionAdaptor {
   constructor(
@@ -39,12 +44,16 @@ export class ApplicationDecisionAdaptor {
     });
   }
 
-  processApplicationDecisionForm(req: Request, res: Response): void {
-    const applicationId = req.params.applicationId as string;
-    const { "overall-decision": overallDecision } = req.body as Record<
-      string,
-      string
-    >;
+  processApplicationDecisionForm(
+    req: TypedRequest<ApplicationDecisionForm, IdParams>,
+    res: Response,
+  ): void {
+    const {
+      params: { applicationId },
+    } = req;
+    const {
+      body: { "overall-decision": overallDecision },
+    } = req;
 
     this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
     res.redirect(`/applications/${applicationId}/decision/justification`);

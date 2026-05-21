@@ -7,6 +7,8 @@ import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
+import type { IdParams, TypedRequest } from "../api.types.js";
+import type { ApplicationDecisionForm } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 
 // Create a new router
 const router = express.Router();
@@ -68,7 +70,10 @@ decisionRouter.get(
 decisionRouter.post(
   "/:applicationId/decision",
   (req: Request, res: Response): void => {
-    applicationDecisionAdaptor.processApplicationDecisionForm(req, res);
+    applicationDecisionAdaptor.processApplicationDecisionForm(
+      req as unknown as TypedRequest<ApplicationDecisionForm, IdParams>,
+      res,
+    );
   },
 );
 

@@ -1,12 +1,13 @@
 import type { Request } from "express";
+import type { TypedRequest } from "../api.types.js";
 
 export class SessionHelper {
   storeSessionData(
-    req: Request,
+    req: Request | TypedRequest<unknown, unknown>,
     namespace: string,
     data: Record<string, string>,
   ): void {
-    const existing = this.getSessionData(req, namespace) ?? {};
+    const existing = this.getSessionData(req as Request, namespace) ?? {};
     req.session[namespace] = { ...existing, ...data };
   }
 
