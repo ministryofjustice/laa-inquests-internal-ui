@@ -1,6 +1,11 @@
 import { BrowserContext, Locator, Page } from "playwright";
 import { test, expect } from "../../fixtures/index.js";
 import { TEST_CONFIG } from "../../playwright.config.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const meritsLocale = en.pages.decision.merits;
+const justificationLocale = en.pages.decision.justification;
+const confirmationLocale = en.pages.decision.confirmation;
 
 const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
@@ -30,7 +35,7 @@ test.describe.serial("Refuse application journey", () => {
     const form = sharedPage.getByTestId("make-a-decision");
 
     await validateGovPage(sharedPage, {
-      headerText: "Make a decision",
+      headerText: meritsLocale.header,
       backUrl: overviewPage,
     });
     await validateGovForm(form, { action: makeADecisionPage });
@@ -41,68 +46,89 @@ test.describe.serial("Refuse application journey", () => {
     });
     await expect(referenceLabel).toBeVisible();
 
-    const paragraphText =
-      "Use this section to provide more details about your decision. This will be shared with the provider and recorded in application history.";
+    const paragraphText = meritsLocale.extraDetail;
     await expect(form.getByText(paragraphText)).toBeVisible();
 
     const firstCard = form.locator(".govuk-summary-card").filter({
       has: sharedPage.getByRole("heading", {
-        name: "Overview",
+        name: meritsLocale.proceedingsOverview.title,
       }),
     });
-    await expect(firstCard.getByText("Certificate type")).toBeVisible();
+    await expect(
+      firstCard.getByText(
+        meritsLocale.proceedingsOverview.certificateTypeTitle,
+      ),
+    ).toBeVisible();
     await expect(firstCard.getByText("Substantive")).toBeVisible();
-    await expect(firstCard.getByText("Merits assessment")).toBeVisible();
+    await expect(
+      firstCard.getByText(
+        meritsLocale.proceedingsOverview.meritsAssessmentTitle,
+      ),
+    ).toBeVisible();
     await expect(firstCard.getByText("Pending")).toBeVisible();
 
+    await expect(form.getByText(meritsLocale.radio.label)).toBeVisible();
     await expect(
-      form.getByText("What is your overall decision?"),
+      form.getByRole("radio", { name: meritsLocale.radio.grantLabel }),
     ).toBeVisible();
-    await expect(form.getByRole("radio", { name: "Grant" })).toBeVisible();
-    await expect(form.getByRole("radio", { name: "Refuse" })).toBeVisible();
+    await expect(
+      form.getByRole("radio", { name: meritsLocale.radio.refuseLabel }),
+    ).toBeVisible();
   });
 
   test("provider selects Refuse and continues to justification page", async () => {
     const form = sharedPage.getByTestId("make-a-decision");
-    await form.getByRole("radio", { name: "Refuse" }).check();
+    await form
+      .getByRole("radio", { name: meritsLocale.radio.refuseLabel })
+      .check();
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(justificationPage);
   });
 
   test("provider views the Select a reason for refusal page", async () => {
     await validateGovPage(sharedPage, {
-      headerText: "Make a decision",
+      headerText: justificationLocale.header,
       backUrl: makeADecisionPage,
     });
 
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await validateGovForm(form, { action: justificationPage });
 
-    await expect(form.getByText("Select a reason for refusal")).toBeVisible();
+    await expect(form.getByText(justificationLocale.radio.label)).toBeVisible();
     await expect(
-      form.getByRole("radio", { name: "Not in scope" }),
+      form.getByRole("radio", { name: justificationLocale.radio.notInScope }),
     ).toBeVisible();
     await expect(
-      form.getByRole("radio", { name: "Insufficient information" }),
+      form.getByRole("radio", {
+        name: justificationLocale.radio.insufficientInformation,
+      }),
     ).toBeVisible();
     await expect(
-      form.getByRole("radio", { name: "Duplicate case" }),
+      form.getByRole("radio", {
+        name: justificationLocale.radio.duplicateCase,
+      }),
     ).toBeVisible();
 
-    await expect(form.getByLabel("Justification")).toBeVisible();
+    await expect(
+      form.getByLabel(justificationLocale.textarea.label),
+    ).toBeVisible();
   });
 
   test("provider selects a reason and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
-    await form.getByRole("radio", { name: "Not in scope" }).check();
-    await form.getByLabel("Justification").fill(justificationText);
+    await form
+      .getByRole("radio", { name: justificationLocale.radio.notInScope })
+      .check();
+    await form
+      .getByLabel(justificationLocale.textarea.label)
+      .fill(justificationText);
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(confirmationPage);
   });
 
   test("provider views the Check your answers page", async () => {
     await validateGovPage(sharedPage, {
-      headerText: "Check your answers",
+      headerText: confirmationLocale.header,
       backUrl: justificationPage,
     });
 
@@ -113,33 +139,47 @@ test.describe.serial("Refuse application journey", () => {
 
     const summaryCard = form.locator(".govuk-summary-card");
     const cardTitle = summaryCard.locator(".govuk-summary-card__title");
-    await expect(cardTitle).toHaveText("Overall decision");
+    await expect(cardTitle).toHaveText(confirmationLocale.cardTitle);
 
-    await expect(summaryCard.getByText("Certificate type")).toBeVisible();
+    await expect(
+      summaryCard.getByText(confirmationLocale.certificateTypeTitle),
+    ).toBeVisible();
     await expect(summaryCard.getByText("Substantive")).toBeVisible();
-    await expect(summaryCard.getByText("Merits assessment")).toBeVisible();
+    await expect(
+      summaryCard.getByText(confirmationLocale.meritsAssessmentTitle),
+    ).toBeVisible();
     await expect(summaryCard.getByText("Pending")).toBeVisible();
 
     const overallDecisionRow = summaryCard.locator(".govuk-summary-list__row", {
-      has: sharedPage.getByText("Overall decision", { exact: true }),
+      has: sharedPage.getByText(confirmationLocale.overallDecisionTitle, {
+        exact: true,
+      }),
     });
     await expect(
-      overallDecisionRow.getByText("Refuse", { exact: true }),
+      overallDecisionRow.getByText(meritsLocale.radio.refuseLabel, {
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(
       overallDecisionRow.getByRole("link", { name: /change/i }),
     ).toHaveAttribute("href", makeADecisionPage);
 
     await expect(
-      summaryCard.getByText("Refusal reason", { exact: true }),
+      summaryCard.getByText(confirmationLocale.refusalReasonTitle, {
+        exact: true,
+      }),
     ).toBeVisible();
-    await expect(summaryCard.getByText("Not in scope")).toBeVisible();
     await expect(
-      summaryCard.getByText("Justification", { exact: true }),
+      summaryCard.getByText(justificationLocale.radio.notInScope),
+    ).toBeVisible();
+    await expect(
+      summaryCard.getByText(confirmationLocale.justificationTitle, {
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(summaryCard.getByText(justificationText)).toBeVisible();
 
-    await validateSubmitButton(form, "Submit declaration");
+    await validateSubmitButton(form, confirmationLocale.submitButton);
   });
 
   test("provider clicks Change on a row and is taken back to the justification page", async () => {
@@ -147,7 +187,9 @@ test.describe.serial("Refuse application journey", () => {
     const summaryCard = form.locator(".govuk-summary-card");
 
     const refusalReasonRow = summaryCard.locator(".govuk-summary-list__row", {
-      has: sharedPage.getByText("Refusal reason", { exact: true }),
+      has: sharedPage.getByText(confirmationLocale.refusalReasonTitle, {
+        exact: true,
+      }),
     });
     await refusalReasonRow.getByRole("link", { name: /change/i }).click();
     await sharedPage.waitForLoadState("domcontentloaded");
@@ -159,18 +201,20 @@ test.describe.serial("Refuse application journey", () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
     await expect(
-      form.getByRole("radio", { name: "Not in scope" }),
+      form.getByRole("radio", { name: justificationLocale.radio.notInScope }),
     ).toBeChecked();
-    await expect(form.getByLabel("Justification")).toHaveValue(
-      justificationText,
-    );
+    await expect(
+      form.getByLabel(justificationLocale.textarea.label),
+    ).toHaveValue(justificationText);
   });
 
   test("provider updates the justification and returns to the Check your answers page", async () => {
     const updatedJustificationText = "Updated justification note";
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
-    await form.getByLabel("Justification").fill(updatedJustificationText);
+    await form
+      .getByLabel(justificationLocale.textarea.label)
+      .fill(updatedJustificationText);
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(confirmationPage);
 
