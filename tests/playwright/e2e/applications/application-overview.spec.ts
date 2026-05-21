@@ -1,4 +1,8 @@
 import { test, expect } from "../../fixtures/index.js";
+import {
+  validateGovPage,
+  validateHeader,
+} from "../../utils/govuk-validators.js";
 
 const applicationId = "1";
 
@@ -6,16 +10,8 @@ test.describe("Application overview page", () => {
   test("should have the correct title and back link", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
-    const backButton = page.getByRole("link", { name: "Back", exact: true });
-    const applicationHeading = await page.getByRole("heading", {
-      level: 1,
-      name: applicationId,
-    });
-
     await expect(page).toHaveTitle(/Inquests – GOV.UK/);
-    await expect(applicationHeading).toBeVisible();
-    await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "#");
+    await validateGovPage(page, { headerText: applicationId, backUrl: "#" });
   });
 
   test("should have a status tag", async ({ page }) => {
@@ -44,9 +40,7 @@ test.describe("Application details tab", () => {
 
     await page.getByRole("tab", { name: "Application details" }).click();
 
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Overview" }),
-    ).toBeVisible();
+    await validateHeader(page, "Overview", 2);
     const applicationDetailsPanel = page.locator("#application-details");
     const overviewSummaryList = applicationDetailsPanel.locator(
       ".govuk-summary-list",
@@ -68,9 +62,7 @@ test.describe("Application details tab", () => {
 
     await page.getByRole("tab", { name: "Application details" }).click();
 
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Proceedings" }),
-    ).toBeVisible();
+    await validateHeader(page, "Proceedings", 2);
     const applicationDetailsPanel = page.locator("#application-details");
     const inquestCard = applicationDetailsPanel
       .locator(".govuk-summary-card")
@@ -86,9 +78,7 @@ test.describe("Application details tab", () => {
 
     await page.getByRole("tab", { name: "Application details" }).click();
 
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Uploaded evidence" }),
-    ).toBeVisible();
+    await validateHeader(page, "Uploaded evidence", 2);
     const applicationDetailsPanel = page.locator("#application-details");
     const evidenceCard = applicationDetailsPanel.locator(
       ".govuk-summary-card",
