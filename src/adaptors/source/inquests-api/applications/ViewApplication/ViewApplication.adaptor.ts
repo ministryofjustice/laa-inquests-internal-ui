@@ -12,7 +12,6 @@ export class ViewApplicationAdaptor {
     const { data }: AxiosResponse<Application> = await this.http.get(
       `${this.baseUrl}/applications/${applicationId}`,
     );
-    const application = ApplicationSchema.parse(data);
-    return application;
+    return ApplicationSchema.parse(data);
   }
 }

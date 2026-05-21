@@ -5,7 +5,6 @@ import createApplicationRouter from "#src/infrastructure/express/routes/applicat
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
-import { logger } from "../middleware/logger/logger.js";
 import {
   storeSessionData,
   getSessionData,
@@ -21,21 +20,6 @@ const UNSUCCESSFUL_REQUEST = 500;
 router.get("/", (req: Request, res: Response): void => {
   res.render("main/index");
 });
-
-router.get(
-  "/application/:applicationId",
-  (req: Request, res: Response): void => {
-    const {
-      params: { applicationId },
-    } = req;
-    logger.logInfo(
-      "GET Application by ID",
-      `Application with ID: ${applicationId as string} has been accessed.`,
-      req,
-    );
-    res.render("application/index");
-  },
-);
 
 // liveness and readiness probes for Helm deployments
 router.get("/status", (req: Request, res: Response): void => {
