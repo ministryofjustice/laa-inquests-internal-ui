@@ -34,6 +34,17 @@ describe("ApplicationDecisionAdaptor", () => {
   });
 
   describe("renderApplicationDecisionForm", () => {
+    it("throws an error if there are no proceedings", async () => {
+      viewApplicationSourceStub.getApplication.resolves({
+        proceedings: [],
+      } as any);
+
+      await assert.rejects(
+        () => adaptor.renderApplicationDecisionForm(requestStub, responseStub),
+        new Error("Application has no proceedings"),
+      );
+    });
+
     it("calls res.render with the correct view name", async () => {
       viewApplicationSourceStub.getApplication.resolves({
         proceedings: [mockProceeding],

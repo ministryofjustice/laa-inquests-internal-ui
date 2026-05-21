@@ -15,6 +15,11 @@ export class ApplicationDecisionAdaptor {
 
     const data =
       await this.viewApplicationAdaptor.getApplication(applicationId);
+
+    if (!data.proceedings.length) {
+      throw new Error("Application has no proceedings");
+    }
+
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
     const firstProceeding = data.proceedings[0];
     const formattedProceeding = {
