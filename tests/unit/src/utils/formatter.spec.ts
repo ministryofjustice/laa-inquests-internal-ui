@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { formatCurrency } from "#src/utils/formatter.js";
+import { formatCurrency, toTitleCase } from "#src/utils/formatter.js";
 
 describe("formatCurrency()", () => {
   it("formats a whole number as GBP currency", () => {
@@ -20,5 +20,23 @@ describe("formatCurrency()", () => {
 
   it("formats a small amount correctly", () => {
     expect(formatCurrency(500)).to.equal("£500");
+  });
+});
+
+describe("toTitleCase()", () => {
+  it("capitalises the first letter and lowercases the rest", () => {
+    expect(toTitleCase("SUBSTANTIVE")).to.equal("Substantive");
+  });
+
+  it("handles an already title-cased string", () => {
+    expect(toTitleCase("Pending")).to.equal("Pending");
+  });
+
+  it("handles a fully lowercase string", () => {
+    expect(toTitleCase("refuse")).to.equal("Refuse");
+  });
+
+  it("handles a single character", () => {
+    expect(toTitleCase("a")).to.equal("A");
   });
 });

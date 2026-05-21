@@ -1,9 +1,7 @@
 import type { Request, Response } from "express";
 import { getSessionData } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
-
-const toTitleCase = (str: string): string =>
-  str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+import { toTitleCase } from "#src/utils/formatter.js";
 
 export class ApplicationDecisionAdaptor {
   constructor(private readonly dataStore: ViewApplicationPort) {}
