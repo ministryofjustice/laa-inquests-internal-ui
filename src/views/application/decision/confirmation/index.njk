@@ -34,6 +34,23 @@
     },
       {
         key: {
+          text: t('pages.decision.confirmation.overallDecisionTitle')
+        },
+        value: {
+          text: overallDecisionLabel
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + applicationId + "/decision",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.decision.confirmation.overallDecisionTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
           text: t('pages.decision.confirmation.refusalReasonTitle')
         },
         value: {

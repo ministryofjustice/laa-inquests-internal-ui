@@ -81,9 +81,10 @@
     "decision": {
       "confirmation": {
         "header": "Check your answers",
-        "cardTitle": "Refuse",
+        "cardTitle": "Overall decision",
         "certificateTypeTitle": "Certificate type",
         "meritsAssessmentTitle": "Merits assessment",
+        "overallDecisionTitle": "Overall decision",
         "refusalReasonTitle": "Refusal reason",
         "justificationTitle": "Justification",
         "submitButton": "Submit declaration"

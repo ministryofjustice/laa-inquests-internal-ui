@@ -127,6 +127,11 @@ decisionRouter.get(
       meritsDecision: toTitleCase(firstProceeding.meritsDecision),
     };
 
+    const overallDecisionLabels: Record<string, string> = {
+      Grant: "Grant",
+      refuse: "Refuse",
+    };
+
     const refusalReasonLabels: Record<string, string> = {
       "not-in-scope": "Not in scope",
       "insufficient-information": "Insufficient information",
@@ -134,6 +139,9 @@ decisionRouter.get(
     };
 
     const sessionData = getSessionData(req, "decision") ?? {};
+    const overallDecisionLabel =
+      overallDecisionLabels[sessionData.overallDecision] ??
+      sessionData.overallDecision;
     const refusalReasonLabel =
       refusalReasonLabels[sessionData.refusalReason] ??
       sessionData.refusalReason;
@@ -142,6 +150,7 @@ decisionRouter.get(
       backUrl,
       applicationId: appId,
       proceeding: formattedProceeding,
+      overallDecisionLabel,
       refusalReasonLabel,
       justification: sessionData.justification,
     });
@@ -195,7 +204,9 @@ decisionRouter.post(
     } = req;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
     const overallDecision = req.body["overall-decision"] as string;
-    storeSessionData(req, "decision", { overallDecision });
+    const existing = getSessionData(req, "decision") ?? {};
+
+    storeSessionData(req, "decision", { ...existing, overallDecision });
     res.redirect(
       `/applications/${applicationId as string}/decision/justification`,
     );

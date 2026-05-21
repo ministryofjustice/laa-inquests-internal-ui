@@ -113,12 +113,22 @@ test.describe.serial("Refuse application journey", () => {
 
     const summaryCard = form.locator(".govuk-summary-card");
     const cardTitle = summaryCard.locator(".govuk-summary-card__title");
-    await expect(cardTitle).toHaveText("Refuse");
+    await expect(cardTitle).toHaveText("Overall decision");
 
     await expect(summaryCard.getByText("Certificate type")).toBeVisible();
     await expect(summaryCard.getByText("Substantive")).toBeVisible();
     await expect(summaryCard.getByText("Merits assessment")).toBeVisible();
     await expect(summaryCard.getByText("Pending")).toBeVisible();
+
+    const overallDecisionRow = summaryCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText("Overall decision", { exact: true }),
+    });
+    await expect(
+      overallDecisionRow.getByText("Refuse", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      overallDecisionRow.getByRole("link", { name: /change/i }),
+    ).toHaveAttribute("href", makeADecisionPage);
 
     await expect(
       summaryCard.getByText("Refusal reason", { exact: true }),
