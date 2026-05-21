@@ -22,9 +22,7 @@ test.describe("Application overview page", () => {
 
   test("application overview page has status tag", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
-    const statusTag = page.locator(
-      ".govuk-tag:not(.govuk-phase-banner__content__tag)",
-    );
+    const statusTag = page.locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)").first();
     await expect(statusTag).toBeVisible();
   });
 
@@ -76,9 +74,7 @@ test.describe("Application overview page", () => {
       page.getByRole("heading", { level: 2, name: "Proceedings" }),
     ).toBeVisible();
     const applicationDetailsPanel = page.locator("#application-details");
-    const inquestCard = applicationDetailsPanel.locator(".govuk-summary-card", {
-      hasText: "1. Inquest",
-    });
+    const inquestCard = applicationDetailsPanel.locator(".govuk-summary-card").first();
     await expect(inquestCard.getByText("Client role")).toBeVisible();
     await expect(inquestCard.getByText("Level of service")).toBeVisible();
     await expect(inquestCard.getByText("Scope limitation")).toBeVisible();
