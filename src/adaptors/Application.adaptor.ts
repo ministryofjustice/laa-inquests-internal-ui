@@ -37,24 +37,22 @@ export class ApplicationAdaptor {
     )?.applicationTypeDescription;
 
     const certificateType = CERTIFICATE_TYPES.find(
-      (t) => t.certificateTypeId === proceeding?.certificateType,
+      (t) => t.certificateTypeId === proceeding.certificateType,
     )?.certificateTypeDescription;
 
     const clientRole = CLIENT_ROLES.find(
-      (t) => t.clientRoleId === proceeding?.clientInvolvementType,
+      (t) => t.clientRoleId === proceeding.clientInvolvementType,
     )?.clientRoleDescription;
 
     const levelOfService = LEVEL_OF_SERVICE.find(
-      (t) => t.levelOfServiceId === proceeding?.levelOfService,
+      (t) => t.levelOfServiceId === proceeding.levelOfService,
     )?.levelOfServiceDescription;
 
     const scopeLimitation = SCOPE_OF_LIMITATION.find(
-      (t) => t.scopeOfLimitationId === proceeding?.scopeLimitationHeading,
+      (t) => t.scopeOfLimitationId === proceeding.scopeLimitationHeading,
     )?.lscopeOfLimitationDescription;
 
-    const costLimit = proceeding?.substantiveCostLimitation != null
-      ? formatCurrency(proceeding.substantiveCostLimitation)
-      : undefined;
+    const costLimit = formatCurrency(proceeding.substantiveCostLimitation);
 
     res.render("application/application-overview", {
       application,
