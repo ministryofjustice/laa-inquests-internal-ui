@@ -47,9 +47,7 @@ export class ApplicationAdaptor {
   }
 }
 
-function mapProceedings(
-  proceedings: Proceeding[],
-): Array<
+function mapProceedings(proceedings: Proceeding[]): Array<
   Omit<Proceeding, "substantiveCostLimitation"> & {
     substantiveCostLimitation: string;
   }
