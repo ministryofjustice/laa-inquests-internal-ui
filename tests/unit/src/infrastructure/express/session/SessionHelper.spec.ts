@@ -31,13 +31,23 @@ describe("Session Helpers", () => {
   });
 
   describe("storeSessionData()", () => {
-    it("stores data under specified namespace", () => {
+    it("creates a new object if the namespace does not exist", () => {
       const req = createMockRequest();
-      const testData = { name: "John", age: "30" };
 
-      sessionHelper.storeSessionData(req, "testNamespace", testData);
+      sessionHelper.storeSessionData(req, "testNamespace", { name: "John" });
 
-      expect(req.session.testNamespace).to.deep.equal(testData);
+      expect(req.session.testNamespace).to.deep.equal({ name: "John" });
+    });
+
+    it("adds keys to an existing object rather than overwriting", () => {
+      const req = createMockRequest({ testNamespace: { name: "John" } });
+
+      sessionHelper.storeSessionData(req, "testNamespace", { age: "30" });
+
+      expect(req.session.testNamespace).to.deep.equal({
+        name: "John",
+        age: "30",
+      });
     });
   });
 

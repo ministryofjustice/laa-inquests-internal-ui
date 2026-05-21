@@ -6,7 +6,8 @@ export class SessionHelper {
     namespace: string,
     data: Record<string, string>,
   ): void {
-    req.session[namespace] = data;
+    const existing = this.getSessionData(req, namespace) ?? {};
+    req.session[namespace] = { ...existing, ...data };
   }
 
   getSessionData(
