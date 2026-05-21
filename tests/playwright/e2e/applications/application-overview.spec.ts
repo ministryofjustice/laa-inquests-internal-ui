@@ -1,11 +1,9 @@
 import { test, expect } from "../../fixtures/index.js";
 
-test.describe("Application overview page", () => {
-  const applicationId = "1";
+const applicationId = "1";
 
-  test("application overview page should have the correct title and back link", async ({
-    page,
-  }) => {
+test.describe("Application overview page", () => {
+  test("should have the correct title and back link", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -20,7 +18,7 @@ test.describe("Application overview page", () => {
     await expect(backButton).toHaveAttribute("href", "#");
   });
 
-  test("application overview page has status tag", async ({ page }) => {
+  test("should have a status tag", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
     const statusTag = page
       .locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)")
@@ -28,7 +26,7 @@ test.describe("Application overview page", () => {
     await expect(statusTag).toBeVisible();
   });
 
-  test("application overview page should have tabs", async ({ page }) => {
+  test("should have tabs", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
     await page.waitForLoadState("domcontentloaded");
 
@@ -38,10 +36,10 @@ test.describe("Application overview page", () => {
     await expect(page.getByRole("tab", { name: "People" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "History" })).toBeVisible();
   });
+});
 
-  test("application details tab should have the overview content", async ({
-    page,
-  }) => {
+test.describe("Application details tab", () => {
+  test("should have the overview content", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -65,9 +63,7 @@ test.describe("Application overview page", () => {
     ).toBeVisible();
   });
 
-  test("application details tab should have the proceedings content", async ({
-    page,
-  }) => {
+  test("should have the proceedings content", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -85,9 +81,7 @@ test.describe("Application overview page", () => {
     await expect(inquestCard.getByText("Cost limit")).toBeVisible();
   });
 
-  test("application details tab should have the uploaded evidence content", async ({
-    page,
-  }) => {
+  test("should have the uploaded evidence content", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -110,9 +104,7 @@ test.describe("Application overview page", () => {
     ).toBeVisible();
   });
 
-  test("application details tab should have a make assessment button", async ({
-    page,
-  }) => {
+  test("should have a make assessment button", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -132,3 +124,55 @@ test.describe("Application overview page", () => {
     );
   });
 });
+
+test.describe("People tab", () => {
+  test("should have the client content", async ({ page }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const clientCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Client" }) });
+    await expect(clientCard.locator("dt", { hasText: "First name" })).toBeVisible();
+    await expect(clientCard.locator("dt", { hasText: "Last name" })).toBeVisible();
+    await expect(clientCard.locator("dt", { hasText: "Date of birth" })).toBeVisible();
+    await expect(clientCard.locator("dt", { hasText: "National Insurance number" })).toBeVisible();
+    await expect(clientCard.locator("dt").getByText("Address", { exact: true })).toBeVisible();
+    await expect(clientCard.locator("dt", { hasText: "Correspondence address" })).toBeVisible();
+    await expect(clientCard.locator("dt", { hasText: "Relationship to deceased" })).toBeVisible();
+  });
+
+  test("should have the deceased content", async ({ page }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const deceasedCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Deceased" }) });
+    await expect(deceasedCard.locator("dt", { hasText: "First name" })).toBeVisible();
+    await expect(deceasedCard.locator("dt", { hasText: "Last name" })).toBeVisible();
+    await expect(deceasedCard.locator("dt", { hasText: "Date of death" })).toBeVisible();
+    await expect(deceasedCard.locator("dt", { hasText: "Date of birth" })).toBeVisible();
+    await expect(deceasedCard.locator("dt", { hasText: "Inquest ID" })).toBeVisible();
+    await expect(deceasedCard.locator("dt", { hasText: "Additional inquest info" })).toBeVisible();
+  });
+
+  test("should have the provider content", async ({ page }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const providerCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Provider" }) });
+    await expect(providerCard.locator("dt", { hasText: "Firm name" })).toBeVisible();
+    await expect(providerCard.locator("dt", { hasText: "Account number" })).toBeVisible();
+    await expect(providerCard.locator("dt").getByText("Address", { exact: true })).toBeVisible();
+  });
+});
+

@@ -87,6 +87,100 @@
         }) }}
     {% endset %}
 
+    {% set peopleHtml %}
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "Client"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "First name" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Last name" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Date of birth" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "National Insurance number" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Address" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Correspondence address" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Relationship to deceased" },
+                    value: { text: "test" }
+                }
+            ]
+        }) }}
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "Deceased"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "First name" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Last name" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Date of death" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Date of birth" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Inquest ID" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Additional inquest info" },
+                    value: { text: "test" }
+                }
+            ]
+        }) }}
+        {{ govukSummaryList({
+            card: {
+                title: {
+                    text: "Provider"
+                }
+            },
+            rows: [
+                {
+                    key: { text: "Firm name" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Account number" },
+                    value: { text: "test" }
+                },
+                {
+                    key: { text: "Address" },
+                    value: { text: "test" }
+                }
+            ]
+        }) }}
+    {% endset %}
+
     {{ govukTabs({
         items: [
             {
@@ -97,7 +191,7 @@
             {
                 label: "People",
                 id: "people",
-                panel: { html: "" }
+                panel: { html: peopleHtml }
             },
             {
                 label: "History",
