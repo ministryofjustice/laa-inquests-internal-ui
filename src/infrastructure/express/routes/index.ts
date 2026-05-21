@@ -5,7 +5,6 @@ import createApplicationRouter from "#src/infrastructure/express/routes/applicat
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
-import { logger } from "../middleware/logger/logger.js";
 import {
   storeSessionData,
   getSessionData,
