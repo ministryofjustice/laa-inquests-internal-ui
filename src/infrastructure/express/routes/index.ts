@@ -2,13 +2,12 @@ import express from "express";
 import type { Request, Response } from "express";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
+import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
-import type { IdParams, TypedRequest } from "../api.types.js";
-import type { ApplicationDecisionForm } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 
 // Create a new router
 const router = express.Router();
@@ -59,23 +58,6 @@ interface Proceeding {
 interface ApplicationResponse {
   proceedings: Proceeding[];
 }
-
-decisionRouter.get(
-  "/:applicationId/decision",
-  async (req: Request, res: Response): Promise<void> => {
-    await applicationDecisionAdaptor.renderApplicationDecisionForm(req, res);
-  },
-);
-
-decisionRouter.post(
-  "/:applicationId/decision",
-  (req: Request, res: Response): void => {
-    applicationDecisionAdaptor.processApplicationDecisionForm(
-      req as unknown as TypedRequest<ApplicationDecisionForm, IdParams>,
-      res,
-    );
-  },
-);
 
 decisionRouter.get(
   "/:applicationId/decision/confirmation",
@@ -174,6 +156,7 @@ decisionRouter.post(
 
 router.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
+  createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
   decisionRouter,
 ]);
 
