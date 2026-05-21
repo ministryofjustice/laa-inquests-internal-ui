@@ -192,6 +192,10 @@
                 }
             ]
         }) }}
+        {{ govukButton({
+            text: "Make assessment",
+            href: "/applications/" ~ application.laaReference ~ "/decision"
+        }) }}
     {% endset %}
 
     {{ govukTabs({

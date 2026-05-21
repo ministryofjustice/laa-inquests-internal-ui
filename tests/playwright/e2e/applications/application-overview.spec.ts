@@ -186,5 +186,25 @@ test.describe("People tab", () => {
       .filter({ has: page.locator(".govuk-summary-card__title", { hasText: "Interested parties" }) });
     await expect(interestedPartiesCard.locator("dt", { hasText: "Public authority named" })).toBeVisible();
   });
+
+  test("should have a make assessment button", async ({ page }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const makeAssessmentButton = page
+      .locator("#people")
+      .getByRole("button", { name: "Make assessment" });
+    await expect(makeAssessmentButton).toBeVisible();
+    await expect(makeAssessmentButton).toHaveAttribute(
+      "href",
+      `/applications/${applicationId}/decision`,
+    );
+    await makeAssessmentButton.click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain(
+      `/applications/${applicationId}/decision`,
+    );
+  });
 });
 
