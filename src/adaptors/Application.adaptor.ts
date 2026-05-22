@@ -43,6 +43,7 @@ export class ApplicationAdaptor {
     res.render("application/application-overview", {
       application,
       proceedings,
+      backUrl: "#",
     });
   }
 }

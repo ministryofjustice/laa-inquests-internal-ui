@@ -106,6 +106,44 @@ describe("Application adaptor", () => {
           substantiveCostLimitation: "£25,000",
         },
       ],
+      backUrl: "#",
+    });
+  });
+
+  it("render application overview page passes people tab data", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves(application);
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      application: {
+        client: {
+          clientFirstName: "test",
+          clientLastName: "test",
+          dateOfBirth: "01-02-1990",
+          nationalInsuranceNumber: "QQ123456C",
+          correspondenceAddress: null,
+          homeAddress: null,
+        },
+        deceased: {
+          deceasedFirstName: "test example",
+          deceasedLastName: "test",
+          deceasedDateOfBirth: "01-02-1990",
+          deceasedDateOfDeath: "01-02-2003",
+          coronersReference: "3452423",
+          furtherInformation: "",
+          clientRelationshipToDeceased: "brother",
+        },
+        publicBodies: [
+          {
+            publicBodyId: "Cabinet Office",
+            publicBodyDescription: "Cabinet Office",
+          },
+        ],
+      },
     });
   });
 });
