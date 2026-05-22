@@ -244,5 +244,16 @@ test.describe.serial("Refuse application journey", () => {
       sharedPage.getByText(successLocale.referenceLabel),
     ).toBeVisible();
     await expect(sharedPage.getByText(applicationId)).toBeVisible();
+    await expect(
+      sharedPage.getByRole("heading", { name: successLocale.whatHappensNext }),
+    ).toBeVisible();
+    await expect(
+      sharedPage.getByText(successLocale.whatHappensNextBody),
+    ).toBeVisible();
+    await expect(
+      sharedPage.getByRole("link", {
+        name: successLocale.openApplicationsButton,
+      }),
+    ).toHaveAttribute("href", `/applications/${applicationId}/overview`);
   });
 });
