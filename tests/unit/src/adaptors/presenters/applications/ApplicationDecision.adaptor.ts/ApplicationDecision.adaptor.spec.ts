@@ -157,10 +157,14 @@ describe("ApplicationDecisionAdaptor", () => {
     it("clears the decision session data", () => {
       adaptor.renderDecisionSuccessPage(requestStub as Request, responseStub);
 
-      assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
+      assert.equal(sessionHelperStub.clearSessionData.callCount, 2);
       assert.deepEqual(sessionHelperStub.clearSessionData.getCall(0).args, [
         requestStub,
         "decision",
+      ]);
+      assert.deepEqual(sessionHelperStub.clearSessionData.getCall(1).args, [
+        requestStub,
+        "decide",
       ]);
     });
   });

@@ -35,6 +35,8 @@ export class ApplicationDecisionAdaptor {
       meritsDecision: toTitleCase(firstProceeding.meritsDecision),
     };
 
+    this.sessionHelper.storeSessionData(req, "decide", formattedProceeding);
+
     res.render("application/decision/index", {
       backUrl,
       applicationId,
@@ -63,6 +65,7 @@ export class ApplicationDecisionAdaptor {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision/confirmation`;
     this.sessionHelper.clearSessionData(req, "decision");
+    this.sessionHelper.clearSessionData(req, "decide");
     res.render("application/decision/success/index", {
       applicationId,
       backUrl,
