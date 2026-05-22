@@ -58,4 +58,13 @@ export class ApplicationDecisionAdaptor {
     this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
     res.redirect(`/applications/${applicationId}/decision/justification`);
   }
+
+  renderDecisionSuccessPage(req: Request, res: Response): void {
+    const applicationId = req.params.applicationId as string;
+    const backUrl = `/applications/${applicationId}/decision/confirmation`;
+    res.render("application/decision/success/index", {
+      applicationId,
+      backUrl,
+    });
+  }
 }

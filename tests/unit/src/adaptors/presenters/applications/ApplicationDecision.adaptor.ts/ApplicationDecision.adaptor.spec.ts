@@ -133,4 +133,25 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
   });
+
+  describe("renderDecisionSuccessPage", () => {
+    it("calls res.render with the correct view name", () => {
+      adaptor.renderDecisionSuccessPage(requestStub as Request, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/success/index",
+      );
+    });
+
+    it("calls res.render with the correct variables", () => {
+      adaptor.renderDecisionSuccessPage(requestStub as Request, responseStub);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        applicationId,
+        backUrl: `/applications/${applicationId}/decision/confirmation`,
+      });
+    });
+  });
 });

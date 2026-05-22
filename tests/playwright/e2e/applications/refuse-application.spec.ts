@@ -250,10 +250,12 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       sharedPage.getByText(successLocale.whatHappensNextBody),
     ).toBeVisible();
-    await expect(
-      sharedPage.getByRole("link", {
-        name: successLocale.openApplicationsButton,
-      }),
-    ).toHaveAttribute("href", `/applications/${applicationId}/overview`);
+    const button = await sharedPage.getByRole("button", {
+      name: successLocale.openApplicationsButton,
+    });
+    await expect(button).toHaveAttribute(
+      "href",
+      `/applications/${applicationId}/overview`,
+    );
   });
 });

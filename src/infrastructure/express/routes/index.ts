@@ -70,20 +70,6 @@ decisionRouter.post(
 );
 
 decisionRouter.get(
-  "/:applicationId/decision/success",
-  (req: Request, res: Response) => {
-    const {
-      params: { applicationId },
-    } = req;
-    const backUrl = `/applications/${applicationId as string}/decision/confirmation`;
-    res.render("application/decision/success/index", {
-      applicationId: applicationId as string,
-      backUrl,
-    });
-  },
-);
-
-decisionRouter.get(
   "/:applicationId/decision/confirmation",
   async (req: Request, res: Response) => {
     const {
