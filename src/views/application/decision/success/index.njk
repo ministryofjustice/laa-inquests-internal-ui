@@ -1,0 +1,9 @@
+{% extends "base.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+
+{% block content %}
+  {{ govukPanel({
+    titleText: t('pages.decision.success.header'),
+    html: t('pages.decision.success.referenceLabel') + "<br><strong>" + applicationId + "</strong>"
+  }) }}
+{% endblock %}

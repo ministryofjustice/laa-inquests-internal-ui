@@ -13,12 +13,14 @@ import {
 const meritsLocale = en.pages.decision.merits;
 const justificationLocale = en.pages.decision.justification;
 const confirmationLocale = en.pages.decision.confirmation;
+const successLocale = en.pages.decision.success;
 
 const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
 const confirmationPage = `/applications/${applicationId}/decision/confirmation`;
+const successPage = `/applications/${applicationId}/decision/success`;
 const justificationText = "Test note";
 
 test.describe.serial("Refuse application journey", () => {
@@ -228,5 +230,19 @@ test.describe.serial("Refuse application journey", () => {
       .getByTestId("check-your-answers")
       .locator(".govuk-summary-card");
     await expect(summaryCard.getByText(updatedJustificationText)).toBeVisible();
+  });
+
+  test("caseworker submits the decision and is taken to the success page", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(successPage);
+    await expect(
+      sharedPage.getByRole("heading", { name: successLocale.header }),
+    ).toBeVisible();
+    await expect(
+      sharedPage.getByText(successLocale.referenceLabel),
+    ).toBeVisible();
+    await expect(sharedPage.getByText(applicationId)).toBeVisible();
   });
 });

@@ -79,6 +79,10 @@
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
     "decision": {
+      "success": {
+        "header": "Decision submitted",
+        "referenceLabel": "Application reference number"
+      },
       "confirmation": {
         "header": "Check your answers",
         "cardTitle": "Overall decision",
