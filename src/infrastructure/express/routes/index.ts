@@ -51,11 +51,21 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
 
 decisionRouter.post(
   "/:applicationId/decision/confirmation",
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const {
       params: { applicationId },
     } = req;
-    res.redirect(`/applications/${applicationId as string}/decision/success`);
+    const appId = applicationId as string;
+
+    const sessionHelper = new SessionHelper();
+    const sessionData = sessionHelper.getSessionData(req, "decision") ?? {};
+
+    await axios.patch(
+      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}/merits-decision`,
+      { meritsDecision: sessionData.overallDecision },
+    );
+
+    res.redirect(`/applications/${appId}/decision/success`);
   },
 );
 
