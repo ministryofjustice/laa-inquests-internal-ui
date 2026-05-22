@@ -62,6 +62,7 @@ export class ApplicationDecisionAdaptor {
   renderDecisionSuccessPage(req: Request, res: Response): void {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision/confirmation`;
+    this.sessionHelper.clearSessionData(req, "decision");
     res.render("application/decision/success/index", {
       applicationId,
       backUrl,

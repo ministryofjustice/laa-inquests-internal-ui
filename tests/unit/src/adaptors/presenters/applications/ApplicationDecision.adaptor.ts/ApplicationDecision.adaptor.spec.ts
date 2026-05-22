@@ -153,5 +153,15 @@ describe("ApplicationDecisionAdaptor", () => {
         backUrl: `/applications/${applicationId}/decision/confirmation`,
       });
     });
+
+    it("clears the decision session data", () => {
+      adaptor.renderDecisionSuccessPage(requestStub as Request, responseStub);
+
+      assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.clearSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+      ]);
+    });
   });
 });
