@@ -10,3 +10,7 @@ export function formatCurrency(amount: number): string {
 
   return formatted;
 }
+
+export function toTitleCase(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}

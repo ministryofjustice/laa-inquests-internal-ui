@@ -152,23 +152,22 @@ test.describe.serial("Refuse application journey", () => {
       summaryCard.getByText(confirmationLocale.certificateTypeTitle),
     ).toBeVisible();
     await expect(summaryCard.getByText("Substantive")).toBeVisible();
-    await expect(
-      summaryCard.getByText(confirmationLocale.meritsAssessmentTitle),
-    ).toBeVisible();
-    await expect(summaryCard.getByText("Pending")).toBeVisible();
 
-    const overallDecisionRow = summaryCard.locator(".govuk-summary-list__row", {
-      has: sharedPage.getByText(confirmationLocale.overallDecisionTitle, {
-        exact: true,
-      }),
-    });
+    const meritsAssessmentRow = summaryCard.locator(
+      ".govuk-summary-list__row",
+      {
+        has: sharedPage.getByText(confirmationLocale.meritsAssessmentTitle, {
+          exact: true,
+        }),
+      },
+    );
     await expect(
-      overallDecisionRow.getByText(meritsLocale.radio.refuseLabel, {
+      meritsAssessmentRow.getByText(meritsLocale.radio.refuseLabel, {
         exact: true,
       }),
     ).toBeVisible();
     await expect(
-      overallDecisionRow.getByRole("link", { name: /change/i }),
+      meritsAssessmentRow.getByRole("link", { name: /change/i }),
     ).toHaveAttribute("href", makeADecisionPage);
 
     await expect(

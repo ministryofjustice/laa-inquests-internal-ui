@@ -28,16 +28,9 @@
         },
         value: {
             html: govukTag({
-                text: proceeding.meritsDecision
+                text: overallDecisionLabel,
+                classes: "govuk-tag--red" if overallDecisionLabel == t('pages.decision.merits.radio.refuseLabel') else "govuk-tag--green"
             })
-        }
-    },
-      {
-        key: {
-          text: t('pages.decision.confirmation.overallDecisionTitle')
-        },
-        value: {
-          text: overallDecisionLabel
         },
         actions: {
           items: [
@@ -48,39 +41,39 @@
             }
           ]
         }
-      },
-      {
+        },
+        {
         key: {
-          text: t('pages.decision.confirmation.refusalReasonTitle')
+            text: t('pages.decision.confirmation.refusalReasonTitle')
         },
         value: {
-          text: refusalReasonLabel
+            text: refusalReasonLabel
         },
         actions: {
-          items: [
+            items: [
             {
-              href: "/applications/" + applicationId + "/decision/justification",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.decision.confirmation.refusalReasonTitle')
+                href: "/applications/" + applicationId + "/decision/justification",
+                text: t('common.change'),
+                visuallyHiddenText: t('pages.decision.confirmation.refusalReasonTitle')
             }
-          ]
+            ]
         }
-      },
-      {
+        },
+        {
         key: {
-          text: t('pages.decision.confirmation.justificationTitle')
+            text: t('pages.decision.confirmation.justificationTitle')
         },
         value: {
-          text: justification
+            text: justification
         },
         actions: {
-          items: [
+            items: [
             {
-              href: "/applications/" + applicationId + "/decision/justification",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.decision.confirmation.justificationTitle')
+                href: "/applications/" + applicationId + "/decision/justification",
+                text: t('common.change'),
+                visuallyHiddenText: t('pages.decision.confirmation.justificationTitle')
             }
-          ]
+            ]
         }
       }
     ]

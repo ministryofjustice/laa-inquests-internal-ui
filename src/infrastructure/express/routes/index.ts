@@ -2,13 +2,12 @@ import express from "express";
 import type { Request, Response } from "express";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
+import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
+import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
-import {
-  storeSessionData,
-  getSessionData,
-} from "#src/infrastructure/express/session/sessionHelpers.js";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
 // Create a new router
 const router = express.Router();
@@ -45,6 +44,10 @@ const viewApplicationAdaptor = new ViewApplicationAdaptor(
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
 );
+const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
+  viewApplicationAdaptor,
+  new SessionHelper(),
+);
 
 interface Proceeding {
   proceedingDescription: string;
@@ -55,38 +58,6 @@ interface Proceeding {
 interface ApplicationResponse {
   proceedings: Proceeding[];
 }
-
-decisionRouter.get(
-  "/:applicationId/decision",
-  async (req: Request, res: Response) => {
-    const {
-      params: { applicationId },
-    } = req;
-    const appId = applicationId as string;
-    const backUrl = `/applications/${appId}/overview`;
-
-    const data = await axios.get<ApplicationResponse>(
-      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
-    );
-
-    const toTitleCase = (str: string): string =>
-      str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
-    const firstProceeding = data.data.proceedings[0];
-    const formattedProceeding = {
-      certificateType: toTitleCase(firstProceeding.certificateType),
-      meritsDecision: toTitleCase(firstProceeding.meritsDecision),
-    };
-
-    res.render("application/decision/index", {
-      backUrl,
-      applicationId: appId,
-      proceeding: formattedProceeding,
-      overallDecision: getSessionData(req, "decision")?.overallDecision,
-    });
-  },
-);
 
 decisionRouter.get(
   "/:applicationId/decision/confirmation",
@@ -122,7 +93,8 @@ decisionRouter.get(
       "duplicate-case": "Duplicate case",
     };
 
-    const sessionData = getSessionData(req, "decision") ?? {};
+    const sessionHelper = new SessionHelper();
+    const sessionData = sessionHelper.getSessionData(req, "decision") ?? {};
     const overallDecisionLabel =
       overallDecisionLabels[sessionData.overallDecision] ??
       sessionData.overallDecision;
@@ -148,7 +120,8 @@ decisionRouter.get(
       params: { laaReference },
     } = req;
     const backUrl = `/applications/${laaReference as string}/decision`;
-    const sessionData = getSessionData(req, "decision") ?? {};
+    const sessionData =
+      new SessionHelper().getSessionData(req, "decision") ?? {};
     res.render("application/decision/justification/index", {
       backUrl,
       laaReference,
@@ -168,8 +141,9 @@ decisionRouter.post(
     const refusalReason = req.body["refusal-reason"] as string;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
     const justification = req.body.justification as string;
-    const existing = getSessionData(req, "decision") ?? {};
-    storeSessionData(req, "decision", {
+    const sessionHelper = new SessionHelper();
+    const existing = sessionHelper.getSessionData(req, "decision") ?? {};
+    sessionHelper.storeSessionData(req, "decision", {
       ...existing,
       refusalReason,
       justification,
@@ -180,25 +154,9 @@ decisionRouter.post(
   },
 );
 
-decisionRouter.post(
-  "/:applicationId/decision",
-  (req: Request, res: Response) => {
-    const {
-      params: { applicationId },
-    } = req;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
-    const overallDecision = req.body["overall-decision"] as string;
-    const existing = getSessionData(req, "decision") ?? {};
-
-    storeSessionData(req, "decision", { ...existing, overallDecision });
-    res.redirect(
-      `/applications/${applicationId as string}/decision/justification`,
-    );
-  },
-);
-
 router.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
+  createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
   decisionRouter,
 ]);
 

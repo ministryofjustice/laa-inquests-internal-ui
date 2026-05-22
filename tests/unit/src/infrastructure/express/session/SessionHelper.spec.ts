@@ -14,12 +14,7 @@
 import { describe, it, beforeEach } from "mocha";
 import { expect } from "chai";
 import type { Request } from "express";
-import {
-  storeSessionData,
-  getSessionData,
-  clearSessionData,
-  storeOriginalFormData,
-} from "#src/infrastructure/express/session/sessionHelpers.js";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
 // Mock request factory with session
 function createMockRequest(sessionData: Record<string, any> = {}): Request {
@@ -29,14 +24,30 @@ function createMockRequest(sessionData: Record<string, any> = {}): Request {
 }
 
 describe("Session Helpers", () => {
+  let sessionHelper: SessionHelper;
+
+  beforeEach(() => {
+    sessionHelper = new SessionHelper();
+  });
+
   describe("storeSessionData()", () => {
-    it("stores data under specified namespace", () => {
+    it("creates a new object if the namespace does not exist", () => {
       const req = createMockRequest();
-      const testData = { name: "John", age: "30" };
 
-      storeSessionData(req, "testNamespace", testData);
+      sessionHelper.storeSessionData(req, "testNamespace", { name: "John" });
 
-      expect(req.session.testNamespace).to.deep.equal(testData);
+      expect(req.session.testNamespace).to.deep.equal({ name: "John" });
+    });
+
+    it("adds keys to an existing object rather than overwriting", () => {
+      const req = createMockRequest({ testNamespace: { name: "John" } });
+
+      sessionHelper.storeSessionData(req, "testNamespace", { age: "30" });
+
+      expect(req.session.testNamespace).to.deep.equal({
+        name: "John",
+        age: "30",
+      });
     });
   });
 
@@ -45,7 +56,7 @@ describe("Session Helpers", () => {
       const sessionData = { testNamespace: { name: "John", age: "30" } };
       const req = createMockRequest(sessionData);
 
-      const result = getSessionData(req, "testNamespace");
+      const result = sessionHelper.getSessionData(req, "testNamespace");
 
       expect(result).to.deep.equal({ name: "John", age: "30" });
     });
@@ -53,7 +64,7 @@ describe("Session Helpers", () => {
     it("returns null when namespace does not exist", () => {
       const req = createMockRequest();
 
-      const result = getSessionData(req, "nonexistent");
+      const result = sessionHelper.getSessionData(req, "nonexistent");
 
       expect(result).to.be.null;
     });
@@ -63,7 +74,7 @@ describe("Session Helpers", () => {
     it("clears data from specified namespace", () => {
       const req = createMockRequest({ testNamespace: { data: "value" } });
 
-      clearSessionData(req, "testNamespace");
+      sessionHelper.clearSessionData(req, "testNamespace");
 
       expect(req.session.testNamespace).to.be.undefined;
     });
@@ -74,8 +85,8 @@ describe("Session Helpers", () => {
       const req = createMockRequest({});
       const formData = { name: "John", age: 30, active: true, empty: null };
 
-      storeOriginalFormData(req, "testOriginal", formData);
-      const stored = getSessionData(req, "testOriginal");
+      sessionHelper.storeOriginalFormData(req, "testOriginal", formData);
+      const stored = sessionHelper.getSessionData(req, "testOriginal");
 
       expect(stored).to.deep.equal({
         name: "John",
