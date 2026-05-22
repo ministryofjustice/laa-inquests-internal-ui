@@ -24,5 +24,12 @@ export function createApplicationDecisionRouter(
     },
   );
 
+  applicationDecisionRouter.get(
+    "/:applicationId/decision/success",
+    (req: Request, res: Response): void => {
+      applicationDecisionAdaptor.renderDecisionSuccessPage(req, res);
+    },
+  );
+
   return applicationDecisionRouter;
 }

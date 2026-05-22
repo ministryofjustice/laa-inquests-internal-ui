@@ -59,6 +59,16 @@ interface ApplicationResponse {
   proceedings: Proceeding[];
 }
 
+decisionRouter.post(
+  "/:applicationId/decision/confirmation",
+  (req: Request, res: Response) => {
+    const {
+      params: { applicationId },
+    } = req;
+    res.redirect(`/applications/${applicationId as string}/decision/success`);
+  },
+);
+
 decisionRouter.get(
   "/:applicationId/decision/confirmation",
   async (req: Request, res: Response) => {

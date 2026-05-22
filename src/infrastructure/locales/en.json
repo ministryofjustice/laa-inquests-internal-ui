@@ -79,6 +79,13 @@
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
     "decision": {
+      "success": {
+        "header": "Application for Inquest legal aid assessed complete",
+        "referenceLabel": "Apply reference number",
+        "whatHappensNext": "What happens next",
+        "whatHappensNextBody": "The decision has been saved against this application and the provider will be informed.",
+        "openApplicationsButton": "Open applications"
+      },
       "confirmation": {
         "header": "Check your answers",
         "cardTitle": "Overall decision",

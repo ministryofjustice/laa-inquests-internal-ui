@@ -1,0 +1,26 @@
+{% extends "base.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: t('common.back'),
+    href: backUrl
+  }) }}
+{% endblock %}
+
+{% block content %}
+  {{ govukPanel({
+    titleText: t('pages.decision.success.header'),
+    html: t('pages.decision.success.referenceLabel') + ": <br><strong>" + applicationId + "</strong>"
+  }) }}
+
+  <h2 class="govuk-heading-s govuk-!-padding-top-6">{{ t('pages.decision.success.whatHappensNext') }}</h2>
+  <p class="govuk-body  govuk-!-padding-bottom-6">{{ t('pages.decision.success.whatHappensNextBody') }}</p>
+
+  {{ govukButton({
+    text: t('pages.decision.success.openApplicationsButton'),
+    href: "/applications/" + applicationId + "/overview"
+  }) }}
+{% endblock %}
