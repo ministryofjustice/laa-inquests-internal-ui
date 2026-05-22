@@ -123,11 +123,9 @@ test.describe("People tab", () => {
     await page.getByRole("tab", { name: "People" }).click();
 
     const peoplePanel = page.locator("#people");
-    const clientCard = peoplePanel
-      .locator(".govuk-summary-card")
-      .filter({
-        has: page.locator(".govuk-summary-card__title", { hasText: "Client" }),
-      });
+    const clientCard = peoplePanel.locator(".govuk-summary-card").filter({
+      has: page.locator(".govuk-summary-card__title", { hasText: "Client" }),
+    });
     await expect(
       clientCard.locator("dt").getByText("Address", { exact: true }),
     ).toBeVisible();
@@ -147,13 +145,11 @@ test.describe("People tab", () => {
     await page.getByRole("tab", { name: "People" }).click();
 
     const peoplePanel = page.locator("#people");
-    const deceasedCard = peoplePanel
-      .locator(".govuk-summary-card")
-      .filter({
-        has: page.locator(".govuk-summary-card__title", {
-          hasText: "Deceased",
-        }),
-      });
+    const deceasedCard = peoplePanel.locator(".govuk-summary-card").filter({
+      has: page.locator(".govuk-summary-card__title", {
+        hasText: "Deceased",
+      }),
+    });
     await validateSummaryCardKeys(deceasedCard, [
       "First name",
       "Last name",
@@ -170,13 +166,11 @@ test.describe("People tab", () => {
     await page.getByRole("tab", { name: "People" }).click();
 
     const peoplePanel = page.locator("#people");
-    const providerCard = peoplePanel
-      .locator(".govuk-summary-card")
-      .filter({
-        has: page.locator(".govuk-summary-card__title", {
-          hasText: "Provider",
-        }),
-      });
+    const providerCard = peoplePanel.locator(".govuk-summary-card").filter({
+      has: page.locator(".govuk-summary-card__title", {
+        hasText: "Provider",
+      }),
+    });
     await validateSummaryCardKeys(providerCard, [
       "Firm name",
       "Account number",
