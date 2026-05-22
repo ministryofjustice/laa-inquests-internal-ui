@@ -93,8 +93,8 @@ decisionRouter.get(
     };
 
     const overallDecisionLabels: Record<string, string> = {
-      Grant: "Grant",
-      refuse: "Refuse",
+      GRANTED: "Grant",
+      REFUSED: "Refuse",
     };
 
     const refusalReasonLabels: Record<string, string> = {
