@@ -79,7 +79,7 @@ decisionRouter.get(
     const backUrl = `/applications/${appId}/decision/justification`;
 
     const sessionHelper = new SessionHelper();
-    const proceeding = sessionHelper.getSessionData(req, "decide") ?? {};
+    const proceeding = sessionHelper.getSessionData(req, "decision") ?? {};
 
     const overallDecisionLabels: Record<string, string> = {
       GRANTED: "Grant",
