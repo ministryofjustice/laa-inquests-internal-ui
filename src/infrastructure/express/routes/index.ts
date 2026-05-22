@@ -49,52 +49,41 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   new SessionHelper(),
 );
 
-interface Proceeding {
-  proceedingDescription: string;
-  certificateType: string;
-  meritsDecision: string;
-}
-
-interface ApplicationResponse {
-  proceedings: Proceeding[];
-}
-
 decisionRouter.post(
-  "/:applicationId/decision/confirmation",
-  (req: Request, res: Response) => {
-    const {
-      params: { applicationId },
-    } = req;
-    res.redirect(`/applications/${applicationId as string}/decision/success`);
-  },
-);
-
-decisionRouter.get(
   "/:applicationId/decision/confirmation",
   async (req: Request, res: Response) => {
     const {
       params: { applicationId },
     } = req;
     const appId = applicationId as string;
-    const backUrl = `/applications/${appId}/decision/justification`;
 
-    const data = await axios.get<ApplicationResponse>(
-      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}`,
+    const sessionHelper = new SessionHelper();
+    const sessionData = sessionHelper.getSessionData(req, "decision") ?? {};
+
+    await axios.patch(
+      `https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk/applications/${appId}/merits-decision`,
+      { meritsDecision: sessionData.overallDecision },
     );
 
-    const toTitleCase = (str: string): string =>
-      str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    res.redirect(`/applications/${appId}/decision/success`);
+  },
+);
 
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
-    const firstProceeding = data.data.proceedings[0];
-    const formattedProceeding = {
-      certificateType: toTitleCase(firstProceeding.certificateType),
-      meritsDecision: toTitleCase(firstProceeding.meritsDecision),
-    };
+decisionRouter.get(
+  "/:applicationId/decision/confirmation",
+  (req: Request, res: Response) => {
+    const {
+      params: { applicationId },
+    } = req;
+    const appId = applicationId as string;
+    const backUrl = `/applications/${appId}/decision/justification`;
+
+    const sessionHelper = new SessionHelper();
+    const proceeding = sessionHelper.getSessionData(req, "decision") ?? {};
 
     const overallDecisionLabels: Record<string, string> = {
-      Grant: "Grant",
-      refuse: "Refuse",
+      GRANTED: "Grant",
+      REFUSED: "Refuse",
     };
 
     const refusalReasonLabels: Record<string, string> = {
@@ -103,7 +92,6 @@ decisionRouter.get(
       "duplicate-case": "Duplicate case",
     };
 
-    const sessionHelper = new SessionHelper();
     const sessionData = sessionHelper.getSessionData(req, "decision") ?? {};
     const overallDecisionLabel =
       overallDecisionLabels[sessionData.overallDecision] ??
@@ -115,7 +103,7 @@ decisionRouter.get(
     res.render("application/decision/confirmation/index", {
       backUrl,
       applicationId: appId,
-      proceeding: formattedProceeding,
+      proceeding,
       overallDecisionLabel,
       refusalReasonLabel,
       justification: sessionData.justification,

