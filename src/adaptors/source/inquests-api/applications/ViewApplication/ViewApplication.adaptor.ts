@@ -14,4 +14,14 @@ export class ViewApplicationAdaptor {
     );
     return ApplicationSchema.parse(data);
   }
+
+  async submitMeritsDecision(
+    applicationId: string,
+    meritsDecision: string,
+  ): Promise<void> {
+    await this.http.patch(
+      `${this.baseUrl}/applications/${applicationId}/merits-decision`,
+      { meritsDecision },
+    );
+  }
 }

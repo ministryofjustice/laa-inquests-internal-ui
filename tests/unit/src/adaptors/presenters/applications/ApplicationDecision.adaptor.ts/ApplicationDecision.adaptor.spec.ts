@@ -216,6 +216,96 @@ describe("ApplicationDecisionAdaptor", () => {
     });
   });
 
+  describe("renderConfirmationPage", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+    });
+
+    it("calls res.render with the correct view name", () => {
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.renderConfirmationPage(requestStub as Request, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/confirmation/index",
+      );
+    });
+
+    it("calls res.render with the correct variables", () => {
+      const sessionData = {
+        overallDecision: "REFUSED",
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      };
+      sessionHelperStub.getSessionData.returns(sessionData);
+
+      adaptor.renderConfirmationPage(requestStub as Request, responseStub);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision/justification`,
+        applicationId,
+        proceeding: sessionData,
+        overallDecisionLabel: "Refuse",
+        refusalReasonLabel: "Not in scope",
+        justification: "some justification",
+      });
+    });
+
+    it("falls back to the raw value when a label is not found", () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: "UNKNOWN",
+        refusalReason: "unknown-reason",
+      });
+
+      adaptor.renderConfirmationPage(requestStub as Request, responseStub);
+
+      const renderVars = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(renderVars.overallDecisionLabel, "UNKNOWN");
+      assert.equal(renderVars.refusalReasonLabel, "unknown-reason");
+    });
+  });
+
+  describe("processConfirmationForm", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+    });
+
+    it("submits the merits decision from session to the API", async () => {
+      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
+      viewApplicationSourceStub.submitMeritsDecision.resolves();
+
+      await adaptor.processConfirmationForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(viewApplicationSourceStub.submitMeritsDecision.callCount, 1);
+      assert.deepEqual(
+        viewApplicationSourceStub.submitMeritsDecision.getCall(0).args,
+        [applicationId, "REFUSED"],
+      );
+    });
+
+    it("redirects to the success page", async () => {
+      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
+      viewApplicationSourceStub.submitMeritsDecision.resolves();
+
+      await adaptor.processConfirmationForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/success`,
+      );
+    });
+  });
+
   describe("renderDecisionSuccessPage", () => {
     it("calls res.render with the correct view name", () => {
       adaptor.renderDecisionSuccessPage(requestStub as Request, responseStub);

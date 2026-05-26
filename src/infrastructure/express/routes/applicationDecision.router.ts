@@ -45,6 +45,20 @@ export function createApplicationDecisionRouter(
   );
 
   applicationDecisionRouter.get(
+    "/:applicationId/decision/confirmation",
+    (req: Request, res: Response): void => {
+      applicationDecisionAdaptor.renderConfirmationPage(req, res);
+    },
+  );
+
+  applicationDecisionRouter.post(
+    "/:applicationId/decision/confirmation",
+    async (req: Request, res: Response): Promise<void> => {
+      await applicationDecisionAdaptor.processConfirmationForm(req, res);
+    },
+  );
+
+  applicationDecisionRouter.get(
     "/:applicationId/decision/success",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.renderDecisionSuccessPage(req, res);

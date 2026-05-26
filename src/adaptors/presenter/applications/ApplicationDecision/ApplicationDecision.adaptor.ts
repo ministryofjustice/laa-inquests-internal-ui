@@ -101,6 +101,53 @@ export class ApplicationDecisionAdaptor {
     res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }
 
+  renderConfirmationPage(req: Request, res: Response): void {
+    const applicationId = req.params.applicationId as string;
+    const backUrl = `/applications/${applicationId}/decision/justification`;
+    const sessionData =
+      this.sessionHelper.getSessionData(req, "decision") ?? {};
+
+    const overallDecisionLabels: Record<string, string> = {
+      GRANTED: "Grant",
+      REFUSED: "Refuse",
+    };
+
+    const refusalReasonLabels: Record<string, string> = {
+      "not-in-scope": "Not in scope",
+      "insufficient-information": "Insufficient information",
+      "duplicate-case": "Duplicate case",
+    };
+
+    const overallDecisionLabel =
+      overallDecisionLabels[sessionData.overallDecision] ??
+      sessionData.overallDecision;
+    const refusalReasonLabel =
+      refusalReasonLabels[sessionData.refusalReason] ??
+      sessionData.refusalReason;
+
+    res.render("application/decision/confirmation/index", {
+      backUrl,
+      applicationId,
+      proceeding: sessionData,
+      overallDecisionLabel,
+      refusalReasonLabel,
+      justification: sessionData.justification,
+    });
+  }
+
+  async processConfirmationForm(req: Request, res: Response): Promise<void> {
+    const applicationId = req.params.applicationId as string;
+    const sessionData =
+      this.sessionHelper.getSessionData(req, "decision") ?? {};
+
+    await this.viewApplicationAdaptor.submitMeritsDecision(
+      applicationId,
+      sessionData.overallDecision,
+    );
+
+    res.redirect(`/applications/${applicationId}/decision/success`);
+  }
+
   renderDecisionSuccessPage(req: Request, res: Response): void {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision/confirmation`;
