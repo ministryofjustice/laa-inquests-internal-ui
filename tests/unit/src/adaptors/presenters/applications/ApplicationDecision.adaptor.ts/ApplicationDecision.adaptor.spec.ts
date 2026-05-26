@@ -62,6 +62,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("calls res.render with the correct view name", async () => {
       viewApplicationSourceStub.getApplication.resolves({
+        overallDecision: "PENDING",
         proceedings: [mockProceeding],
       } as any);
 
@@ -77,6 +78,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("calls res.render with the correct variables", async () => {
       viewApplicationSourceStub.getApplication.resolves({
+        overallDecision: "PENDING",
         proceedings: [mockProceeding],
       } as any);
       sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
