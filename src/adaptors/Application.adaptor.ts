@@ -41,8 +41,8 @@ export class ApplicationAdaptor {
     application.applicationType = applicationType;
 
     const isPending =
-      !application.overallDecision ||
-      application.overallDecision.toUpperCase() === "PENDING";
+      !proceedings[0]?.meritsDecision ||
+      proceedings[0].meritsDecision.toUpperCase() === "PENDING";
 
     const statusTag = isPending
       ? { text: "Awaiting assessment", classes: "govuk-tag--grey" }

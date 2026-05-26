@@ -147,7 +147,7 @@ describe("Application adaptor", () => {
     });
   });
 
-  it("renders grey 'Awaiting assessment' tag when overallDecision is PENDING", async () => {
+  it("renders grey 'Awaiting assessment' tag when meritsDecision is PENDING", async () => {
     viewApplicationAdaptorStub.getApplication.resolves(application);
     await applicationAdaptor.renderApplicationPage(
       requestStub,
@@ -160,10 +160,12 @@ describe("Application adaptor", () => {
     });
   });
 
-  it("renders green 'Assessment complete' tag when overallDecision is not PENDING", async () => {
+  it("renders green 'Assessment complete' tag when meritsDecision is not PENDING", async () => {
     viewApplicationAdaptorStub.getApplication.resolves({
       ...application,
-      overallDecision: "GRANTED",
+      proceedings: [
+        { ...application.proceedings[0], meritsDecision: "GRANTED" },
+      ],
     });
     await applicationAdaptor.renderApplicationPage(
       requestStub,
