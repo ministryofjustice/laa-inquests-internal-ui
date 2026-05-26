@@ -3,6 +3,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
+{% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 
 {% block pageContent %}
 <form data-testid="make-a-decision" method="post" action="/applications/{{ applicationId }}/decision">
@@ -30,9 +31,7 @@
                     text: t('pages.decision.merits.proceedingsOverview.meritsAssessmentTitle')
                 },
                 value: {
-                    html: govukTag({
-                        text: proceeding.meritsDecision
-                    })
+                    html: meritsDecisionTag(proceeding.meritsDecision)
                 }
             }
         ]}) 

@@ -1,0 +1,10 @@
+{% macro meritsDecisionTag(value) %}
+  {%- set upperValue = value | upper -%}
+  {%- if upperValue == "REFUSED" -%}
+    <strong class="govuk-tag govuk-tag--red">Refuse</strong>
+  {%- elif upperValue == "GRANTED" -%}
+    <strong class="govuk-tag govuk-tag--green">Grant</strong>
+  {%- else -%}
+    <strong class="govuk-tag govuk-tag--blue">{{ value | lower | capitalize }}</strong>
+  {%- endif -%}
+{% endmacro %}
