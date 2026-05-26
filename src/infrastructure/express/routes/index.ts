@@ -5,7 +5,7 @@ import createApplicationRouter from "#src/infrastructure/express/routes/applicat
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
-import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
+import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
@@ -36,7 +36,7 @@ router.get("/error", (req: Request, res: Response): void => {
     .send("Internal Server Error");
 });
 
-const viewApplicationAdaptor = new ViewApplicationAdaptor(
+const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
   "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
 );

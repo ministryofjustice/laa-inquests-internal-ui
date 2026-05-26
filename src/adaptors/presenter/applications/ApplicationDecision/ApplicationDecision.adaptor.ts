@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
-import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
+import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { toTitleCase } from "#src/utils/formatter.js";
 import type {
   TypedRequest,
@@ -13,7 +13,7 @@ import type {
 
 export class ApplicationDecisionAdaptor {
   constructor(
-    private readonly viewApplicationAdaptor: ViewApplicationPort,
+    private readonly viewApplicationAdaptor: ApplicationPort,
     private readonly sessionHelper: SessionHelper,
   ) {}
 

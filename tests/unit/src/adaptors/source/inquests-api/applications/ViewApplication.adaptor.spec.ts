@@ -1,7 +1,7 @@
 import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
-import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
+import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import { Application } from "#src/adaptors/models/application.types.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
@@ -70,7 +70,7 @@ describe("Test Application API Adaptor", () => {
   it("Test get Application calls axios", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
 
     axiosGetStub.resolves({
       data: expectedApplication,
@@ -86,7 +86,7 @@ describe("Test Application API Adaptor", () => {
   it("Test get Applications calls returns application data", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
 
     axiosGetStub.resolves({
       data: expectedApplication,
@@ -101,7 +101,7 @@ describe("Test submitMeritsDecision", () => {
   it("calls axios.patch with the correct URL and payload", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { patch: axiosPatchStub } as any;
-    const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
     await adaptor.submitMeritsDecision("123", "REFUSED");
@@ -117,7 +117,7 @@ describe("Test submitMeritsDecision", () => {
   it("calls axios.patch with a different applicationId and decision", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { patch: axiosPatchStub } as any;
-    const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
     await adaptor.submitMeritsDecision("456", "GRANTED");

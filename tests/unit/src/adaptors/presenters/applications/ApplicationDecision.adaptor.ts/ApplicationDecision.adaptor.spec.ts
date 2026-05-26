@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
-import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/ViewApplication/ViewApplication.port.js";
+import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { TypedRequest } from "#src/infrastructure/express/api.types.js";
 import { IdParams } from "#src/infrastructure/express/api.types.js";
@@ -16,7 +16,7 @@ describe("ApplicationDecisionAdaptor", () => {
   let requestStub:
     | StubbedInstance<Request>
     | StubbedInstance<TypedRequest<ApplicationDecisionForm, IdParams>>;
-  let viewApplicationSourceStub: StubbedInstance<ViewApplicationPort>;
+  let viewApplicationSourceStub: StubbedInstance<ApplicationPort>;
   let sessionHelperStub: StubbedInstance<SessionHelper>;
   let adaptor: ApplicationDecisionAdaptor;
 
@@ -38,7 +38,7 @@ describe("ApplicationDecisionAdaptor", () => {
   beforeEach(() => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
-    viewApplicationSourceStub = stubInterface<ViewApplicationPort>();
+    viewApplicationSourceStub = stubInterface<ApplicationPort>();
     sessionHelperStub = stubInterface<SessionHelper>();
     adaptor = new ApplicationDecisionAdaptor(
       viewApplicationSourceStub,

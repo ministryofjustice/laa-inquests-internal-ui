@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
+import type { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import type { Proceeding } from "#src/adaptors/models/application.types.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { formatCurrency } from "#src/utils/formatter.js";
@@ -12,9 +12,9 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationAdaptor {
-  viewApplicationAdaptor: ViewApplicationAdaptor;
+  viewApplicationAdaptor: ApplicationAPIAdaptor;
 
-  constructor(viewApplicationAdaptor: ViewApplicationAdaptor) {
+  constructor(viewApplicationAdaptor: ApplicationAPIAdaptor) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
   }
 
