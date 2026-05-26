@@ -1,13 +1,15 @@
 import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
-import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
+import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import { Application } from "#src/adaptors/models/application.types.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
+const axiosPatchStub = sinon.stub(axios, "patch");
 
 afterEach(() => {
   axiosGetStub.reset();
+  axiosPatchStub.reset();
 });
 
 const expectedApplication = {
@@ -68,7 +70,7 @@ describe("Test Application API Adaptor", () => {
   it("Test get Application calls axios", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
 
     axiosGetStub.resolves({
       data: expectedApplication,
@@ -84,7 +86,7 @@ describe("Test Application API Adaptor", () => {
   it("Test get Applications calls returns application data", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ViewApplicationAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
 
     axiosGetStub.resolves({
       data: expectedApplication,
@@ -92,5 +94,38 @@ describe("Test Application API Adaptor", () => {
 
     const application: Application = await adaptor.getApplication("123");
     assert.deepEqual(expectedApplication, application);
+  });
+});
+
+describe("Test submitMeritsDecision", () => {
+  it("calls axios.patch with the correct URL and payload", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPatchStub.resolves({});
+
+    await adaptor.submitMeritsDecision("123", "REFUSED");
+
+    sinon.assert.calledOnce(axiosPatchStub);
+    sinon.assert.calledWith(
+      axiosPatchStub,
+      `${baseUrl}/applications/123/merits-decision`,
+      { meritsDecision: "REFUSED" },
+    );
+  });
+
+  it("calls axios.patch with a different applicationId and decision", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPatchStub.resolves({});
+
+    await adaptor.submitMeritsDecision("456", "GRANTED");
+
+    sinon.assert.calledWith(
+      axiosPatchStub,
+      `${baseUrl}/applications/456/merits-decision`,
+      { meritsDecision: "GRANTED" },
+    );
   });
 });
