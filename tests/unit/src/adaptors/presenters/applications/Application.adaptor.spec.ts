@@ -146,4 +146,35 @@ describe("Application adaptor", () => {
       },
     });
   });
+
+  it("renders grey 'Awaiting assessment' tag when meritsDecision is PENDING", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves(application);
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      statusTag: { text: "Awaiting assessment", classes: "govuk-tag--grey" },
+    });
+  });
+
+  it("renders green 'Assessment complete' tag when meritsDecision is not PENDING", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      proceedings: [
+        { ...application.proceedings[0], meritsDecision: "GRANTED" },
+      ],
+    });
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      statusTag: { text: "Assessment complete", classes: "govuk-tag--green" },
+    });
+  });
 });

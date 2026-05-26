@@ -2,6 +2,7 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
+{% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 
 {% block pageContent %}
 <form data-testid="check-your-answers" method="post" action="/applications/{{ applicationId }}/decision/confirmation">
@@ -27,10 +28,7 @@
           text: t('pages.decision.confirmation.meritsAssessmentTitle')
         },
         value: {
-            html: govukTag({
-                text: overallDecisionLabel,
-                classes: "govuk-tag--red" if overallDecisionLabel == t('pages.decision.merits.radio.refuseLabel') else "govuk-tag--green"
-            })
+            html: meritsDecisionTag(overallDecision)
         },
         actions: {
           items: [
