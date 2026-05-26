@@ -6,7 +6,10 @@ import type {
   TypedRequest,
   IdParams,
 } from "#src/infrastructure/express/api.types.js";
-import type { ApplicationDecisionForm } from "./models/form.types.js";
+import type {
+  ApplicationDecisionForm,
+  JustificationForm,
+} from "./models/form.types.js";
 
 export class ApplicationDecisionAdaptor {
   constructor(
@@ -59,6 +62,43 @@ export class ApplicationDecisionAdaptor {
 
     this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
     res.redirect(`/applications/${applicationId}/decision/justification`);
+  }
+
+  renderJustificationForm(req: Request, res: Response): void {
+    const applicationId = req.params.applicationId as string;
+    const backUrl = `/applications/${applicationId}/decision`;
+    const sessionData =
+      this.sessionHelper.getSessionData(req, "decision") ?? {};
+    res.render("application/decision/justification/index", {
+      backUrl,
+      laaReference: applicationId,
+      refusalReason: sessionData.refusalReason,
+      justification: sessionData.justification,
+    });
+  }
+
+  processJustificationForm(
+    req: TypedRequest<JustificationForm, IdParams>,
+    res: Response,
+  ): void {
+    const {
+      params: { applicationId },
+    } = req;
+    const {
+      body: { "refusal-reason": refusalReason, justification },
+    } = req;
+
+    const existing =
+      this.sessionHelper.getSessionData(
+        req as unknown as Request,
+        "decision",
+      ) ?? {};
+    this.sessionHelper.storeSessionData(req, "decision", {
+      ...existing,
+      refusalReason,
+      justification,
+    });
+    res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }
 
   renderDecisionSuccessPage(req: Request, res: Response): void {

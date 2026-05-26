@@ -6,7 +6,10 @@ import type { ViewApplicationPort } from "#src/ports/inquests-api/applications/V
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { TypedRequest } from "#src/infrastructure/express/api.types.js";
 import { IdParams } from "#src/infrastructure/express/api.types.js";
-import { ApplicationDecisionForm } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
+import {
+  ApplicationDecisionForm,
+  JustificationForm,
+} from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -130,6 +133,85 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/justification`,
+      );
+    });
+  });
+
+  describe("renderJustificationForm", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+    });
+
+    it("calls res.render with the correct view name", () => {
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.renderJustificationForm(requestStub as Request, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/justification/index",
+      );
+    });
+
+    it("calls res.render with the correct variables", () => {
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+
+      adaptor.renderJustificationForm(requestStub as Request, responseStub);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        laaReference: applicationId,
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+    });
+  });
+
+  describe("processJustificationForm", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+      requestStub.body = {
+        "refusal-reason": "not-in-scope",
+        justification: "some justification",
+      };
+    });
+
+    it("saves refusalReason and justification to session, merged with existing data", () => {
+      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        {
+          overallDecision: "REFUSED",
+          refusalReason: "not-in-scope",
+          justification: "some justification",
+        },
+      ]);
+    });
+
+    it("redirects to the confirmation page", () => {
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/confirmation`,
       );
     });
   });

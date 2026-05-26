@@ -111,47 +111,6 @@ decisionRouter.get(
   },
 );
 
-decisionRouter.get(
-  "/:laaReference/decision/justification",
-  (req: Request, res: Response) => {
-    const {
-      params: { laaReference },
-    } = req;
-    const backUrl = `/applications/${laaReference as string}/decision`;
-    const sessionData =
-      new SessionHelper().getSessionData(req, "decision") ?? {};
-    res.render("application/decision/justification/index", {
-      backUrl,
-      laaReference,
-      refusalReason: sessionData.refusalReason,
-      justification: sessionData.justification,
-    });
-  },
-);
-
-decisionRouter.post(
-  "/:laaReference/decision/justification",
-  (req: Request, res: Response) => {
-    const {
-      params: { laaReference },
-    } = req;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
-    const refusalReason = req.body["refusal-reason"] as string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- will refactor to typed in move to adaptor pattern
-    const justification = req.body.justification as string;
-    const sessionHelper = new SessionHelper();
-    const existing = sessionHelper.getSessionData(req, "decision") ?? {};
-    sessionHelper.storeSessionData(req, "decision", {
-      ...existing,
-      refusalReason,
-      justification,
-    });
-    res.redirect(
-      `/applications/${laaReference as string}/decision/confirmation`,
-    );
-  },
-);
-
 router.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
