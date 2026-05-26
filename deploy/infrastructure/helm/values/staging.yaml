@@ -80,6 +80,7 @@ env:
   DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
   CONTACT_EMAIL: "eligibility@justice.gov.uk"
   CONTACT_PHONE: ""
+  INQUESTS_API_URL: "https://laa-inquests-api-staging.apps.live.cloud-platform.service.justice.gov.uk"
   SERVICE_URL: "https://www.gov.uk/legal-aid"
   SESSION_NAME: "sessionId"
   RATELIMIT_HEADERS_ENABLED: true

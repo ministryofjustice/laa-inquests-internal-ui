@@ -8,6 +8,7 @@ import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications
 import { ViewApplicationAdaptor } from "#src/adaptors/source/inquests-api/applications/ViewApplication/ViewApplication.adaptor.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
+import config from "#src/infrastructure/config/config.js";
 
 // Create a new router
 const router = express.Router();
@@ -39,7 +40,7 @@ router.get("/error", (req: Request, res: Response): void => {
 
 const viewApplicationAdaptor = new ViewApplicationAdaptor(
   axios,
-  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
+  config.INQUESTS_API_URL,
 );
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,

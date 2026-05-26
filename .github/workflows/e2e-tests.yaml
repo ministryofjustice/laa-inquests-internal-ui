@@ -49,6 +49,7 @@ jobs:
           DEPARTMENT_NAME: "LAA Digital"
           DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
+          INQUESTS_API_URL: "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk"
           SERVICE_URL: "https://www.gov.uk/legal-aid"
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "100"
