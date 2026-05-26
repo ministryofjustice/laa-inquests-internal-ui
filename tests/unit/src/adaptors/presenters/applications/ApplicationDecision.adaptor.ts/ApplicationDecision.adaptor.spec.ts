@@ -247,15 +247,15 @@ describe("ApplicationDecisionAdaptor", () => {
         backUrl: `/applications/${applicationId}/decision/justification`,
         applicationId,
         proceeding: sessionData,
-        overallDecisionLabel: "Refuse",
+        overallDecision: "REFUSED",
         refusalReasonLabel: "Not in scope",
         justification: "some justification",
       });
     });
 
-    it("falls back to the raw value when a label is not found", () => {
+    it("falls back to the raw refusal reason value when a label is not found", () => {
       sessionHelperStub.getSessionData.returns({
-        overallDecision: "UNKNOWN",
+        overallDecision: "REFUSED",
         refusalReason: "unknown-reason",
       });
 
@@ -263,7 +263,6 @@ describe("ApplicationDecisionAdaptor", () => {
 
       const renderVars = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
-      assert.equal(renderVars.overallDecisionLabel, "UNKNOWN");
       assert.equal(renderVars.refusalReasonLabel, "unknown-reason");
     });
   });

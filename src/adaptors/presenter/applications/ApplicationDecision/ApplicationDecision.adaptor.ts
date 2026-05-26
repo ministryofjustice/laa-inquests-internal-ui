@@ -107,20 +107,12 @@ export class ApplicationDecisionAdaptor {
     const sessionData =
       this.sessionHelper.getSessionData(req, "decision") ?? {};
 
-    const overallDecisionLabels: Record<string, string> = {
-      GRANTED: "Grant",
-      REFUSED: "Refuse",
-    };
-
     const refusalReasonLabels: Record<string, string> = {
       "not-in-scope": "Not in scope",
       "insufficient-information": "Insufficient information",
       "duplicate-case": "Duplicate case",
     };
 
-    const overallDecisionLabel =
-      overallDecisionLabels[sessionData.overallDecision] ??
-      sessionData.overallDecision;
     const refusalReasonLabel =
       refusalReasonLabels[sessionData.refusalReason] ??
       sessionData.refusalReason;
@@ -129,7 +121,7 @@ export class ApplicationDecisionAdaptor {
       backUrl,
       applicationId,
       proceeding: sessionData,
-      overallDecisionLabel,
+      overallDecision: sessionData.overallDecision,
       refusalReasonLabel,
       justification: sessionData.justification,
     });
