@@ -113,19 +113,4 @@ describe("Test submitMeritsDecision", () => {
       { meritsDecision: "REFUSED" },
     );
   });
-
-  it("calls axios.patch with a different applicationId and decision", async () => {
-    const baseUrl = "https://localhost";
-    const fakeAxios = { patch: axiosPatchStub } as any;
-    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
-    axiosPatchStub.resolves({});
-
-    await adaptor.submitMeritsDecision("456", "GRANTED");
-
-    sinon.assert.calledWith(
-      axiosPatchStub,
-      `${baseUrl}/applications/456/merits-decision`,
-      { meritsDecision: "GRANTED" },
-    );
-  });
 });

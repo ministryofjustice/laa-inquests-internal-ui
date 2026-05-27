@@ -67,13 +67,12 @@ export class ApplicationDecisionAdaptor {
   renderJustificationForm(req: Request, res: Response): void {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision`;
-    const sessionData =
-      this.sessionHelper.getSessionData(req, "decision") ?? {};
+    const sessionData = this.sessionHelper.getSessionData(req, "decision");
     res.render("application/decision/justification/index", {
       backUrl,
       laaReference: applicationId,
-      refusalReason: sessionData.refusalReason,
-      justification: sessionData.justification,
+      refusalReason: sessionData?.refusalReason,
+      justification: sessionData?.justification,
     });
   }
 
