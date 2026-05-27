@@ -221,19 +221,7 @@ describe("ApplicationDecisionAdaptor", () => {
       requestStub.params = { applicationId };
     });
 
-    it("calls res.render with the correct view name", () => {
-      sessionHelperStub.getSessionData.returns({});
-
-      adaptor.renderConfirmationPage(requestStub as Request, responseStub);
-
-      assert.equal(responseStub.render.callCount, 1);
-      assert.equal(
-        responseStub.render.getCall(0).args[0],
-        "application/decision/confirmation/index",
-      );
-    });
-
-    it("calls res.render with the correct variables", () => {
+    it("calls res.render with the correct view name and variables", () => {
       const sessionData = {
         overallDecision: "REFUSED",
         refusalReason: "not-in-scope",
@@ -242,6 +230,12 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub.getSessionData.returns(sessionData);
 
       adaptor.renderConfirmationPage(requestStub as Request, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/confirmation/index",
+      );
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
         backUrl: `/applications/${applicationId}/decision/justification`,
