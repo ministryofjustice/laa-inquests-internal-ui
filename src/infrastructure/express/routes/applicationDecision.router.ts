@@ -19,8 +19,8 @@ export function createApplicationDecisionRouter(
 
   applicationDecisionRouter.post(
     "/:applicationId/decision",
-    async (req: Request, res: Response): Promise<void> => {
-      await applicationDecisionAdaptor.processApplicationDecisionForm(
+    (req: Request, res: Response): void => {
+      applicationDecisionAdaptor.processApplicationDecisionForm(
         req as unknown as TypedRequest<ApplicationDecisionForm, IdParams>,
         res,
       );

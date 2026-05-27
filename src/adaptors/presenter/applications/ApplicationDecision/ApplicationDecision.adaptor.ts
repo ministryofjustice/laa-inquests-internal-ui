@@ -51,10 +51,10 @@ export class ApplicationDecisionAdaptor {
     });
   }
 
-  async processApplicationDecisionForm(
+  processApplicationDecisionForm(
     req: TypedRequest<ApplicationDecisionForm, IdParams>,
     res: Response,
-  ): Promise<void> {
+  ): void {
     const {
       params: { applicationId },
     } = req;
@@ -63,11 +63,23 @@ export class ApplicationDecisionAdaptor {
     } = req;
 
     if (!overallDecision) {
-      await this.renderApplicationDecisionForm(
-        req as unknown as Request,
-        res,
-        true,
-      );
+      const backUrl = `/applications/${applicationId}/overview`;
+      const sessionData =
+        this.sessionHelper.getSessionData(
+          req as unknown as Request,
+          "decision",
+        ) ?? {};
+
+      res.render("application/decision/index", {
+        backUrl,
+        applicationId,
+        proceeding: {
+          certificateType: sessionData.certificateType,
+          meritsDecision: sessionData.meritsDecision,
+        },
+        overallDecision: sessionData.overallDecision,
+        showOverallDecisionError: true,
+      });
       return;
     }
 

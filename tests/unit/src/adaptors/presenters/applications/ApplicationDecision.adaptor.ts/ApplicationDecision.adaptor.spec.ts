@@ -158,20 +158,24 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("re-renders the decision page with validation error when overall decision is missing", async () => {
       requestStub.body = { "overall-decision": "" };
-      viewApplicationSourceStub.getApplication.resolves({
-        proceedings: [mockProceeding],
-      } as any);
-      sessionHelperStub.getSessionData.returns({});
+      sessionHelperStub.getSessionData.returns({
+        certificateType: "Substantive",
+        meritsDecision: "Pending",
+      });
 
       await adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
 
-      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
       const renderArgs = responseStub.render.getCall(0).args;
       const renderVars = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(renderArgs[0], "application/decision/index");
+      assert.deepEqual(renderVars.proceeding, {
+        certificateType: "Substantive",
+        meritsDecision: "Pending",
+      });
       assert.equal(renderVars.showOverallDecisionError, true);
       assert.equal(responseStub.redirect.callCount, 0);
     });
