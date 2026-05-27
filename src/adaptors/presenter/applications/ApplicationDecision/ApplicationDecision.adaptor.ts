@@ -10,11 +10,15 @@ import type {
   ApplicationDecisionForm,
   JustificationForm,
 } from "./models/form.types.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationDecisionAdaptor {
   constructor(
     private readonly viewApplicationAdaptor: ApplicationPort,
     private readonly sessionHelper: SessionHelper,
+    private readonly validator: ApplicationDecisionValidator,
   ) {}
 
   async renderApplicationDecisionForm(
@@ -115,7 +119,9 @@ export class ApplicationDecisionAdaptor {
       "decision",
     );
 
-    if (!refusalReason) {
+    const errorSummaries = this.validator.validateJustification(req.body);
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       const backUrl = `/applications/${applicationId}/decision`;
       res.render("application/decision/justification/index", {
         backUrl,
@@ -124,7 +130,8 @@ export class ApplicationDecisionAdaptor {
         justification: sessionData?.justification,
         errorSummaries: {
           decisionReason: {
-            text: "Select a reason for overall decision",
+            text: en.pages.decision.justification.radio.validationErrors
+              .notEmpty,
           },
         },
       });

@@ -11,6 +11,7 @@ import {
   JustificationForm,
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -20,6 +21,7 @@ describe("ApplicationDecisionAdaptor", () => {
   let viewApplicationSourceStub: StubbedInstance<ApplicationPort>;
   let sessionHelperStub: StubbedInstance<SessionHelper>;
   let adaptor: ApplicationDecisionAdaptor;
+  let validator: ApplicationDecisionValidator;
 
   const applicationId = "1";
   const mockProceeding = {
@@ -41,9 +43,11 @@ describe("ApplicationDecisionAdaptor", () => {
     requestStub = stubInterface<Request>();
     viewApplicationSourceStub = stubInterface<ApplicationPort>();
     sessionHelperStub = stubInterface<SessionHelper>();
+    validator = new ApplicationDecisionValidator();
     adaptor = new ApplicationDecisionAdaptor(
       viewApplicationSourceStub,
       sessionHelperStub,
+      validator,
     );
     requestStub.params = { applicationId };
   });

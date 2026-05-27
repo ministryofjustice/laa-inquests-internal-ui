@@ -9,6 +9,7 @@ import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applica
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import config from "#src/infrastructure/config/config.js";
+import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 
 // Create a new router
 const router = express.Router();
@@ -47,6 +48,7 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
+  new ApplicationDecisionValidator(),
 );
 
 router.use("/applications", [
