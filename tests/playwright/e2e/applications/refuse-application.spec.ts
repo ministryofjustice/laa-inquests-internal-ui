@@ -85,6 +85,19 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
+  test("caseworker sees validation error when no overall decision selected", async () => {
+    await sharedPage.goto(makeADecisionPage);
+
+    const form = sharedPage.getByTestId("make-a-decision");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(makeADecisionPage);
+    const errorMessage = form.locator(".govuk-error-message", {
+      hasText: meritsLocale.radio.validationError.notEmpty,
+    });
+    await expect(errorMessage).toBeVisible();
+  });
+
   test("caseworker selects Refuse and continues to justification page", async () => {
     const form = sharedPage.getByTestId("make-a-decision");
     await form

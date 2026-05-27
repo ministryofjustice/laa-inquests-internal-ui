@@ -36,26 +36,52 @@
             }
         ]}) 
     }}
-    {{ govukRadios({
-    name: "overall-decision",
-    value: overallDecision,
-    fieldset: {
-        legend: {
-            text: t('pages.decision.merits.radio.label'),
-            classes: "govuk-fieldset__legend--s"
-        }
-    },
-    items: [
-        {
-            value: "GRANTED",
-            text: t('pages.decision.merits.radio.grantLabel')
-        },
-        {
-            value: "REFUSED",
-            text: t('pages.decision.merits.radio.refuseLabel')
-        }
-    ]
-    }) }}
+    {% if showOverallDecisionError %}
+      {{ govukRadios({
+      name: "overall-decision",
+      value: overallDecision,
+      fieldset: {
+          legend: {
+              text: t('pages.decision.merits.radio.label'),
+              classes: "govuk-fieldset__legend--s"
+          }
+      },
+      errorMessage: {
+          text: t('pages.decision.merits.radio.validationError.notEmpty')
+      },
+      items: [
+          {
+              value: "GRANTED",
+              text: t('pages.decision.merits.radio.grantLabel')
+          },
+          {
+              value: "REFUSED",
+              text: t('pages.decision.merits.radio.refuseLabel')
+          }
+      ]
+      }) }}
+    {% else %}
+      {{ govukRadios({
+      name: "overall-decision",
+      value: overallDecision,
+      fieldset: {
+          legend: {
+              text: t('pages.decision.merits.radio.label'),
+              classes: "govuk-fieldset__legend--s"
+          }
+      },
+      items: [
+          {
+              value: "GRANTED",
+              text: t('pages.decision.merits.radio.grantLabel')
+          },
+          {
+              value: "REFUSED",
+              text: t('pages.decision.merits.radio.refuseLabel')
+          }
+      ]
+      }) }}
+    {% endif %}
     {{ govukButton({
         text: "Continue"
     }) }}

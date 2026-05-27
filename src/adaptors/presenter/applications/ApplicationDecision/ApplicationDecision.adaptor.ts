@@ -20,6 +20,7 @@ export class ApplicationDecisionAdaptor {
   async renderApplicationDecisionForm(
     req: Request,
     res: Response,
+    showOverallDecisionError = false,
   ): Promise<void> {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/overview`;
@@ -46,19 +47,29 @@ export class ApplicationDecisionAdaptor {
       proceeding: formattedProceeding,
       overallDecision: this.sessionHelper.getSessionData(req, "decision")
         ?.overallDecision,
+      showOverallDecisionError,
     });
   }
 
-  processApplicationDecisionForm(
+  async processApplicationDecisionForm(
     req: TypedRequest<ApplicationDecisionForm, IdParams>,
     res: Response,
-  ): void {
+  ): Promise<void> {
     const {
       params: { applicationId },
     } = req;
     const {
       body: { "overall-decision": overallDecision },
     } = req;
+
+    if (!overallDecision) {
+      await this.renderApplicationDecisionForm(
+        req as unknown as Request,
+        res,
+        true,
+      );
+      return;
+    }
 
     this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
     res.redirect(`/applications/${applicationId}/decision/justification`);

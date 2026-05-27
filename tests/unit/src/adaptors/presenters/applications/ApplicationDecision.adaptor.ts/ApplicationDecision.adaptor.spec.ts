@@ -98,7 +98,25 @@ describe("ApplicationDecisionAdaptor", () => {
           meritsDecision: "Pending",
         },
         overallDecision: "REFUSED",
+        showOverallDecisionError: false,
       });
+    });
+
+    it("includes the error flag when rendering with validation error", async () => {
+      viewApplicationSourceStub.getApplication.resolves({
+        proceedings: [mockProceeding],
+      } as any);
+      sessionHelperStub.getSessionData.returns({});
+
+      await adaptor.renderApplicationDecisionForm(
+        requestStub as Request,
+        responseStub,
+        true,
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderVars = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(renderVars.showOverallDecisionError, true);
     });
   });
 
@@ -108,8 +126,8 @@ describe("ApplicationDecisionAdaptor", () => {
       requestStub.body = { "overall-decision": "REFUSED" };
     });
 
-    it("saves overallDecision to session", () => {
-      adaptor.processApplicationDecisionForm(
+    it("saves overallDecision to session", async () => {
+      await adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
@@ -123,8 +141,8 @@ describe("ApplicationDecisionAdaptor", () => {
       ]);
     });
 
-    it("redirects to the justification page", () => {
-      adaptor.processApplicationDecisionForm(
+    it("redirects to the justification page", async () => {
+      await adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
@@ -134,6 +152,26 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/justification`,
       );
+    });
+
+    it("re-renders the decision page with validation error when overall decision is missing", async () => {
+      requestStub.body = { "overall-decision": "" };
+      viewApplicationSourceStub.getApplication.resolves({
+        proceedings: [mockProceeding],
+      } as any);
+      sessionHelperStub.getSessionData.returns({});
+
+      await adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderVars = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(renderArgs[0], "application/decision/index");
+      assert.equal(renderVars.showOverallDecisionError, true);
+      assert.equal(responseStub.redirect.callCount, 0);
     });
   });
 
