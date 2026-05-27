@@ -136,6 +136,16 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
+  test("caseworker sees validation errors when no reason selected and justification not provided", async () => {
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
+    await continueToNextPage(form, sharedPage);
+    await expect(sharedPage).toHaveURL(justificationPage);
+    const errorMessage = form.locator(".govuk-error-message", {
+      hasText: justificationLocale.radio.validationErrors.notEmpty,
+    });
+    await expect(errorMessage).toBeVisible();
+  });
+
   test("caseworker selects a reason and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await form

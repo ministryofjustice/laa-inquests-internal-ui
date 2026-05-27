@@ -110,13 +110,29 @@ export class ApplicationDecisionAdaptor {
       body: { "refusal-reason": refusalReason, justification },
     } = req;
 
-    const existing =
-      this.sessionHelper.getSessionData(
-        req as unknown as Request,
-        "decision",
-      ) ?? {};
+    const sessionData = this.sessionHelper.getSessionData(
+      req as unknown as Request,
+      "decision",
+    );
+
+    if (!refusalReason) {
+      const backUrl = `/applications/${applicationId}/decision`;
+      res.render("application/decision/justification/index", {
+        backUrl,
+        laaReference: applicationId,
+        refusalReason: sessionData?.refusalReason,
+        justification: sessionData?.justification,
+        errorSummaries: {
+          decisionReason: {
+            text: "Select a reason for overall decision",
+          },
+        },
+      });
+      return;
+    }
+
     this.sessionHelper.storeSessionData(req, "decision", {
-      ...existing,
+      ...sessionData,
       refusalReason,
       justification,
     });

@@ -10,6 +10,7 @@ import {
   ApplicationDecisionForm,
   JustificationForm,
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -257,6 +258,34 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/confirmation`,
       );
+    });
+
+    it("re-renders the justification page with validation error with correct variables passed when justification reason is missing", async () => {
+      requestStub.body = { "refusal-reason": "" };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+
+      await adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "application/decision/justification/index");
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        laaReference: applicationId,
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+        errorSummaries: {
+          decisionReason: {
+            text: en.pages.decision.justification.radio.validationErrors
+              .notEmpty,
+          },
+        },
+      });
     });
   });
 

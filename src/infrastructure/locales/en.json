@@ -104,7 +104,10 @@
           "insufficientInformation": "Insufficient information",
           "insufficientInformationHint": "You have provided insufficient information/ documentation to enable the application to be fully considered.",
           "duplicateCase": "Duplicate case",
-          "duplicateCaseHint": "This application appears to duplicate an existing case already submitted under a different reference."
+          "duplicateCaseHint": "This application appears to duplicate an existing case already submitted under a different reference.",
+          "validationErrors": {
+            "notEmpty": "Select a reason for overall decision"
+          }
         },
         "textarea": {
           "label": "Justification",
