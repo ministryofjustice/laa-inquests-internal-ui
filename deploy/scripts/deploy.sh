@@ -26,6 +26,7 @@ deploy_branch() {
                 --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                 --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                 --set env.CONTACT_PHONE="$CONTACT_PHONE" \
+                --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
                 --set env.SERVICE_URL="$SERVICE_URL" \
                 --set env.SESSION_SECRET="$SESSION_SECRET" \
                 --set env.SESSION_NAME="$SESSION_NAME" \
@@ -50,6 +51,7 @@ deploy_main() {
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                           --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                           --set env.CONTACT_PHONE="$CONTACT_PHONE" \
+                          --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
                           --set env.SERVICE_URL="$SERVICE_URL" \
                           --set env.SESSION_SECRET="$SESSION_SECRET" \
                           --set env.SESSION_NAME="$SESSION_NAME" \

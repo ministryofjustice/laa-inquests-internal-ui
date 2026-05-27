@@ -32,6 +32,8 @@ inputs:
     description: "Rate limit max"
   ratewindow_ms:
     description: "Rate limit max"
+  inquests_api_url:
+    description: "Inquests API URL"
 runs:
   using: "composite"
   steps:
@@ -79,6 +81,7 @@ runs:
         echo "RATE_LIMIT_MAX=${{ inputs.ratelimit_max || '100' }}" >> $GITHUB_ENV
         echo "RATE_WINDOW_MS=${{ inputs.ratewindow_ms || '900000' }}" >> $GITHUB_ENV
         echo "SERVICE_NAME=${{ inputs.service_name || 'Inquests' }}" >> $GITHUB_ENV
+        echo "INQUESTS_API_URL=${{ inputs.inquests_api_url || '' }}" >> $GITHUB_ENV
         echo "SESSION_NAME=${{ inputs.session_name || 'sessionId' }}" >> $GITHUB_ENV
         echo "SESSION_SECRET=${{ inputs.session_secret || 'default-session-secret' }}" >> $GITHUB_ENV
 
