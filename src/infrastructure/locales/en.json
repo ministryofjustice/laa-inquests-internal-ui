@@ -121,8 +121,8 @@
         },
         "radio": {
           "label": "What is your overall decision?",
-          "grantLabel": "Grant",
-          "refuseLabel": "Refuse"
+          "grantLabel": "Granted",
+          "refuseLabel": "Refused"
         }
       }
     }

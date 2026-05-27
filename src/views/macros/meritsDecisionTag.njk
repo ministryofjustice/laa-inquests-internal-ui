@@ -1,9 +1,9 @@
-{% macro meritsDecisionTag(value) %}
+{% macro meritsDecisionTag(value, grantLabel = "Granted", refuseLabel = "Refused") %}
   {%- set upperValue = value | upper -%}
   {%- if upperValue == "REFUSED" -%}
-    <strong class="govuk-tag govuk-tag--red">Refuse</strong>
+    <strong class="govuk-tag govuk-tag--red">{{ refuseLabel }}</strong>
   {%- elif upperValue == "GRANTED" -%}
-    <strong class="govuk-tag govuk-tag--green">Grant</strong>
+    <strong class="govuk-tag govuk-tag--green">{{ grantLabel }}</strong>
   {%- else -%}
     <strong class="govuk-tag govuk-tag--blue">{{ value | lower | capitalize }}</strong>
   {%- endif -%}
