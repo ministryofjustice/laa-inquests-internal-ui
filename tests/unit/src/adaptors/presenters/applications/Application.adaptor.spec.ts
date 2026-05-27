@@ -1,7 +1,7 @@
 import { strict as assert } from "assert";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
-import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
+import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 
 describe("Application adaptor", () => {

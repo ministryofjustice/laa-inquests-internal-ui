@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
-import { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
+import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import axios from "axios";
