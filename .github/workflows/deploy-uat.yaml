@@ -132,6 +132,9 @@ jobs:
           github-ref-name: ${{ github.ref_name }}
           github-head-ref: ${{ github.head_ref }}
           image-tag: ${{ github.sha }}
+          ratelimit_max: ${{ vars.RATE_LIMIT_MAX }}
+          ratewindow_ms: ${{ vars.RATE_WINDOW_MS }}
+          inquests_api_url: ${{ vars.INQUESTS_API_URL }}
   notify-slack:
     environment: uat
     needs: deploy

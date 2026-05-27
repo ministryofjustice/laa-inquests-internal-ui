@@ -63,6 +63,8 @@ spec:
               value: "{{ .Values.env.CONTACT_EMAIL }}"
             - name: CONTACT_PHONE
               value: "{{ .Values.env.CONTACT_PHONE }}"
+            - name: INQUESTS_API_URL
+              value: "{{ .Values.env.INQUESTS_API_URL }}"
             - name: SERVICE_URL
               value: "{{ .Values.env.SERVICE_URL }}"
             - name: SESSION_SECRET

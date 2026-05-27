@@ -36,7 +36,7 @@ export class ApplicationDecisionAdaptor {
     const firstProceeding = data.proceedings[0];
     const formattedProceeding = {
       certificateType: toTitleCase(firstProceeding.certificateType),
-      meritsDecision: toTitleCase(firstProceeding.meritsDecision),
+      meritsDecision: toTitleCase(data.overallDecision ?? "PENDING"),
     };
 
     this.sessionHelper.storeSessionData(req, "decision", formattedProceeding);
