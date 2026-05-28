@@ -10,7 +10,6 @@ import type {
   ApplicationDecisionForm,
   JustificationForm,
 } from "./models/form.types.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
@@ -128,12 +127,7 @@ export class ApplicationDecisionAdaptor {
         laaReference: applicationId,
         refusalReason: sessionData?.refusalReason,
         justification: sessionData?.justification,
-        errorSummaries: {
-          decisionReason: {
-            text: en.pages.decision.justification.radio.validationErrors
-              .notEmpty,
-          },
-        },
+        errorSummaries,
       });
       return;
     }

@@ -20,5 +20,20 @@ describe("ApplicationDecisionValidator", () => {
         },
       });
     });
+
+    it("adds empty justification error when textarea is empty", () => {
+      const form: JustificationForm = {
+        "refusal-reason": "not-in-scope",
+        justification: "",
+      };
+
+      const errors = validator.validateJustification(form);
+      assert.deepInclude(errors, {
+        decisionJustification: {
+          text: en.pages.decision.justification.textarea.validationErrors
+            .notEmpty,
+        },
+      });
+    });
   });
 });

@@ -11,4 +11,5 @@ export interface JustificationForm {
 
 export interface JustificationFormErrors {
   decisionReason?: FormErrorMessage;
+  decisionJustification?: FormErrorMessage;
 }

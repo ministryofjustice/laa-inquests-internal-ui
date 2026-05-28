@@ -140,10 +140,14 @@ test.describe.serial("Refuse application journey", () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(justificationPage);
-    const errorMessage = form.locator(".govuk-error-message", {
+    const radioErrorMessage = form.locator(".govuk-error-message", {
       hasText: justificationLocale.radio.validationErrors.notEmpty,
     });
-    await expect(errorMessage).toBeVisible();
+    await expect(radioErrorMessage).toBeVisible();
+    const textareaErrorMessage = form.locator(".govuk-error-message", {
+      hasText: justificationLocale.textarea.validationErrors.notEmpty,
+    });
+    await expect(textareaErrorMessage).toBeVisible();
   });
 
   test("caseworker selects a reason and continues to confirmation page", async () => {

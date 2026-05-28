@@ -11,13 +11,21 @@ export class ApplicationDecisionValidator extends FormValidator {
   ): Partial<JustificationFormErrors> {
     const errors: Partial<JustificationFormErrors> = {};
 
-    const { "refusal-reason": refusalReason } = form;
+    const { "refusal-reason": refusalReason, justification } = form;
 
     if (!refusalReason) {
       errors.decisionReason = {
         text: en.pages.decision.justification.radio.validationErrors.notEmpty,
       };
     }
+
+    if (!justification) {
+      errors.decisionJustification = {
+        text: en.pages.decision.justification.textarea.validationErrors
+          .notEmpty,
+      };
+    }
+
     return errors;
   }
 }

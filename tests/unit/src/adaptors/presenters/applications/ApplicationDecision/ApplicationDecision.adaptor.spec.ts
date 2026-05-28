@@ -264,8 +264,8 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
-    it("re-renders the justification page with validation error with correct variables passed when justification reason is missing", async () => {
-      requestStub.body = { "refusal-reason": "" };
+    it("re-renders with correct error summaries based on which fields are empty", async () => {
+      requestStub.body = { "refusal-reason": "", justification: "" };
       sessionHelperStub.getSessionData.returns({
         refusalReason: "not-in-scope",
         justification: "some justification",
@@ -276,8 +276,10 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub,
       );
 
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "application/decision/justification/index");
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/justification/index",
+      );
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
         backUrl: `/applications/${applicationId}/decision`,
         laaReference: applicationId,
@@ -286,6 +288,10 @@ describe("ApplicationDecisionAdaptor", () => {
         errorSummaries: {
           decisionReason: {
             text: en.pages.decision.justification.radio.validationErrors
+              .notEmpty,
+          },
+          decisionJustification: {
+            text: en.pages.decision.justification.textarea.validationErrors
               .notEmpty,
           },
         },

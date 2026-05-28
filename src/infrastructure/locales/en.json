@@ -111,7 +111,10 @@
         },
         "textarea": {
           "label": "Justification",
-          "hint": "This information will be shared with the provider and added to case history."
+          "hint": "This information will be shared with the provider and added to case history.",
+          "validationErrors": {
+            "notEmpty": "Enter the decision justification"
+          }
         }
       },
       "merits": {
