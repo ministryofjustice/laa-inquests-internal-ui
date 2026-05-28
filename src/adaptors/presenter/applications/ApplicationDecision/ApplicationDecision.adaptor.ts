@@ -9,6 +9,7 @@ import type {
 import type {
   ApplicationDecisionForm,
   JustificationForm,
+  JustificationFormErrors,
 } from "./models/form.types.js";
 import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
@@ -87,7 +88,11 @@ export class ApplicationDecisionAdaptor {
     res.redirect(`/applications/${applicationId}/decision/justification`);
   }
 
-  renderJustificationForm(req: Request, res: Response): void {
+  renderJustificationForm(
+    req: Request,
+    res: Response,
+    errorSummaries?: Partial<JustificationFormErrors>,
+  ): void {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision`;
     const sessionData = this.sessionHelper.getSessionData(req, "decision");
@@ -96,6 +101,7 @@ export class ApplicationDecisionAdaptor {
       laaReference: applicationId,
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
+      ...(errorSummaries && { errorSummaries }),
     });
   }
 
@@ -118,14 +124,11 @@ export class ApplicationDecisionAdaptor {
     const errorSummaries = this.validator.validateJustification(req.body);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      const backUrl = `/applications/${applicationId}/decision`;
-      res.render("application/decision/justification/index", {
-        backUrl,
-        laaReference: applicationId,
-        refusalReason: sessionData?.refusalReason,
-        justification: sessionData?.justification,
+      this.renderJustificationForm(
+        req as unknown as Request,
+        res,
         errorSummaries,
-      });
+      );
       return;
     }
 
