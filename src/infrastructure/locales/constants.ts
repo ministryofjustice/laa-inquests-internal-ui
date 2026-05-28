@@ -1,3 +1,7 @@
+export const MAX_CHARACTER_LENGTH = 100;
+export const JUSTIFICATION_MAX_CHARACTER_LENGTH = 1500;
+export const EMPTY_ARR_LENGTH = 0;
+
 export const APPLICATION_TYPES = [
   {
     applicationTypeId: "INITIAL",

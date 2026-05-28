@@ -104,11 +104,19 @@
           "insufficientInformation": "Insufficient information",
           "insufficientInformationHint": "You have provided insufficient information/ documentation to enable the application to be fully considered.",
           "duplicateCase": "Duplicate case",
-          "duplicateCaseHint": "This application appears to duplicate an existing case already submitted under a different reference."
+          "duplicateCaseHint": "This application appears to duplicate an existing case already submitted under a different reference.",
+          "validationErrors": {
+            "notEmpty": "Select a reason for overall decision"
+          }
         },
         "textarea": {
           "label": "Justification",
-          "hint": "This information will be shared with the provider and added to case history."
+          "hint": "This information will be shared with the provider and added to case history.",
+          "validationErrors": {
+            "notEmpty": "Enter the decision justification",
+            "tooLong": "Justification must be 1500 characters or fewer",
+            "invalidCharacters": "Justification for decision must only include unicode characters"
+          }
         }
       },
       "merits": {
@@ -121,8 +129,11 @@
         },
         "radio": {
           "label": "What is your overall decision?",
-          "grantLabel": "Grant",
-          "refuseLabel": "Refuse"
+          "grantLabel": "Granted",
+          "refuseLabel": "Refused",
+          "validationError": {
+            "notEmpty": "Select the overall decision"
+          }
         }
       }
     }

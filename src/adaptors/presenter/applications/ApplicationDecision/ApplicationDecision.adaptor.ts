@@ -8,18 +8,24 @@ import type {
 } from "#src/infrastructure/express/api.types.js";
 import type {
   ApplicationDecisionForm,
+  ApplicationDecisionFormErrors,
   JustificationForm,
+  JustificationFormErrors,
 } from "./models/form.types.js";
+import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationDecisionAdaptor {
   constructor(
     private readonly viewApplicationAdaptor: ApplicationPort,
     private readonly sessionHelper: SessionHelper,
+    private readonly validator: ApplicationDecisionValidator,
   ) {}
 
   async renderApplicationDecisionForm(
     req: Request,
     res: Response,
+    errorSummaries?: Partial<ApplicationDecisionFormErrors>,
   ): Promise<void> {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/overview`;
@@ -46,25 +52,42 @@ export class ApplicationDecisionAdaptor {
       proceeding: formattedProceeding,
       overallDecision: this.sessionHelper.getSessionData(req, "decision")
         ?.overallDecision,
+      ...(errorSummaries && { errorSummaries }),
     });
   }
 
-  processApplicationDecisionForm(
+  async processApplicationDecisionForm(
     req: TypedRequest<ApplicationDecisionForm, IdParams>,
     res: Response,
-  ): void {
-    const {
-      params: { applicationId },
-    } = req;
+  ): Promise<void> {
     const {
       body: { "overall-decision": overallDecision },
+      params: { applicationId },
     } = req;
 
     this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
+
+    const errorSummaries = this.validator.validateApplicationDecisionForm(
+      req.body,
+    );
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      await this.renderApplicationDecisionForm(
+        req as unknown as Request,
+        res,
+        errorSummaries,
+      );
+      return;
+    }
+
     res.redirect(`/applications/${applicationId}/decision/justification`);
   }
 
-  renderJustificationForm(req: Request, res: Response): void {
+  renderJustificationForm(
+    req: Request,
+    res: Response,
+    errorSummaries?: Partial<JustificationFormErrors>,
+  ): void {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision`;
     const sessionData = this.sessionHelper.getSessionData(req, "decision");
@@ -73,6 +96,7 @@ export class ApplicationDecisionAdaptor {
       laaReference: applicationId,
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
+      ...(errorSummaries && { errorSummaries }),
     });
   }
 
@@ -87,16 +111,28 @@ export class ApplicationDecisionAdaptor {
       body: { "refusal-reason": refusalReason, justification },
     } = req;
 
-    const existing =
-      this.sessionHelper.getSessionData(
-        req as unknown as Request,
-        "decision",
-      ) ?? {};
+    const sessionData = this.sessionHelper.getSessionData(
+      req as unknown as Request,
+      "decision",
+    );
+
     this.sessionHelper.storeSessionData(req, "decision", {
-      ...existing,
+      ...sessionData,
       refusalReason,
       justification,
     });
+
+    const errorSummaries = this.validator.validateJustification(req.body);
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      this.renderJustificationForm(
+        req as unknown as Request,
+        res,
+        errorSummaries,
+      );
+      return;
+    }
+
     res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }
 

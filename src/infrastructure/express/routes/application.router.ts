@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response, Router } from "express";
-import type { ApplicationAdaptor } from "#src/adaptors/Application.adaptor.js";
+import type { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 
 function createApplicationRouter(
   applicationRouter: Router,

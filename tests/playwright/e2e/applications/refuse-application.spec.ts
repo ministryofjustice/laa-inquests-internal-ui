@@ -85,6 +85,31 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
+  test("caseworker sees validation error when no overall decision selected", async () => {
+    await sharedPage.goto(makeADecisionPage);
+
+    const form = sharedPage.getByTestId("make-a-decision");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(makeADecisionPage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    const overallDecisionLink = errorSummary.getByRole("link", {
+      name: meritsLocale.radio.validationError.notEmpty,
+    });
+    await expect(overallDecisionLink).toBeVisible();
+    await expect(overallDecisionLink).toHaveAttribute(
+      "href",
+      "#overall-decision",
+    );
+
+    const errorMessage = form.locator(".govuk-error-message", {
+      hasText: meritsLocale.radio.validationError.notEmpty,
+    });
+    await expect(errorMessage).toBeVisible();
+  });
+
   test("caseworker selects Refuse and continues to justification page", async () => {
     const form = sharedPage.getByTestId("make-a-decision");
     await form
@@ -121,6 +146,34 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       form.getByLabel(justificationLocale.textarea.label),
     ).toBeVisible();
+  });
+
+  test("caseworker sees validation errors when no reason selected and justification not provided", async () => {
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
+    await continueToNextPage(form, sharedPage);
+    await expect(sharedPage).toHaveURL(justificationPage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    const radioLink = errorSummary.getByRole("link", {
+      name: justificationLocale.radio.validationErrors.notEmpty,
+    });
+    await expect(radioLink).toBeVisible();
+    await expect(radioLink).toHaveAttribute("href", "#refusal-reason");
+    const textareaLink = errorSummary.getByRole("link", {
+      name: justificationLocale.textarea.validationErrors.notEmpty,
+    });
+    await expect(textareaLink).toBeVisible();
+    await expect(textareaLink).toHaveAttribute("href", "#justification");
+
+    const radioErrorMessage = form.locator(".govuk-error-message", {
+      hasText: justificationLocale.radio.validationErrors.notEmpty,
+    });
+    await expect(radioErrorMessage).toBeVisible();
+    const textareaErrorMessage = form.locator(".govuk-error-message", {
+      hasText: justificationLocale.textarea.validationErrors.notEmpty,
+    });
+    await expect(textareaErrorMessage).toBeVisible();
   });
 
   test("caseworker selects a reason and continues to confirmation page", async () => {

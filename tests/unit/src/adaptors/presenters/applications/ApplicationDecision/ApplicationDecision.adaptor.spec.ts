@@ -1,4 +1,5 @@
 import { strict as assert } from "assert";
+import sinon from "sinon";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
@@ -10,6 +11,8 @@ import {
   ApplicationDecisionForm,
   JustificationForm,
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -19,6 +22,7 @@ describe("ApplicationDecisionAdaptor", () => {
   let viewApplicationSourceStub: StubbedInstance<ApplicationPort>;
   let sessionHelperStub: StubbedInstance<SessionHelper>;
   let adaptor: ApplicationDecisionAdaptor;
+  let validator: ApplicationDecisionValidator;
 
   const applicationId = "1";
   const mockProceeding = {
@@ -40,9 +44,11 @@ describe("ApplicationDecisionAdaptor", () => {
     requestStub = stubInterface<Request>();
     viewApplicationSourceStub = stubInterface<ApplicationPort>();
     sessionHelperStub = stubInterface<SessionHelper>();
+    validator = new ApplicationDecisionValidator();
     adaptor = new ApplicationDecisionAdaptor(
       viewApplicationSourceStub,
       sessionHelperStub,
+      validator,
     );
     requestStub.params = { applicationId };
   });
@@ -105,9 +111,19 @@ describe("ApplicationDecisionAdaptor", () => {
   });
 
   describe("processApplicationDecisionForm", () => {
+    let renderApplicationDecisionFormSpy: sinon.SinonSpy;
+
     beforeEach(() => {
       requestStub.params = { applicationId };
       requestStub.body = { "overall-decision": "REFUSED" };
+      renderApplicationDecisionFormSpy = sinon.spy(
+        adaptor,
+        "renderApplicationDecisionForm",
+      );
+    });
+
+    afterEach(() => {
+      renderApplicationDecisionFormSpy.restore();
     });
 
     it("saves overallDecision to session", () => {
@@ -136,6 +152,41 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/justification`,
       );
+    });
+
+    it("saves session data even when there are validation errors", () => {
+      requestStub.body = { "overall-decision": "" };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      const storeArgs = sessionHelperStub.storeSessionData.getCall(0).args;
+      assert.deepEqual(storeArgs, [
+        requestStub,
+        "decision",
+        { overallDecision: "" },
+      ]);
+    });
+
+    it("re-renders the decision page with validation error when overall decision is missing", () => {
+      requestStub.body = { "overall-decision": "" };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.ok(renderApplicationDecisionFormSpy.calledOnce);
+      assert.deepEqual(renderApplicationDecisionFormSpy.getCall(0).args[2], {
+        overallDecision: {
+          text: en.pages.decision.merits.radio.validationError.notEmpty,
+        },
+      });
     });
   });
 
@@ -171,15 +222,51 @@ describe("ApplicationDecisionAdaptor", () => {
         justification: "some justification",
       });
     });
+
+    it("includes errorSummaries in render variables when provided", () => {
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+      const errorSummaries = {
+        decisionReason: {
+          text: en.pages.decision.justification.radio.validationErrors.notEmpty,
+        },
+      };
+
+      adaptor.renderJustificationForm(
+        requestStub as Request,
+        responseStub,
+        errorSummaries,
+      );
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        laaReference: applicationId,
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+        errorSummaries,
+      });
+    });
   });
 
   describe("processJustificationForm", () => {
+    let renderJustificationFormSpy: sinon.SinonSpy;
+
     beforeEach(() => {
       requestStub.params = { applicationId };
       requestStub.body = {
         "refusal-reason": "not-in-scope",
         justification: "some justification",
       };
+      renderJustificationFormSpy = sinon.spy(
+        adaptor,
+        "renderJustificationForm",
+      );
+    });
+
+    afterEach(() => {
+      renderJustificationFormSpy.restore();
     });
 
     it("saves refusalReason and justification to session, merged with existing data", () => {
@@ -215,6 +302,90 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/confirmation`,
       );
+    });
+
+    it("saves session data even when there are validation errors", () => {
+      requestStub.body = { "refusal-reason": "", justification: "" };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+    });
+
+    it("re-renders with correct error summaries based on which fields are empty", () => {
+      requestStub.body = { "refusal-reason": "", justification: "" };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.ok(renderJustificationFormSpy.calledOnce);
+      assert.deepEqual(renderJustificationFormSpy.getCall(0).args[2], {
+        decisionReason: {
+          text: en.pages.decision.justification.radio.validationErrors.notEmpty,
+        },
+        decisionJustification: {
+          text: en.pages.decision.justification.textarea.validationErrors
+            .notEmpty,
+        },
+      });
+    });
+
+    it("re-renders with a too long error when justification exceeds 1500 characters", () => {
+      requestStub.body = {
+        "refusal-reason": "not-in-scope",
+        justification: "a".repeat(1501),
+      };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "a".repeat(1501),
+      });
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.ok(renderJustificationFormSpy.calledOnce);
+      assert.deepEqual(renderJustificationFormSpy.getCall(0).args[2], {
+        decisionJustification: {
+          text: en.pages.decision.justification.textarea.validationErrors
+            .tooLong,
+        },
+      });
+    });
+
+    it("re-renders with an invalid characters error when justification contains non-unicode characters", () => {
+      requestStub.body = {
+        "refusal-reason": "not-in-scope",
+        justification: "\uD800",
+      };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "\uD800",
+      });
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.ok(renderJustificationFormSpy.calledOnce);
+      assert.deepEqual(renderJustificationFormSpy.getCall(0).args[2], {
+        decisionJustification: {
+          text: en.pages.decision.justification.textarea.validationErrors
+            .invalidCharacters,
+        },
+      });
     });
   });
 

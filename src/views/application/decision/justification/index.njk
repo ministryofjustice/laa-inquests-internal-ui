@@ -2,8 +2,18 @@
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('errorSummaryTitle'),
+    errorList: [
+      { text: errorSummaries.decisionReason.text, href: "#refusal-reason" } if errorSummaries.decisionReason,
+      { text: errorSummaries.decisionJustification.text, href: "#justification" } if errorSummaries.decisionJustification
+    ]
+  }) }}
+{% endif %}
 <form data-testid="select-reason-for-refusal" method="post" action="/applications/{{ laaReference }}/decision/justification">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
   <h1 class="govuk-heading-l">{{ t('pages.decision.justification.header') }}</h1>
@@ -16,6 +26,7 @@
         classes: "govuk-fieldset__legend--m"
       }
     },
+    errorMessage: errorSummaries.decisionReason,
     items: [
       {
         value: "not-in-scope",
@@ -53,7 +64,8 @@
     },
     hint: {
       text: t('pages.decision.justification.textarea.hint')
-    }
+    },
+    errorMessage: errorSummaries.decisionJustification
   }) }}
   {{ govukButton({
     text: "Continue"
