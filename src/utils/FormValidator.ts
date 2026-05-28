@@ -10,4 +10,8 @@ export class FormValidator {
       : typeof inputValue === "string" &&
           inputValue.length > MAX_CHARACTER_LENGTH;
   }
+
+  protected hasInvalidUnicodeCharacters(value: string): boolean {
+    return !value.isWellFormed();
+  }
 }

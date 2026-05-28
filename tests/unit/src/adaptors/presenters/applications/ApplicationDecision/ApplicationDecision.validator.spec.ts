@@ -50,5 +50,15 @@ describe("ApplicationDecisionValidator", () => {
         },
       });
     });
+
+    it("adds a decisionJustification error by calling hasInvalidUnicodeCharacters when justification contains non-unicode characters", () => {
+      const form: JustificationForm = {
+        "refusal-reason": "not-in-scope",
+        justification: "\uD800",
+      };
+
+      const errors = validator.validateJustification(form);
+      assert.exists(errors.decisionJustification);
+    });
   });
 });

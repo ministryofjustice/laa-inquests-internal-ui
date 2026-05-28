@@ -330,6 +330,33 @@ describe("ApplicationDecisionAdaptor", () => {
         },
       });
     });
+
+    it("re-renders with an invalid characters error when justification contains non-unicode characters", async () => {
+      requestStub.body = {
+        "refusal-reason": "not-in-scope",
+        justification: "\uD800",
+      };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "\uD800",
+      });
+
+      await adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/justification/index",
+      );
+      const rendered = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.ok(
+        (rendered.errorSummaries as Record<string, unknown>)
+          .decisionJustification,
+      );
+    });
   });
 
   describe("renderConfirmationPage", () => {

@@ -114,7 +114,8 @@
           "hint": "This information will be shared with the provider and added to case history.",
           "validationErrors": {
             "notEmpty": "Enter the decision justification",
-            "tooLong": "Justification must be 1500 characters or fewer"
+            "tooLong": "Justification must be 1500 characters or fewer",
+            "invalidCharacters": "Justification for decision must only include unicode characters"
           }
         }
       },

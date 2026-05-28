@@ -29,6 +29,11 @@ export class ApplicationDecisionValidator extends FormValidator {
       errors.decisionJustification = {
         text: en.pages.decision.justification.textarea.validationErrors.tooLong,
       };
+    } else if (this.hasInvalidUnicodeCharacters(justification)) {
+      errors.decisionJustification = {
+        text: en.pages.decision.justification.textarea.validationErrors
+          .invalidCharacters,
+      };
     }
 
     return errors;
