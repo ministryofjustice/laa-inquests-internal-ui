@@ -56,10 +56,10 @@ export class ApplicationDecisionAdaptor {
     });
   }
 
-  processApplicationDecisionForm(
+  async processApplicationDecisionForm(
     req: TypedRequest<ApplicationDecisionForm, IdParams>,
     res: Response,
-  ): void {
+  ): Promise<void> {
     const {
       body: { "overall-decision": overallDecision },
       params: { applicationId },
@@ -72,7 +72,7 @@ export class ApplicationDecisionAdaptor {
     );
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      void this.renderApplicationDecisionForm(
+      await this.renderApplicationDecisionForm(
         req as unknown as Request,
         res,
         errorSummaries,

@@ -92,6 +92,18 @@ test.describe.serial("Refuse application journey", () => {
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(makeADecisionPage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    const overallDecisionLink = errorSummary.getByRole("link", {
+      name: meritsLocale.radio.validationError.notEmpty,
+    });
+    await expect(overallDecisionLink).toBeVisible();
+    await expect(overallDecisionLink).toHaveAttribute(
+      "href",
+      "#overall-decision",
+    );
+
     const errorMessage = form.locator(".govuk-error-message", {
       hasText: meritsLocale.radio.validationError.notEmpty,
     });
@@ -140,6 +152,20 @@ test.describe.serial("Refuse application journey", () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(justificationPage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    const radioLink = errorSummary.getByRole("link", {
+      name: justificationLocale.radio.validationErrors.notEmpty,
+    });
+    await expect(radioLink).toBeVisible();
+    await expect(radioLink).toHaveAttribute("href", "#refusal-reason");
+    const textareaLink = errorSummary.getByRole("link", {
+      name: justificationLocale.textarea.validationErrors.notEmpty,
+    });
+    await expect(textareaLink).toBeVisible();
+    await expect(textareaLink).toHaveAttribute("href", "#justification");
+
     const radioErrorMessage = form.locator(".govuk-error-message", {
       hasText: justificationLocale.radio.validationErrors.notEmpty,
     });
