@@ -129,8 +129,8 @@
         },
         "radio": {
           "label": "What is your overall decision?",
-          "grantLabel": "Granted",
-          "refuseLabel": "Refused",
+          "grantLabel": "Grant",
+          "refuseLabel": "Refuse",
           "validationError": {
             "notEmpty": "Select the overall decision"
           }

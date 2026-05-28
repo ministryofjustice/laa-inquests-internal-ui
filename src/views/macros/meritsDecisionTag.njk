@@ -5,6 +5,6 @@
   {%- elif upperValue == "GRANTED" -%}
     <strong class="govuk-tag govuk-tag--green">Granted</strong>
   {%- else -%}
-    <strong class="govuk-tag govuk-tag--blue">{{ value | lower | capitalize }}</strong>
+    <strong class="govuk-tag govuk-tag--blue">Pending decision</strong>
   {%- endif -%}
 {% endmacro %}
