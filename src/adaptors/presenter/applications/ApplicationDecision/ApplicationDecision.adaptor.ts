@@ -8,6 +8,7 @@ import type {
 } from "#src/infrastructure/express/api.types.js";
 import type {
   ApplicationDecisionForm,
+  ApplicationDecisionFormErrors,
   JustificationForm,
   JustificationFormErrors,
 } from "./models/form.types.js";
@@ -24,6 +25,7 @@ export class ApplicationDecisionAdaptor {
   async renderApplicationDecisionForm(
     req: Request,
     res: Response,
+    errorSummaries?: Partial<ApplicationDecisionFormErrors>,
   ): Promise<void> {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/overview`;
@@ -50,6 +52,7 @@ export class ApplicationDecisionAdaptor {
       proceeding: formattedProceeding,
       overallDecision: this.sessionHelper.getSessionData(req, "decision")
         ?.overallDecision,
+      ...(errorSummaries && { errorSummaries }),
     });
   }
 
@@ -58,33 +61,25 @@ export class ApplicationDecisionAdaptor {
     res: Response,
   ): void {
     const {
+      body: { "overall-decision": overallDecision },
       params: { applicationId },
     } = req;
-    const {
-      body: { "overall-decision": overallDecision },
-    } = req;
 
-    if (!overallDecision) {
-      const backUrl = `/applications/${applicationId}/overview`;
-      const sessionData = this.sessionHelper.getSessionData(
+    this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
+
+    const errorSummaries = this.validator.validateApplicationDecisionForm(
+      req.body,
+    );
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      void this.renderApplicationDecisionForm(
         req as unknown as Request,
-        "decision",
+        res,
+        errorSummaries,
       );
-
-      res.render("application/decision/index", {
-        backUrl,
-        applicationId,
-        proceeding: {
-          certificateType: sessionData?.certificateType,
-          meritsDecision: sessionData?.meritsDecision,
-        },
-        overallDecision: sessionData?.overallDecision,
-        showOverallDecisionError: true,
-      });
       return;
     }
 
-    this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
     res.redirect(`/applications/${applicationId}/decision/justification`);
   }
 

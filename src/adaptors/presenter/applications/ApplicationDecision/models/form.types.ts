@@ -4,6 +4,10 @@ export interface ApplicationDecisionForm {
   "overall-decision": string;
 }
 
+export interface ApplicationDecisionFormErrors {
+  overallDecision?: FormErrorMessage;
+}
+
 export interface JustificationForm {
   "refusal-reason": string;
   justification: string;

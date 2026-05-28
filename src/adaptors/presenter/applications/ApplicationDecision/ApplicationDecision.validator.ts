@@ -1,4 +1,6 @@
 import type {
+  ApplicationDecisionForm,
+  ApplicationDecisionFormErrors,
   JustificationForm,
   JustificationFormErrors,
 } from "./models/form.types.js";
@@ -7,6 +9,20 @@ import { FormValidator } from "#src/utils/FormValidator.js";
 import { JUSTIFICATION_MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationDecisionValidator extends FormValidator {
+  validateApplicationDecisionForm(
+    form: ApplicationDecisionForm,
+  ): Partial<ApplicationDecisionFormErrors> {
+    const errors: Partial<ApplicationDecisionFormErrors> = {};
+
+    if (!form["overall-decision"]) {
+      errors.overallDecision = {
+        text: en.pages.decision.merits.radio.validationError.notEmpty,
+      };
+    }
+
+    return errors;
+  }
+
   validateJustification(
     form: JustificationForm,
   ): Partial<JustificationFormErrors> {

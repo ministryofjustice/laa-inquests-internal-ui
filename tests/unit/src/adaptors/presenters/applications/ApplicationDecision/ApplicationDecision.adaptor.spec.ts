@@ -111,9 +111,19 @@ describe("ApplicationDecisionAdaptor", () => {
   });
 
   describe("processApplicationDecisionForm", () => {
+    let renderApplicationDecisionFormSpy: sinon.SinonSpy;
+
     beforeEach(() => {
       requestStub.params = { applicationId };
       requestStub.body = { "overall-decision": "REFUSED" };
+      renderApplicationDecisionFormSpy = sinon.spy(
+        adaptor,
+        "renderApplicationDecisionForm",
+      );
+    });
+
+    afterEach(() => {
+      renderApplicationDecisionFormSpy.restore();
     });
 
     it("saves overallDecision to session", () => {
@@ -144,28 +154,39 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
-    it("re-renders the decision page with validation error when overall decision is missing", () => {
+    it("saves session data even when there are validation errors", () => {
       requestStub.body = { "overall-decision": "" };
-      sessionHelperStub.getSessionData.returns({
-        certificateType: "Substantive",
-        meritsDecision: "Pending",
-      });
+      sessionHelperStub.getSessionData.returns({});
 
       adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
 
-      assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
-      const renderArgs = responseStub.render.getCall(0).args;
-      const renderVars = renderArgs[1] as unknown as Record<string, unknown>;
-      assert.equal(renderArgs[0], "application/decision/index");
-      assert.deepEqual(renderVars.proceeding, {
-        certificateType: "Substantive",
-        meritsDecision: "Pending",
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      const storeArgs = sessionHelperStub.storeSessionData.getCall(0).args;
+      assert.deepEqual(storeArgs, [
+        requestStub,
+        "decision",
+        { overallDecision: "" },
+      ]);
+    });
+
+    it("re-renders the decision page with validation error when overall decision is missing", () => {
+      requestStub.body = { "overall-decision": "" };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.ok(renderApplicationDecisionFormSpy.calledOnce);
+      assert.deepEqual(renderApplicationDecisionFormSpy.getCall(0).args[2], {
+        overallDecision: {
+          text: en.pages.decision.merits.radio.validationError.notEmpty,
+        },
       });
-      assert.equal(renderVars.showOverallDecisionError, true);
-      assert.equal(responseStub.redirect.callCount, 0);
     });
   });
 
