@@ -283,6 +283,18 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
+    it("saves session data even when there are validation errors", () => {
+      requestStub.body = { "refusal-reason": "", justification: "" };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+    });
+
     it("re-renders with correct error summaries based on which fields are empty", () => {
       requestStub.body = { "refusal-reason": "", justification: "" };
       sessionHelperStub.getSessionData.returns({

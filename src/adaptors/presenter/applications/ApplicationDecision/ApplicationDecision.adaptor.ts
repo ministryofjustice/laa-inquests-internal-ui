@@ -121,6 +121,12 @@ export class ApplicationDecisionAdaptor {
       "decision",
     );
 
+    this.sessionHelper.storeSessionData(req, "decision", {
+      ...sessionData,
+      refusalReason,
+      justification,
+    });
+
     const errorSummaries = this.validator.validateJustification(req.body);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
@@ -132,11 +138,6 @@ export class ApplicationDecisionAdaptor {
       return;
     }
 
-    this.sessionHelper.storeSessionData(req, "decision", {
-      ...sessionData,
-      refusalReason,
-      justification,
-    });
     res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }
 
