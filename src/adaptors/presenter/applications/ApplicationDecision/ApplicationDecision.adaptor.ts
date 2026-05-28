@@ -23,7 +23,6 @@ export class ApplicationDecisionAdaptor {
   async renderApplicationDecisionForm(
     req: Request,
     res: Response,
-    showOverallDecisionError = false,
   ): Promise<void> {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/overview`;
@@ -50,7 +49,6 @@ export class ApplicationDecisionAdaptor {
       proceeding: formattedProceeding,
       overallDecision: this.sessionHelper.getSessionData(req, "decision")
         ?.overallDecision,
-      showOverallDecisionError,
     });
   }
 
@@ -67,20 +65,19 @@ export class ApplicationDecisionAdaptor {
 
     if (!overallDecision) {
       const backUrl = `/applications/${applicationId}/overview`;
-      const sessionData =
-        this.sessionHelper.getSessionData(
-          req as unknown as Request,
-          "decision",
-        ) ?? {};
+      const sessionData = this.sessionHelper.getSessionData(
+        req as unknown as Request,
+        "decision",
+      );
 
       res.render("application/decision/index", {
         backUrl,
         applicationId,
         proceeding: {
-          certificateType: sessionData.certificateType,
-          meritsDecision: sessionData.meritsDecision,
+          certificateType: sessionData?.certificateType,
+          meritsDecision: sessionData?.meritsDecision,
         },
-        overallDecision: sessionData.overallDecision,
+        overallDecision: sessionData?.overallDecision,
         showOverallDecisionError: true,
       });
       return;

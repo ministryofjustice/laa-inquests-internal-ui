@@ -105,25 +105,7 @@ describe("ApplicationDecisionAdaptor", () => {
           meritsDecision: "Pending",
         },
         overallDecision: "REFUSED",
-        showOverallDecisionError: false,
       });
-    });
-
-    it("includes the error flag when rendering with validation error", async () => {
-      viewApplicationSourceStub.getApplication.resolves({
-        proceedings: [mockProceeding],
-      } as any);
-      sessionHelperStub.getSessionData.returns({});
-
-      await adaptor.renderApplicationDecisionForm(
-        requestStub as Request,
-        responseStub,
-        true,
-      );
-
-      const renderArgs = responseStub.render.getCall(0).args;
-      const renderVars = renderArgs[1] as unknown as Record<string, unknown>;
-      assert.equal(renderVars.showOverallDecisionError, true);
     });
   });
 
@@ -133,8 +115,8 @@ describe("ApplicationDecisionAdaptor", () => {
       requestStub.body = { "overall-decision": "REFUSED" };
     });
 
-    it("saves overallDecision to session", async () => {
-      await adaptor.processApplicationDecisionForm(
+    it("saves overallDecision to session", () => {
+      adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
@@ -148,8 +130,8 @@ describe("ApplicationDecisionAdaptor", () => {
       ]);
     });
 
-    it("redirects to the justification page", async () => {
-      await adaptor.processApplicationDecisionForm(
+    it("redirects to the justification page", () => {
+      adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
@@ -161,14 +143,14 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
-    it("re-renders the decision page with validation error when overall decision is missing", async () => {
+    it("re-renders the decision page with validation error when overall decision is missing", () => {
       requestStub.body = { "overall-decision": "" };
       sessionHelperStub.getSessionData.returns({
         certificateType: "Substantive",
         meritsDecision: "Pending",
       });
 
-      await adaptor.processApplicationDecisionForm(
+      adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
         responseStub,
       );
