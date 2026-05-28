@@ -297,6 +297,39 @@ describe("ApplicationDecisionAdaptor", () => {
         },
       });
     });
+
+    it("re-renders with a too long error when justification exceeds 1500 characters", async () => {
+      requestStub.body = {
+        "refusal-reason": "not-in-scope",
+        justification: "a".repeat(1501),
+      };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "a".repeat(1501),
+      });
+
+      await adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/justification/index",
+      );
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        laaReference: applicationId,
+        refusalReason: "not-in-scope",
+        justification: "a".repeat(1501),
+        errorSummaries: {
+          decisionJustification: {
+            text: en.pages.decision.justification.textarea.validationErrors
+              .tooLong,
+          },
+        },
+      });
+    });
   });
 
   describe("renderConfirmationPage", () => {

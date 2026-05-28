@@ -35,5 +35,20 @@ describe("ApplicationDecisionValidator", () => {
         },
       });
     });
+
+    it("adds too long error when justification exceeds 1500 characters", () => {
+      const form: JustificationForm = {
+        "refusal-reason": "not-in-scope",
+        justification: "a".repeat(1501),
+      };
+
+      const errors = validator.validateJustification(form);
+      assert.deepInclude(errors, {
+        decisionJustification: {
+          text: en.pages.decision.justification.textarea.validationErrors
+            .tooLong,
+        },
+      });
+    });
   });
 });
