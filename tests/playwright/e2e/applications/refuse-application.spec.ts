@@ -217,7 +217,7 @@ test.describe.serial("Refuse application journey", () => {
       },
     );
     await expect(
-      meritsAssessmentRow.getByText(meritsLocale.radio.refuseLabel, {
+      meritsAssessmentRow.getByText("Refused", {
         exact: true,
       }),
     ).toBeVisible();
