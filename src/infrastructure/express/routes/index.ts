@@ -9,7 +9,7 @@ import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Applica
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
-import { MsalAuthAdaptor } from "#src/adaptors/source/auth/MsalAuth.adaptor.js";
+import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
 import { requireAuth } from "#src/infrastructure/express/middleware/auth/requireAuth.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -74,7 +74,7 @@ const msalClient = new ConfidentialClientApplication({
     clientSecret: config.AUTH_CLIENT_SECRET,
   },
 });
-const msalAuthAdaptor = new MsalAuthAdaptor(msalClient);
+const msalAuthAdaptor = new EntraAuthAdaptor(msalClient);
 const authAdaptor = new AuthAdaptor(
   msalAuthAdaptor,
   config.AUTH_REDIRECT_URI,

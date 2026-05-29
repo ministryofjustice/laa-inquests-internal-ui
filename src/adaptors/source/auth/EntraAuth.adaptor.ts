@@ -5,7 +5,7 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 
-export class MsalAuthAdaptor implements AuthPort {
+export class EntraAuthAdaptor implements AuthPort {
   constructor(
     private readonly msalClient: ConfidentialClientApplication,
   ) {}

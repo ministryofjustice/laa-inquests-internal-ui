@@ -2,18 +2,18 @@ import { strict as assert } from "assert";
 import sinon from "sinon";
 import type { ConfidentialClientApplication } from "@azure/msal-node";
 import { stubInterface } from "ts-sinon";
-import { MsalAuthAdaptor } from "#src/adaptors/source/auth/MsalAuth.adaptor.js";
+import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
 
 const SCOPES = ["openid", "profile", "offline_access"];
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 
-describe("MsalAuthAdaptor", () => {
+describe("EntraAuthAdaptor", () => {
   let msalClient: ReturnType<typeof stubInterface<ConfidentialClientApplication>>;
-  let adaptor: MsalAuthAdaptor;
+  let adaptor: EntraAuthAdaptor;
 
   beforeEach(() => {
     msalClient = stubInterface<ConfidentialClientApplication>();
-    adaptor = new MsalAuthAdaptor(msalClient as unknown as ConfidentialClientApplication);
+    adaptor = new EntraAuthAdaptor(msalClient as unknown as ConfidentialClientApplication);
   });
 
   afterEach(() => {
