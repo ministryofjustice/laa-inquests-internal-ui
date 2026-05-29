@@ -1,11 +1,15 @@
 import express from "express";
 import type { Request, Response } from "express";
+import { ConfidentialClientApplication } from "@azure/msal-node";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
+import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
+import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
+import { MsalAuthAdaptor } from "#src/adaptors/source/auth/MsalAuth.adaptor.js";
 import { requireAuth } from "#src/infrastructure/express/middleware/auth/requireAuth.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -62,6 +66,22 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   new SessionHelper(),
   new ApplicationDecisionValidator(),
 );
+
+const msalClient = new ConfidentialClientApplication({
+  auth: {
+    clientId: config.AUTH_CLIENT_ID,
+    authority: config.AUTH_AUTHORITY_URL,
+    clientSecret: config.AUTH_CLIENT_SECRET,
+  },
+});
+const msalAuthAdaptor = new MsalAuthAdaptor(msalClient);
+const authAdaptor = new AuthAdaptor(
+  msalAuthAdaptor,
+  config.AUTH_REDIRECT_URI,
+  config.AUTH_POST_LOGOUT_URI,
+);
+
+router.use("/auth", createAuthRouter(express.Router(), authAdaptor));
 
 router.use("/applications", requireAuth, [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
