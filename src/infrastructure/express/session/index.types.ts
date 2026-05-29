@@ -3,6 +3,6 @@ declare module "express-session" {
     string,
     Record<string, string> | string | undefined
   > {
-    // This allows both specific properties and dynamic namespace access
+    userId?: string;
   }
 }

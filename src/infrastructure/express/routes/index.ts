@@ -6,6 +6,7 @@ import { createApplicationDecisionRouter } from "#src/infrastructure/express/rou
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
+import { requireAuth } from "#src/infrastructure/express/middleware/auth/requireAuth.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import config from "#src/infrastructure/config/config.js";
@@ -17,7 +18,7 @@ const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
 /* GET home page. */
-router.get("/", (req: Request, res: Response): void => {
+router.get("/", requireAuth, (req: Request, res: Response): void => {
   res.render("main/index");
 });
 
@@ -38,6 +39,17 @@ router.get("/error", (req: Request, res: Response): void => {
     .send("Internal Server Error");
 });
 
+// Test-only: seed session with a userId without going through auth
+// Never reachable in production (NODE_ENV is never 'test' in production)
+if (config.app.environment === "test") {
+  router.get("/test/auth-session", (req: Request, res: Response): void => {
+    req.session["userId"] = "test-user-id";
+    req.session.save(() => {
+      res.status(SUCCESSFUL_REQUEST).send("session seeded");
+    });
+  });
+}
+
 const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
   config.INQUESTS_API_URL,
@@ -51,7 +63,7 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   new ApplicationDecisionValidator(),
 );
 
-router.use("/applications", [
+router.use("/applications", requireAuth, [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
 ]);

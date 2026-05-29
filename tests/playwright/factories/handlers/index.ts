@@ -11,6 +11,7 @@ import { http, HttpResponse } from "msw";
 
 // Import the actual API handlers
 import { apiHandlers } from "#tests/playwright/factories/handlers/api.js";
+import { authHandlers } from "#tests/playwright/factories/handlers/auth.js";
 
 // Add debug handler to log all intercepted requests
 const debugHandler = http.all("*", ({ request }) => {
@@ -24,6 +25,7 @@ const debugHandler = http.all("*", ({ request }) => {
 export const handlers = [
   debugHandler,
   ...apiHandlers,
+  ...authHandlers,
 
   // Health check endpoint for testing
   http.get("/health", () =>
