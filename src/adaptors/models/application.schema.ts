@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+const AddressSchema = z.object({
+  addressLine1: z.string(),
+  addressLine2: z.string().optional().nullable(),
+  townOrCity: z.string(),
+  county: z.string().optional().nullable(),
+  postcode: z.string(),
+});
+
 const ClientSchema = z.object({
   clientId: z.number(),
   clientFirstName: z.string(),
@@ -7,10 +15,17 @@ const ClientSchema = z.object({
   clientLastNameAtBirth: z.string().optional().nullable(),
   dateOfBirth: z.string(),
   nationalInsuranceNumber: z.string().optional().nullable(),
-  correspondenceAddress: z.string().optional().nullable(),
-  homeAddress: z.string().optional().nullable(),
+  correspondenceAddressSource: z.string(),
+  correspondenceAddress: AddressSchema.optional().nullable(),
+  homeAddress: AddressSchema.optional().nullable(),
   hasAppliedPreviously: z.boolean().optional().nullable(),
   prevApplicationReference: z.string().optional().nullable(),
+  hasNoFixedAbode: z.boolean().optional().nullable(),
+});
+
+const CorrespondenceRecipientSchema = z.object({
+  recipientType: z.string(),
+  recipientName: z.string(),
 });
 
 const DeceasedSchema = z.object({
@@ -52,8 +67,10 @@ export const ApplicationSchema = z.object({
   applicationType: z.string(),
   autoGrant: z.boolean(),
   overallDecision: z.string().optional().nullable(),
+  isClientCorrespondenceRecipient: z.boolean().optional().nullable(),
   proceedings: z.array(ProceedingSchema),
   publicBodies: z.array(PublicBodySchema),
+  correspondenceRecipient: CorrespondenceRecipientSchema.optional().nullable(),
   client: ClientSchema,
   deceased: DeceasedSchema,
 });

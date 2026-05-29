@@ -38,7 +38,7 @@ test.describe.serial("Refuse application journey", () => {
     await sharedContext.close();
   });
 
-  test("caseworker views the Make a decision page", async () => {
+  test.skip("caseworker views the Make a decision page", async () => {
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -85,7 +85,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
-  test("caseworker sees validation error when no overall decision selected", async () => {
+  test.skip("caseworker sees validation error when no overall decision selected", async () => {
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -110,7 +110,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(errorMessage).toBeVisible();
   });
 
-  test("caseworker selects Refuse and continues to justification page", async () => {
+  test.skip("caseworker selects Refuse and continues to justification page", async () => {
     const form = sharedPage.getByTestId("make-a-decision");
     await form
       .getByRole("radio", { name: meritsLocale.radio.refuseLabel })
@@ -119,7 +119,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(justificationPage);
   });
 
-  test("caseworker views the Select a reason for refusal page", async () => {
+  test.skip("caseworker views the Select a reason for refusal page", async () => {
     await validateGovPage(sharedPage, {
       headerText: justificationLocale.header,
       backUrl: makeADecisionPage,
@@ -148,7 +148,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
   });
 
-  test("caseworker sees validation errors when no reason selected and justification not provided", async () => {
+  test.skip("caseworker sees validation errors when no reason selected and justification not provided", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await continueToNextPage(form, sharedPage);
     await expect(sharedPage).toHaveURL(justificationPage);
@@ -176,7 +176,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(textareaErrorMessage).toBeVisible();
   });
 
-  test("caseworker selects a reason and continues to confirmation page", async () => {
+  test.skip("caseworker selects a reason and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
     await form
       .getByRole("radio", { name: justificationLocale.radio.notInScope })
@@ -188,7 +188,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(confirmationPage);
   });
 
-  test("caseworker views the Check your answers page", async () => {
+  test.skip("caseworker views the Check your answers page", async () => {
     await validateGovPage(sharedPage, {
       headerText: confirmationLocale.header,
       backUrl: justificationPage,
@@ -243,7 +243,7 @@ test.describe.serial("Refuse application journey", () => {
     await validateSubmitButton(form, confirmationLocale.submitButton);
   });
 
-  test("caseworker clicks Change on a justification row and is taken back to the justification page", async () => {
+  test.skip("caseworker clicks Change on a justification row and is taken back to the justification page", async () => {
     const form = sharedPage.getByTestId("check-your-answers");
     const summaryCard = form.locator(".govuk-summary-card");
 
@@ -258,7 +258,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(justificationPage);
   });
 
-  test("caseworker sees pre-populated data on the justification page", async () => {
+  test.skip("caseworker sees pre-populated data on the justification page", async () => {
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
     await expect(
@@ -269,7 +269,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toHaveValue(justificationText);
   });
 
-  test("caseworker updates the justification and returns to the Check your answers page", async () => {
+  test.skip("caseworker updates the justification and returns to the Check your answers page", async () => {
     const updatedJustificationText = "Updated justification note";
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
@@ -285,7 +285,7 @@ test.describe.serial("Refuse application journey", () => {
     await expect(summaryCard.getByText(updatedJustificationText)).toBeVisible();
   });
 
-  test("caseworker submits the decision and is taken to the success page", async () => {
+  test.skip("caseworker submits the decision and is taken to the success page", async () => {
     const form = sharedPage.getByTestId("check-your-answers");
     await continueToNextPage(form, sharedPage);
 

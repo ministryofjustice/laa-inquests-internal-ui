@@ -19,6 +19,7 @@ describe("Application adaptor", () => {
     applicationType: "INITIAL",
     autoGrant: true,
     overallDecision: "PENDING",
+    isClientCorrespondenceRecipient: true,
     proceedings: [
       {
         proceedingId: "MN035",
@@ -40,6 +41,7 @@ describe("Application adaptor", () => {
         publicBodyDescription: "Cabinet Office",
       },
     ],
+    correspondenceRecipient: null,
     client: {
       clientId: 51,
       clientFirstName: "test",
@@ -47,10 +49,18 @@ describe("Application adaptor", () => {
       clientLastNameAtBirth: "",
       dateOfBirth: "01-02-1990",
       nationalInsuranceNumber: "QQ123456C",
+      correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
       correspondenceAddress: null,
-      homeAddress: null,
+      homeAddress: {
+        addressLine1: "1 High Street",
+        addressLine2: null,
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      },
       hasAppliedPreviously: false,
       prevApplicationReference: null,
+      hasNoFixedAbode: false,
     },
     deceased: {
       deceasedId: 51,
@@ -125,8 +135,15 @@ describe("Application adaptor", () => {
           clientLastName: "test",
           dateOfBirth: "01-02-1990",
           nationalInsuranceNumber: "QQ123456C",
+          correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
           correspondenceAddress: null,
-          homeAddress: null,
+          homeAddress: {
+            addressLine1: "1 High Street",
+            addressLine2: null,
+            townOrCity: "London",
+            county: "Greater London",
+            postcode: "SW1A 1AA",
+          },
         },
         deceased: {
           deceasedFirstName: "test example",
@@ -144,6 +161,87 @@ describe("Application adaptor", () => {
           },
         ],
       },
+      clientHomeAddressDisplay:
+        "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
+      clientCorrespondenceAddressDisplay:
+        "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
+    });
+  });
+
+  it("uses provider office placeholder when correspondence source is USE_PROVIDER_ADDRESS", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      client: {
+        ...application.client,
+        correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
+      },
+    });
+
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      clientCorrespondenceAddressDisplay: "Provider office address",
+    });
+  });
+
+  it("renders specified correspondence address and care of recipient details", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      correspondenceRecipient: {
+        recipientType: "Solicitor",
+        recipientName: "Alex Jones",
+      },
+      client: {
+        ...application.client,
+        correspondenceAddressSource: "USE_SPECIFIED_ADDRESS",
+        correspondenceAddress: {
+          addressLine1: "2 Station Road",
+          addressLine2: "Suite 5",
+          townOrCity: "Leeds",
+          county: null,
+          postcode: "LS1 1AA",
+        },
+      },
+    });
+
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      clientCorrespondenceAddressDisplay:
+        "2 Station Road<br>Suite 5<br>Leeds<br>LS1 1AA",
+      careOfRecipientDisplay: "Solicitor<br>Alex Jones",
+    });
+  });
+  it("renders No fixed abode when hasNoFixedAbode is true", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      client: {
+        ...application.client,
+        hasNoFixedAbode: true,
+        correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
+      },
+    });
+
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      clientHomeAddressDisplay: "No fixed abode",
+      clientCorrespondenceAddressDisplay: "Provider office address",
     });
   });
 
