@@ -32,6 +32,7 @@ test.describe.serial("Refuse application journey", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await sharedPage.request.get("/test/auth-session");
   });
 
   test.afterAll(async () => {
