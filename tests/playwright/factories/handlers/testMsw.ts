@@ -36,7 +36,8 @@ process.env.AUTH_CLIENT_ID = "test-client-id";
 process.env.AUTH_CLIENT_SECRET = "test-client-secret";
 process.env.AUTH_REDIRECT_URI = "http://localhost:3000/auth/callback";
 process.env.AUTH_POST_LOGOUT_URI = "http://localhost:3000";
-process.env.INQUESTS_API_URL = "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk";
+process.env.INQUESTS_API_URL =
+  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk";
 
 // Test-only session-seed route — plants userId into session without going through auth
 // Only registered when NODE_ENV === 'test'

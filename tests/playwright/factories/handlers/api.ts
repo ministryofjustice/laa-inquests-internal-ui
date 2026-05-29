@@ -5,5 +5,4 @@
  * to the Inquests API and serve mock responses.
  */
 
-export const apiHandlers = [
-];
+export const apiHandlers = [];

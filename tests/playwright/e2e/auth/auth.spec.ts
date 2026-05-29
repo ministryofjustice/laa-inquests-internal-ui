@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 
-const AUTH_AUTHORITY_URL ="https://login.microsoftonline.com/test-tenant-id";
+const AUTH_AUTHORITY_URL = "https://login.microsoftonline.com/test-tenant-id";
 
 test("redirects unauthenticated user to login page", async ({ request }) => {
   const response = await request.get("/", { maxRedirects: 0 });
