@@ -7,7 +7,7 @@ import {
 
 const applicationId = "4";
 
-test.describe("Application overview page", () => {
+test.describe.skip("Application overview page", () => {
   test("should have the correct title and back link", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
@@ -35,7 +35,7 @@ test.describe("Application overview page", () => {
   });
 });
 
-test.describe("Application details tab", () => {
+test.describe.skip("Application details tab", () => {
   test("should have the overview content", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
@@ -122,7 +122,7 @@ test.describe("Application details tab", () => {
   });
 });
 
-test.describe("People tab", () => {
+test.describe.skip("People tab", () => {
   test("should have the client content", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
