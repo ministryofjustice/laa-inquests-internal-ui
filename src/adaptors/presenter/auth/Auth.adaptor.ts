@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 
 const AUTH_SCOPES = ["openid", "profile", "offline_access"];
@@ -19,21 +19,22 @@ export class AuthAdaptor {
   }
 
   async callback(req: Request, res: Response): Promise<void> {
-    const code = req.query["code"] as string;
-    const result = await this.authPort.acquireTokenByCode(
+    const { code } = req.query as { code: string };
+    const { userId } = await this.authPort.acquireTokenByCode(
       code,
       AUTH_SCOPES,
       this.redirectUri,
     );
-    req.session["userId"] = result.userId;
-    await new Promise<void>((resolve, reject) => {
-      req.session.save((err) => (err != null ? reject(err) : resolve()));
-    });
+    Object.assign(req.session, { userId });
     res.redirect("/");
   }
 
-  logout(req: Request, res: Response): void {
-    req.session.destroy(() => {
+  logout(req: Request, res: Response, next: NextFunction): void {
+    req.session.destroy((err) => {
+      if (err !== undefined && err !== null) {
+        next(err);
+        return;
+      }
       res.redirect(this.postLogoutUri);
     });
   }

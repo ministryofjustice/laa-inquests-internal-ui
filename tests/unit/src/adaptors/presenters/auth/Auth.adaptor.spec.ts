@@ -1,7 +1,7 @@
 import { strict as assert } from "assert";
 import sinon from "sinon";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 
@@ -12,13 +12,15 @@ describe("AuthAdaptor", () => {
   let authPort: StubbedInstance<AuthPort>;
   let req: StubbedInstance<Request>;
   let res: StubbedInstance<Response>;
+  let next: sinon.SinonStub;
   let adaptor: AuthAdaptor;
 
   beforeEach(() => {
     authPort = stubInterface<AuthPort>();
     req = stubInterface<Request>();
     res = stubInterface<Response>();
-    req.session = { save: sinon.stub().callsArg(0) } as any;
+    next = sinon.stub();
+    req.session = {} as any;
     adaptor = new AuthAdaptor(authPort, REDIRECT_URI, POST_LOGOUT_URI);
   });
 
@@ -72,14 +74,22 @@ describe("AuthAdaptor", () => {
     it("destroys session and redirects to post logout URI", () => {
       req.session.destroy = sinon.stub().callsArg(0) as any;
 
-      adaptor.logout(req, res);
+      adaptor.logout(req, res, next as NextFunction);
 
-      assert.equal(
-        (req.session.destroy as sinon.SinonStub).callCount,
-        1,
-      );
+      assert.equal((req.session.destroy as sinon.SinonStub).callCount, 1);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], POST_LOGOUT_URI);
+    });
+
+    it("calls next with error when session destroy fails", () => {
+      const destroyError = new Error("store failure");
+      req.session.destroy = sinon.stub().callsArgWith(0, destroyError) as any;
+
+      adaptor.logout(req, res, next as NextFunction);
+
+      assert.equal(next.callCount, 1);
+      assert.equal(next.firstCall.args[0], destroyError);
+      assert.equal(res.redirect.callCount, 0);
     });
   });
 });

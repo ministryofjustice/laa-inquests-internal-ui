@@ -47,7 +47,7 @@ router.get("/error", (req: Request, res: Response): void => {
 // Never reachable in production (NODE_ENV is never 'test' in production)
 if (config.app.environment === "test") {
   router.get("/test/auth-session", (req: Request, res: Response): void => {
-    req.session["userId"] = "test-user-id";
+    req.session.userId = "test-user-id";
     req.session.save(() => {
       res.status(SUCCESSFUL_REQUEST).send("session seeded");
     });

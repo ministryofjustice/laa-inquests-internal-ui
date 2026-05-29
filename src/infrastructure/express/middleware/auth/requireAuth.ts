@@ -5,7 +5,7 @@ export const requireAuth = (
   res: Response,
   next: NextFunction,
 ): void => {
-  if (req.session.userId != null) {
+  if (req.session.userId !== undefined) {
     next();
     return;
   }

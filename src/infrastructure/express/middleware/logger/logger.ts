@@ -17,9 +17,7 @@ class Logger {
     const correlationId = request
       ? (request.session.idToken as string | undefined)?.substring(0, 36)
       : "server";
-    const userId = request
-      ? (request.session.userId as string | undefined)
-      : undefined;
+    const userId = request ? request.session.userId : undefined;
     console.log(
       buildMessage(functionName, message, "info", correlationId, userId),
     );
@@ -34,9 +32,7 @@ class Logger {
     const correlationId = request
       ? (request.session.idToken as string | undefined)?.substring(0, 36)
       : "server";
-    const userId = request
-      ? (request.session.userId as string | undefined)
-      : undefined;
+    const userId = request ? request.session.userId : undefined;
 
     console.error(
       buildMessage(

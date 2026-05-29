@@ -8,12 +8,16 @@ const SCOPES = ["openid", "profile", "offline_access"];
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 
 describe("EntraAuthAdaptor", () => {
-  let msalClient: ReturnType<typeof stubInterface<ConfidentialClientApplication>>;
+  let msalClient: ReturnType<
+    typeof stubInterface<ConfidentialClientApplication>
+  >;
   let adaptor: EntraAuthAdaptor;
 
   beforeEach(() => {
     msalClient = stubInterface<ConfidentialClientApplication>();
-    adaptor = new EntraAuthAdaptor(msalClient as unknown as ConfidentialClientApplication);
+    adaptor = new EntraAuthAdaptor(
+      msalClient as unknown as ConfidentialClientApplication,
+    );
   });
 
   afterEach(() => {
