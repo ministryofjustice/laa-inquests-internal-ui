@@ -1,6 +1,9 @@
 import type { Request, Response } from "express";
 import type { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
-import type { Application, Proceeding } from "#src/adaptors/models/application.types.js";
+import type {
+  Application,
+  Proceeding,
+} from "#src/adaptors/models/application.types.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import {
@@ -92,21 +95,27 @@ function getCorrespondenceDisplay(
         .join("<br>")
     : undefined;
 
-  if (application.client.correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS") {
+  if (
+    application.client.correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS"
+  ) {
     return {
       clientCorrespondenceAddressDisplay: getHomeAddressDisplay(application),
       careOfRecipientDisplay,
     };
   }
 
-  if (application.client.correspondenceAddressSource === "USE_PROVIDER_ADDRESS") {
+  if (
+    application.client.correspondenceAddressSource === "USE_PROVIDER_ADDRESS"
+  ) {
     return {
       clientCorrespondenceAddressDisplay: "Provider office address",
       careOfRecipientDisplay,
     };
   }
 
-  if (application.client.correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
+  if (
+    application.client.correspondenceAddressSource === "USE_SPECIFIED_ADDRESS"
+  ) {
     if (!application.client.correspondenceAddress) {
       logger.logInfo(
         "ApplicationAdaptor.renderApplicationPage",
