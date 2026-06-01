@@ -64,7 +64,7 @@ export class ApplicationAdaptor {
 }
 
 function getHomeAddressDisplay(application: Application): string {
-  if (application.client.hasNoFixedAbode) {
+  if (application.client.hasNoFixedAbode === true) {
     return "No fixed abode";
   }
 
@@ -87,7 +87,7 @@ function getCorrespondenceDisplay(
         application.correspondenceRecipient.recipientType,
         application.correspondenceRecipient.recipientName,
       ]
-        .filter((line) => line && line.trim().length > 0)
+        .filter((line) => typeof line === "string" && line.trim().length > 0)
         .map(escapeHtml)
         .join("<br>")
     : undefined;
