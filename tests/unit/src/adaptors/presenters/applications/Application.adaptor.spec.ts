@@ -19,7 +19,6 @@ describe("Application adaptor", () => {
     applicationType: "INITIAL",
     autoGrant: true,
     overallDecision: "PENDING",
-    isClientCorrespondenceRecipient: true,
     proceedings: [
       {
         proceedingId: "MN035",

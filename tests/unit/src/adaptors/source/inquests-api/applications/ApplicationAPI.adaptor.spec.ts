@@ -21,7 +21,6 @@ const expectedApplication = {
   applicationType: "INITIAL",
   autoGrant: true,
   overallDecision: "PENDING",
-  isClientCorrespondenceRecipient: true,
   proceedings: [
     {
       proceedingId: "PC049",
