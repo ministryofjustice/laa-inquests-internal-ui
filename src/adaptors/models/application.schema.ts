@@ -21,6 +21,7 @@ const ClientSchema = z.object({
   hasAppliedPreviously: z.boolean().optional().nullable(),
   prevApplicationReference: z.string().optional().nullable(),
   hasNoFixedAbode: z.boolean().optional().nullable(),
+  isClientCorrespondenceRecipient: z.boolean().optional().nullable(),
 });
 
 const CorrespondenceRecipientSchema = z.object({
@@ -67,7 +68,6 @@ export const ApplicationSchema = z.object({
   applicationType: z.string(),
   autoGrant: z.boolean(),
   overallDecision: z.string().optional().nullable(),
-  isClientCorrespondenceRecipient: z.boolean().optional().nullable(),
   proceedings: z.array(ProceedingSchema),
   publicBodies: z.array(PublicBodySchema),
   correspondenceRecipient: CorrespondenceRecipientSchema.optional().nullable(),
