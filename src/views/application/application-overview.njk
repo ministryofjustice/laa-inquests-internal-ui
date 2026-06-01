@@ -75,7 +75,7 @@
                     value: { html: '<a href="#">Inquest ABC Coroners letter.pdf</a>' }
                 }
             ]
-        }) }}        
+        }) }}
         {{ govukButton({
             text: "Make assessment",
             href: "/applications/" ~ application.laaReference ~ "/decision"
@@ -83,42 +83,53 @@
     {% endset %}
 
     {% set peopleHtml %}
+        {% set clientRows = [
+            {
+                key: { text: "First name" },
+                value: { text: application.client.clientFirstName }
+            },
+            {
+                key: { text: "Last name" },
+                value: { text: application.client.clientLastName }
+            },
+            {
+                key: { text: "Date of birth" },
+                value: { text: application.client.dateOfBirth }
+            },
+            {
+                key: { text: "National Insurance number" },
+                value: { text: application.client.nationalInsuranceNumber }
+            },
+            {
+                key: { text: "Address" },
+                value: { html: clientHomeAddressDisplay }
+            },
+            {
+                key: { text: "Correspondence address" },
+                value: { html: clientCorrespondenceAddressDisplay }
+            },
+            {
+                key: { text: "Relationship to deceased" },
+                value: { text: application.deceased.clientRelationshipToDeceased }
+            }
+        ] %}
+
+        {% if careOfRecipientDisplay %}
+            {% set clientRows = clientRows.concat([
+                {
+                    key: { text: "Care of recipient" },
+                    value: { html: careOfRecipientDisplay }
+                }
+            ]) %}
+        {% endif %}
+
         {{ govukSummaryList({
             card: {
                 title: {
                     text: "Client"
                 }
             },
-            rows: [
-                {
-                    key: { text: "First name" },
-                    value: { text: application.client.clientFirstName }
-                },
-                {
-                    key: { text: "Last name" },
-                    value: { text: application.client.clientLastName }
-                },
-                {
-                    key: { text: "Date of birth" },
-                    value: { text: application.client.dateOfBirth }
-                },
-                {
-                    key: { text: "National Insurance number" },
-                    value: { text: application.client.nationalInsuranceNumber }
-                },
-                {
-                    key: { text: "Address" },
-                    value: { text: application.client.homeAddress }
-                },
-                {
-                    key: { text: "Correspondence address" },
-                    value: { text: application.client.correspondenceAddress }
-                },
-                {
-                    key: { text: "Relationship to deceased" },
-                    value: { text: application.deceased.clientRelationshipToDeceased }
-                }
-            ]
+            rows: clientRows
         }) }}
         {{ govukSummaryList({
             card: {

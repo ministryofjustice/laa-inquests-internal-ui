@@ -42,6 +42,7 @@ const expectedApplication = {
       publicBodyDescription: "Department for Transport",
     },
   ],
+  correspondenceRecipient: null,
   client: {
     clientId: 1,
     clientFirstName: "test",
@@ -49,10 +50,19 @@ const expectedApplication = {
     clientLastNameAtBirth: "Last name at birth",
     dateOfBirth: "01-01-1990",
     nationalInsuranceNumber: "PC123456C",
+    correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
     correspondenceAddress: null,
-    homeAddress: null,
+    homeAddress: {
+      addressLine1: "1 High Street",
+      addressLine2: null,
+      townOrCity: "London",
+      county: "Greater London",
+      postcode: "SW1A 1AA",
+    },
     hasAppliedPreviously: false,
     prevApplicationReference: null,
+    hasNoFixedAbode: false,
+    isClientCorrespondenceRecipient: true,
   },
   deceased: {
     deceasedId: 1,
