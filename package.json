@@ -90,7 +90,7 @@
     "globals": "^17.6.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.7",
     "livereload": "^0.10.2",
     "middleware-axios": "^3.0.0",
     "mocha": "^11.7.6",
