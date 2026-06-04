@@ -8,17 +8,13 @@ import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
 interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   pages: PageFactory;
-  seedAuth: void;
 }
 
 export const test = base.extend<TestFixtures>({
-  seedAuth: [
-    async ({ page }, use): Promise<void> => {
-      await page.request.get("/test/auth-session");
-      await use();
-    },
-    { auto: true },
-  ],
+  page: async ({ page }, use): Promise<void> => {
+    await page.goto("/test/auth-session");
+    await use(page);
+  },
 
   checkAccessibility: async ({ page }, use): Promise<void> => {
     // Checks current page
