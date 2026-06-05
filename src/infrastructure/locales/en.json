@@ -14,6 +14,11 @@
   },
   "navigation": {
     "mainNav": {},
+    "header": {
+      "organisationLabel": "Legal Aid Agency",
+      "serviceLabel": "Inquests",
+      "signOut": "Sign out"
+    },
     "footer": {
       "accessibility": "Accessibility",
       "cookiePolicy": "Cookies",

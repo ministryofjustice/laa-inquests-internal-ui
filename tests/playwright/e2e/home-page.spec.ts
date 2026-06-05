@@ -8,15 +8,51 @@ test("homepage should have the correct title", async ({ page }) => {
   await expect(page).toHaveTitle(/Inquests – GOV.UK/);
 });
 
-test("homepage should display LAA header", async ({ page }) => {
+test("homepage should display MOJ header with LAA branding", async ({ page }) => {
   await page.goto("/");
 
   // Check for the header with LAA branding
-  const header = page.getByRole("banner");
+  const header = page.getByRole("banner").first();
   await expect(header).toBeVisible();
 
-  // Check for GOV.UK branding which is typically in the header
-  await expect(page.getByRole("link", { name: "GOV.UK" })).toBeVisible();
+  // Check for Legal Aid Agency organization label within the header
+  await expect(header.getByRole("link", { name: "Legal Aid Agency" })).toBeVisible();
+
+  // Check for Inquests service label within the header
+  await expect(header.getByRole("link", { name: "Inquests" })).toBeVisible();
+});
+
+test("homepage should display sign out button in navigation", async ({ page }) => {
+  await page.goto("/");
+
+  // Check for the sign out link in the navigation within the header
+  const header = page.getByRole("banner");
+  const navigation = header.getByRole("navigation", { name: "Account navigation" });
+  const signOutLink = navigation.getByRole("link", { name: "Sign out" });
+  await expect(signOutLink).toBeVisible();
+});
+
+test("homepage navigation should display account name", async ({ page }) => {
+  await page.goto("/");
+
+  // Check for the account name in the navigation within the header
+  const header = page.getByRole("banner");
+  const navigation = header.getByRole("navigation", { name: "Account navigation" });
+  const accountNameLink = navigation.getByRole("link", { name: "Account name" });
+  await expect(accountNameLink).toBeVisible();
+});
+
+test("homepage navigation items should be in correct order", async ({ page }) => {
+  await page.goto("/");
+
+  // Get all navigation links within the Account navigation
+  const header = page.getByRole("banner");
+  const navigation = header.getByRole("navigation", { name: "Account navigation" });
+  const navLinks = navigation.getByRole("link");
+  
+  // Check the order of navigation items
+  await expect(navLinks.nth(0)).toHaveText("Account name");
+  await expect(navLinks.nth(1)).toHaveText("Sign out");
 });
 
 test("home page displays service name and mountains table", async ({
