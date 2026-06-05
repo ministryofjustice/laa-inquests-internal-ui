@@ -7,7 +7,6 @@
 
 import { http, HttpResponse } from "msw";
 
-
 /**
  * Mock application data for Inquests API
  */

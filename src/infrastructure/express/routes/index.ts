@@ -17,7 +17,6 @@ import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper
 import config from "#src/infrastructure/config/config.js";
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 
-
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -35,24 +34,23 @@ const msalClient = new ConfidentialClientApplication({
 });
 
 const viewApplicationAdaptor = new ApplicationAPIAdaptor(
-    axios,
-    config.INQUESTS_API_URL,
+  axios,
+  config.INQUESTS_API_URL,
 );
 const applicationDisplayAdaptor = new ApplicationAdaptor(
-    viewApplicationAdaptor,
+  viewApplicationAdaptor,
 );
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
-    viewApplicationAdaptor,
-    new SessionHelper(),
-    new ApplicationDecisionValidator(),
+  viewApplicationAdaptor,
+  new SessionHelper(),
+  new ApplicationDecisionValidator(),
 );
 const msalAuthAdaptor = new EntraAuthAdaptor(msalClient);
 const authAdaptor = new AuthAdaptor(
-    msalAuthAdaptor,
-    config.AUTH_REDIRECT_URI,
-    config.AUTH_POST_LOGOUT_URI,
+  msalAuthAdaptor,
+  config.AUTH_REDIRECT_URI,
+  config.AUTH_POST_LOGOUT_URI,
 );
-
 
 /**
  * Routes

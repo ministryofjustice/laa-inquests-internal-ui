@@ -57,10 +57,14 @@ export async function validateMojHeader(page: Page): Promise<void> {
   const inquestsLink = header.getByRole("link", { name: "Inquests" });
   await expect(inquestsLink).toBeVisible();
 
-  const navigation = header.getByRole("navigation", { name: "Account navigation" });
+  const navigation = header.getByRole("navigation", {
+    name: "Account navigation",
+  });
   await expect(navigation).toBeVisible();
 
-  const accountNameLink = navigation.getByRole("link", { name: "Account name" });
+  const accountNameLink = navigation.getByRole("link", {
+    name: "Account name",
+  });
   await expect(accountNameLink).toBeVisible();
 
   const signOutLink = navigation.getByRole("link", { name: "Sign out" });

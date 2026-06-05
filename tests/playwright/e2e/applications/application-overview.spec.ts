@@ -64,8 +64,8 @@ test.describe("Application details tab", () => {
 
     const applicationDetailsPanel = page.locator("#application-details");
     const inquestCard = applicationDetailsPanel
-        .locator(".govuk-summary-card")
-        .first();
+      .locator(".govuk-summary-card")
+      .first();
 
     await expect(
       applicationDetailsPanel.getByRole("heading", {

@@ -115,9 +115,11 @@ Prerequisites, Docker Desktop
   ```shell
   docker stop {container_id}
   ```
+
 ## Testing
 
 ### Test router
+
 File: `src/infrastructure/express/routes/test.router.ts`
 
 This directory contains routes that are only mounted when running the application
@@ -126,7 +128,7 @@ in the test environment (i.e. when `NODE_ENV === 'test'`).
 From Playwright tests or fixtures call:
 
 ```ts
-await page.goto('/test/auth-session');
+await page.goto("/test/auth-session");
 ```
 
 The endpoint sets `req.session.userId = 'test-user-id'` and saves the session.
