@@ -119,6 +119,11 @@ jobs:
         uses: ./.github/actions/deploy
         with:
           app-environment: uat
+          auth_client_id: ${{ vars.AUTH_CLIENT_ID }}
+          auth_client_secret: ${{ vars.AUTH_CLIENT_SECRET }}
+          auth_directory_url: ${{ vars.AUTH_DIRECTORY_URL }}
+          auth_post_logout_uri: ${{ vars.AUTH_POST_LOGOUT_URI }}
+          auth_redirect_uri: ${{ vars.AUTH_REDIRECT_URI }}
           kube-cert: ${{ secrets.KUBE_CERT }}
           kube-token: ${{ secrets.KUBE_TOKEN }}
           kube-cluster: ${{ secrets.KUBE_CLUSTER }}

@@ -18,6 +18,11 @@ jobs:
         uses: ./.github/actions/deploy
         with:
           app-environment: staging
+          auth_client_id: ${{ vars.AUTH_CLIENT_ID }}
+          auth_client_secret: ${{ vars.AUTH_CLIENT_SECRET }}
+          auth_directory_url: ${{ vars.AUTH_DIRECTORY_URL }}
+          auth_post_logout_uri: ${{ vars.AUTH_POST_LOGOUT_URI }}
+          auth_redirect_uri: ${{ vars.AUTH_REDIRECT_URI }}
           ecr-repository: ${{ vars.ECR_REPOSITORY }}
           ecr-region: ${{ vars.ECR_REGION }}
           ecr-registry_url: ${{ secrets.ECR_REGISTRY_URL }}
@@ -62,6 +67,11 @@ jobs:
         uses: ./.github/actions/deploy
         with:
           app-environment: production
+          auth_client_id: ${{ vars.AUTH_CLIENT_ID }}
+          auth_client_secret: ${{ vars.AUTH_CLIENT_SECRET }}
+          auth_directory_url: ${{ vars.AUTH_DIRECTORY_URL }}
+          auth_post_logout_uri: ${{ vars.AUTH_POST_LOGOUT_URI }}
+          auth_redirect_uri: ${{ vars.AUTH_REDIRECT_URI }}
           ecr-repository: ${{ vars.ECR_REPOSITORY }}
           ecr-region: ${{ vars.ECR_REGION }}
           ecr-registry_url: ${{ secrets.ECR_REGISTRY_URL }}
