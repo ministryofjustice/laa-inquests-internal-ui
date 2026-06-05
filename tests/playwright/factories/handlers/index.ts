@@ -10,7 +10,7 @@
 import { http, HttpResponse } from "msw";
 import { authHandlers } from "#tests/playwright/factories/handlers/auth.js";
 
-const debugHandler = http.all("*", ({ request }) => {
+const debugHandler = http.all("*", () => {
   // Return undefined to pass through to actual handlers
 });
 
