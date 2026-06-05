@@ -55,7 +55,7 @@ export default defineConfig({
       AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
       INQUESTS_API_URL:
-         "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
+        "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
     },
   },
 });
