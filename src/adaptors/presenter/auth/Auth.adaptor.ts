@@ -35,7 +35,8 @@ export class AuthAdaptor {
         next(err);
         return;
       }
-      res.redirect(this.postLogoutUri);
+      const url = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${this.postLogoutUri}`;
+      res.redirect(url);
     });
   }
 }

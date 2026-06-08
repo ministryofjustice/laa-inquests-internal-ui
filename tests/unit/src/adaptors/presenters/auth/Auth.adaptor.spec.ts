@@ -78,7 +78,7 @@ describe("AuthAdaptor", () => {
 
       assert.equal((req.session.destroy as sinon.SinonStub).callCount, 1);
       assert.equal(res.redirect.callCount, 1);
-      assert.equal(res.redirect.firstCall.args[0], POST_LOGOUT_URI);
+      assert.equal(res.redirect.firstCall.args[0], `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${POST_LOGOUT_URI}`);
     });
 
     it("calls next with error when session destroy fails", () => {
