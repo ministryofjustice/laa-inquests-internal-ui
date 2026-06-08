@@ -4,5 +4,6 @@ declare module "express-session" {
     Record<string, string> | string | undefined
   > {
     userId?: string;
+    user?: { name?: string };
   }
 }

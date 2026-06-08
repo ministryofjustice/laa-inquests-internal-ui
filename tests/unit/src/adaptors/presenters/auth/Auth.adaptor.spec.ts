@@ -48,13 +48,17 @@ describe("AuthAdaptor", () => {
   });
 
   describe("callback", () => {
-    it("stores userId in session and redirects to /", async () => {
+    it("stores userId and userName in session and redirects to /", async () => {
       req.query = { code: "auth-code-123" } as any;
-      authPort.acquireTokenByCode.resolves({ userId: "user-oid-abc" });
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userName: "Test User",
+      });
 
       await adaptor.callback(req, res);
 
       assert.equal(req.session["userId"], "user-oid-abc");
+      assert.deepEqual(req.session["user"], { name: "Test User" });
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });

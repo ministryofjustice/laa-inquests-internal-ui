@@ -67,8 +67,9 @@ app.disable("x-powered-by");
 app.use(session(config.session));
 
 app.use(setupRateLimiter(config));
-app.use((_: Request, res: Response, next: NextFunction): void => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
+  res.locals.userName = req.session.user?.name;
   next();
 });
 app.use(setupLocaleData);

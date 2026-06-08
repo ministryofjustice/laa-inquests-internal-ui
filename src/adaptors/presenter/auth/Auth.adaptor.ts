@@ -20,12 +20,13 @@ export class AuthAdaptor {
 
   async callback(req: Request, res: Response): Promise<void> {
     const { code } = req.query as { code: string };
-    const { userId } = await this.authPort.acquireTokenByCode(
+    const user = await this.authPort.acquireTokenByCode(
       code,
       AUTH_SCOPES,
       this.redirectUri,
     );
-    Object.assign(req.session, { userId });
+    Object.assign(req.session, { userId: user.userId });
+    req.session.user = { name: user.userName };
     res.redirect("/");
   }
 

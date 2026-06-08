@@ -25,6 +25,9 @@ export class EntraAuthAdaptor implements AuthPort {
       throw new Error("MSAL returned null token result");
     }
 
-    return { userId: result.account?.homeAccountId ?? result.uniqueId };
+    return {
+      userId: result.account?.homeAccountId ?? result.uniqueId,
+      userName: result.account?.name ?? undefined,
+    };
   }
 }

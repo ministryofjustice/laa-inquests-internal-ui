@@ -54,7 +54,7 @@ describe("EntraAuthAdaptor", () => {
   describe("acquireTokenByCode", () => {
     it("returns AuthTokenResult with userId from homeAccountId", async () => {
       msalClient.acquireTokenByCode.resolves({
-        account: { homeAccountId: "user-oid-123" },
+        account: { homeAccountId: "user-oid-123", name: "Test User" },
       } as any);
 
       const result = await adaptor.acquireTokenByCode(
@@ -63,7 +63,10 @@ describe("EntraAuthAdaptor", () => {
         REDIRECT_URI,
       );
 
-      assert.deepEqual(result, { userId: "user-oid-123" });
+      assert.deepEqual(result, {
+        userId: "user-oid-123",
+        userName: "Test User",
+      });
       assert.ok(
         msalClient.acquireTokenByCode.calledOnceWith({
           code: "auth-code",
@@ -71,6 +74,21 @@ describe("EntraAuthAdaptor", () => {
           redirectUri: REDIRECT_URI,
         }),
       );
+    });
+
+    it("returns AuthTokenResult with undefined userName when account name is absent", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: { homeAccountId: "user-oid-123" },
+        uniqueId: "user-oid-123",
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result, { userId: "user-oid-123", userName: undefined });
     });
 
     it("throws when MSAL returns null", async () => {
