@@ -7,6 +7,7 @@
 
 import { setupServer } from "msw/node";
 import { handlers } from "#tests/playwright/factories/handlers/index.js";
+import { startMockOAuthServer } from "#tests/playwright/factories/mockOAuthServer.js";
 
 // Initialize MSW before importing the app
 const mswServer = setupServer(...handlers);
@@ -38,6 +39,10 @@ process.env.AUTH_REDIRECT_URI = "http://localhost:3000/auth/callback";
 process.env.AUTH_POST_LOGOUT_URI = "http://localhost:3000";
 process.env.INQUESTS_API_URL =
   "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk";
+process.env.MOCK_OAUTH_URL = "http://localhost:4001";
+
+// Start mock OAuth server before the app so MOCK_OAUTH_URL is available in config
+startMockOAuthServer();
 
 // Test-only session-seed route — plants userId into session without going through auth
 // Only registered when NODE_ENV === 'test'

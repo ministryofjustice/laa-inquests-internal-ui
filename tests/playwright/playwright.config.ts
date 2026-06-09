@@ -56,6 +56,7 @@ export default defineConfig({
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
       INQUESTS_API_URL:
         "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
+      MOCK_OAUTH_URL: "http://localhost:4001",
     },
   },
 });

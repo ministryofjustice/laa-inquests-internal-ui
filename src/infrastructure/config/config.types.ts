@@ -44,6 +44,7 @@ export interface Config {
   DEPARTMENT_NAME: string | undefined;
   DEPARTMENT_URL: string | undefined;
   INQUESTS_API_URL: string;
+  MOCK_OAUTH_URL?: string;
   RATELIMIT_HEADERS_ENABLED: string | undefined;
   RATELIMIT_STORAGE_URI: string | undefined;
   RATE_LIMIT_MAX: number | string;

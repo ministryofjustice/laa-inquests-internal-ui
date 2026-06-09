@@ -11,6 +11,7 @@ import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
+import { MockAuthAdaptor } from "#src/adaptors/source/auth/MockAuth.adaptor.js";
 import { requireAuth } from "#src/infrastructure/express/middleware/auth/requireAuth.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -25,13 +26,21 @@ const UNSUCCESSFUL_REQUEST = 500;
  * Adapters and Clients
  */
 
-const msalClient = new ConfidentialClientApplication({
-  auth: {
-    clientId: config.AUTH_CLIENT_ID,
-    authority: config.AUTH_AUTHORITY_URL,
-    clientSecret: config.AUTH_CLIENT_SECRET,
-  },
-});
+function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
+  if (process.env.NODE_ENV === "test") {
+    return new MockAuthAdaptor(
+      config.MOCK_OAUTH_URL ?? "http://localhost:4001",
+    );
+  }
+  const entraClient = new ConfidentialClientApplication({
+    auth: {
+      clientId: config.AUTH_CLIENT_ID,
+      authority: config.AUTH_AUTHORITY_URL,
+      clientSecret: config.AUTH_CLIENT_SECRET,
+    },
+  });
+  return new EntraAuthAdaptor(entraClient);
+}
 
 const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
@@ -45,9 +54,8 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   new SessionHelper(),
   new ApplicationDecisionValidator(),
 );
-const msalAuthAdaptor = new EntraAuthAdaptor(msalClient);
 const authAdaptor = new AuthAdaptor(
-  msalAuthAdaptor,
+  createAuthSource(),
   config.AUTH_REDIRECT_URI,
   config.AUTH_POST_LOGOUT_URI,
 );
