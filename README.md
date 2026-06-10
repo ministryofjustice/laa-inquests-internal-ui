@@ -82,6 +82,10 @@ yarn build
 yarn start
 ```
 
+### Initialize pre-commit hooks
+
+Run `npx husky init`
+
 ##### Node Version Manager
 
 You may have to tell your local machine to use the latest version of node already installed on your device, before installing and running the application. Use the following command.
