@@ -20,19 +20,19 @@ if (
   );
 }
 
-const missingAuthVars = [
-  "AUTH_DIRECTORY_URL",
-  "AUTH_CLIENT_ID",
-  "AUTH_CLIENT_SECRET",
-  "AUTH_REDIRECT_URI",
-  "AUTH_POST_LOGOUT_URI",
-].filter((key) => process.env[key] == null || process.env[key] === "");
+// const missingAuthVars = [
+//   "AUTH_DIRECTORY_URL",
+//   "AUTH_CLIENT_ID",
+//   "AUTH_CLIENT_SECRET",
+//   "AUTH_REDIRECT_URI",
+//   "AUTH_POST_LOGOUT_URI",
+// ].filter((key) => process.env[key] == null || process.env[key] === "");
 
-if (missingAuthVars.length > 0) {
-  throw new Error(
-    `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
-  );
-}
+// if (missingAuthVars.length > 0) {
+//   throw new Error(
+//     `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
+//   );
+// }
 /* eslint-enable eqeqeq */
 
 // Get environment variables
