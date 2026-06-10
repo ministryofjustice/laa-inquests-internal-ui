@@ -20,20 +20,17 @@ if (
   );
 }
 
-if (
-  process.env.AUTH_DIRECTORY_URL == null ||
-  process.env.AUTH_DIRECTORY_URL === "" ||
-  process.env.AUTH_CLIENT_ID == null ||
-  process.env.AUTH_CLIENT_ID === "" ||
-  process.env.AUTH_CLIENT_SECRET == null ||
-  process.env.AUTH_CLIENT_SECRET === "" ||
-  process.env.AUTH_REDIRECT_URI == null ||
-  process.env.AUTH_REDIRECT_URI === "" ||
-  process.env.AUTH_POST_LOGOUT_URI == null ||
-  process.env.AUTH_POST_LOGOUT_URI === ""
-) {
+const missingAuthVars = [
+  "AUTH_DIRECTORY_URL",
+  "AUTH_CLIENT_ID",
+  "AUTH_CLIENT_SECRET",
+  "AUTH_REDIRECT_URI",
+  "AUTH_POST_LOGOUT_URI",
+].filter((key) => process.env[key] == null || process.env[key] === "");
+
+if (missingAuthVars.length > 0) {
   throw new Error(
-    "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
+    `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
   );
 }
 /* eslint-enable eqeqeq */

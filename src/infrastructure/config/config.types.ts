@@ -34,11 +34,11 @@ export interface PathsConfig {
 }
 
 export interface Config {
-  AUTH_DIRECTORY_URL: string;
-  AUTH_CLIENT_ID: string;
-  AUTH_CLIENT_SECRET: string;
-  AUTH_REDIRECT_URI: string;
-  AUTH_POST_LOGOUT_URI: string;
+  AUTH_DIRECTORY_URL: string | undefined;
+  AUTH_CLIENT_ID: string | undefined;
+  AUTH_CLIENT_SECRET: string | undefined;
+  AUTH_REDIRECT_URI: string | undefined;
+  AUTH_POST_LOGOUT_URI: string | undefined;
   CONTACT_EMAIL: string | undefined;
   CONTACT_PHONE: string | undefined;
   DEPARTMENT_NAME: string | undefined;
