@@ -34,7 +34,7 @@ export interface PathsConfig {
 }
 
 export interface Config {
-  AUTH_AUTHORITY_URL: string;
+  AUTH_DIRECTORY_URL: string;
   AUTH_CLIENT_ID: string;
   AUTH_CLIENT_SECRET: string;
   AUTH_REDIRECT_URI: string;

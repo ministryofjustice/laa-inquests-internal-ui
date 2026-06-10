@@ -35,7 +35,7 @@ function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
   const entraClient = new ConfidentialClientApplication({
     auth: {
       clientId: config.AUTH_CLIENT_ID,
-      authority: config.AUTH_AUTHORITY_URL,
+      authority: config.AUTH_DIRECTORY_URL,
       clientSecret: config.AUTH_CLIENT_SECRET,
     },
   });

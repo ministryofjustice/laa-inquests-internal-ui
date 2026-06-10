@@ -49,7 +49,7 @@ export default defineConfig({
       SESSION_SECRET: "test-secret-key-for-playwright-tests",
       SESSION_NAME: "test-session",
       SERVICE_NAME: "Inquests",
-      AUTH_AUTHORITY_URL: "https://login.microsoftonline.com/test-tenant-id",
+      AUTH_DIRECTORY_URL: "https://login.microsoftonline.com/test-tenant-id",
       AUTH_CLIENT_ID: "test-client-id",
       AUTH_CLIENT_SECRET: "test-client-secret",
       AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",

@@ -21,8 +21,8 @@ if (
 }
 
 if (
-  process.env.AUTH_AUTHORITY_URL == null ||
-  process.env.AUTH_AUTHORITY_URL === "" ||
+  process.env.AUTH_DIRECTORY_URL == null ||
+  process.env.AUTH_DIRECTORY_URL === "" ||
   process.env.AUTH_CLIENT_ID == null ||
   process.env.AUTH_CLIENT_ID === "" ||
   process.env.AUTH_CLIENT_SECRET == null ||
@@ -33,14 +33,14 @@ if (
   process.env.AUTH_POST_LOGOUT_URI === ""
 ) {
   throw new Error(
-    "AUTH_AUTHORITY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
+    "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
   );
 }
 /* eslint-enable eqeqeq */
 
 // Get environment variables
 const config: Config = {
-  AUTH_AUTHORITY_URL: process.env.AUTH_AUTHORITY_URL,
+  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL,
   AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID,
   AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET,
   AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI,

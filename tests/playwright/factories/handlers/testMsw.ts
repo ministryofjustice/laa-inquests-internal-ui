@@ -31,7 +31,7 @@ process.env.PORT = TEST_PORT;
 process.env.SESSION_SECRET = "test-secret-key";
 process.env.SESSION_NAME = "test-session";
 process.env.SERVICE_NAME = "Inquests";
-process.env.AUTH_AUTHORITY_URL =
+process.env.AUTH_DIRECTORY_URL =
   "https://login.microsoftonline.com/test-tenant-id";
 process.env.AUTH_CLIENT_ID = "test-client-id";
 process.env.AUTH_CLIENT_SECRET = "test-client-secret";
