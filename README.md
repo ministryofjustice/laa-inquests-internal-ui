@@ -94,33 +94,15 @@ nvm install node
 
 Prerequisites, Docker Desktop
 
-- To build the docker image
-
-  ```shell
-  docker build -t laa-inquests-internal-ui:latest .
-  ```
-
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 laa-inquests-internal-ui:latest
+  docker compose -f docker-compose.test.yaml up --build
   ```
 
   (The application should be running at http://localhost:8888)
 
-- To stop the container
-
-  obtain the container id
-
-  ```shell
-  docker ps
-  ```
-
-  stop the container
-
-  ```shell
-  docker stop {container_id}
-  ```
+- To stop the container just ctrl-c out of the process.
 
 ### GitHub Actions
 
