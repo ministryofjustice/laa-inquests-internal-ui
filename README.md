@@ -97,7 +97,7 @@ Prerequisites, Docker Desktop
 - To run the docker image
 
   ```shell
-  docker compose -f docker-compose.test.yaml up --build
+  yarn docker
   ```
 
   (The application should be running at http://localhost:8888)
