@@ -52,7 +52,7 @@ This project uses Yarn 4.10.3 managed by corepack (built into Node.js 16.10+). T
 Create your local config file `.env` from the template file:
 
 ```shell
-cp .env.example .env
+cp .env.example ../.env.internal
 ```
 
 #### Align to the Node Version specified for this project

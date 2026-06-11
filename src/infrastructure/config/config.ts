@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import type { Config } from "#src/infrastructure/config/config.types.js";
-dotenv.config();
+dotenv.config({ path: "../.env.internal" });
 
 const DEFAULT_RATE_LIMIT_MAX = 100;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
