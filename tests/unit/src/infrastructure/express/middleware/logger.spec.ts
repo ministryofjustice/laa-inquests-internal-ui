@@ -13,7 +13,9 @@ const requestStub = stubObject({
   path: "/mock-data",
   session: {
     idToken: "id_123",
-    userId: " user_abc",
+    user: {
+      userId: " user_abc",
+    },
   },
 }) as unknown as Request;
 
@@ -27,7 +29,7 @@ const expectedLog: OpenSearchLog = {
   correlationId: requestStub.session.idToken as string,
   message,
   context: {
-    userId: requestStub.session.userId as string,
+    userId: requestStub.session.user?.userId as string,
     functionName,
   },
 };
@@ -263,6 +265,9 @@ function assertConsoleStrings(consoleArgs: string[]): void {
   assert.include(consoleArgs.join(), now.toISOString());
   assert.include(consoleArgs.join(), `[Function: '${functionName}']`);
   assert.include(consoleArgs.join(), `[CorID: ${requestStub.session.idToken}]`);
-  assert.include(consoleArgs.join(), `[UserId: ${requestStub.session.userId}]`);
+  assert.include(
+    consoleArgs.join(),
+    `[UserId: ${requestStub.session.user?.userId}]`,
+  );
   assert.include(consoleArgs.join(), message);
 }

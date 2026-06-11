@@ -25,8 +25,9 @@ export class AuthAdaptor {
       AUTH_SCOPES,
       this.redirectUri,
     );
-    Object.assign(req.session, { userId: user.userId });
-    req.session.user = { name: user.userName };
+    Object.assign(req.session, {
+      user: { userId: user.userId, userName: user.userName },
+    });
     res.redirect("/");
   }
 

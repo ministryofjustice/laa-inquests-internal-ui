@@ -135,7 +135,7 @@ From Playwright tests or fixtures call:
 await page.goto("/test/auth-session");
 ```
 
-The endpoint sets `req.session.userId = 'test-user-id'` and saves the session.
+The endpoint sets `req.session.user.userId = 'test-user-id'` and saves the session.
 After calling it, browser pages will have the session cookie and can access
 protected routes.
 

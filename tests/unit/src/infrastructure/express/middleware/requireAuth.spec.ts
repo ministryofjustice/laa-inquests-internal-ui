@@ -21,7 +21,7 @@ describe("requireAuth", () => {
   });
 
   it("calls next when session contains userId", () => {
-    req.session["userId"] = "test-user-id";
+    req.session.user = { userId: "test-user-id", userName: "Test User" };
 
     requireAuth(req, res, next as NextFunction);
 
