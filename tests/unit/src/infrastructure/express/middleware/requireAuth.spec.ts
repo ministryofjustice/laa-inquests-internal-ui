@@ -20,20 +20,33 @@ describe("requireAuth", () => {
     sinon.restore();
   });
 
-  it("calls next when session contains userId", () => {
-    req.session.user = { userId: "test-user-id", userName: "Test User" };
+  describe("When userId is present in session", () => {
+    it("calls next", () => {
+      req.session.user = { userId: "test-user-id", userName: "Test User" };
 
-    requireAuth(req, res, next as NextFunction);
+      requireAuth(req, res, next as NextFunction);
 
-    assert.equal(next.callCount, 1);
-    assert.equal(res.redirect.callCount, 0);
+      assert.equal(next.callCount, 1);
+      assert.equal(res.redirect.callCount, 0);
+    });
+
+    it("redirects to /auth/login if userId is an empty string", () => {
+      req.session.user = { userId: "", userName: "Test User" };
+      requireAuth(req, res, next as NextFunction);
+
+      assert.equal(res.redirect.callCount, 1);
+      assert.equal(res.redirect.firstCall.args[0], "/auth/login");
+      assert.equal(next.callCount, 0);
+    });
   });
 
-  it("redirects to /auth/login when session has no userId", () => {
-    requireAuth(req, res, next as NextFunction);
+  describe("When session has no userId", () => {
+    it("redirects to /auth/login", () => {
+      requireAuth(req, res, next as NextFunction);
 
-    assert.equal(res.redirect.callCount, 1);
-    assert.equal(res.redirect.firstCall.args[0], "/auth/login");
-    assert.equal(next.callCount, 0);
+      assert.equal(res.redirect.callCount, 1);
+      assert.equal(res.redirect.firstCall.args[0], "/auth/login");
+      assert.equal(next.callCount, 0);
+    });
   });
 });

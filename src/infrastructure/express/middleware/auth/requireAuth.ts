@@ -5,7 +5,8 @@ export const requireAuth = (
   res: Response,
   next: NextFunction,
 ): void => {
-  if (req.session.user?.userId !== undefined) {
+  const userId = req.session.user?.userId;
+  if (userId !== undefined && userId !== "") {
     next();
     return;
   }
