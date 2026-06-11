@@ -11,7 +11,7 @@ test.describe("Home page", () => {
   });
 
   test("should display correct navigation content", async ({ page }) => {
-    await expect(validateMojHeader(page)).resolves.not.toThrow();
+    await validateMojHeader(page);
   });
 
   test("should have the correct link for sign out button", async ({ page }) => {
