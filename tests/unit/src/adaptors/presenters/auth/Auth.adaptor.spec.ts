@@ -74,6 +74,15 @@ describe("AuthAdaptor", () => {
         /token exchange failed/,
       );
     });
+
+    it("throws an error when code is missing from query", async () => {
+      req.query = {} as any;
+
+      await assert.rejects(
+        () => adaptor.callback(req, res),
+        /code is required/,
+      );
+    });
   });
 
   describe("logout", () => {

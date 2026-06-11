@@ -19,7 +19,11 @@ export class AuthAdaptor {
   }
 
   async callback(req: Request, res: Response): Promise<void> {
-    const { code } = req.query as { code: string };
+    const code =
+      typeof req.query.code === "string" ? req.query.code : undefined;
+    if (!code) {
+      throw new Error("code is required");
+    }
     const user = await this.authPort.acquireTokenByCode(
       code,
       AUTH_SCOPES,
