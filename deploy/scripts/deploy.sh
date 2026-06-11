@@ -64,7 +64,7 @@ deploy_main() {
                           --set env.AUTH_REDIRECT_URI="$AUTH_REDIRECT_URI" \
                           --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
-                          --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT"
+                          --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
                           --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
