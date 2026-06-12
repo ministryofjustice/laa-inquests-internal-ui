@@ -32,12 +32,11 @@ function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
       config.MOCK_OAUTH_URL ?? "http://localhost:4001",
     );
   }
-  //TODO: Proper error handling for cases when config is undefined or invalid
   const entraClient = new ConfidentialClientApplication({
     auth: {
-      clientId: config.AUTH_CLIENT_ID ?? "",
-      authority: config.AUTH_DIRECTORY_URL ?? "",
-      clientSecret: config.AUTH_CLIENT_SECRET ?? "",
+      clientId: config.AUTH_CLIENT_ID,
+      authority: config.AUTH_DIRECTORY_URL,
+      clientSecret: config.AUTH_CLIENT_SECRET,
     },
   });
   return new EntraAuthAdaptor(entraClient);
@@ -57,8 +56,8 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
 );
 const authAdaptor = new AuthAdaptor(
   createAuthSource(),
-  config.AUTH_REDIRECT_URI ?? "",
-  config.AUTH_POST_LOGOUT_URI ?? "",
+  config.AUTH_REDIRECT_URI,
+  config.AUTH_POST_LOGOUT_URI,
 );
 
 /**

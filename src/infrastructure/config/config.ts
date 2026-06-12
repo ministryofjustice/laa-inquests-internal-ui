@@ -19,29 +19,15 @@ if (
     "SESSION_SECRET and SESSION_NAME must be defined in environment variables.",
   );
 }
-
-// const missingAuthVars = [
-//   "AUTH_DIRECTORY_URL",
-//   "AUTH_CLIENT_ID",
-//   "AUTH_CLIENT_SECRET",
-//   "AUTH_REDIRECT_URI",
-//   "AUTH_POST_LOGOUT_URI",
-// ].filter((key) => process.env[key] == null || process.env[key] === "");
-
-// if (missingAuthVars.length > 0) {
-//   throw new Error(
-//     `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
-//   );
-// }
 /* eslint-enable eqeqeq */
 
 // Get environment variables
 const config: Config = {
-  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL,
-  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID,
-  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET,
-  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI,
-  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI,
+  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL ?? "",
+  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID ?? "",
+  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "",
+  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI ?? "",
+  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI ?? "",
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,
   DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,
@@ -86,5 +72,19 @@ const config: Config = {
     views: "src/views", // Path for Nunjucks views
   },
 };
+
+const missingAuthVars = [
+  "AUTH_DIRECTORY_URL",
+  "AUTH_CLIENT_ID",
+  "AUTH_CLIENT_SECRET",
+  "AUTH_REDIRECT_URI",
+  "AUTH_POST_LOGOUT_URI",
+].filter((key) => config[key as keyof Config] === "");
+
+if (missingAuthVars.length > 0 && process.env.NODE_ENV !== "test") {
+  throw new Error(
+    `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
+  );
+}
 
 export default config;
