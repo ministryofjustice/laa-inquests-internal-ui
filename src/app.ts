@@ -69,7 +69,7 @@ app.use(session(config.session));
 app.use(setupRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
-  res.locals.userName = req.session.user?.name;
+  res.locals.userName = req.session.user?.userName;
   next();
 });
 app.use(setupLocaleData);
