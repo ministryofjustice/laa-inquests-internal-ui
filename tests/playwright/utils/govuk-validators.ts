@@ -63,7 +63,7 @@ export async function validateMojHeader(page: Page): Promise<void> {
   await expect(navigation).toBeVisible();
 
   const accountNameLink = navigation.getByRole("link", {
-    name: "Account name",
+    name: "Test User",
   });
   await expect(accountNameLink).toBeVisible();
 

@@ -26,7 +26,7 @@ test.describe("Home page", () => {
     });
     const navLinks = navigation.getByRole("link");
 
-    await expect(navLinks.nth(0)).toHaveText("Account name");
+    await expect(navLinks.nth(0)).toHaveText("Test User");
     await expect(navLinks.nth(1)).toHaveText("Sign out");
   });
 
