@@ -100,7 +100,7 @@ Prerequisites, Docker Desktop
   yarn docker
   ```
 
-  (The application should be running at http://localhost:8888)
+  (The application should be running at http://localhost:3000)
 
 - To stop the container just ctrl-c out of the process.
 
