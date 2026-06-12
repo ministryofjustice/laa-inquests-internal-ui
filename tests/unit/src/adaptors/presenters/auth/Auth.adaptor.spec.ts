@@ -95,7 +95,7 @@ describe("AuthAdaptor", () => {
       assert.equal(res.redirect.callCount, 1);
       assert.equal(
         res.redirect.firstCall.args[0],
-        `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${POST_LOGOUT_URI}`,
+        `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(POST_LOGOUT_URI)}`,
       );
     });
 

@@ -24,7 +24,9 @@ test("logout clears the session and redirects to post-logout URI", async ({
   const response = await page.request.get("/auth/logout", { maxRedirects: 0 });
 
   expect(response.status()).toBe(302);
-  expect(response.headers()["location"]).toContain("http://localhost:3000");
+  expect(response.headers()["location"]).toContain(
+    encodeURIComponent("http://localhost:3000"),
+  );
 });
 
 test("redirects unauthenticated user to Entra on GET /auth/login", async ({
