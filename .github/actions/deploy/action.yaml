@@ -1,6 +1,16 @@
 name: "Deploy"
 description: "Deploy docker image to namespace"
 inputs:
+  auth_directory_url:
+    description: "Entra Authority URL"
+  auth_client_id:
+    description: "Entra Application ID"
+  auth_client_secret:
+    description: "Entra Application Secret"
+  auth_post_logout_uri:
+    description: "Logout URI"
+  auth_redirect_uri:
+    description: "Redirect URI back to the application"
   kube-cert:
     description: "Kubernetes cluster authentication certificate"
     required: true
@@ -84,6 +94,11 @@ runs:
         echo "INQUESTS_API_URL=${{ inputs.inquests_api_url || '' }}" >> $GITHUB_ENV
         echo "SESSION_NAME=${{ inputs.session_name || 'sessionId' }}" >> $GITHUB_ENV
         echo "SESSION_SECRET=${{ inputs.session_secret || 'default-session-secret' }}" >> $GITHUB_ENV
+        echo "AUTH_CLIENT_ID=${{ inputs.auth_client_id || '' }}" >> $GITHUB_ENV
+        echo "AUTH_CLIENT_SECRET=${{ inputs.auth_client_secret || '' }}" >> $GITHUB_ENV
+        echo "AUTH_DIRECTORY_URL=${{ inputs.auth_directory_url || '' }}" >> $GITHUB_ENV
+        echo "AUTH_POST_LOGOUT_URI=${{ inputs.auth_post_logout_uri || '' }}" >> $GITHUB_ENV
+        echo "AUTH_REDIRECT_URI=${{ inputs.auth_redirect_uri || '' }}" >> $GITHUB_ENV
 
     - name: Deploy using Helm
       shell: bash

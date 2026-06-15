@@ -1,89 +1,93 @@
 import { test, expect } from "../fixtures/index.js";
+import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
 
-test("homepage should have the correct title", async ({ page }) => {
-  // Navigate to the homepage
-  await page.goto("/");
+test.describe("Home page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+  });
 
-  // Check for the title of the application
-  await expect(page).toHaveTitle(/Inquests – GOV.UK/);
-});
+  test("should have the correct title", async ({ page }) => {
+    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+  });
 
-test("homepage should display LAA header", async ({ page }) => {
-  await page.goto("/");
+  test("should display correct navigation content", async ({ page }) => {
+    await validateMojHeader(page);
+  });
 
-  // Check for the header with LAA branding
-  const header = page.getByRole("banner");
-  await expect(header).toBeVisible();
+  test("should have the correct link for sign out button", async ({ page }) => {
+    const signOutLink = page.getByRole("link", { name: "Sign out" });
+    await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
+  });
 
-  // Check for GOV.UK branding which is typically in the header
-  await expect(page.getByRole("link", { name: "GOV.UK" })).toBeVisible();
-});
+  test("navigation items should be in correct order", async ({ page }) => {
+    const header = page.getByRole("banner");
+    const navigation = header.getByRole("navigation", {
+      name: "Account navigation",
+    });
+    const navLinks = navigation.getByRole("link");
 
-test("home page displays service name and mountains table", async ({
-  pages,
-  checkAccessibility,
-}) => {
-  const homePage = pages.homePage;
+    await expect(navLinks.nth(0)).toHaveText("Test User");
+    await expect(navLinks.nth(1)).toHaveText("Sign out");
+  });
 
-  // Navigate to home page
-  await homePage.navigate();
-  await homePage.waitForLoad();
+  test("displays service name and mountains table", async ({
+    pages,
+    checkAccessibility,
+  }) => {
+    const homePage = pages.homePage;
 
-  // Test the service name heading is present
-  await expect(homePage.heading).toBeVisible();
-  const serviceName = await homePage.getServiceName();
-  expect(serviceName).toBeTruthy();
+    await homePage.navigate();
+    await homePage.waitForLoad();
 
-  // Test the mountains table is displayed
-  await expect(homePage.mountainsTable).toBeVisible();
-  await expect(homePage.tableCaption).toContainText("Mountains of the world");
+    await expect(homePage.heading).toBeVisible();
+    const serviceName = await homePage.getServiceName();
+    expect(serviceName).toBeTruthy();
 
-  // Test specific mountains are in the table
-  const mountains = await homePage.getMountainNames();
-  expect(mountains).toContain("Everest");
-  expect(mountains).toContain("Kilimanjaro");
-  expect(mountains).toContain("Aconcagua");
-  expect(mountains).toContain("Denali");
+    await expect(homePage.mountainsTable).toBeVisible();
+    await expect(homePage.tableCaption).toContainText("Mountains of the world");
 
-  // Test individual mountain row
-  const everestRow = homePage.getMountainRow("Everest");
-  await expect(everestRow).toBeVisible();
-  await expect(everestRow).toContainText("8,850 meters");
-  await expect(everestRow).toContainText("Asia");
-  await expect(everestRow).toContainText("1953");
+    const mountains = await homePage.getMountainNames();
+    expect(mountains).toContain("Everest");
+    expect(mountains).toContain("Kilimanjaro");
+    expect(mountains).toContain("Aconcagua");
+    expect(mountains).toContain("Denali");
 
-  // Run accessibility check
-  await checkAccessibility();
-});
+    const everestRow = homePage.getMountainRow("Everest");
+    await expect(everestRow).toBeVisible();
+    await expect(everestRow).toContainText("8,850 meters");
+    await expect(everestRow).toContainText("Asia");
+    await expect(everestRow).toContainText("1953");
 
-test("home page table has correct structure", async ({ page, pages }) => {
-  const homePage = pages.homePage;
+    await checkAccessibility();
+  });
 
-  await homePage.navigate();
-  await homePage.waitForLoad();
+  test("table has correct structure", async ({ pages }) => {
+    const homePage = pages.homePage;
 
-  // Check table headers
-  const table = homePage.mountainsTable;
-  await expect(table.locator("thead th").nth(0)).toHaveText("Name");
-  await expect(table.locator("thead th").nth(1)).toHaveText("Elevation");
-  await expect(table.locator("thead th").nth(2)).toHaveText("Continent");
-  await expect(table.locator("thead th").nth(3)).toHaveText("First summit");
+    await homePage.navigate();
+    await homePage.waitForLoad();
 
-  // Check that all expected mountains are present
-  const expectedMountains = [
-    "Aconcagua",
-    "Denali",
-    "Elbrus",
-    "Everest",
-    "Kilimanjaro",
-    "Puncak Jaya",
-    "Vinson",
-  ];
+    const table = homePage.mountainsTable;
+    await expect(table.locator("thead th").nth(0)).toHaveText("Name");
+    await expect(table.locator("thead th").nth(1)).toHaveText("Elevation");
+    await expect(table.locator("thead th").nth(2)).toHaveText("Continent");
+    await expect(table.locator("thead th").nth(3)).toHaveText("First summit");
 
-  const actualMountains = await homePage.getMountainNames();
-  expect(actualMountains).toHaveLength(expectedMountains.length);
+    const expectedMountains = [
+      "Aconcagua",
+      "Denali",
+      "Elbrus",
+      "Everest",
+      "Kilimanjaro",
+      "Puncak Jaya",
+      "Vinson",
+    ];
 
-  for (const mountain of expectedMountains) {
-    expect(actualMountains).toContain(mountain);
-  }
+    const actualMountains = await homePage.getMountainNames();
+    expect(actualMountains).toHaveLength(expectedMountains.length);
+
+    for (const mountain of expectedMountains) {
+      expect(actualMountains).toContain(mountain);
+    }
+  });
 });

@@ -21,7 +21,7 @@
     "tsc": "tsc --noEmit",
     "build:ts": "tsc",
     "test": "yarn test:unit && yarn test:e2e",
-    "test:unit": "yarn build && mocha",
+    "test:unit": "yarn build && NODE_ENV=test mocha",
     "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts",
     "coverage": "c8 yarn test:unit --check-coverage"
   },
@@ -29,6 +29,7 @@
     "node": "25.8.2"
   },
   "dependencies": {
+    "@azure/msal-node": "^5.2.2",
     "@ministryofjustice/frontend": "^9.0.0",
     "axios": "^1.17.0",
     "body-parser": "^2.2.1",
@@ -82,7 +83,7 @@
     "concurrently": "^10.0.3",
     "connect-livereload": "^0.6.1",
     "cross-env": "^10.1.0",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-sass-plugin": "^3.7.0",
     "eslint": "^10.4.1",

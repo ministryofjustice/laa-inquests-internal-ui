@@ -7,7 +7,7 @@ const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
 const DEFAULT_PORT = 3000;
 
-// Validate required session env vars
+// Validate required env vars
 /* eslint-disable eqeqeq -- need looser assertion against null */
 if (
   process.env.SESSION_SECRET == null ||
@@ -19,15 +19,43 @@ if (
     "SESSION_SECRET and SESSION_NAME must be defined in environment variables.",
   );
 }
+
+const missingAuthVars = [
+  "AUTH_DIRECTORY_URL",
+  "AUTH_CLIENT_ID",
+  "AUTH_CLIENT_SECRET",
+  "AUTH_REDIRECT_URI",
+  "AUTH_POST_LOGOUT_URI",
+].filter(
+  (key) =>
+    process.env[key] == null ||
+    process.env[key] === "" ||
+    process.env[key] === "undefined",
+);
+
+if (missingAuthVars.length > 0 && process.env.NODE_ENV !== "test") {
+  throw new Error(
+    `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
+  );
+}
+
 /* eslint-enable eqeqeq */
 
 // Get environment variables
 const config: Config = {
+  /* eslint-disable @typescript-eslint/no-non-null-assertion -- validated non-null parameters above */
+  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL!,
+  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID!,
+  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET!,
+  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI!,
+  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI!,
+  /* eslint-enable @typescript-eslint/no-non-null-assertion */
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,
   DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,
   DEPARTMENT_URL: process.env.DEPARTMENT_URL,
   INQUESTS_API_URL: process.env.INQUESTS_API_URL ?? "",
+  MOCK_OAUTH_URL: process.env.MOCK_OAUTH_URL,
   RATELIMIT_HEADERS_ENABLED: process.env.RATELIMIT_HEADERS_ENABLED,
   RATELIMIT_STORAGE_URI: process.env.RATELIMIT_STORAGE_URI,
   RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX ?? DEFAULT_RATE_LIMIT_MAX),
@@ -44,6 +72,11 @@ const config: Config = {
     name: process.env.SESSION_NAME,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+    },
   },
   app: {
     port: Number(process.env.PORT ?? DEFAULT_PORT),

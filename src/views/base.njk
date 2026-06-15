@@ -1,5 +1,6 @@
 {% extends "govuk/template.njk" %}
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{%- from "moj/components/header/macro.njk" import mojHeader -%}
 
 {% block pageTitle %}Inquests – GOV.UK{% endblock %}
 
@@ -16,10 +17,26 @@
 {% endblock %}
 
 {% block govukHeader %}
-  {{ govukHeader({
-    homepageUrl: "#",
-    serviceName: config.SERVICE_NAME,
-    serviceUrl: "#"
+  {{ mojHeader({
+    organisationLabel: {
+      text: t('navigation.header.organisationLabel'),
+      href: "#"
+    },
+    serviceLabel: {
+      text: t('navigation.header.serviceLabel'),
+      href: "#"
+    },
+    navigation: {
+      label: "Account navigation",
+      items: [{
+        text: userName if userName else "Account name",
+        href: "#",
+        active: true
+      }, {
+        text: t('navigation.header.signOut'),
+        href: "/auth/logout"
+      }]
+    }
   }) }}
 {% endblock %}
 

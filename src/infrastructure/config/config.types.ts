@@ -14,11 +14,18 @@ export interface CsrfConfig {
   httpOnly: boolean;
 }
 
+export interface CookieConfig {
+  secure: boolean;
+  httpOnly: boolean;
+  sameSite: "lax" | "strict" | "none" | boolean;
+}
+
 export interface SessionConfig {
   secret: string;
   name: string;
   resave: boolean;
   saveUninitialized: boolean;
+  cookie: CookieConfig;
 }
 
 export interface PathsConfig {
@@ -27,11 +34,17 @@ export interface PathsConfig {
 }
 
 export interface Config {
+  AUTH_DIRECTORY_URL: string;
+  AUTH_CLIENT_ID: string;
+  AUTH_CLIENT_SECRET: string;
+  AUTH_REDIRECT_URI: string;
+  AUTH_POST_LOGOUT_URI: string;
   CONTACT_EMAIL: string | undefined;
   CONTACT_PHONE: string | undefined;
   DEPARTMENT_NAME: string | undefined;
   DEPARTMENT_URL: string | undefined;
   INQUESTS_API_URL: string;
+  MOCK_OAUTH_URL?: string;
   RATELIMIT_HEADERS_ENABLED: string | undefined;
   RATELIMIT_STORAGE_URI: string | undefined;
   RATE_LIMIT_MAX: number | string;

@@ -5,7 +5,7 @@ import {
   validateSummaryCardKeys,
 } from "../../utils/govuk-validators.js";
 
-const applicationId = "4";
+const applicationId = "1";
 
 test.describe("Application overview page", () => {
   test("should have the correct title and back link", async ({ page }) => {
@@ -60,14 +60,20 @@ test.describe("Application details tab", () => {
 
   test("should have the proceedings content", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
-
     await page.getByRole("tab", { name: "Application details" }).click();
 
-    await validateHeader(page, "Proceedings", 2);
     const applicationDetailsPanel = page.locator("#application-details");
     const inquestCard = applicationDetailsPanel
       .locator(".govuk-summary-card")
       .first();
+
+    await expect(
+      applicationDetailsPanel.getByRole("heading", {
+        level: 2,
+        name: "Proceedings",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(inquestCard.getByText("Client role")).toBeVisible();
     await expect(inquestCard.getByText("Level of service")).toBeVisible();
     await expect(inquestCard.getByText("Scope limitation")).toBeVisible();

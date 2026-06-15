@@ -18,7 +18,7 @@ export class SessionHelper {
     const { session } = req;
     const { [namespace]: data } = session;
     // Return the data if it's a Record, otherwise null for undefined or string
-    return typeof data === "object" ? data : null;
+    return typeof data === "object" ? (data as Record<string, string>) : null;
   }
 
   clearSessionData(req: Request, namespace: string): void {

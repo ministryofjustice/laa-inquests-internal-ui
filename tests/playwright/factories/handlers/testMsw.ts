@@ -7,6 +7,7 @@
 
 import { setupServer } from "msw/node";
 import { handlers } from "#tests/playwright/factories/handlers/index.js";
+import { startMockOAuthServer } from "#tests/playwright/factories/mockOAuthServer.js";
 
 // Initialize MSW before importing the app
 const mswServer = setupServer(...handlers);
@@ -27,9 +28,24 @@ console.log("🎭 MSW server started - intercepting outbound requests");
 // Set environment variables for the Express app
 process.env.NODE_ENV = "test";
 process.env.PORT = TEST_PORT;
-process.env.SESSION_SECRET ??= "test-secret-key";
-process.env.SESSION_NAME ??= "test-session";
-process.env.SERVICE_NAME ??= "Inquests";
+process.env.SESSION_SECRET = "test-secret-key";
+process.env.SESSION_NAME = "test-session";
+process.env.SERVICE_NAME = "Inquests";
+process.env.AUTH_DIRECTORY_URL =
+  "https://login.microsoftonline.com/test-tenant-id";
+process.env.AUTH_CLIENT_ID = "test-client-id";
+process.env.AUTH_CLIENT_SECRET = "test-client-secret";
+process.env.AUTH_REDIRECT_URI = "http://localhost:3000/auth/callback";
+process.env.AUTH_POST_LOGOUT_URI = "http://localhost:3000";
+process.env.INQUESTS_API_URL =
+  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk";
+process.env.MOCK_OAUTH_URL = "http://localhost:4001";
+
+// Start mock OAuth server before the app so MOCK_OAUTH_URL is available in config
+startMockOAuthServer();
+
+// Test-only session-seed route — plants userId into session without going through auth
+// Only registered when NODE_ENV === 'test'
 
 // Now import and start the actual Express application
 const appModulePath = "#public/app.js";

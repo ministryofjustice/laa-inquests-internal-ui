@@ -74,6 +74,11 @@ resources:
     memory: 256Mi
 
 env:
+  AWS_SECRETS_AUTH_CLIENT_ID: ""
+  AWS_SECRETS_AUTH_CLIENT_SECRET: ""
+  AWS_SECRETS_AUTH_DIRECTORY_URL: ""
+  AUTH_POST_LOGOUT_URI: ""
+  AUTH_REDIRECT_URI: ""
   SERVICE_NAME: "Express TypeScript Template"
   SERVICE_PHASE: "Beta"
   DEPARTMENT_NAME: "Legal Aid Agency"

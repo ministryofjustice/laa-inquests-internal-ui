@@ -9,6 +9,8 @@ deploy_branch() {
   RELEASE_HOST="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
 # Set the ingress name, needs release name, namespace and -green suffix
   IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$K8S_NAMESPACE-green"
+  AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
+  AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   echo "Github ref: $branch_name; release name: $BRANCH_RELEASE_NAME; identifier: $IDENTIFIER; release host: $RELEASE_HOST"
   echo "Deploying commit: $GITHUB_SHA under release name: '$BRANCH_RELEASE_NAME'..."
 
@@ -20,6 +22,14 @@ deploy_branch() {
                 --set image.tag="$IMAGE_TAG" \
                 --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
                 --set ingress.hosts[0].host="$RELEASE_HOST" \
+                --set env.AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
+                --set env.AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" \
+                --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
+                --set env.AUTH_POST_LOGOUT_URI="$AUTH_POST_LOGOUT_URI" \
+                --set env.AUTH_REDIRECT_URI="$AUTH_REDIRECT_URI" \
+                --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
+                --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
+                --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                 --set env.SERVICE_NAME="$SERVICE_NAME" \
                 --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                 --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
@@ -39,12 +49,22 @@ deploy_branch() {
 
 deploy_main() {
   RELEASE_HOST="laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
+  AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   helm upgrade laa-inquests-internal-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
                           --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
+                          --set env.AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
+                          --set env.AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" \
+                          --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
+                          --set env.AUTH_POST_LOGOUT_URI="$AUTH_POST_LOGOUT_URI" \
+                          --set env.AUTH_REDIRECT_URI="$AUTH_REDIRECT_URI" \
+                          --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
+                          --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
+                          --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
                           --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \

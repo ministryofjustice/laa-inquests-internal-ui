@@ -37,7 +37,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "yarn tsx tests/playwright/factories/handlers/testMsw.js",
-    url: "http://127.0.0.1:3000",
+    url: "http://localhost:3000/status",
     reuseExistingServer: process.env.CI !== "true",
     stdout: "pipe",
     stderr: "pipe",
@@ -49,6 +49,14 @@ export default defineConfig({
       SESSION_SECRET: "test-secret-key-for-playwright-tests",
       SESSION_NAME: "test-session",
       SERVICE_NAME: "Inquests",
+      AUTH_DIRECTORY_URL: "https://login.microsoftonline.com/test-tenant-id",
+      AUTH_CLIENT_ID: "test-client-id",
+      AUTH_CLIENT_SECRET: "test-client-secret",
+      AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",
+      AUTH_POST_LOGOUT_URI: "http://localhost:3000",
+      INQUESTS_API_URL:
+        "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
+      MOCK_OAUTH_URL: "http://localhost:4001",
     },
   },
 });

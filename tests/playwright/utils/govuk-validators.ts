@@ -32,7 +32,7 @@ export async function validateGovPage(
   page: Page,
   { headerText, backUrl }: { headerText: string; backUrl: string },
 ): Promise<void> {
-  await validateGovHeader(page);
+  await validateMojHeader(page);
   await validatePageWrapper(page);
   await validateHeader(page, headerText, 1);
   await validateBackButton(page, backUrl);
@@ -47,11 +47,28 @@ export async function validateGovForm(
   await validateSubmitButton(form);
 }
 
-export async function validateGovHeader(page: Page): Promise<void> {
-  const govUkHeader = page.locator("header", {
-    has: page.getByRole("link", { name: "GOV.UK" }),
+export async function validateMojHeader(page: Page): Promise<void> {
+  const header = page.getByRole("banner").first();
+  await expect(header).toBeVisible();
+
+  const laaLink = header.getByRole("link", { name: "Legal Aid Agency" });
+  await expect(laaLink).toBeVisible();
+
+  const inquestsLink = header.getByRole("link", { name: "Inquests" });
+  await expect(inquestsLink).toBeVisible();
+
+  const navigation = header.getByRole("navigation", {
+    name: "Account navigation",
   });
-  await expect(govUkHeader).toBeVisible();
+  await expect(navigation).toBeVisible();
+
+  const accountNameLink = navigation.getByRole("link", {
+    name: "Test User",
+  });
+  await expect(accountNameLink).toBeVisible();
+
+  const signOutLink = navigation.getByRole("link", { name: "Sign out" });
+  await expect(signOutLink).toBeVisible();
 }
 
 export async function validatePageWrapper(page: Page): Promise<void> {
