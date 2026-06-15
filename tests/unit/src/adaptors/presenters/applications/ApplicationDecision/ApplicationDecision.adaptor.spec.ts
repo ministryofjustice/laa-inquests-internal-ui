@@ -470,6 +470,19 @@ describe("ApplicationDecisionAdaptor", () => {
         `/applications/${applicationId}/decision/success`,
       );
     });
+
+    it("throws when submitting the merits decision fails", async () => {
+      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
+      viewApplicationSourceStub.submitMeritsDecision.rejects(
+        new Error("Merits rejection failed"),
+      );
+
+      await assert.rejects(
+        () =>
+          adaptor.processConfirmationForm(requestStub as Request, responseStub),
+        new Error("Unable to submit merits decision"),
+      );
+    });
   });
 
   describe("renderDecisionSuccessPage", () => {

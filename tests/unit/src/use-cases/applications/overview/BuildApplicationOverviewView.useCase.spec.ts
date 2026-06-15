@@ -1,5 +1,7 @@
 import { strict as assert } from "assert";
+import { stubInterface } from "ts-sinon";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 
 describe("BuildApplicationOverviewViewUseCase", () => {
   const useCase = new BuildApplicationOverviewViewUseCase();
@@ -68,45 +70,45 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     },
   } as any;
 
-  it("returns SUCCESS with mapped presentation fields", () => {
-    const result = useCase.execute(application);
+  it("returns SUCCESS with application data from the source port", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    applicationPortStub.getApplication.resolves(application as any);
+
+    const result = await useCase.execute({
+      applicationId: "123",
+      applicationPort: applicationPortStub,
+    });
 
     assert.equal(result.status, "SUCCESS");
-    assert.equal(
-      result.data.application.applicationType,
-      "Initial application",
-    );
-    assert.equal(result.data.proceedings[0].certificateType, "Substantive");
-    assert.equal(
-      result.data.proceedings[0].substantiveCostLimitation,
-      "£25,000",
-    );
-    assert.equal(
-      result.data.clientCorrespondenceAddressDisplay,
-      "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
-    );
-    assert.deepEqual(result.data.statusTag, {
-      text: "Awaiting assessment",
-      classes: "govuk-tag--grey",
-    });
-    assert.deepEqual(result.data.warnings, []);
+    assert.deepEqual(result.data.application, application);
+    assert.equal(applicationPortStub.getApplication.callCount, 1);
+    assert.deepEqual(applicationPortStub.getApplication.getCall(0).args, [
+      "123",
+    ]);
   });
 
-  it("returns warning when specified correspondence address is missing", () => {
-    const result = useCase.execute({
-      ...application,
-      client: {
-        ...application.client,
-        correspondenceAddressSource: "USE_SPECIFIED_ADDRESS",
-        correspondenceAddress: null,
-      },
+  it("returns TECHNICAL_FAILURE when input is incomplete", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+
+    const result = await useCase.execute({
+      applicationId: "",
+      applicationPort: applicationPortStub,
     });
 
-    assert.equal(result.status, "SUCCESS");
-    assert.equal(
-      result.data.clientCorrespondenceAddressDisplay,
-      "Not provided",
-    );
-    assert.equal(result.data.warnings.length, 1);
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, "INVALID_INPUT_STATE");
+  });
+
+  it("returns TECHNICAL_FAILURE when source retrieval fails", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    applicationPortStub.getApplication.rejects(new Error("boom"));
+
+    const result = await useCase.execute({
+      applicationId: "123",
+      applicationPort: applicationPortStub,
+    });
+
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, "UPSTREAM_REJECTED");
   });
 });

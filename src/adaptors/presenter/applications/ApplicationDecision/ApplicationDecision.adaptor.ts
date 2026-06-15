@@ -107,14 +107,11 @@ export class ApplicationDecisionAdaptor {
       params: { applicationId },
     } = req;
 
-    // COPILOT TODO: This seems to be business logic so should be in the use case
-    const validationErrors = this.validator.validateApplicationDecisionForm(
-      req.body,
-    );
     const processDecisionSelectionResult =
       this.processDecisionSelectionUseCase.execute({
         overallDecision,
-        validationErrors,
+        validate: (form) =>
+          this.validator.validateApplicationDecisionForm(form),
       });
 
     const decisionToPersist =
@@ -171,13 +168,11 @@ export class ApplicationDecisionAdaptor {
       req as unknown as Request,
       "decision",
     ) as DecisionSessionData | null;
-    // COPILOT TODO: It feels like validation like this should be done in the usecase.
-    const validationErrors = this.validator.validateJustification(req.body);
     const processJustificationResult = this.processJustificationUseCase.execute(
       {
         refusalReason,
         justification,
-        validationErrors,
+        validate: (form) => this.validator.validateJustification(form),
         existingSessionData,
       },
     );
@@ -247,7 +242,6 @@ export class ApplicationDecisionAdaptor {
     });
 
     if (submitDecisionResult.status === "TECHNICAL_FAILURE") {
-      // COPILOT TODO: Is this error condition tested
       throw new Error(
         submitDecisionResult.message ?? "Unable to submit merits decision",
       );

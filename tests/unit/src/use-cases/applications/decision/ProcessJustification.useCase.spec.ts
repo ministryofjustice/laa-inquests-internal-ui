@@ -16,7 +16,7 @@ describe("ProcessJustificationUseCase", () => {
     const result = useCase.execute({
       refusalReason: "not-in-scope",
       justification: "",
-      validationErrors: errors,
+      validate: () => errors,
       existingSessionData: { overallDecision: "REFUSED" },
     });
 
@@ -33,7 +33,7 @@ describe("ProcessJustificationUseCase", () => {
     const result = useCase.execute({
       refusalReason: "duplicate-case",
       justification: "already decided",
-      validationErrors: {},
+      validate: () => ({}),
       existingSessionData: { overallDecision: "REFUSED" },
     });
 

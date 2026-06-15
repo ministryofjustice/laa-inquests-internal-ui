@@ -14,7 +14,7 @@ describe("ProcessDecisionSelectionUseCase", () => {
 
     const result = useCase.execute({
       overallDecision: "",
-      validationErrors: errors,
+      validate: () => errors,
     });
 
     assert.equal(result.status, "VALIDATION_FAILED");
@@ -25,7 +25,7 @@ describe("ProcessDecisionSelectionUseCase", () => {
   it("returns SUCCESS with normalized selection payload", () => {
     const result = useCase.execute({
       overallDecision: "REFUSED",
-      validationErrors: {},
+      validate: () => ({}),
     });
 
     assert.equal(result.status, "SUCCESS");
