@@ -5,7 +5,7 @@ import {
   validateSummaryCardKeys,
 } from "../../utils/govuk-validators.js";
 
-const applicationId = "4";
+const applicationId = "1";
 
 test.describe("Application overview page", () => {
   test("should have the correct title and back link", async ({ page }) => {

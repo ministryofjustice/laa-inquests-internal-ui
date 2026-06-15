@@ -15,7 +15,7 @@ const justificationLocale = en.pages.decision.justification;
 const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
 
-const applicationId = "4";
+const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
