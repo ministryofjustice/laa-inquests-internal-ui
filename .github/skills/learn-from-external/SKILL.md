@@ -111,7 +111,7 @@ Default mode: `guided`.
 
 ## External repo access (mirror mode)
 
-Default to a temporary local mirror inside this workspace:
+Use a temporary local mirror inside this workspace:
 
 - Mirror path: `.external-mirror/laa-inquests-external-ui`
 - Use mirror for read-only inspection only.
@@ -123,7 +123,7 @@ Cleanup rule (required after each task):
 - Delete `.external-mirror/laa-inquests-external-ui` once analysis/changes are complete.
 - Confirm outputs cite evidence paths before cleanup.
 
-If mirror setup fails, fall back to remote read methods and report the fallback.
+If mirror setup fails, report the error and stop.
 
 ## Response format
 
