@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import { toTitleCase } from "#src/utils/formatter.js";
 import type {
   TypedRequest,
   IdParams,
@@ -13,14 +12,49 @@ import type {
   JustificationFormErrors,
 } from "./models/form.types.js";
 import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  type DecisionSessionData,
+  PrepareDecisionFormUseCase,
+} from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
+import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
+import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
+import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
+import { SubmitDecisionUseCase } from "#src/use-cases/applications/decision/SubmitDecision.useCase.js";
+
+interface DecisionUseCases {
+  prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
+  processDecisionSelectionUseCase: ProcessDecisionSelectionUseCase;
+  processJustificationUseCase: ProcessJustificationUseCase;
+  prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
+  submitDecisionUseCase: SubmitDecisionUseCase;
+}
 
 export class ApplicationDecisionAdaptor {
+  private readonly prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
+  private readonly processDecisionSelectionUseCase: ProcessDecisionSelectionUseCase;
+  private readonly processJustificationUseCase: ProcessJustificationUseCase;
+  private readonly prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
+  private readonly submitDecisionUseCase: SubmitDecisionUseCase;
+
   constructor(
     private readonly viewApplicationAdaptor: ApplicationPort,
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ApplicationDecisionValidator,
-  ) {}
+    useCases: Partial<DecisionUseCases> = {},
+  ) {
+    this.prepareDecisionFormUseCase =
+      useCases.prepareDecisionFormUseCase ?? new PrepareDecisionFormUseCase();
+    this.processDecisionSelectionUseCase =
+      useCases.processDecisionSelectionUseCase ??
+      new ProcessDecisionSelectionUseCase();
+    this.processJustificationUseCase =
+      useCases.processJustificationUseCase ?? new ProcessJustificationUseCase();
+    this.prepareConfirmationViewUseCase =
+      useCases.prepareConfirmationViewUseCase ??
+      new PrepareConfirmationViewUseCase();
+    this.submitDecisionUseCase =
+      useCases.submitDecisionUseCase ?? new SubmitDecisionUseCase();
+  }
 
   async renderApplicationDecisionForm(
     req: Request,
@@ -32,26 +66,34 @@ export class ApplicationDecisionAdaptor {
 
     const data =
       await this.viewApplicationAdaptor.getApplication(applicationId);
+    const sessionDecision = this.sessionHelper.getSessionData(
+      req,
+      "decision",
+    ) as DecisionSessionData | null;
+    const prepareDecisionFormResult = this.prepareDecisionFormUseCase.execute({
+      application: data,
+      sessionDecision,
+    });
 
-    if (!data.proceedings.length) {
-      throw new Error("Application has no proceedings");
+    if (prepareDecisionFormResult.status === "TECHNICAL_FAILURE") {
+      throw new Error(prepareDecisionFormResult.message);
     }
 
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- only want first item
-    const firstProceeding = data.proceedings[0];
-    const formattedProceeding = {
-      certificateType: toTitleCase(firstProceeding.certificateType),
-      meritsDecision: toTitleCase(data.overallDecision ?? "PENDING"),
-    };
+    if (prepareDecisionFormResult.status !== "SUCCESS") {
+      throw new Error("Unable to prepare decision form");
+    }
 
-    this.sessionHelper.storeSessionData(req, "decision", formattedProceeding);
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
+    const { proceeding, selectedOverallDecision } =
+      prepareDecisionFormResult.data;
+
+    this.sessionHelper.storeSessionData(req, "decision", proceeding);
 
     res.render("application/decision/index", {
       backUrl,
       applicationId,
-      proceeding: formattedProceeding,
-      overallDecision: this.sessionHelper.getSessionData(req, "decision")
-        ?.overallDecision,
+      proceeding,
+      overallDecision: selectedOverallDecision,
       ...(errorSummaries && { errorSummaries }),
     });
   }
@@ -65,17 +107,31 @@ export class ApplicationDecisionAdaptor {
       params: { applicationId },
     } = req;
 
-    this.sessionHelper.storeSessionData(req, "decision", { overallDecision });
-
-    const errorSummaries = this.validator.validateApplicationDecisionForm(
+    // COPILOT TODO: This seems to be business logic so should be in the use case
+    const validationErrors = this.validator.validateApplicationDecisionForm(
       req.body,
     );
+    const processDecisionSelectionResult =
+      this.processDecisionSelectionUseCase.execute({
+        overallDecision,
+        validationErrors,
+      });
 
-    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+    const decisionToPersist =
+      processDecisionSelectionResult.status === "TECHNICAL_FAILURE"
+        ? overallDecision
+        : (processDecisionSelectionResult.data?.overallDecision ??
+          overallDecision);
+
+    this.sessionHelper.storeSessionData(req, "decision", {
+      overallDecision: decisionToPersist,
+    });
+
+    if (processDecisionSelectionResult.status === "VALIDATION_FAILED") {
       await this.renderApplicationDecisionForm(
         req as unknown as Request,
         res,
-        errorSummaries,
+        processDecisionSelectionResult.validationErrors,
       );
       return;
     }
@@ -111,24 +167,35 @@ export class ApplicationDecisionAdaptor {
       body: { "refusal-reason": refusalReason, justification },
     } = req;
 
-    const sessionData = this.sessionHelper.getSessionData(
+    const existingSessionData = this.sessionHelper.getSessionData(
       req as unknown as Request,
       "decision",
+    ) as DecisionSessionData | null;
+    // COPILOT TODO: It feels like validation like this should be done in the usecase.
+    const validationErrors = this.validator.validateJustification(req.body);
+    const processJustificationResult = this.processJustificationUseCase.execute(
+      {
+        refusalReason,
+        justification,
+        validationErrors,
+        existingSessionData,
+      },
     );
 
-    this.sessionHelper.storeSessionData(req, "decision", {
-      ...sessionData,
-      refusalReason,
-      justification,
-    });
+    if (
+      processJustificationResult.status !== "TECHNICAL_FAILURE" &&
+      processJustificationResult.data
+    ) {
+      this.sessionHelper.storeSessionData(req, "decision", {
+        ...processJustificationResult.data,
+      });
+    }
 
-    const errorSummaries = this.validator.validateJustification(req.body);
-
-    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+    if (processJustificationResult.status === "VALIDATION_FAILED") {
       this.renderJustificationForm(
         req as unknown as Request,
         res,
-        errorSummaries,
+        processJustificationResult.validationErrors,
       );
       return;
     }
@@ -139,38 +206,52 @@ export class ApplicationDecisionAdaptor {
   renderConfirmationPage(req: Request, res: Response): void {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/decision/justification`;
-    const sessionData =
-      this.sessionHelper.getSessionData(req, "decision") ?? {};
+    const sessionData = this.sessionHelper.getSessionData(
+      req,
+      "decision",
+    ) as DecisionSessionData | null;
+    const prepareConfirmationViewResult: ReturnType<
+      PrepareConfirmationViewUseCase["execute"]
+    > = this.prepareConfirmationViewUseCase.execute({
+      decisionSessionData: sessionData,
+    });
 
-    const refusalReasonLabels: Record<string, string> = {
-      "not-in-scope": "Not in scope",
-      "insufficient-information": "Insufficient information",
-      "duplicate-case": "Duplicate case",
-    };
+    if (prepareConfirmationViewResult.status !== "SUCCESS") {
+      throw new Error("Unable to prepare confirmation view");
+    }
 
-    const refusalReasonLabel =
-      refusalReasonLabels[sessionData.refusalReason] ??
-      sessionData.refusalReason;
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
+    const { proceeding, overallDecision, refusalReasonLabel, justification } =
+      prepareConfirmationViewResult.data;
 
     res.render("application/decision/confirmation/index", {
       backUrl,
       applicationId,
-      proceeding: sessionData,
-      overallDecision: sessionData.overallDecision,
+      proceeding,
+      overallDecision,
       refusalReasonLabel,
-      justification: sessionData.justification,
+      justification,
     });
   }
 
   async processConfirmationForm(req: Request, res: Response): Promise<void> {
     const applicationId = req.params.applicationId as string;
-    const sessionData =
-      this.sessionHelper.getSessionData(req, "decision") ?? {};
-
-    await this.viewApplicationAdaptor.submitMeritsDecision(
+    const sessionData = this.sessionHelper.getSessionData(
+      req,
+      "decision",
+    ) as DecisionSessionData | null;
+    const submitDecisionResult = await this.submitDecisionUseCase.execute({
       applicationId,
-      sessionData.overallDecision,
-    );
+      overallDecision: sessionData?.overallDecision,
+      applicationPort: this.viewApplicationAdaptor,
+    });
+
+    if (submitDecisionResult.status === "TECHNICAL_FAILURE") {
+      // COPILOT TODO: Is this error condition tested
+      throw new Error(
+        submitDecisionResult.message ?? "Unable to submit merits decision",
+      );
+    }
 
     res.redirect(`/applications/${applicationId}/decision/success`);
   }

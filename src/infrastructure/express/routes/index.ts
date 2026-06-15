@@ -17,6 +17,12 @@ import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import config from "#src/infrastructure/config/config.js";
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
+import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
+import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
+import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
+import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
+import { SubmitDecisionUseCase } from "#src/use-cases/applications/decision/SubmitDecision.useCase.js";
+import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -46,13 +52,28 @@ const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
   config.INQUESTS_API_URL,
 );
+const buildApplicationOverviewViewUseCase =
+  new BuildApplicationOverviewViewUseCase();
+const prepareDecisionFormUseCase = new PrepareDecisionFormUseCase();
+const processDecisionSelectionUseCase = new ProcessDecisionSelectionUseCase();
+const processJustificationUseCase = new ProcessJustificationUseCase();
+const prepareConfirmationViewUseCase = new PrepareConfirmationViewUseCase();
+const submitDecisionUseCase = new SubmitDecisionUseCase();
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
+  buildApplicationOverviewViewUseCase,
 );
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
   new ApplicationDecisionValidator(),
+  {
+    prepareDecisionFormUseCase,
+    processDecisionSelectionUseCase,
+    processJustificationUseCase,
+    prepareConfirmationViewUseCase,
+    submitDecisionUseCase,
+  },
 );
 const authAdaptor = new AuthAdaptor(
   createAuthSource(),
