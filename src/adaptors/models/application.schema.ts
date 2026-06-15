@@ -62,6 +62,7 @@ const PublicBodySchema = z.object({
 const ProviderSchema = z.object({
   firmName: z.string(),
   accountNumber: z.string(),
+  emailAddress: z.string().optional().nullable(),
 });
 
 export const ApplicationSchema = z.object({

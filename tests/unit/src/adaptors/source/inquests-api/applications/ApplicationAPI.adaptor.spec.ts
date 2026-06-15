@@ -48,6 +48,7 @@ const expectedApplication = {
   provider: {
     firmName: "Test Firm Ltd",
     accountNumber: "0KA123",
+    emailAddress: "testfirm@example.com",
   },
   correspondenceRecipient: null,
   client: {
