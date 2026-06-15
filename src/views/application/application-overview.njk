@@ -164,7 +164,6 @@
                 }
             ]
         }) }}
-        {% if application.provider %}
         {{ govukSummaryList({
             card: {
                 title: {
@@ -186,7 +185,6 @@
                 }
             ]
         }) }}
-        {% endif %}
         {% set publicBodyRows = [] %}
         {% for body in application.publicBodies %}
             {% set publicBodyRows = publicBodyRows.concat([{ key: { text: body.publicBodyDescription } }]) %}
