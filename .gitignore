@@ -29,3 +29,6 @@ public/
 coverage/
 
 .vscode/
+
+# Temporary external repo mirror for learn-from-external skill
+.external-mirror/
