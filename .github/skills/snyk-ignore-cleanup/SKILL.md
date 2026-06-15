@@ -86,7 +86,7 @@ After editing, re-read `.snyk` and confirm:
 
 - Never remove an entry unless the installed version is confirmed to be ≥ the fix threshold.
 - Never remove entries for Alpine/OS-level CVEs — these cannot be verified from `yarn.lock`.
-- Never remove entries for npm-bundled packages (minimatch, tar, picomatch, pacote, brace-expansion when noted as "bundled with npm") unless the installed version in `yarn.lock` is explicitly above the fix threshold.
+- Never remove entries for npm-bundled packages (minimatch, tar, picomatch, pacote, brace-expansion when noted as "bundled with npm"). These packages are shipped inside the npm binary itself — Snyk scans npm's own internal dependency tree (e.g. `npm@x.y.z > ... > brace-expansion@5.0.4`), which is independent of what `yarn.lock` resolves. Even if `yarn.lock` shows a fixed version of the package, the npm-bundled copy may still be vulnerable. Only remove these entries once the npm version bundled in the project's Node/npm environment ships a fixed version of the affected package.
 - If the Snyk page is unreachable for a given ID, skip that entry and note it in the report.
 - Do not alter the `.snyk` structure, indentation, or YAML format beyond removing resolved blocks.
 - Default operating mode is `guided` — present the findings table and wait for confirmation before editing the file, unless the user explicitly says to apply.
