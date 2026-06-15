@@ -59,6 +59,11 @@ const PublicBodySchema = z.object({
   publicBodyDescription: z.string(),
 });
 
+const ProviderSchema = z.object({
+  firmName: z.string(),
+  accountNumber: z.string(),
+});
+
 export const ApplicationSchema = z.object({
   laaReference: z.number(),
   createdAt: z.string(),
@@ -70,6 +75,7 @@ export const ApplicationSchema = z.object({
   overallDecision: z.string().optional().nullable(),
   proceedings: z.array(ProceedingSchema),
   publicBodies: z.array(PublicBodySchema),
+  provider: ProviderSchema.optional().nullable(),
   correspondenceRecipient: CorrespondenceRecipientSchema.optional().nullable(),
   client: ClientSchema,
   deceased: DeceasedSchema,

@@ -164,6 +164,7 @@
                 }
             ]
         }) }}
+        {% if application.provider %}
         {{ govukSummaryList({
             card: {
                 title: {
@@ -173,11 +174,11 @@
             rows: [
                 {
                     key: { text: "Firm name" },
-                    value: { text: "firm name" }
+                    value: { text: application.provider.firmName }
                 },
                 {
                     key: { text: "Account number" },
-                    value: { text: "account number" }
+                    value: { text: application.provider.accountNumber }
                 },
                 {
                     key: { text: "Address" },
@@ -185,6 +186,7 @@
                 }
             ]
         }) }}
+        {% endif %}
         {% set publicBodyRows = [] %}
         {% for body in application.publicBodies %}
             {% set publicBodyRows = publicBodyRows.concat([{ key: { text: body.publicBodyDescription } }]) %}

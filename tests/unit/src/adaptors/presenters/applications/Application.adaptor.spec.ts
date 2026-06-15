@@ -40,6 +40,10 @@ describe("Application adaptor", () => {
         publicBodyDescription: "Cabinet Office",
       },
     ],
+    provider: {
+      firmName: "Test Firm Ltd",
+      accountNumber: "0KA123",
+    },
     correspondenceRecipient: null,
     client: {
       clientId: 51,
@@ -160,6 +164,10 @@ describe("Application adaptor", () => {
             publicBodyDescription: "Cabinet Office",
           },
         ],
+        provider: {
+          firmName: "Test Firm Ltd",
+          accountNumber: "0KA123",
+        },
       },
       clientHomeAddressDisplay:
         "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
@@ -242,6 +250,22 @@ describe("Application adaptor", () => {
     assert.partialDeepStrictEqual(renderArgs[1], {
       clientHomeAddressDisplay: "No fixed abode",
       clientCorrespondenceAddressDisplay: "Provider office address",
+    });
+  });
+
+  it("renders null provider safely without throwing", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      provider: null,
+    });
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      application: { provider: null },
     });
   });
 

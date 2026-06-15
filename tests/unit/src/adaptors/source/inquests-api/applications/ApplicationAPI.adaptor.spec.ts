@@ -45,6 +45,10 @@ const expectedApplication = {
       publicBodyDescription: "Department for Transport",
     },
   ],
+  provider: {
+    firmName: "Test Firm Ltd",
+    accountNumber: "0KA123",
+  },
   correspondenceRecipient: null,
   client: {
     clientId: 1,
