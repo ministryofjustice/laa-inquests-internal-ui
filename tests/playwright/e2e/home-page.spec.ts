@@ -30,7 +30,7 @@ test.describe("Home page", () => {
     await expect(navLinks.nth(1)).toHaveText("Sign out");
   });
 
-  test("displays service name and mountains table", async ({
+  test("displays service name and applications table", async ({
     pages,
     checkAccessibility,
   }) => {
@@ -43,20 +43,15 @@ test.describe("Home page", () => {
     const serviceName = await homePage.getServiceName();
     expect(serviceName).toBeTruthy();
 
-    await expect(homePage.mountainsTable).toBeVisible();
-    await expect(homePage.tableCaption).toContainText("Mountains of the world");
+    await expect(homePage.developerBanner).toContainText(
+      "This page is not production ready and is intended for developers.",
+    );
 
-    const mountains = await homePage.getMountainNames();
-    expect(mountains).toContain("Everest");
-    expect(mountains).toContain("Kilimanjaro");
-    expect(mountains).toContain("Aconcagua");
-    expect(mountains).toContain("Denali");
+    await expect(homePage.applicationsTable).toBeVisible();
+    await expect(homePage.tableCaption).toContainText("All applications");
 
-    const everestRow = homePage.getMountainRow("Everest");
-    await expect(everestRow).toBeVisible();
-    await expect(everestRow).toContainText("8,850 meters");
-    await expect(everestRow).toContainText("Asia");
-    await expect(everestRow).toContainText("1953");
+    const applicationReferences = await homePage.getApplicationReferences();
+    expect(applicationReferences.length).toBeGreaterThan(0);
 
     await checkAccessibility();
   });
@@ -67,27 +62,28 @@ test.describe("Home page", () => {
     await homePage.navigate();
     await homePage.waitForLoad();
 
-    const table = homePage.mountainsTable;
-    await expect(table.locator("thead th").nth(0)).toHaveText("Name");
-    await expect(table.locator("thead th").nth(1)).toHaveText("Elevation");
-    await expect(table.locator("thead th").nth(2)).toHaveText("Continent");
-    await expect(table.locator("thead th").nth(3)).toHaveText("First summit");
+    const table = homePage.applicationsTable;
+    await expect(table.locator("thead th").nth(0)).toHaveText("Reference");
+    await expect(table.locator("thead th").nth(1)).toHaveText("Created Date");
+    await expect(table.locator("thead th").nth(2)).toHaveText("Status");
+    await expect(table.locator("thead th").nth(3)).toHaveText("Decision");
 
-    const expectedMountains = [
-      "Aconcagua",
-      "Denali",
-      "Elbrus",
-      "Everest",
-      "Kilimanjaro",
-      "Puncak Jaya",
-      "Vinson",
-    ];
+    const firstReferenceLink = table
+      .locator("tbody tr")
+      .first()
+      .locator("td a");
+    await expect(firstReferenceLink).toHaveAttribute(
+      "href",
+      /\/applications\/\d+\/overview/,
+    );
 
-    const actualMountains = await homePage.getMountainNames();
-    expect(actualMountains).toHaveLength(expectedMountains.length);
-
-    for (const mountain of expectedMountains) {
-      expect(actualMountains).toContain(mountain);
-    }
+    const firstCreatedDate = table
+      .locator("tbody tr")
+      .first()
+      .locator("td")
+      .nth(1);
+    await expect(firstCreatedDate).toHaveText(
+      /\d{1,2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}/,
+    );
   });
 });

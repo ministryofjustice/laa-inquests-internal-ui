@@ -74,3 +74,10 @@ export const ApplicationSchema = z.object({
   client: ClientSchema,
   deceased: DeceasedSchema,
 });
+
+export const ApplicationSummarySchema = z.object({
+  laaReference: z.number().nullable(),
+  createdAt: z.string(),
+  status: z.string().nullable(),
+  overallDecision: z.string().nullable(),
+});

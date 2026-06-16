@@ -1,6 +1,10 @@
-import type { Application } from "#src/adaptors/models/application.types.js";
+import type {
+  Application,
+  ApplicationSummary,
+} from "#src/adaptors/models/application.types.js";
 
 export interface ApplicationPort {
+  getAllApplications: () => Promise<ApplicationSummary[]>;
   getApplication: (applicationId: string) => Promise<Application>;
   submitMeritsDecision: (
     applicationId: string,

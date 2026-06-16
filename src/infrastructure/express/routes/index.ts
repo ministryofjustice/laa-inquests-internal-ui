@@ -1,5 +1,5 @@
 import express from "express";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
@@ -23,6 +23,8 @@ import { ProcessJustificationUseCase } from "#src/use-cases/applications/decisio
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { SubmitDecisionUseCase } from "#src/use-cases/applications/decision/SubmitDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
+import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -59,9 +61,14 @@ const processDecisionSelectionUseCase = new ProcessDecisionSelectionUseCase();
 const processJustificationUseCase = new ProcessJustificationUseCase();
 const prepareConfirmationViewUseCase = new PrepareConfirmationViewUseCase();
 const submitDecisionUseCase = new SubmitDecisionUseCase();
+const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase();
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
   buildApplicationOverviewViewUseCase,
+);
+const homeAdaptor = new HomeAdaptor(
+  viewApplicationAdaptor,
+  buildApplicationsListViewUseCase,
 );
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
@@ -85,9 +92,17 @@ const authAdaptor = new AuthAdaptor(
  * Routes
  */
 
-router.get("/", requireAuth, (req: Request, res: Response): void => {
-  res.render("main/index");
-});
+router.get(
+  "/",
+  requireAuth,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await homeAdaptor.renderHomePage(req, res);
+    } catch (err: unknown) {
+      next(err);
+    }
+  },
+);
 
 // liveness and readiness probes for Helm deployments
 router.get("/status", (req: Request, res: Response): void => {
