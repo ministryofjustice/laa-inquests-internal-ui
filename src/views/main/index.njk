@@ -3,85 +3,58 @@
 {% block content %}
     <h1 class="govuk-heading-xl">Inquests</h1>
 
-    <p class="govuk-body">{{ t('pages.home.defaultTemplate') }}</p>
-
+    {%- from "govuk/components/warning-text/macro.njk" import govukWarningText -%}
     {%- from "govuk/components/table/macro.njk" import govukTable -%}
+
+    {% set renderedRows = [] %}
+    {% for row in tableRows %}
+      {% set renderedRows = (renderedRows.push([
+        {
+          html: '<a class="govuk-link" href="' + row[0].href + '">' + row[0].text + '</a>'
+        },
+        row[1],
+        row[2],
+        row[3]
+      ]), renderedRows) %}
+    {% endfor %}
+
+    {{ govukWarningText({
+        text: t('pages.home.developerBanner.text'),
+        iconFallbackText: t('pages.home.developerBanner.title')
+    }) }}
 
     {{ govukTable({
         attributes: {
             "data-module": "moj-sortable-table"
         },
-        caption: t('pages.home.mountainsOfTheWorld'),
+        caption: t('pages.home.applicationsTable.caption'),
         head: [
             {
-            text: t('pages.home.rowName.label'),
-            attributes: {
-                "aria-sort": "ascending"
-            }
-            },
-            {
-            text: t('pages.home.rowElevation.label'),
+            text: t('pages.home.applicationsTable.reference'),
             attributes: {
                 "aria-sort": "none"
             }
             },
             {
-            text: t('pages.home.rowContinent.label'),
+            text: t('pages.home.applicationsTable.createdDate'),
+            attributes: {
+                "aria-sort": "descending"
+            }
+            },
+            {
+            text: t('pages.home.applicationsTable.status'),
             attributes: {
                 "aria-sort": "none"
             }
             },
             {
-            text: t('pages.home.rowFirstSummit.label'),
+            text: t('pages.home.applicationsTable.decision'),
             attributes: {
                 "aria-sort": "none"
             },
-            format: "numeric"
+            format: "text"
             }
         ],
-        rows: [
-            [
-            { text: t("pages.home.rowName.aconcagua") },
-            { text: t("pages.home.rowElevation.6961meters"), attributes: { "data-sort-value": "6961" } },
-            { text: t("pages.home.rowContinent.southAmerica") },
-            { text: t("pages.home.rowFirstSummit.1897"), format: "numeric", attributes: { "data-sort-value": "1897" } }
-            ],
-            [
-            { text: t("pages.home.rowName.denali") },
-            { text: t("pages.home.rowElevation.6194meters"), attributes: { "data-sort-value": "6194" } },
-            { text: t("pages.home.rowContinent.northAmerica") },
-            { text: t("pages.home.rowFirstSummit.1913"), format: "numeric", attributes: { "data-sort-value": "1913" } }
-            ],
-            [
-            { text: t("pages.home.rowName.elbrus") },
-            { text: t("pages.home.rowElevation.5642meters"), attributes: { "data-sort-value": "5642" } },
-            { text: t("pages.home.rowContinent.europe") },
-            { text: t("pages.home.rowFirstSummit.1874"), format: "numeric", attributes: { "data-sort-value": "1874" } }
-            ],
-            [
-            { text: t("pages.home.rowName.everest") },
-            { text: t("pages.home.rowElevation.8850meters"), attributes: { "data-sort-value": "8850" } },
-            { text: t("pages.home.rowContinent.asia") },
-            { text: t("pages.home.rowFirstSummit.1953"), format: "numeric", attributes: { "data-sort-value": "1953" } }
-            ],
-            [
-            { text: t("pages.home.rowName.kilimanjaro") },
-            { text: t("pages.home.rowElevation.5895meters"), attributes: { "data-sort-value": "5895" } },
-            { text: t("pages.home.rowContinent.africa") },
-            { text: t("pages.home.rowFirstSummit.1889"), format: "numeric", attributes: { "data-sort-value": "1889" } }
-            ],
-            [
-            { text: t("pages.home.rowName.puncakJaya") },
-            { text: t("pages.home.rowElevation.4884meters"), attributes: { "data-sort-value": "4884" } },
-            { text: t("pages.home.rowContinent.australia") },
-            { text: t("pages.home.rowFirstSummit.1962"), format: "numeric", attributes: { "data-sort-value": "1962" } }
-            ],
-            [
-            { text: t("pages.home.rowName.vinson") },
-            { text: t("pages.home.rowElevation.4897meters"), attributes: { "data-sort-value": "4897" } },
-            { text: t("pages.home.rowContinent.antarctica") },
-            { text: t("pages.home.rowFirstSummit.1966"), format: "numeric", attributes: { "data-sort-value": "1966" } }
-            ]
-        ]
+        rows: renderedRows
         }) }}
 {% endblock %}

@@ -2,7 +2,10 @@ import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
-import { Application } from "#src/adaptors/models/application.types.js";
+import type {
+  Application,
+  ApplicationSummary,
+} from "#src/adaptors/models/application.types.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
 const axiosPatchStub = sinon.stub(axios, "patch");
@@ -76,7 +79,63 @@ const expectedApplication = {
   },
 };
 
+const expectedApplicationsSummary = [
+  {
+    laa_reference: 1,
+    created_at: "2026-05-18T15:49:07.455255",
+    status: "LIVE",
+    overall_decision: "PENDING",
+  },
+  {
+    laa_reference: 2,
+    created_at: "2026-05-19T15:49:07.455255",
+    status: "LIVE",
+    overall_decision: "GRANTED",
+  },
+];
+
 describe("Test Application API Adaptor", () => {
+  it("Test get All Applications calls axios", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedApplicationsSummary,
+    });
+
+    await adaptor.getAllApplications();
+
+    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/applications/`);
+  });
+
+  it("Test get All Applications returns parsed application summary data", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedApplicationsSummary,
+    });
+
+    const applications: ApplicationSummary[] =
+      await adaptor.getAllApplications();
+    assert.deepEqual(applications, [
+      {
+        laaReference: 1,
+        createdAt: "2026-05-18T15:49:07.455255",
+        status: "LIVE",
+        overallDecision: "PENDING",
+      },
+      {
+        laaReference: 2,
+        createdAt: "2026-05-19T15:49:07.455255",
+        status: "LIVE",
+        overallDecision: "GRANTED",
+      },
+    ]);
+  });
+
   it("Test get Application calls axios", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;

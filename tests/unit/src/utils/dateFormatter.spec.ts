@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { formatDate } from "#src/utils/dateFormatter.js";
+import { formatDate, formatDateTime } from "#src/utils/dateFormatter.js";
 
 describe("formatDate()", () => {
   it("formats a valid ISO date string correctly", () => {
@@ -14,5 +14,18 @@ describe("formatDate()", () => {
   it("handles invalid date strings by returning the original input", () => {
     expect(formatDate("invalid-date")).to.equal("invalid-date");
     expect(formatDate("")).to.equal("");
+  });
+});
+
+describe("formatDateTime()", () => {
+  it("formats a valid ISO date-time string correctly", () => {
+    expect(formatDateTime("2026-05-21T08:46:36.793278")).to.equal(
+      "21 May 2026 08:46",
+    );
+  });
+
+  it("handles invalid date-time strings by returning the original input", () => {
+    expect(formatDateTime("invalid-date-time")).to.equal("invalid-date-time");
+    expect(formatDateTime("")).to.equal("");
   });
 });

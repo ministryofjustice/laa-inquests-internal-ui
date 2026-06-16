@@ -17,16 +17,16 @@ export class HomePage {
     return this.page.locator("h1.govuk-heading-xl");
   }
 
-  get mountainsTable(): Locator {
+  get developerBanner(): Locator {
+    return this.page.locator(".govuk-warning-text");
+  }
+
+  get applicationsTable(): Locator {
     return this.page.locator("table");
   }
 
   get tableCaption(): Locator {
     return this.page.locator("caption");
-  }
-
-  getMountainRow(mountainName: string): Locator {
-    return this.page.locator(`tr:has-text("${mountainName}")`);
   }
 
   async navigate(): Promise<void> {
@@ -41,19 +41,19 @@ export class HomePage {
     return (await this.heading.textContent()) || "";
   }
 
-  async getMountainNames(): Promise<string[]> {
+  async getApplicationReferences(): Promise<string[]> {
     const rows = this.page.locator("tbody tr");
     const count = await rows.count();
-    const names: string[] = [];
+    const references: string[] = [];
 
     for (let i = 0; i < count; i++) {
       const firstCell = rows.nth(i).locator("td").first();
-      const name = await firstCell.textContent();
-      if (name) {
-        names.push(name.trim());
+      const reference = await firstCell.textContent();
+      if (reference) {
+        references.push(reference.trim());
       }
     }
 
-    return names;
+    return references;
   }
 }
