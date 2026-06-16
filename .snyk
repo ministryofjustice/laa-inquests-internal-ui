@@ -1,40 +1,5 @@
 version: v1.5.0
 ignore:
-  "SNYK-JS-MINIMATCH-15353389":
-    - "*":
-        reason:
-          "Temp ignore as bundled with npm and reached highest version to use
-          with current env."
-  "SNYK-JS-MINIMATCH-15353387":
-    - "*":
-        reason:
-          "Temp ignore as bundled with npm and reached highest version to use
-          with current env."
-  "SNYK-JS-TAR-15416075":
-    - "*":
-        reason:
-          "Temp ignore as bundled with npm and reached highest version to use
-          with current env."
-  "SNYK-JS-TAR-15456201":
-    - "*":
-        reason:
-          "Temp ignore as bundled with npm and reached highest version to use
-          with current env."
-  "SNYK-JS-QS-15268416":
-    - "*":
-        reason: "No direct patch or upgrade available."
-  "SNYK-JS-QS-14724253":
-    - "*":
-        reason: "No direct patch or upgrade available."
-  "SNYK-ALPINE323-ZLIB-15435528":
-    - "*":
-        reason: "No direct patch or upgrade available."
-  "SNYK-JS-PATHTOREGEXP-15789765":
-    - "*":
-        reason: "Cannot patch directly, bundled with latest version of express."
-  "SNYK-JS-PATHTOREGEXP-15789763":
-    - "*":
-        reason: "Cannot patch directly, bundled with latest version of express."
   "SNYK-JS-PICOMATCH-15765511":
     - "*":
         reason:
@@ -45,6 +10,9 @@ ignore:
         reason:
           "Temp ignore as bundled with npm and reached highest version to use
           with current env."
+  "SNYK-ALPINE323-ZLIB-15435528":
+    - "*":
+        reason: "No direct patch or upgrade available."
   "SNYK-JS-BRACEEXPANSION-16755174":
     - "*":
         reason:
