@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
-import type { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import type {
   Application,
   Proceeding,
 } from "#src/adaptors/models/application.types.js";
+import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import {
   APPLICATION_TYPES,
@@ -15,10 +16,17 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationAdaptor {
-  viewApplicationAdaptor: ApplicationAPIAdaptor;
+  viewApplicationAdaptor: ApplicationPort;
 
-  constructor(viewApplicationAdaptor: ApplicationAPIAdaptor) {
+  private readonly buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase;
+
+  constructor(
+    viewApplicationAdaptor: ApplicationPort,
+    buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(),
+  ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
+    this.buildApplicationOverviewViewUseCase =
+      buildApplicationOverviewViewUseCase;
   }
 
   async renderApplicationPage(
@@ -26,30 +34,34 @@ export class ApplicationAdaptor {
     res: Response,
     applicationId: string,
   ): Promise<void> {
+    const { viewApplicationAdaptor, buildApplicationOverviewViewUseCase } =
+      this;
+
     logger.logInfo(
       "GET Application by ID",
       `Application with ID: ${applicationId} has been accessed.`,
       req,
     );
-    const application =
-      await this.viewApplicationAdaptor.getApplication(applicationId);
 
+    const overviewViewResult =
+      await buildApplicationOverviewViewUseCase.execute({
+        applicationId,
+        applicationPort: viewApplicationAdaptor,
+      });
+
+    if (overviewViewResult.status !== "SUCCESS") {
+      throw new Error("Unable to build application overview view");
+    }
+
+    const application = mapApplication(overviewViewResult.data.application);
     const proceedings = mapProceedings(application.proceedings);
     const clientHomeAddressDisplay = getHomeAddressDisplay(application);
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
-      getCorrespondenceDisplay(application, req);
-
-    const applicationType =
-      APPLICATION_TYPES.find(
-        (t) => t.applicationTypeId === application.applicationType,
-      )?.applicationTypeDescription ?? application.applicationType;
-
-    application.applicationType = applicationType;
+      getCorrespondenceDisplay(application, clientHomeAddressDisplay);
 
     const isPending =
       !application.overallDecision ||
       application.overallDecision.toUpperCase() === "PENDING";
-
     const statusTag = isPending
       ? { text: "Awaiting assessment", classes: "govuk-tag--grey" }
       : { text: "Assessment complete", classes: "govuk-tag--green" };
@@ -66,6 +78,48 @@ export class ApplicationAdaptor {
   }
 }
 
+function mapApplication(application: Application): Application {
+  const applicationType =
+    APPLICATION_TYPES.find(
+      (t) => t.applicationTypeId === application.applicationType,
+    )?.applicationTypeDescription ?? application.applicationType;
+
+  return {
+    ...application,
+    applicationType,
+  };
+}
+
+function mapProceedings(proceedings: Proceeding[]): Array<
+  Omit<Proceeding, "substantiveCostLimitation"> & {
+    substantiveCostLimitation: string;
+  }
+> {
+  return proceedings.map((proceeding) => ({
+    ...proceeding,
+    certificateType:
+      CERTIFICATE_TYPES.find(
+        (type) => type.certificateTypeId === proceeding.certificateType,
+      )?.certificateTypeDescription ?? proceeding.certificateType,
+    clientInvolvementType:
+      CLIENT_ROLES.find(
+        (role) => role.clientRoleId === proceeding.clientInvolvementType,
+      )?.clientRoleDescription ?? proceeding.clientInvolvementType,
+    levelOfService:
+      LEVEL_OF_SERVICE.find(
+        (service) => service.levelOfServiceId === proceeding.levelOfService,
+      )?.levelOfServiceDescription ?? proceeding.levelOfService,
+    scopeLimitationHeading:
+      SCOPE_OF_LIMITATION.find(
+        (scope) =>
+          scope.scopeOfLimitationId === proceeding.scopeLimitationHeading,
+      )?.lscopeOfLimitationDescription ?? proceeding.scopeLimitationHeading,
+    substantiveCostLimitation: formatCurrency(
+      proceeding.substantiveCostLimitation,
+    ),
+  }));
+}
+
 function getHomeAddressDisplay(application: Application): string {
   if (application.client.hasNoFixedAbode === true) {
     return "No fixed abode";
@@ -80,7 +134,7 @@ function getHomeAddressDisplay(application: Application): string {
 
 function getCorrespondenceDisplay(
   application: Application,
-  req: Request,
+  clientHomeAddressDisplay: string,
 ): {
   clientCorrespondenceAddressDisplay: string;
   careOfRecipientDisplay?: string;
@@ -99,7 +153,7 @@ function getCorrespondenceDisplay(
     application.client.correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS"
   ) {
     return {
-      clientCorrespondenceAddressDisplay: getHomeAddressDisplay(application),
+      clientCorrespondenceAddressDisplay: clientHomeAddressDisplay,
       careOfRecipientDisplay,
     };
   }
@@ -118,9 +172,8 @@ function getCorrespondenceDisplay(
   ) {
     if (!application.client.correspondenceAddress) {
       logger.logInfo(
-        "ApplicationAdaptor.renderApplicationPage",
+        "Application overview address mapping",
         `Expected specified correspondence address was missing for LAA reference ${application.laaReference}`,
-        req,
       );
 
       return {
@@ -138,9 +191,8 @@ function getCorrespondenceDisplay(
   }
 
   logger.logInfo(
-    "ApplicationAdaptor.renderApplicationPage",
+    "Application overview address mapping",
     `Unknown correspondenceAddressSource '${application.client.correspondenceAddressSource}' for LAA reference ${application.laaReference}`,
-    req,
   );
 
   return {
@@ -177,28 +229,4 @@ function escapeHtml(value: string): string {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
-}
-
-function mapProceedings(proceedings: Proceeding[]): Array<
-  Omit<Proceeding, "substantiveCostLimitation"> & {
-    substantiveCostLimitation: string;
-  }
-> {
-  return proceedings.map((p) => ({
-    ...p,
-    certificateType:
-      CERTIFICATE_TYPES.find((t) => t.certificateTypeId === p.certificateType)
-        ?.certificateTypeDescription ?? p.certificateType,
-    clientInvolvementType:
-      CLIENT_ROLES.find((t) => t.clientRoleId === p.clientInvolvementType)
-        ?.clientRoleDescription ?? p.clientInvolvementType,
-    levelOfService:
-      LEVEL_OF_SERVICE.find((t) => t.levelOfServiceId === p.levelOfService)
-        ?.levelOfServiceDescription ?? p.levelOfService,
-    scopeLimitationHeading:
-      SCOPE_OF_LIMITATION.find(
-        (t) => t.scopeOfLimitationId === p.scopeLimitationHeading,
-      )?.lscopeOfLimitationDescription ?? p.scopeLimitationHeading,
-    substantiveCostLimitation: formatCurrency(p.substantiveCostLimitation),
-  }));
 }

@@ -2,13 +2,13 @@ import { strict as assert } from "assert";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
-import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
+import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 
 describe("Application adaptor", () => {
   let applicationAdaptor: ApplicationAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
-  let viewApplicationAdaptorStub: StubbedInstance<ApplicationAPIAdaptor>;
+  let viewApplicationAdaptorStub: StubbedInstance<ApplicationPort>;
 
   const application = {
     laaReference: 123,
@@ -77,7 +77,7 @@ describe("Application adaptor", () => {
   beforeEach(() => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
-    viewApplicationAdaptorStub = stubInterface<ApplicationAPIAdaptor>();
+    viewApplicationAdaptorStub = stubInterface<ApplicationPort>();
     applicationAdaptor = new ApplicationAdaptor(viewApplicationAdaptorStub);
   });
 
