@@ -4,7 +4,7 @@
 
 # this is set as 2 prior to launch, we should increase this when the service is launched
 # and we are ready for live users, staging replicaCount should match production
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: nginx
