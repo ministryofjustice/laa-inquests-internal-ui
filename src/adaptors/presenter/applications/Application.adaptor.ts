@@ -84,9 +84,17 @@ function mapApplication(application: Application): Application {
       (t) => t.applicationTypeId === application.applicationType,
     )?.applicationTypeDescription ?? application.applicationType;
 
+  const provider = application.provider
+    ? {
+        ...application.provider,
+        firmName: application.provider.firmName ?? "",
+      }
+    : null;
+
   return {
     ...application,
     applicationType,
+    provider,
   };
 }
 

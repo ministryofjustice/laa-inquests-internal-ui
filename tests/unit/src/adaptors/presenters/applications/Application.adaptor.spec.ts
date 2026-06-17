@@ -271,6 +271,31 @@ describe("Application adaptor", () => {
     });
   });
 
+  it("renders empty firm name when provider firmName is null", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      provider: {
+        ...application.provider,
+        firmName: null,
+      },
+    });
+
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      application: {
+        provider: {
+          firmName: "",
+        },
+      },
+    });
+  });
+
   it("renders grey 'Awaiting assessment' tag when overallDecision is PENDING", async () => {
     viewApplicationAdaptorStub.getApplication.resolves(application);
     await applicationAdaptor.renderApplicationPage(

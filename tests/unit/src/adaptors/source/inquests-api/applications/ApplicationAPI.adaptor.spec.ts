@@ -169,6 +169,25 @@ describe("Test Application API Adaptor", () => {
     const application: Application = await adaptor.getApplication("123");
     assert.deepEqual(expectedApplication, application);
   });
+
+  it("accepts null provider firmName without throwing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: {
+        ...expectedApplication,
+        provider: {
+          ...expectedApplication.provider,
+          firmName: null,
+        },
+      },
+    });
+
+    const application: Application = await adaptor.getApplication("123");
+    assert.isNull(application.provider?.firmName);
+  });
 });
 
 describe("Test submitMeritsDecision", () => {
