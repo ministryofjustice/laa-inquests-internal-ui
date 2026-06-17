@@ -66,7 +66,7 @@ jobs:
       - name: Deploy to production
         uses: ./.github/actions/deploy
         with:
-          app-environment: production
+          app-environment: prod
           auth_client_id: ${{ vars.AUTH_CLIENT_ID }}
           auth_client_secret: ${{ vars.AUTH_CLIENT_SECRET }}
           auth_directory_url: ${{ vars.AUTH_DIRECTORY_URL }}
@@ -99,6 +99,6 @@ jobs:
       - name: Send Slack Notification
         uses: ./.github/actions/notify
         with:
-          app-environment: production
+          app-environment: prod
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_PROD }}
           pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
