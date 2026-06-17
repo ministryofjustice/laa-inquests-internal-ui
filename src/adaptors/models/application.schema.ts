@@ -60,7 +60,7 @@ const PublicBodySchema = z.object({
 });
 
 const ProviderSchema = z.object({
-  firmName: z.string(),
+  firmName: z.string().nullable(),
   accountNumber: z.string(),
   emailAddress: z.string().optional().nullable(),
 });
