@@ -52,6 +52,13 @@
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
+    "applicationOverview": {
+      "people": {
+        "provider": {
+          "fallbackFirmName": "Could not retrieve Provider details. Please try again later"
+        }
+      }
+    },
     "decision": {
       "success": {
         "header": "Application for Inquest legal aid assessed complete",
