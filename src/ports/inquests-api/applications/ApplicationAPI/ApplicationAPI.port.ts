@@ -3,8 +3,7 @@ import type {
   ApplicationSummary,
 } from "#src/adaptors/models/application.types.js";
 
-//TODO: Rename this interface as it's only used for refusal decisions
-export interface SubmitMeritsDecisionOptions {
+export interface SubmitMeritsDecisionRefusalOptions {
   refusalReason?: string;
   justification?: string;
 }
@@ -15,6 +14,6 @@ export interface ApplicationPort {
   submitMeritsDecision: (
     applicationId: string,
     meritsDecision: string,
-    options?: SubmitMeritsDecisionOptions,
+    options?: SubmitMeritsDecisionRefusalOptions,
   ) => Promise<void>;
 }

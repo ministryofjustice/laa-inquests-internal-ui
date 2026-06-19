@@ -9,7 +9,7 @@ import {
   ApplicationSummarySchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
-import type { SubmitMeritsDecisionOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { SubmitMeritsDecisionRefusalOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -48,7 +48,7 @@ export class ApplicationAPIAdaptor {
   async submitMeritsDecision(
     applicationId: string,
     meritsDecision: string,
-    options?: SubmitMeritsDecisionOptions,
+    options?: SubmitMeritsDecisionRefusalOptions,
   ): Promise<void> {
     const payload: {
       meritsDecision: string;

@@ -24,8 +24,7 @@ export class SubmitDecisionUseCase {
     }
 
     try {
-      //TODO: Can this be cleaned up at all?
-      const options =
+      const refusalOptions =
         input.overallDecision === "REFUSED"
           ? {
               refusalReason: input.refusalReason,
@@ -36,7 +35,7 @@ export class SubmitDecisionUseCase {
       await input.applicationPort.submitMeritsDecision(
         input.applicationId,
         input.overallDecision,
-        options,
+        refusalOptions,
       );
 
       return {

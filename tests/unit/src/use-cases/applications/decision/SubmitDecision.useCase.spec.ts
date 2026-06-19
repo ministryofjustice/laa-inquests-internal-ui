@@ -43,7 +43,8 @@ describe("SubmitDecisionUseCase", () => {
     ]);
   });
 
-  //TODO: This will actually return another status as these fields are required for a refuse decision after changes to the API. Should we validate on the UI side too?
+  // TODO: This will actually return another status as these fields are required for a refuse decision after changes to the API.
+  // Should we validate on the UI side too, return a TECHNICAL_FAILURE INVALID_INPUT_STATE from the SubmitDecisionUseCase?
   it("returns SUCCESS after submitting merits decision", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.submitMeritsDecision.resolves();
