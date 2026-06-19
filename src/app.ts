@@ -27,9 +27,6 @@ import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsr
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import crypto from "node:crypto";
 
-// TEMPORARY: test breaking change for slack notification testing
-console.log("breaking change test");
-
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
 
