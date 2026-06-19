@@ -52,14 +52,14 @@ export class ApplicationAPIAdaptor {
   ): Promise<void> {
     const payload: {
       meritsDecision: string;
-      refusalReason?: RefusalReason;
+      reasonForRefusal?: RefusalReason;
       justification?: string;
     } = {
       meritsDecision,
       ...(meritsDecision === "REFUSED" && options
         ? {
             ...(options.refusalReason && {
-              refusalReason: REFUSAL_REASON_MAP[options.refusalReason],
+              reasonForRefusal: REFUSAL_REASON_MAP[options.refusalReason],
             }),
             ...(options.justification && {
               justification: options.justification,

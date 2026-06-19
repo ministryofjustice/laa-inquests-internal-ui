@@ -224,7 +224,7 @@ describe("Test submitMeritsDecision", () => {
       `${baseUrl}/applications/123/merits-decision`,
       {
         meritsDecision: "REFUSED",
-        refusalReason: "NOT_IN_SCOPE",
+        reasonForRefusal: "NOT_IN_SCOPE",
         justification: "This case is not in scope",
       },
     );
