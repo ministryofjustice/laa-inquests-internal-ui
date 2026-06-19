@@ -22,22 +22,6 @@ on:
         type: choice
         options:
           - uat
-      force_deploy_failure:
-        description: "Intentionally fail deploy job to test Slack failure notification"
-        required: false
-        default: "false"
-        type: choice
-        options:
-          - "false"
-          - "true"
-      notify_slack_on_dispatch:
-        description: "Allow Slack notification for manual workflow_dispatch runs"
-        required: false
-        default: "false"
-        type: choice
-        options:
-          - "false"
-          - "true"
 
 jobs:
   code-linting:
@@ -156,12 +140,11 @@ jobs:
           ratelimit_max: ${{ vars.RATE_LIMIT_MAX }}
           ratewindow_ms: ${{ vars.RATE_WINDOW_MS }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
-          force-deploy-failure: ${{ github.event_name == 'workflow_dispatch' && inputs.force_deploy_failure || 'false' }}
   notify-slack:
     environment: uat
     needs: deploy
     runs-on: ubuntu-latest
-    if: always() && (github.ref_name == 'main' || (github.event_name == 'workflow_dispatch' && inputs.notify_slack_on_dispatch == 'true'))
+    if: always() && github.ref_name == 'main'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
