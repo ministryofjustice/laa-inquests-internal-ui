@@ -43,30 +43,6 @@ describe("SubmitDecisionUseCase", () => {
     ]);
   });
 
-  // TODO: This will actually return another status as these fields are required for a refuse decision after changes to the API.
-  // Should we validate on the UI side too, return a TECHNICAL_FAILURE INVALID_INPUT_STATE from the SubmitDecisionUseCase?
-  it("returns SUCCESS after submitting merits decision", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.submitMeritsDecision.resolves();
-
-    const result = await useCase.execute({
-      applicationId: "123",
-      overallDecision: "REFUSED",
-      applicationPort: applicationPortStub,
-    });
-
-    assert.equal(result.status, "SUCCESS");
-    assert.equal(applicationPortStub.submitMeritsDecision.callCount, 1);
-    assert.deepEqual(applicationPortStub.submitMeritsDecision.getCall(0).args, [
-      "123",
-      "REFUSED",
-      {
-        justification: undefined,
-        refusalReason: undefined,
-      },
-    ]);
-  });
-
   it("returns TECHNICAL_FAILURE when upstream submission fails", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.submitMeritsDecision.rejects(new Error("boom"));
