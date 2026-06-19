@@ -22,28 +22,9 @@ on:
         type: choice
         options:
           - uat
-      notify_test_environment:
-        description: "Optional Slack test target for manual runs"
-        required: false
-        default: "none"
-        type: choice
-        options:
-          - none
-          - staging
-          - prod
-          - both
-      notify_test_status:
-        description: "Slack test status for manual runs"
-        required: false
-        default: "failure"
-        type: choice
-        options:
-          - failure
-          - success
 
 jobs:
   code-linting:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none' }}
     name: Code Linting
     runs-on: ubuntu-latest
     steps:
@@ -57,7 +38,6 @@ jobs:
         run: yarn lint
 
   code-security-audit:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none' }}
     name: Code Security Audit
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +51,6 @@ jobs:
         run: yarn npm audit
 
   snyk:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none' }}
     name: Snyk scan docker image
     runs-on: ubuntu-latest
     steps:
@@ -115,17 +94,15 @@ jobs:
           args: --file=Dockerfile --policy-path=.snyk
 
   unit-tests:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none' }}
     name: Mocha Unit Tests
     uses: ./.github/workflows/unit-tests.yaml
 
   e2e-tests:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none' }}
     name: Playwright Tests
     uses: ./.github/workflows/e2e-tests.yaml
 
   deploy:
-    if: ${{ !contains(github.actor, '[bot]') && (github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none') }}
+    if: ${{ !contains(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
     environment: uat
     permissions:
@@ -167,7 +144,7 @@ jobs:
     environment: uat
     needs: deploy
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.notify_test_environment == 'none') && always() && github.ref_name == 'main' }}
+    if: always() && github.ref_name == 'main'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -177,31 +154,3 @@ jobs:
           app-environment: uat
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
           pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
-
-  notify-slack-staging-manual-test:
-    environment: staging
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && (inputs.notify_test_environment == 'staging' || inputs.notify_test_environment == 'both')
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-      - name: Send Slack Notification (Staging Test)
-        uses: ./.github/actions/notify
-        with:
-          app-environment: staging
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_STAGING }}
-          pipeline_status: "${{ inputs.notify_test_status }}"
-
-  notify-slack-prod-manual-test:
-    environment: production
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && (inputs.notify_test_environment == 'prod' || inputs.notify_test_environment == 'both')
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-      - name: Send Slack Notification (Prod Test)
-        uses: ./.github/actions/notify
-        with:
-          app-environment: prod
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_PROD }}
-          pipeline_status: "${{ inputs.notify_test_status }}"
