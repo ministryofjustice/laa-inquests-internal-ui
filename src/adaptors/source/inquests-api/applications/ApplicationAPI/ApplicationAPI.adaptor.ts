@@ -2,11 +2,14 @@ import axios, { type AxiosResponse, type AxiosStatic } from "axios";
 import type {
   Application,
   ApplicationSummary,
+  RefusalReason,
 } from "../../../../models/application.types.js";
 import {
   ApplicationSchema,
   ApplicationSummarySchema,
 } from "../../../../models/application.schema.js";
+import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
+import type { SubmitMeritsDecisionOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -45,10 +48,29 @@ export class ApplicationAPIAdaptor {
   async submitMeritsDecision(
     applicationId: string,
     meritsDecision: string,
+    options?: SubmitMeritsDecisionOptions,
   ): Promise<void> {
+    const payload: {
+      meritsDecision: string;
+      refusalReason?: RefusalReason;
+      justification?: string;
+    } = {
+      meritsDecision,
+      ...(meritsDecision === "REFUSED" && options
+        ? {
+            ...(options.refusalReason && {
+              refusalReason: REFUSAL_REASON_MAP[options.refusalReason],
+            }),
+            ...(options.justification && {
+              justification: options.justification,
+            }),
+          }
+        : {}),
+    };
+
     await this.http.patch(
       `${this.baseUrl}/applications/${applicationId}/merits-decision`,
-      { meritsDecision },
+      payload,
     );
   }
 }

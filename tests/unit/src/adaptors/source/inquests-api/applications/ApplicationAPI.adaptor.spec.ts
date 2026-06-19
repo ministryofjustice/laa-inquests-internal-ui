@@ -191,19 +191,61 @@ describe("Test Application API Adaptor", () => {
 });
 
 describe("Test submitMeritsDecision", () => {
-  it("calls axios.patch with the correct URL and payload", async () => {
+  it("calls the patch endpoint with the correct URL and payload for GRANTED decision", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
-    await adaptor.submitMeritsDecision("123", "REFUSED");
+    await adaptor.submitMeritsDecision("123", "GRANTED");
 
     sinon.assert.calledOnce(axiosPatchStub);
     sinon.assert.calledWith(
       axiosPatchStub,
       `${baseUrl}/applications/123/merits-decision`,
-      { meritsDecision: "REFUSED" },
+      { meritsDecision: "GRANTED" },
+    );
+  });
+
+  it("calls the patch endpoint with the correct URL and payload for REFUSED decision", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPatchStub.resolves({});
+
+    await adaptor.submitMeritsDecision("123", "REFUSED", {
+      refusalReason: "not-in-scope",
+      justification: "This case is not in scope",
+    });
+
+    sinon.assert.calledOnce(axiosPatchStub);
+    sinon.assert.calledWith(
+      axiosPatchStub,
+      `${baseUrl}/applications/123/merits-decision`,
+      {
+        meritsDecision: "REFUSED",
+        refusalReason: "NOT_IN_SCOPE",
+        justification: "This case is not in scope",
+      },
+    );
+  });
+
+  it("does not include refusalReason and justification when decision is not REFUSED", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPatchStub.resolves({});
+
+    await adaptor.submitMeritsDecision("123", "GRANTED", {
+      refusalReason: "",
+      justification: "Should not be sent",
+    });
+
+    sinon.assert.calledOnce(axiosPatchStub);
+    sinon.assert.calledWith(
+      axiosPatchStub,
+      `${baseUrl}/applications/123/merits-decision`,
+      { meritsDecision: "GRANTED" },
     );
   });
 });

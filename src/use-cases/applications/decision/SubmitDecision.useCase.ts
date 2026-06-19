@@ -7,6 +7,8 @@ import {
 interface SubmitDecisionInput {
   applicationId: string;
   overallDecision?: string;
+  refusalReason?: string;
+  justification?: string;
   applicationPort: ApplicationPort;
 }
 
@@ -22,9 +24,19 @@ export class SubmitDecisionUseCase {
     }
 
     try {
+      //TODO: Can this be cleaned up at all?
+      const options =
+        input.overallDecision === "REFUSED"
+          ? {
+              refusalReason: input.refusalReason,
+              justification: input.justification,
+            }
+          : undefined;
+
       await input.applicationPort.submitMeritsDecision(
         input.applicationId,
         input.overallDecision,
+        options,
       );
 
       return {

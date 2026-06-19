@@ -19,6 +19,31 @@ describe("SubmitDecisionUseCase", () => {
     assert.equal(result.reason, "INVALID_INPUT_STATE");
   });
 
+  it("returns SUCCESS after submitting merits decision with refusalReason and justification", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    applicationPortStub.submitMeritsDecision.resolves();
+
+    const result = await useCase.execute({
+      applicationId: "123",
+      overallDecision: "REFUSED",
+      refusalReason: "not-in-scope",
+      justification: "This case is not in scope",
+      applicationPort: applicationPortStub,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(applicationPortStub.submitMeritsDecision.callCount, 1);
+    assert.deepEqual(applicationPortStub.submitMeritsDecision.getCall(0).args, [
+      "123",
+      "REFUSED",
+      {
+        refusalReason: "not-in-scope",
+        justification: "This case is not in scope",
+      },
+    ]);
+  });
+
+  //TODO: This will actually return another status as these fields are required for a refuse decision after changes to the API. Should we validate on the UI side too?
   it("returns SUCCESS after submitting merits decision", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.submitMeritsDecision.resolves();
@@ -34,6 +59,10 @@ describe("SubmitDecisionUseCase", () => {
     assert.deepEqual(applicationPortStub.submitMeritsDecision.getCall(0).args, [
       "123",
       "REFUSED",
+      {
+        justification: undefined,
+        refusalReason: undefined,
+      },
     ]);
   });
 
