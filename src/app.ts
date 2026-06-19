@@ -41,6 +41,9 @@ const nonceMiddleware = (
 
 const app = express();
 
+// TEMPORARY: intentional type error to test failure notifications
+const testBrokenType: string = 123;
+
 app.set("trust proxy", TRUST_FIRST_PROXY);
 app.set("view engine", "njk");
 
