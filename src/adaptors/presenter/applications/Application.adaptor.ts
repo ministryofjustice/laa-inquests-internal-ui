@@ -14,6 +14,17 @@ import {
   LEVEL_OF_SERVICE,
   SCOPE_OF_LIMITATION,
 } from "#src/infrastructure/locales/constants.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const {
+  pages: {
+    applicationOverview: {
+      people: {
+        provider: { fallbackFirmName: PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE },
+      },
+    },
+  },
+} = en;
 
 export class ApplicationAdaptor {
   viewApplicationAdaptor: ApplicationPort;
@@ -87,7 +98,7 @@ function mapApplication(application: Application): Application {
   const provider = application.provider
     ? {
         ...application.provider,
-        firmName: application.provider.firmName ?? "",
+        firmName: mapProviderFirmName(application.provider.firmName),
       }
     : null;
 
@@ -96,6 +107,14 @@ function mapApplication(application: Application): Application {
     applicationType,
     provider,
   };
+}
+
+function mapProviderFirmName(firmName: string | null): string {
+  if (!firmName || firmName.trim().length === 0) {
+    return PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE;
+  }
+
+  return firmName;
 }
 
 function mapProceedings(proceedings: Proceeding[]): Array<

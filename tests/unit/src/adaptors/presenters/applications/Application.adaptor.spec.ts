@@ -271,7 +271,7 @@ describe("Application adaptor", () => {
     });
   });
 
-  it("renders empty firm name when provider firmName is null", async () => {
+  it("renders fallback message when provider firmName is null", async () => {
     viewApplicationAdaptorStub.getApplication.resolves({
       ...application,
       provider: {
@@ -290,7 +290,34 @@ describe("Application adaptor", () => {
     assert.partialDeepStrictEqual(renderArgs[1], {
       application: {
         provider: {
-          firmName: "",
+          firmName:
+            "Could not retrieve Provider details. Please try again later",
+        },
+      },
+    });
+  });
+
+  it("renders fallback message when provider firmName is empty", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      provider: {
+        ...application.provider,
+        firmName: "",
+      },
+    });
+
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      application: {
+        provider: {
+          firmName:
+            "Could not retrieve Provider details. Please try again later",
         },
       },
     });
