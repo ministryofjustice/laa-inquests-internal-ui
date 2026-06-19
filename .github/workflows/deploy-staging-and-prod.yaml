@@ -42,7 +42,7 @@ jobs:
     environment: staging
     needs: deploy-staging
     runs-on: ubuntu-latest
-    if: always() && github.ref_name == 'main'
+    if: always()
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -92,7 +92,7 @@ jobs:
     environment: production
     needs: deploy-production
     runs-on: ubuntu-latest
-    if: always() && github.ref_name == 'main'
+    if: always()
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
