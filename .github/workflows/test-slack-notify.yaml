@@ -1,0 +1,54 @@
+name: Test Slack Notifications
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment webhook"
+        required: true
+        default: "uat"
+        type: choice
+        options:
+          - uat
+          - staging
+          - prod
+      status:
+        description: "Notification status to simulate"
+        required: true
+        default: "failure"
+        type: choice
+        options:
+          - success
+          - failure
+
+jobs:
+  notify-slack-test:
+    name: Send test Slack notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Notify UAT webhook
+        if: ${{ inputs.environment == 'uat' }}
+        uses: ./.github/actions/notify
+        with:
+          app-environment: uat
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
+          pipeline_status: ${{ inputs.status }}
+
+      - name: Notify staging webhook
+        if: ${{ inputs.environment == 'staging' }}
+        uses: ./.github/actions/notify
+        with:
+          app-environment: staging
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_STAGING }}
+          pipeline_status: ${{ inputs.status }}
+
+      - name: Notify production webhook
+        if: ${{ inputs.environment == 'prod' }}
+        uses: ./.github/actions/notify
+        with:
+          app-environment: prod
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_PROD }}
+          pipeline_status: ${{ inputs.status }}
