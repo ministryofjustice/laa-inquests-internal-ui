@@ -62,7 +62,7 @@ const config: Config = {
   // Default rate window: 15 minutes in milliseconds
   RATE_WINDOW_MS: Number(
     process.env.RATE_WINDOW_MS ??
-      String(DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE),
+      DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
   ),
   SERVICE_NAME: process.env.SERVICE_NAME,
   SERVICE_PHASE: process.env.SERVICE_PHASE,

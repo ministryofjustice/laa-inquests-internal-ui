@@ -3,18 +3,21 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
 describe("Home adaptor", () => {
   let homeAdaptor: HomeAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
   let applicationPortStub: StubbedInstance<ApplicationPort>;
+  let sessionHelperStub: StubbedInstance<SessionHelper>;
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
     applicationPortStub = stubInterface<ApplicationPort>();
-    homeAdaptor = new HomeAdaptor(applicationPortStub);
+    sessionHelperStub = stubInterface<SessionHelper>();
+    homeAdaptor = new HomeAdaptor(applicationPortStub, sessionHelperStub);
   });
 
   it("renders home page with table rows from all applications", async () => {
@@ -86,5 +89,24 @@ describe("Home adaptor", () => {
         message: "Unable to build applications list view",
       },
     );
+  });
+
+  it("clears decision session data when rendering home page", async () => {
+    applicationPortStub.getAllApplications.resolves([
+      {
+        laaReference: 123,
+        createdAt: "2026-05-20T08:46:36.793278",
+        status: "LIVE",
+        overallDecision: "PENDING",
+      },
+    ] as any);
+
+    await homeAdaptor.renderHomePage(requestStub, responseStub);
+
+    assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
+    assert.deepEqual(sessionHelperStub.clearSessionData.getCall(0).args, [
+      requestStub,
+      "decision",
+    ]);
   });
 });

@@ -65,7 +65,7 @@
         "referenceLabel": "Apply reference number",
         "whatHappensNext": "What happens next",
         "whatHappensNextBody": "The decision has been saved against this application and the provider will be informed.",
-        "openApplicationsButton": "Open applications"
+        "applicationOverviewReturnButton": "Back to application overview"
       },
       "confirmation": {
         "header": "Check your answers",

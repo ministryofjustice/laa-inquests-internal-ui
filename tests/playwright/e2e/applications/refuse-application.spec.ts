@@ -305,7 +305,7 @@ test.describe.serial("Refuse application journey", () => {
       sharedPage.getByText(successLocale.whatHappensNextBody),
     ).toBeVisible();
     const button = await sharedPage.getByRole("button", {
-      name: successLocale.openApplicationsButton,
+      name: successLocale.applicationOverviewReturnButton,
     });
     await expect(button).toHaveAttribute(
       "href",

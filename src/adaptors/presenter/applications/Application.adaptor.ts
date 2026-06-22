@@ -84,7 +84,7 @@ export class ApplicationAdaptor {
       clientCorrespondenceAddressDisplay,
       careOfRecipientDisplay,
       statusTag,
-      backUrl: "#",
+      backUrl: "/",
     });
   }
 }
