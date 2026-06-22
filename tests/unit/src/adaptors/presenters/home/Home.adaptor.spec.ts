@@ -90,4 +90,23 @@ describe("Home adaptor", () => {
       },
     );
   });
+
+  it("clears decision session data when rendering home page", async () => {
+    applicationPortStub.getAllApplications.resolves([
+      {
+        laaReference: 123,
+        createdAt: "2026-05-20T08:46:36.793278",
+        status: "LIVE",
+        overallDecision: "PENDING",
+      }
+    ] as any);
+
+    await homeAdaptor.renderHomePage(requestStub, responseStub);
+
+    assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
+    assert.deepEqual(sessionHelperStub.clearSessionData.getCall(0).args, [
+      requestStub,
+      "decision",
+    ]);
+  });
 });
