@@ -14,7 +14,6 @@ test.describe("Home page", () => {
     await validateMojHeader(page);
   });
 
-  //TODO: Refactor to use locales to identify the link using organsiational label instead of hardcoding the text "Legal Aid Agency"
   test("should have the correct link for organisational label", async ({ page }) => {
     const legalAidAgencyLink = page.getByRole("link", { name: "Legal Aid Agency" });
     await expect(legalAidAgencyLink).toHaveAttribute("href", "/");

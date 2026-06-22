@@ -12,7 +12,7 @@ test.describe("Application overview page", () => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await expect(page).toHaveTitle(/Inquests – GOV.UK/);
-    await validateGovPage(page, { headerText: applicationId, backUrl: "#" });
+    await validateGovPage(page, { headerText: applicationId, backUrl: "/" });
   });
 
   test("should have a status tag", async ({ page }) => {

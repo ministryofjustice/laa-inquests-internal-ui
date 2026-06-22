@@ -68,6 +68,7 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
 );
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,
+  new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(

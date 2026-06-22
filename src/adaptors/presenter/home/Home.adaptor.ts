@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { ApplicationSummary } from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { formatDateTime } from "#src/utils/dateFormatter.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
@@ -19,15 +20,19 @@ interface TableCell {
 
 export class HomeAdaptor {
   private readonly buildApplicationsListViewUseCase: BuildApplicationsListViewUseCase;
+  private readonly sessionHelper: SessionHelper;
 
   constructor(
     private readonly applicationPort: ApplicationPort,
+    sessionHelper: SessionHelper,
     buildApplicationsListViewUseCase: BuildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase(),
   ) {
     this.buildApplicationsListViewUseCase = buildApplicationsListViewUseCase;
+    this.sessionHelper = sessionHelper;
   }
 
   async renderHomePage(req: Request, res: Response): Promise<void> {
+    this.sessionHelper.clearSessionData(req, "decision");
     const applicationsListResult =
       await this.buildApplicationsListViewUseCase.execute({
         applicationPort: this.applicationPort,
