@@ -98,7 +98,7 @@ describe("Home adaptor", () => {
         createdAt: "2026-05-20T08:46:36.793278",
         status: "LIVE",
         overallDecision: "PENDING",
-      }
+      },
     ] as any);
 
     await homeAdaptor.renderHomePage(requestStub, responseStub);

@@ -14,8 +14,12 @@ test.describe("Home page", () => {
     await validateMojHeader(page);
   });
 
-  test("should have the correct link for organisational label", async ({ page }) => {
-    const legalAidAgencyLink = page.getByRole("link", { name: "Legal Aid Agency" });
+  test("should have the correct link for organisational label", async ({
+    page,
+  }) => {
+    const legalAidAgencyLink = page.getByRole("link", {
+      name: "Legal Aid Agency",
+    });
     await expect(legalAidAgencyLink).toHaveAttribute("href", "/");
   });
 
