@@ -439,8 +439,12 @@ describe("ApplicationDecisionAdaptor", () => {
       requestStub.params = { applicationId };
     });
 
-    it("submits the merits decision from session to the API", async () => {
-      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
+    it("submits the merits decision with refusalReason and justification when present in session", async () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: "REFUSED",
+        refusalReason: "not-in-scope",
+        justification: "This case is not in scope",
+      });
       viewApplicationSourceStub.submitMeritsDecision.resolves();
 
       await adaptor.processConfirmationForm(
@@ -451,7 +455,14 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(viewApplicationSourceStub.submitMeritsDecision.callCount, 1);
       assert.deepEqual(
         viewApplicationSourceStub.submitMeritsDecision.getCall(0).args,
-        [applicationId, "REFUSED"],
+        [
+          applicationId,
+          "REFUSED",
+          {
+            refusalReason: "not-in-scope",
+            justification: "This case is not in scope",
+          },
+        ],
       );
     });
 

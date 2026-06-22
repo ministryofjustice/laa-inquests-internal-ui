@@ -19,13 +19,15 @@ describe("SubmitDecisionUseCase", () => {
     assert.equal(result.reason, "INVALID_INPUT_STATE");
   });
 
-  it("returns SUCCESS after submitting merits decision", async () => {
+  it("returns SUCCESS after submitting merits decision with refusalReason and justification", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.submitMeritsDecision.resolves();
 
     const result = await useCase.execute({
       applicationId: "123",
       overallDecision: "REFUSED",
+      refusalReason: "not-in-scope",
+      justification: "This case is not in scope",
       applicationPort: applicationPortStub,
     });
 
@@ -34,6 +36,10 @@ describe("SubmitDecisionUseCase", () => {
     assert.deepEqual(applicationPortStub.submitMeritsDecision.getCall(0).args, [
       "123",
       "REFUSED",
+      {
+        refusalReason: "not-in-scope",
+        justification: "This case is not in scope",
+      },
     ]);
   });
 
