@@ -7,6 +7,7 @@ import type {
   ApplicationSummary,
 } from "#src/adaptors/models/application.types.js";
 
+
 const axiosGetStub = sinon.stub(axios, "get");
 const axiosPatchStub = sinon.stub(axios, "patch");
 
@@ -15,7 +16,7 @@ afterEach(() => {
   axiosPatchStub.reset();
 });
 
-const expectedApplication = {
+const expectedApplication: Application = {
   laaReference: 1,
   createdAt: "2026-05-18T15:49:07.455255",
   updatedAt: "2026-05-18T15:49:07.455279",
@@ -81,6 +82,10 @@ const expectedApplication = {
     coronersReference: "123456",
     furtherInformation: "test information",
     clientRelationshipToDeceased: "guardian",
+  },
+  coronersLetter: {
+    id: "test-document.pdf",
+    fileName: "test-document.pdf",
   },
 };
 

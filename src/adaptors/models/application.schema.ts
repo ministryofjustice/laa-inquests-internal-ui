@@ -65,6 +65,11 @@ const ProviderSchema = z.object({
   emailAddress: z.string().optional().nullable(),
 });
 
+const CoronersLetterSchema = z.object({
+  id: z.string(),
+  fileName: z.string(),
+});
+
 export const ApplicationSchema = z.object({
   laaReference: z.number(),
   createdAt: z.string(),
@@ -80,6 +85,7 @@ export const ApplicationSchema = z.object({
   correspondenceRecipient: CorrespondenceRecipientSchema.optional().nullable(),
   client: ClientSchema,
   deceased: DeceasedSchema,
+  coronersLetter: CoronersLetterSchema,
 });
 
 export const ApplicationSummarySchema = z.object({
