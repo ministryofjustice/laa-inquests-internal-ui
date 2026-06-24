@@ -77,6 +77,10 @@ describe("Application adaptor", () => {
       furtherInformation: "",
       clientRelationshipToDeceased: "brother",
     },
+    coronersLetter: {
+      id: "test-document.pdf",
+      fileName: "test-document.pdf",
+    },
   };
 
   beforeEach(() => {
@@ -349,6 +353,29 @@ describe("Application adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.partialDeepStrictEqual(renderArgs[1], {
       statusTag: { text: "Assessment complete", classes: "govuk-tag--green" },
+    });
+  });
+
+  it("passes coronersLetter fileName from the application response to the view", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      coronersLetter: {
+        id: "test-document.pdf",
+        fileName: "test-document.pdf",
+      },
+    });
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      application: {
+        coronersLetter: {
+          fileName: "test-document.pdf",
+        },
+      },
     });
   });
 });
