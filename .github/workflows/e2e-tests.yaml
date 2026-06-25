@@ -27,7 +27,7 @@ jobs:
         run: yarn playwright install chromium --with-deps
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key:
