@@ -91,22 +91,30 @@ const fullApplication = {
     furtherInformation: "Test information",
     clientRelationshipToDeceased: "Guardian",
   },
+  coronersLetter: {
+    fileName: "coroners_letter.png"
+  }
 };
 
 export const applicationHandlers = [
-  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () =>
-    HttpResponse.json(applicationSummaries),
-  ),
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
+    console.log("Mock handler: GET /applications/ called");
+    return HttpResponse.json(applicationSummaries);
+  }),
 
-  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) =>
-    HttpResponse.json({
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
+    console.log(`Mock handler: GET /applications/${params.id} called`);
+    return HttpResponse.json({
       ...fullApplication,
       laaReference: Number(params.id),
-    }),
-  ),
+    });
+  }),
 
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/merits-decision`,
-    () => new HttpResponse(null, { status: 204 }),
+    ({ params }) => {
+      console.log(`Mock handler: PATCH /applications/${params.id}/merits-decision called`);
+      return new HttpResponse(null, { status: 204 });
+    },
   ),
 ];
