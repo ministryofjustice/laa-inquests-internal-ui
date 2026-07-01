@@ -1,20 +1,22 @@
 import type { Request, Response, NextFunction } from "express";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 
-const AUTH_SCOPES = ["openid", "profile", "offline_access"];
-
 export class AuthAdaptor {
   constructor(
     private readonly authPort: AuthPort,
     private readonly redirectUri: string,
     private readonly postLogoutUri: string,
+    private readonly authScopes: string[],
   ) {}
 
   async login(_req: Request, res: Response): Promise<void> {
+    console.log(this.authScopes, this.redirectUri, "<---- scopes, redirect uri")
+
     const url = await this.authPort.getAuthCodeUrl(
-      AUTH_SCOPES,
+      this.authScopes,
       this.redirectUri,
     );
+    console.log(url, "<---- url")
     res.redirect(url);
   }
 
@@ -26,9 +28,10 @@ export class AuthAdaptor {
     }
     const user = await this.authPort.acquireTokenByCode(
       code,
-      AUTH_SCOPES,
+      this.authScopes,
       this.redirectUri,
     );
+    console.log(user, "<---- USER")
     Object.assign(req.session, {
       user: { userId: user.userId, userName: user.userName },
     });

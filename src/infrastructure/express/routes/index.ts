@@ -87,6 +87,7 @@ const authAdaptor = new AuthAdaptor(
   createAuthSource(),
   config.AUTH_REDIRECT_URI,
   config.AUTH_POST_LOGOUT_URI,
+  config.AUTH_SCOPES,
 );
 
 /**
