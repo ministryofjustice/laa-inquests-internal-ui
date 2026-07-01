@@ -22,4 +22,7 @@ export interface ApplicationPort {
     accessToken?: string,
     options?: SubmitMeritsDecisionRefusalOptions,
   ) => Promise<void>;
+  getCoronersLetterDocument: (
+    applicationId: string,
+  ) => Promise<{ data: Buffer; contentType: string }>;
 }

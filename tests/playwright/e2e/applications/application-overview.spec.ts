@@ -125,12 +125,19 @@ test.describe("Application details tab", () => {
     const evidenceCard = page.locator(".govuk-summary-card", {
       hasText: "Supporting evidence",
     });
-    const [newPage] = await Promise.all([
+    const [newPage, response] = await Promise.all([
       context.waitForEvent("page"),
+      context.waitForEvent("response", (response) =>
+        response
+          .url()
+          .includes(`/applications/${applicationId}/coroners-letter`),
+      ),
       evidenceCard.getByRole("link").click(),
     ]);
 
     await newPage.waitForLoadState("domcontentloaded");
+
+    // Verify the URL is correct
     await expect(newPage.url()).toContain(
       `/applications/${applicationId}/coroners-letter`,
     );
