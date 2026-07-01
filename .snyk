@@ -16,12 +16,25 @@ ignore:
   "SNYK-JS-BRACEEXPANSION-16755174":
     - "*":
         reason:
-          "Temp ignore as bundled with npm. Resolved when npm releases version with brace-expansion@5.0.6."
-  "SNYK-JS-PACOTE-8225084":
-     - "*":
+          "Temp ignore as bundled with npm. Resolved when npm releases version
+          with brace-expansion@5.0.6."
+  "SNYK-JS-BRACEEXPANSION-17706650":
+    - "*":
         reason:
-          "Temp ignore as bundled with npm in base image; no direct patch or upgrade currently available."
+          "Temp ignore as bundled with npm. Resolved when npm releases version
+          with brace-expansion@5.0.7."
+  "SNYK-JS-PACOTE-8225084":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm in base image; no direct patch or
+          upgrade currently available."
   "SNYK-UPSTREAM-NODE-17430980":
     - "*":
         reason:
-          "Temp ignore as bundled with npm. Resolved when npm releases version with newer version of pacote."
+          "Temp ignore as bundled with npm. Resolved when npm releases version
+          with newer version of pacote."
+  "SNYK-UPSTREAM-NODE-17674807":
+    - "*":
+      reason:
+        "Temp ignore as upgrading node to version 26.3.1 or higher breaks c8,
+        which requires yargs 17."
