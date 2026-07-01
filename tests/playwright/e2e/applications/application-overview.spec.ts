@@ -116,6 +116,25 @@ test.describe("Application details tab", () => {
       `/applications/${applicationId}/decision`,
     );
   });
+
+  test("should open the coroners letter in a new tab", async ({
+    page,
+    context,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+    const evidenceCard = page.locator(".govuk-summary-card", {
+      hasText: "Supporting evidence",
+    });
+    const [newPage] = await Promise.all([
+      context.waitForEvent("page"),
+      evidenceCard.getByRole("link").click(),
+    ]);
+
+    await newPage.waitForLoadState("domcontentloaded");
+    await expect(newPage.url()).toContain(
+      `/applications/${applicationId}/coroners-letter`,
+    );
+  });
 });
 
 test.describe("People tab", () => {
