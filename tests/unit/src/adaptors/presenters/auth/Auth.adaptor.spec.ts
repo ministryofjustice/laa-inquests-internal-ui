@@ -27,7 +27,12 @@ describe("AuthAdaptor", () => {
     res = stubInterface<Response>();
     next = sinon.stub();
     req.session = {} as any;
-    adaptor = new AuthAdaptor(authPort, REDIRECT_URI, POST_LOGOUT_URI, AUTH_SCOPES);
+    adaptor = new AuthAdaptor(
+      authPort,
+      REDIRECT_URI,
+      POST_LOGOUT_URI,
+      AUTH_SCOPES,
+    );
   });
 
   afterEach(() => {
