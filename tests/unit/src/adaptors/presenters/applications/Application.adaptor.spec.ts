@@ -429,4 +429,35 @@ describe("Application adaptor", () => {
       "application/pdf",
     ]);
   });
+
+  it("serveCoronersLetterDocument renders error page when port call fails", async () => {
+    viewApplicationAdaptorStub.getCoronersLetterDocument.rejects(
+      new Error("API error"),
+    );
+
+    // Configure the stub to return itself for chaining
+    responseStub.status.returns(responseStub);
+
+    await applicationAdaptor.serveCoronersLetterDocument(
+      requestStub,
+      responseStub,
+      "789",
+    );
+
+    assert.equal(
+      viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
+      1,
+    );
+    assert.equal(responseStub.status.callCount, 1);
+    assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+      "application/error",
+      {
+        status: "Unable to retrieve document",
+        error: "Unable to retrieve document. Please try again later",
+      },
+    ]);
+    assert.equal(responseStub.send.callCount, 0);
+  });
 });

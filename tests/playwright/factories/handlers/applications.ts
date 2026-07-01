@@ -98,12 +98,10 @@ const fullApplication = {
 
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
-    console.log("Mock handler: GET /applications/ called");
     return HttpResponse.json(applicationSummaries);
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
-    console.log(`Mock handler: GET /applications/${params.id} called`);
     return HttpResponse.json({
       ...fullApplication,
       laaReference: Number(params.id),
@@ -113,10 +111,27 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/merits-decision`,
     ({ params }) => {
-      console.log(
-        `Mock handler: PATCH /applications/${params.id}/merits-decision called`,
-      );
       return new HttpResponse(null, { status: 204 });
+    },
+  ),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/coroners-letter`,
+    ({ params }) => {
+      console.log(
+        `Mock handler: GET /applications/${params.id}/coroners-letter called`,
+      );
+      // Return a fake PNG image (1x1 transparent pixel)
+      const fakeImageBuffer = Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "base64",
+      );
+      return new HttpResponse(fakeImageBuffer, {
+        status: 200,
+        headers: {
+          "Content-Type": "image/png",
+        },
+      });
     },
   ),
 ];

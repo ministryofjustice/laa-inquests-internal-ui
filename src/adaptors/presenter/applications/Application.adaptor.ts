@@ -101,12 +101,26 @@ export class ApplicationAdaptor {
       req,
     );
 
-    const { data, contentType } =
-      await viewApplicationAdaptor.getCoronersLetterDocument(applicationId);
+    try {
+      const { data, contentType } =
+        await viewApplicationAdaptor.getCoronersLetterDocument(applicationId);
 
-    res.setHeader("Content-Type", contentType);
-    res.setHeader("Content-Disposition", "inline");
-    res.send(data);
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Content-Disposition", "inline");
+      res.send(data);
+    } catch (error) {
+      logger.logError(
+        "GET Coroner's Letter Document",
+        `Failed to retrieve coroner's letter for application ${applicationId}`,
+        error,
+        req,
+      );
+
+      res.status(500).render("application/error", {
+        status: "Unable to retrieve document",
+        error: "Unable to retrieve document. Please try again later",
+      });
+    }
   }
 }
 
