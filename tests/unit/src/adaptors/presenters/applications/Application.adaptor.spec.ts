@@ -78,7 +78,6 @@ describe("Application adaptor", () => {
       clientRelationshipToDeceased: "brother",
     },
     coronersLetter: {
-      id: "test-document.pdf",
       fileName: "test-document.pdf",
     },
   };
@@ -360,7 +359,6 @@ describe("Application adaptor", () => {
     viewApplicationAdaptorStub.getApplication.resolves({
       ...application,
       coronersLetter: {
-        id: "test-document.pdf",
         fileName: "test-document.pdf",
       },
     });

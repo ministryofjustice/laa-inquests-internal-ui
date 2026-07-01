@@ -7,7 +7,6 @@ import type {
   ApplicationSummary,
 } from "#src/adaptors/models/application.types.js";
 
-
 const axiosGetStub = sinon.stub(axios, "get");
 const axiosPatchStub = sinon.stub(axios, "patch");
 
@@ -84,7 +83,6 @@ const expectedApplication: Application = {
     clientRelationshipToDeceased: "guardian",
   },
   coronersLetter: {
-    id: "test-document.pdf",
     fileName: "test-document.pdf",
   },
 };
