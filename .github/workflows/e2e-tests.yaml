@@ -11,7 +11,6 @@ jobs:
     # Mark this job as required for PR checks
     outputs:
       status: ${{ job.status }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -34,13 +33,14 @@ jobs:
           key:
             ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')
             }}
+
       - name: Run Playwright tests
         run: yarn test:e2e
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
           # Add session-related environment variables
-          SESSION_SECRET: "playwright-test-secret"
+          SESSION_SECRET: "playwright-test-secret" # Use a simple test secret for Playwright
           SESSION_NAME: "sessionId"
           NODE_ENV: "test"
           # Add other required environment variables
@@ -49,10 +49,21 @@ jobs:
           DEPARTMENT_NAME: "LAA Digital"
           DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
+          INQUESTS_API_URL: "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk"
           SERVICE_URL: "https://www.gov.uk/legal-aid"
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "100"
           RATE_WINDOW_MS: "900000"
+      - name: Upload trace artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: playwright-traces
+          path: |
+            test-results/**/trace*.zip
+            test-results/**/*.webm
+          retention-days: 14
+
       - name: Notify on test failure
         if: failure()
         run: echo "::error::Playwright tests failed! Check the test report for

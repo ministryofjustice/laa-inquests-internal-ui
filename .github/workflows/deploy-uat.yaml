@@ -13,7 +13,6 @@ on:
       - "tests/**"
       - "Dockerfile"
       - "yarn.lock"
-      - "esbuild.ts"
   workflow_dispatch:
     inputs:
       environment:
