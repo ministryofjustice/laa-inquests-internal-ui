@@ -92,8 +92,8 @@ const fullApplication = {
     clientRelationshipToDeceased: "Guardian",
   },
   coronersLetter: {
-    fileName: "coroners_letter.png"
-  }
+    fileName: "coroners_letter.png",
+  },
 };
 
 export const applicationHandlers = [
@@ -113,7 +113,9 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/merits-decision`,
     ({ params }) => {
-      console.log(`Mock handler: PATCH /applications/${params.id}/merits-decision called`);
+      console.log(
+        `Mock handler: PATCH /applications/${params.id}/merits-decision called`,
+      );
       return new HttpResponse(null, { status: 204 });
     },
   ),
