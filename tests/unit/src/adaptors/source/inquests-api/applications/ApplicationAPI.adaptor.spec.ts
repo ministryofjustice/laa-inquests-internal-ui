@@ -193,6 +193,63 @@ describe("Test Application API Adaptor", () => {
   });
 });
 
+describe("Test getCoronersLetterDocument", () => {
+  it("calls axios.get with correct URL and responseType arraybuffer", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("fake image data");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: { "content-type": "image/jpeg" },
+    });
+
+    await adaptor.getCoronersLetterDocument("123");
+
+    sinon.assert.calledOnce(axiosGetStub);
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/123/coroners-letter`,
+      { responseType: "arraybuffer" },
+    );
+  });
+
+  it("returns buffer and content-type from API response", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("fake image data");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: { "content-type": "image/jpeg" },
+    });
+
+    const result = await adaptor.getCoronersLetterDocument("123");
+
+    assert.deepEqual(result.data, mockBuffer);
+    assert.equal(result.contentType, "image/jpeg");
+  });
+
+  it("defaults to application/octet-stream when content-type header is missing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("fake document data");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: {},
+    });
+
+    const result = await adaptor.getCoronersLetterDocument("456");
+
+    assert.deepEqual(result.data, mockBuffer);
+    assert.equal(result.contentType, "application/octet-stream");
+  });
+});
+
 describe("Test submitMeritsDecision", () => {
   it("calls the patch endpoint with the correct URL and payload for REFUSED decision", async () => {
     const baseUrl = "https://localhost";

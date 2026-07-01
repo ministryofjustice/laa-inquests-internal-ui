@@ -87,6 +87,27 @@ export class ApplicationAdaptor {
       backUrl: "/",
     });
   }
+
+  async serveCoronersLetterDocument(
+    req: Request,
+    res: Response,
+    applicationId: string,
+  ): Promise<void> {
+    const { viewApplicationAdaptor } = this;
+
+    logger.logInfo(
+      "GET Coroner's Letter Document",
+      `Coroner's letter for application ${applicationId} requested.`,
+      req,
+    );
+
+    const { data, contentType } =
+      await viewApplicationAdaptor.getCoronersLetterDocument(applicationId);
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", "inline");
+    res.send(data);
+  }
 }
 
 function mapApplication(application: Application): Application {

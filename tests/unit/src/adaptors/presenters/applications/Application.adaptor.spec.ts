@@ -376,4 +376,57 @@ describe("Application adaptor", () => {
       },
     });
   });
+
+  it("serveCoronersLetterDocument calls port and sends buffer with correct headers", async () => {
+    const mockBuffer = Buffer.from("fake document data");
+    viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
+      data: mockBuffer,
+      contentType: "image/jpeg",
+    });
+
+    await applicationAdaptor.serveCoronersLetterDocument(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    assert.equal(
+      viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
+      1,
+    );
+    assert.deepStrictEqual(
+      viewApplicationAdaptorStub.getCoronersLetterDocument.getCall(0).args,
+      ["123"],
+    );
+    assert.equal(responseStub.setHeader.callCount, 2);
+    assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+      "Content-Type",
+      "image/jpeg",
+    ]);
+    assert.deepStrictEqual(responseStub.setHeader.getCall(1).args, [
+      "Content-Disposition",
+      "inline",
+    ]);
+    assert.equal(responseStub.send.callCount, 1);
+    assert.deepStrictEqual(responseStub.send.getCall(0).args, [mockBuffer]);
+  });
+
+  it("serveCoronersLetterDocument handles different content types", async () => {
+    const mockBuffer = Buffer.from("fake pdf data");
+    viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
+      data: mockBuffer,
+      contentType: "application/pdf",
+    });
+
+    await applicationAdaptor.serveCoronersLetterDocument(
+      requestStub,
+      responseStub,
+      "456",
+    );
+
+    assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+      "Content-Type",
+      "application/pdf",
+    ]);
+  });
 });

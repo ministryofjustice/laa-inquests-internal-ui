@@ -73,4 +73,25 @@ export class ApplicationAPIAdaptor {
       payload,
     );
   }
+
+  async getCoronersLetterDocument(
+    applicationId: string,
+  ): Promise<{ data: Buffer; contentType: string }> {
+    const response: AxiosResponse<ArrayBuffer> = await this.http.get(
+      `${this.baseUrl}/applications/${applicationId}/coroners-letter`,
+      { responseType: "arraybuffer" },
+    );
+
+    const { headers, data } = response;
+    const { "content-type": contentType } = headers;
+    const contentTypeString =
+      typeof contentType === "string"
+        ? contentType
+        : "application/octet-stream";
+
+    return {
+      data: Buffer.from(data),
+      contentType: contentTypeString,
+    };
+  }
 }
