@@ -66,7 +66,6 @@ const ProviderSchema = z.object({
 });
 
 const CoronersLetterSchema = z.object({
-  id: z.string(),
   fileName: z.string(),
 });
 
