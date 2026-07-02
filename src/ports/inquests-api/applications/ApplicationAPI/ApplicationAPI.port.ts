@@ -16,4 +16,7 @@ export interface ApplicationPort {
     meritsDecision: string,
     options?: SubmitMeritsDecisionRefusalOptions,
   ) => Promise<void>;
+  getCoronersLetterDocument: (
+    applicationId: string,
+  ) => Promise<{ data: Buffer; contentType: string }>;
 }

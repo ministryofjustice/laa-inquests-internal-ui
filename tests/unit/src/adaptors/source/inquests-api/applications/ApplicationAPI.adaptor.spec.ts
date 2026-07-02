@@ -15,7 +15,7 @@ afterEach(() => {
   axiosPatchStub.reset();
 });
 
-const expectedApplication = {
+const expectedApplication: Application = {
   laaReference: 1,
   createdAt: "2026-05-18T15:49:07.455255",
   updatedAt: "2026-05-18T15:49:07.455279",
@@ -81,6 +81,9 @@ const expectedApplication = {
     coronersReference: "123456",
     furtherInformation: "test information",
     clientRelationshipToDeceased: "guardian",
+  },
+  coronersLetter: {
+    fileName: "test-document.pdf",
   },
 };
 
@@ -187,6 +190,63 @@ describe("Test Application API Adaptor", () => {
 
     const application: Application = await adaptor.getApplication("123");
     assert.isNull(application.provider?.firmName);
+  });
+});
+
+describe("Test getCoronersLetterDocument", () => {
+  it("calls axios.get with correct URL and responseType arraybuffer", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("fake image data");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: { "content-type": "image/jpeg" },
+    });
+
+    await adaptor.getCoronersLetterDocument("123");
+
+    sinon.assert.calledOnce(axiosGetStub);
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/123/coroners-letter`,
+      { responseType: "arraybuffer" },
+    );
+  });
+
+  it("returns buffer and content-type from API response", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("fake image data");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: { "content-type": "image/jpeg" },
+    });
+
+    const result = await adaptor.getCoronersLetterDocument("123");
+
+    assert.deepEqual(result.data, mockBuffer);
+    assert.equal(result.contentType, "image/jpeg");
+  });
+
+  it("defaults to application/octet-stream when content-type header is missing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("fake document data");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: {},
+    });
+
+    const result = await adaptor.getCoronersLetterDocument("456");
+
+    assert.deepEqual(result.data, mockBuffer);
+    assert.equal(result.contentType, "application/octet-stream");
   });
 });
 

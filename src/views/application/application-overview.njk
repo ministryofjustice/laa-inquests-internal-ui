@@ -72,7 +72,7 @@
             rows: [
                 {
                     key: { text: "Coroners letter" },
-                    value: { html: '<a href="#">Inquest ABC Coroners letter.pdf</a>' }
+                    value: { html: '<a href="/applications/' ~ application.laaReference ~ '/coroners-letter" rel="noreferrer noopener" target="_blank">' ~ application.coronersLetter.fileName ~ ' (opens in new tab) </a>' }
                 }
             ]
         }) }}

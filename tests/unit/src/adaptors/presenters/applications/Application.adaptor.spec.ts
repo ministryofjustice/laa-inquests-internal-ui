@@ -77,6 +77,9 @@ describe("Application adaptor", () => {
       furtherInformation: "",
       clientRelationshipToDeceased: "brother",
     },
+    coronersLetter: {
+      fileName: "test-document.pdf",
+    },
   };
 
   beforeEach(() => {
@@ -350,5 +353,111 @@ describe("Application adaptor", () => {
     assert.partialDeepStrictEqual(renderArgs[1], {
       statusTag: { text: "Assessment complete", classes: "govuk-tag--green" },
     });
+  });
+
+  it("passes coronersLetter fileName from the application response to the view", async () => {
+    viewApplicationAdaptorStub.getApplication.resolves({
+      ...application,
+      coronersLetter: {
+        fileName: "test-document.pdf",
+      },
+    });
+    await applicationAdaptor.renderApplicationPage(
+      requestStub,
+      responseStub,
+      "123",
+    );
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.partialDeepStrictEqual(renderArgs[1], {
+      application: {
+        coronersLetter: {
+          fileName: "test-document.pdf",
+        },
+      },
+    });
+  });
+
+  it("serveCoronersLetterDocument calls port and sends buffer with correct headers", async () => {
+    const mockBuffer = Buffer.from("fake document data");
+    viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
+      data: mockBuffer,
+      contentType: "image/jpeg",
+    });
+
+    await applicationAdaptor.serveCoronersLetterDocument(
+      requestStub,
+      responseStub,
+      "123",
+    );
+
+    assert.equal(
+      viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
+      1,
+    );
+    assert.deepStrictEqual(
+      viewApplicationAdaptorStub.getCoronersLetterDocument.getCall(0).args,
+      ["123"],
+    );
+    assert.equal(responseStub.setHeader.callCount, 2);
+    assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+      "Content-Type",
+      "image/jpeg",
+    ]);
+    assert.deepStrictEqual(responseStub.setHeader.getCall(1).args, [
+      "Content-Disposition",
+      "inline",
+    ]);
+    assert.equal(responseStub.send.callCount, 1);
+    assert.deepStrictEqual(responseStub.send.getCall(0).args, [mockBuffer]);
+  });
+
+  it("serveCoronersLetterDocument handles different content types", async () => {
+    const mockBuffer = Buffer.from("fake pdf data");
+    viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
+      data: mockBuffer,
+      contentType: "application/pdf",
+    });
+
+    await applicationAdaptor.serveCoronersLetterDocument(
+      requestStub,
+      responseStub,
+      "456",
+    );
+
+    assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+      "Content-Type",
+      "application/pdf",
+    ]);
+  });
+
+  it("serveCoronersLetterDocument renders error page when port call fails", async () => {
+    viewApplicationAdaptorStub.getCoronersLetterDocument.rejects(
+      new Error("API error"),
+    );
+
+    // Configure the stub to return itself for chaining
+    responseStub.status.returns(responseStub);
+
+    await applicationAdaptor.serveCoronersLetterDocument(
+      requestStub,
+      responseStub,
+      "789",
+    );
+
+    assert.equal(
+      viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
+      1,
+    );
+    assert.equal(responseStub.status.callCount, 1);
+    assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+      "application/error",
+      {
+        status: "Unable to retrieve document",
+        error: "Unable to retrieve document. Please try again later",
+      },
+    ]);
+    assert.equal(responseStub.send.callCount, 0);
   });
 });

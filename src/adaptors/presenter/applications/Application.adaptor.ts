@@ -87,6 +87,41 @@ export class ApplicationAdaptor {
       backUrl: "/",
     });
   }
+
+  async serveCoronersLetterDocument(
+    req: Request,
+    res: Response,
+    applicationId: string,
+  ): Promise<void> {
+    const { viewApplicationAdaptor } = this;
+
+    logger.logInfo(
+      "GET Coroner's Letter Document",
+      `Coroner's letter for application ${applicationId} requested.`,
+      req,
+    );
+
+    try {
+      const { data, contentType } =
+        await viewApplicationAdaptor.getCoronersLetterDocument(applicationId);
+
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Content-Disposition", "inline");
+      res.send(data);
+    } catch (error) {
+      logger.logError(
+        "GET Coroner's Letter Document",
+        `Failed to retrieve coroner's letter for application ${applicationId}`,
+        error,
+        req,
+      );
+
+      res.status(500).render("application/error", {
+        status: "Unable to retrieve document",
+        error: "Unable to retrieve document. Please try again later",
+      });
+    }
+  }
 }
 
 function mapApplication(application: Application): Application {
