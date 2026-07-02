@@ -58,6 +58,7 @@ export class ApplicationAdaptor {
       await buildApplicationOverviewViewUseCase.execute({
         applicationId,
         applicationPort: viewApplicationAdaptor,
+        accessToken: req.session.user?.accessToken,
       });
 
     if (overviewViewResult.status !== "SUCCESS") {
