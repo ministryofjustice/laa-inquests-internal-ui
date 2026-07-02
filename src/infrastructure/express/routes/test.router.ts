@@ -10,7 +10,11 @@ export default function createTestRouter(router: Router): Router {
       req: Request & { session: Session & Partial<SessionData> },
       res: Response,
     ): void => {
-      req.session.user = { userId: "test-user-id", userName: "Test User" };
+      req.session.user = {
+        userId: "test-user-id",
+        userName: "Test User",
+        accessToken: "mock-access-token",
+      };
       req.session.save(() => {
         res.status(SUCCESSFUL_REQUEST).send("Session was seeded successfully.");
       });

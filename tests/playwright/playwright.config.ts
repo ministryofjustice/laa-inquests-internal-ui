@@ -14,7 +14,7 @@ export const MSW_CONFIG = {
 export const TEST_CONFIG = {
   BASE_URL: process.env.BASE_URL || "http://localhost:3000",
   INQUESTS_API_URL:
-    "https://laa-inquests-api-test.apps.live.cloud-platform.service.justice.gov.uk",
+    process.env.INQUESTS_API_URL ?? "https://laa-inquests-api-test.apps.live.cloud-platform.service.justice.gov.uk",
 };
 
 /**
