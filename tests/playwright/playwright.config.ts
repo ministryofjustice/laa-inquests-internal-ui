@@ -57,7 +57,8 @@ export default defineConfig({
       AUTH_CLIENT_SECRET: "test-client-secret",
       AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
-      INQUESTS_API_URL: TEST_CONFIG.INQUESTS_API_URL,
+      INQUESTS_API_URL:
+        "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
       MOCK_OAUTH_URL: "http://localhost:4001",
     },
   },

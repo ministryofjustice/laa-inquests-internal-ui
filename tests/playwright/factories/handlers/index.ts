@@ -9,7 +9,6 @@
 
 import { http, HttpResponse } from "msw";
 import { authHandlers } from "#tests/playwright/factories/handlers/auth.js";
-import { applicationHandlers } from "#tests/playwright/factories/handlers/applications.js";
 
 const debugHandler = http.all("*", () => {
   // Return undefined to pass through to actual handlers
@@ -22,7 +21,6 @@ const debugHandler = http.all("*", () => {
 export const handlers = [
   debugHandler,
   ...authHandlers,
-  ...applicationHandlers,
 
   // Health check endpoint for testing
   http.get("/health", () =>
