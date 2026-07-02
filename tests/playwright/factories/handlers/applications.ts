@@ -118,9 +118,6 @@ export const applicationHandlers = [
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/coroners-letter`,
     ({ params }) => {
-      console.log(
-        `Mock handler: GET /applications/${params.id}/coroners-letter called`,
-      );
       // Return a fake PNG image (1x1 transparent pixel)
       const fakeImageBuffer = Buffer.from(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
