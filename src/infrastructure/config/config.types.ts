@@ -39,6 +39,7 @@ export interface Config {
   AUTH_CLIENT_SECRET: string;
   AUTH_REDIRECT_URI: string;
   AUTH_POST_LOGOUT_URI: string;
+  AUTH_SCOPES: string[];
   CONTACT_EMAIL: string | undefined;
   CONTACT_PHONE: string | undefined;
   DEPARTMENT_NAME: string | undefined;
