@@ -2,6 +2,7 @@ declare module "express-session" {
   interface UserSessionData extends Record<string, string | undefined> {
     userId: string;
     userName?: string | undefined;
+    accessToken?: string;
   }
 
   // Extended types for session data, allowing for user session data and logger dynamic namespace

@@ -29,7 +29,11 @@ export class AuthAdaptor {
       this.redirectUri,
     );
     Object.assign(req.session, {
-      user: { userId: user.userId, userName: user.userName },
+      user: {
+        userId: user.userId,
+        userName: user.userName,
+        accessToken: user.accessToken,
+      },
     });
     res.redirect("/");
   }

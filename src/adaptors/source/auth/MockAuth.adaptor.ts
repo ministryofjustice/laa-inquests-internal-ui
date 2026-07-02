@@ -19,6 +19,10 @@ export class MockAuthAdaptor implements AuthPort {
     _scopes: string[],
     _redirectUri: string,
   ): Promise<AuthTokenResult> {
-    return { userId: code, userName: "Test User" };
+    return {
+      userId: code,
+      userName: "Test User",
+      accessToken: "mock-access-token",
+    };
   }
 }
