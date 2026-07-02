@@ -27,7 +27,6 @@ deploy_branch() {
                 --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
                 --set env.AUTH_POST_LOGOUT_URI="$AUTH_POST_LOGOUT_URI" \
                 --set env.AUTH_REDIRECT_URI="$AUTH_REDIRECT_URI" \
-                --set env.INQUESTS_API_CLIENT_ID="$INQUESTS_API_CLIENT_ID" \
                 --set env.AWS_SECRETS_INQUESTS_API_ENTRA_CONFIG="api-entra-config-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
@@ -64,7 +63,6 @@ deploy_main() {
                           --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
                           --set env.AUTH_POST_LOGOUT_URI="$AUTH_POST_LOGOUT_URI" \
                           --set env.AUTH_REDIRECT_URI="$AUTH_REDIRECT_URI" \
-                          --set env.INQUESTS_API_CLIENT_ID="$INQUESTS_API_CLIENT_ID" \
                           --set env.AWS_SECRETS_INQUESTS_API_ENTRA_CONFIG="api-entra-config-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
