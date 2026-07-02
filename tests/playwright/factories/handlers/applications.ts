@@ -92,8 +92,8 @@ const fullApplication = {
     clientRelationshipToDeceased: "Guardian",
   },
   coronersLetter: {
-    fileName: "coroners_letter.png",
-  },
+    fileName: "coroners_letter.png"
+  }
 };
 
 export const applicationHandlers = [
