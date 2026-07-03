@@ -91,22 +91,44 @@ const fullApplication = {
     furtherInformation: "Test information",
     clientRelationshipToDeceased: "Guardian",
   },
+  coronersLetter: {
+    fileName: "coroners_letter.png",
+  },
 };
 
 export const applicationHandlers = [
-  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () =>
-    HttpResponse.json(applicationSummaries),
-  ),
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
+    return HttpResponse.json(applicationSummaries);
+  }),
 
-  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) =>
-    HttpResponse.json({
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
+    return HttpResponse.json({
       ...fullApplication,
       laaReference: Number(params.id),
-    }),
-  ),
+    });
+  }),
 
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/merits-decision`,
-    () => new HttpResponse(null, { status: 204 }),
+    ({ params }) => {
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/coroners-letter`,
+    ({ params }) => {
+      // Return a fake PNG image (1x1 transparent pixel)
+      const fakeImageBuffer = Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "base64",
+      );
+      return new HttpResponse(fakeImageBuffer, {
+        status: 200,
+        headers: {
+          "Content-Type": "image/png",
+        },
+      });
+    },
   ),
 ];

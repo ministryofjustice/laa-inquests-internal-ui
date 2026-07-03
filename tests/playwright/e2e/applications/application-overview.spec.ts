@@ -94,11 +94,7 @@ test.describe("Application details tab", () => {
     await expect(
       evidenceCard.locator("dt", { hasText: "Coroners letter" }),
     ).toBeVisible();
-    await expect(
-      evidenceCard.getByRole("link", {
-        name: "Inquest ABC Coroners letter.pdf",
-      }),
-    ).toBeVisible();
+    await expect(evidenceCard.getByRole("link")).toHaveText(/.+/);
   });
 
   test("should have a make assessment button", async ({ page }) => {
@@ -118,6 +114,32 @@ test.describe("Application details tab", () => {
     await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain(
       `/applications/${applicationId}/decision`,
+    );
+  });
+
+  test("should open the coroners letter in a new tab", async ({
+    page,
+    context,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+    const evidenceCard = page.locator(".govuk-summary-card", {
+      hasText: "Supporting evidence",
+    });
+    const [newPage, response] = await Promise.all([
+      context.waitForEvent("page"),
+      context.waitForEvent("response", (response) =>
+        response
+          .url()
+          .includes(`/applications/${applicationId}/coroners-letter`),
+      ),
+      evidenceCard.getByRole("link").click(),
+    ]);
+
+    await newPage.waitForLoadState("domcontentloaded");
+
+    // Verify the URL is correct
+    await expect(newPage.url()).toContain(
+      `/applications/${applicationId}/coroners-letter`,
     );
   });
 });

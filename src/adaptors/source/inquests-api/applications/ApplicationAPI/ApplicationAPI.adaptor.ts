@@ -94,4 +94,29 @@ export class ApplicationAPIAdaptor {
       accessToken,
     });
   }
+
+  async getCoronersLetterDocument(
+    applicationId: string,
+    accessToken: string | undefined,
+  ): Promise<{ data: Buffer; contentType: string }> {
+    const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/coroners-letter`,
+      accessToken,
+      axiosConfig: { responseType: "arraybuffer" },
+    });
+
+    const { headers, data } = response;
+    const { "content-type": contentType } = headers;
+    const contentTypeString =
+      typeof contentType === "string"
+        ? contentType
+        : "application/octet-stream";
+
+    return {
+      data: Buffer.from(data),
+      contentType: contentTypeString,
+    };
+  }
 }

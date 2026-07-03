@@ -57,6 +57,10 @@
         "provider": {
           "fallbackFirmName": "Could not retrieve Provider details. Please try again later"
         }
+      },
+      "documentError": {
+        "pageTitle": "Unable to retrieve document – {SERVICE_NAME} – GOV.UK",
+        "message": "Unable to retrieve document. Please try again later"
       }
     },
     "decision": {

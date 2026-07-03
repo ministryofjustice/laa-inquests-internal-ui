@@ -23,6 +23,26 @@ function createApplicationRouter(
       }
     },
   );
+
+  applicationRouter.get(
+    "/:applicationId/coroners-letter",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      const {
+        params: { applicationId },
+      } = req;
+      const applicationIdParam: string = applicationId as string;
+      try {
+        await applicationDisplayAdaptor.serveCoronersLetterDocument(
+          req,
+          res,
+          applicationIdParam,
+        );
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return applicationRouter;
 }
 
