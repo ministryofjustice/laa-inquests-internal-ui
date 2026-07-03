@@ -218,8 +218,8 @@ describe("Test getCoronersLetterDocument", () => {
       axiosGetStub,
       `${baseUrl}/applications/123/coroners-letter`,
       {
+        responseType: "arraybuffer",
         headers: {
-          responseType: "arraybuffer",
           Authorization: "Bearer access-token-123",
         },
       },
