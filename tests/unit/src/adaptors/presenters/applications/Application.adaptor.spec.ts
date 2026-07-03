@@ -87,6 +87,10 @@ describe("Application adaptor", () => {
     requestStub = stubInterface<Request>();
     viewApplicationAdaptorStub = stubInterface<ApplicationPort>();
     applicationAdaptor = new ApplicationAdaptor(viewApplicationAdaptorStub);
+    requestStub.session.user = {
+      userId: "test-user-id",
+      accessToken: "test-access-token",
+    };
   });
 
   it("render application overview page", async () => {
@@ -396,7 +400,7 @@ describe("Application adaptor", () => {
     );
     assert.deepStrictEqual(
       viewApplicationAdaptorStub.getCoronersLetterDocument.getCall(0).args,
-      ["123"],
+      ["123", "test-access-token"],
     );
     assert.equal(responseStub.setHeader.callCount, 2);
     assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [

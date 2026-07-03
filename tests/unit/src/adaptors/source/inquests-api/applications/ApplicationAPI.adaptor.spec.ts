@@ -211,13 +211,18 @@ describe("Test getCoronersLetterDocument", () => {
       headers: { "content-type": "image/jpeg" },
     });
 
-    await adaptor.getCoronersLetterDocument("123");
+    await adaptor.getCoronersLetterDocument("123", "access-token-123");
 
     sinon.assert.calledOnce(axiosGetStub);
     sinon.assert.calledWith(
       axiosGetStub,
       `${baseUrl}/applications/123/coroners-letter`,
-      { responseType: "arraybuffer" },
+      {
+        headers: {
+          responseType: "arraybuffer",
+          Authorization: "Bearer access-token-123",
+        },
+      },
     );
   });
 
@@ -232,7 +237,10 @@ describe("Test getCoronersLetterDocument", () => {
       headers: { "content-type": "image/jpeg" },
     });
 
-    const result = await adaptor.getCoronersLetterDocument("123");
+    const result = await adaptor.getCoronersLetterDocument(
+      "123",
+      "access-token-123",
+    );
 
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "image/jpeg");
@@ -249,7 +257,10 @@ describe("Test getCoronersLetterDocument", () => {
       headers: {},
     });
 
-    const result = await adaptor.getCoronersLetterDocument("456");
+    const result = await adaptor.getCoronersLetterDocument(
+      "456",
+      "access-token-123",
+    );
 
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "application/octet-stream");

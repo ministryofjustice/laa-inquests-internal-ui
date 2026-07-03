@@ -97,11 +97,15 @@ export class ApplicationAPIAdaptor {
 
   async getCoronersLetterDocument(
     applicationId: string,
+    accessToken: string | undefined,
   ): Promise<{ data: Buffer; contentType: string }> {
-    const response: AxiosResponse<ArrayBuffer> = await this.http.get(
-      `${this.baseUrl}/applications/${applicationId}/coroners-letter`,
-      { responseType: "arraybuffer" },
-    );
+    const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
+      headers: { responseType: "arraybuffer" },
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/coroners-letter`,
+      accessToken,
+    });
 
     const { headers, data } = response;
     const { "content-type": contentType } = headers;

@@ -19,10 +19,11 @@ export interface ApplicationPort {
   submitMeritsDecision: (
     applicationId: string,
     meritsDecision: string,
-    accessToken?: string,
+    accessToken: string | undefined,
     options?: SubmitMeritsDecisionRefusalOptions,
   ) => Promise<void>;
   getCoronersLetterDocument: (
     applicationId: string,
+    accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
 }

@@ -104,7 +104,10 @@ export class ApplicationAdaptor {
 
     try {
       const { data, contentType } =
-        await viewApplicationAdaptor.getCoronersLetterDocument(applicationId);
+        await viewApplicationAdaptor.getCoronersLetterDocument(
+          applicationId,
+          req.session.user?.accessToken,
+        );
 
       res.setHeader("Content-Type", contentType);
       res.setHeader("Content-Disposition", "inline");
