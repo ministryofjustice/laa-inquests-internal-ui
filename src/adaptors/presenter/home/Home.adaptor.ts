@@ -36,6 +36,7 @@ export class HomeAdaptor {
     const applicationsListResult =
       await this.buildApplicationsListViewUseCase.execute({
         applicationPort: this.applicationPort,
+        accessToken: req.session.user?.accessToken,
       });
 
     if (applicationsListResult.status !== "SUCCESS") {

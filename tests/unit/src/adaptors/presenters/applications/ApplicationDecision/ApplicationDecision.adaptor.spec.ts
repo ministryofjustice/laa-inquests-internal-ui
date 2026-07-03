@@ -437,6 +437,9 @@ describe("ApplicationDecisionAdaptor", () => {
   describe("processConfirmationForm", () => {
     beforeEach(() => {
       requestStub.params = { applicationId };
+      requestStub.session = {
+        user: { accessToken: "access-token-123" },
+      } as unknown as Request["session"];
     });
 
     it("submits the merits decision with refusalReason and justification when present in session", async () => {
@@ -458,6 +461,7 @@ describe("ApplicationDecisionAdaptor", () => {
         [
           applicationId,
           "REFUSED",
+          "access-token-123",
           {
             refusalReason: "not-in-scope",
             justification: "This case is not in scope",

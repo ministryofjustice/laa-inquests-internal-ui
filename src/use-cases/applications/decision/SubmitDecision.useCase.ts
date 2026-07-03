@@ -10,6 +10,7 @@ interface SubmitDecisionInput {
   refusalReason?: string;
   justification?: string;
   applicationPort: ApplicationPort;
+  accessToken?: string;
 }
 
 export class SubmitDecisionUseCase {
@@ -35,6 +36,7 @@ export class SubmitDecisionUseCase {
       await input.applicationPort.submitMeritsDecision(
         input.applicationId,
         input.overallDecision,
+        input.accessToken,
         refusalOptions,
       );
 

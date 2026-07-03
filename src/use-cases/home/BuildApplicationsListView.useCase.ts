@@ -7,6 +7,7 @@ import {
 
 interface BuildApplicationsListViewInput {
   applicationPort: ApplicationPort;
+  accessToken?: string;
 }
 
 interface BuildApplicationsListViewData {
@@ -18,7 +19,9 @@ export class BuildApplicationsListViewUseCase {
     input: BuildApplicationsListViewInput,
   ): Promise<UseCaseResult<BuildApplicationsListViewData>> {
     try {
-      const applications = await input.applicationPort.getAllApplications();
+      const applications = await input.applicationPort.getAllApplications(
+        input.accessToken,
+      );
 
       return {
         status: "SUCCESS",

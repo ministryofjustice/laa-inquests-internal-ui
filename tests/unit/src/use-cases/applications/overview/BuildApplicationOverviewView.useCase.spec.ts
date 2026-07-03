@@ -77,6 +77,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     const result = await useCase.execute({
       applicationId: "123",
       applicationPort: applicationPortStub,
+      accessToken: "access-token-123",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -84,6 +85,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     assert.equal(applicationPortStub.getApplication.callCount, 1);
     assert.deepEqual(applicationPortStub.getApplication.getCall(0).args, [
       "123",
+      "access-token-123",
     ]);
   });
 

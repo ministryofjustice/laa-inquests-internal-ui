@@ -29,6 +29,7 @@ describe("SubmitDecisionUseCase", () => {
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
       applicationPort: applicationPortStub,
+      accessToken: "access-token-123",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -36,6 +37,7 @@ describe("SubmitDecisionUseCase", () => {
     assert.deepEqual(applicationPortStub.submitMeritsDecision.getCall(0).args, [
       "123",
       "REFUSED",
+      "access-token-123",
       {
         refusalReason: "not-in-scope",
         justification: "This case is not in scope",

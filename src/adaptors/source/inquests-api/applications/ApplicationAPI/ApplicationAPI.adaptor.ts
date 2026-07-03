@@ -10,6 +10,10 @@ import {
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import type { SubmitMeritsDecisionRefusalOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import {
+  patchInquestsApi,
+  getInquestsApi,
+} from "#src/adaptors/source/inquests-api/utils.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -17,7 +21,9 @@ export class ApplicationAPIAdaptor {
     private readonly baseUrl: string,
   ) {}
 
-  async getAllApplications(): Promise<ApplicationSummary[]> {
+  async getAllApplications(
+    accessToken: string | undefined,
+  ): Promise<ApplicationSummary[]> {
     const {
       data,
     }: AxiosResponse<
@@ -27,7 +33,12 @@ export class ApplicationAPIAdaptor {
         status: string | null;
         overall_decision: string | null;
       }>
-    > = await this.http.get(`${this.baseUrl}/applications/`);
+    > = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: "/applications/",
+      accessToken,
+    });
     return data
       .map((application) => ({
         laaReference: application.laa_reference,
@@ -38,16 +49,23 @@ export class ApplicationAPIAdaptor {
       .map((application) => ApplicationSummarySchema.parse(application));
   }
 
-  async getApplication(applicationId: string): Promise<Application> {
-    const { data }: AxiosResponse<Application> = await this.http.get(
-      `${this.baseUrl}/applications/${applicationId}`,
-    );
+  async getApplication(
+    applicationId: string,
+    accessToken: string | undefined,
+  ): Promise<Application> {
+    const { data }: AxiosResponse<Application> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}`,
+      accessToken,
+    });
     return ApplicationSchema.parse(data);
   }
 
   async submitMeritsDecision(
     applicationId: string,
     meritsDecision: string,
+    accessToken: string | undefined,
     options?: SubmitMeritsDecisionRefusalOptions,
   ): Promise<void> {
     const payload: {
@@ -68,9 +86,12 @@ export class ApplicationAPIAdaptor {
         : {}),
     };
 
-    await this.http.patch(
-      `${this.baseUrl}/applications/${applicationId}/merits-decision`,
-      payload,
-    );
+    await patchInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/merits-decision`,
+      body: payload,
+      accessToken,
+    });
   }
 }

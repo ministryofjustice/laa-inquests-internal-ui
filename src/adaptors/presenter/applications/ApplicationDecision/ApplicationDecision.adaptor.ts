@@ -64,8 +64,10 @@ export class ApplicationDecisionAdaptor {
     const applicationId = req.params.applicationId as string;
     const backUrl = `/applications/${applicationId}/overview`;
 
-    const data =
-      await this.viewApplicationAdaptor.getApplication(applicationId);
+    const data = await this.viewApplicationAdaptor.getApplication(
+      applicationId,
+      req.session.user?.accessToken,
+    );
     const sessionDecision = this.sessionHelper.getSessionData(
       req,
       "decision",
@@ -241,6 +243,7 @@ export class ApplicationDecisionAdaptor {
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
       applicationPort: this.viewApplicationAdaptor,
+      accessToken: req.session.user?.accessToken,
     });
 
     if (submitDecisionResult.status === "TECHNICAL_FAILURE") {

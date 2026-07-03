@@ -109,7 +109,7 @@ describe("Test Application API Adaptor", () => {
       data: expectedApplicationsSummary,
     });
 
-    await adaptor.getAllApplications();
+    await adaptor.getAllApplications("access-token-123");
 
     sinon.assert.calledWith(axiosGetStub, `${baseUrl}/applications/`);
   });
@@ -124,7 +124,7 @@ describe("Test Application API Adaptor", () => {
     });
 
     const applications: ApplicationSummary[] =
-      await adaptor.getAllApplications();
+      await adaptor.getAllApplications("access-token-123");
     assert.deepEqual(applications, [
       {
         laaReference: 1,
@@ -149,11 +149,11 @@ describe("Test Application API Adaptor", () => {
     axiosGetStub.resolves({
       data: expectedApplication,
     });
-    await adaptor.getApplication("123");
+    await adaptor.getApplication("123", "access-token-123");
     assert(axiosGetStub.calledOnce);
     sinon.assert.calledWith(axiosGetStub, `${baseUrl}/applications/123`);
 
-    await adaptor.getApplication("234");
+    await adaptor.getApplication("234", "access-token-123");
     sinon.assert.calledWith(axiosGetStub, `${baseUrl}/applications/234`);
   });
 
@@ -166,7 +166,10 @@ describe("Test Application API Adaptor", () => {
       data: expectedApplication,
     });
 
-    const application: Application = await adaptor.getApplication("123");
+    const application: Application = await adaptor.getApplication(
+      "123",
+      "access-token-123",
+    );
     assert.deepEqual(expectedApplication, application);
   });
 
@@ -185,7 +188,10 @@ describe("Test Application API Adaptor", () => {
       },
     });
 
-    const application: Application = await adaptor.getApplication("123");
+    const application: Application = await adaptor.getApplication(
+      "123",
+      "access-token-123",
+    );
     assert.isNull(application.provider?.firmName);
   });
 });
@@ -197,7 +203,7 @@ describe("Test submitMeritsDecision", () => {
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
-    await adaptor.submitMeritsDecision("123", "REFUSED", {
+    await adaptor.submitMeritsDecision("123", "REFUSED", "access-token-123", {
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
     });

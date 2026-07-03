@@ -9,11 +9,17 @@ export interface SubmitMeritsDecisionRefusalOptions {
 }
 
 export interface ApplicationPort {
-  getAllApplications: () => Promise<ApplicationSummary[]>;
-  getApplication: (applicationId: string) => Promise<Application>;
+  getAllApplications: (
+    accessToken: string | undefined,
+  ) => Promise<ApplicationSummary[]>;
+  getApplication: (
+    applicationId: string,
+    accessToken: string | undefined,
+  ) => Promise<Application>;
   submitMeritsDecision: (
     applicationId: string,
     meritsDecision: string,
+    accessToken?: string,
     options?: SubmitMeritsDecisionRefusalOptions,
   ) => Promise<void>;
 }

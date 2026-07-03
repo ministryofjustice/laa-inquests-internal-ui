@@ -49,6 +49,12 @@ const config: Config = {
   AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET!,
   AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI!,
   AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI!,
+  AUTH_SCOPES: [
+    "openid",
+    "profile",
+    "offline_access",
+    `api://${process.env.INQUESTS_API_CLIENT_ID ?? ""}/User.Caseworker`,
+  ],
   /* eslint-enable @typescript-eslint/no-non-null-assertion */
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,

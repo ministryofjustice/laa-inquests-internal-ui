@@ -8,6 +8,7 @@ import {
 interface BuildApplicationOverviewViewInput {
   applicationId: string;
   applicationPort: ApplicationPort;
+  accessToken?: string;
 }
 
 interface BuildApplicationOverviewViewData {
@@ -29,6 +30,7 @@ export class BuildApplicationOverviewViewUseCase {
     try {
       const application = await input.applicationPort.getApplication(
         input.applicationId,
+        input.accessToken,
       );
 
       return {

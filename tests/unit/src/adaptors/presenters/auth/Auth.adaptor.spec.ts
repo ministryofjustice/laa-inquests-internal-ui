@@ -7,6 +7,12 @@ import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
+const AUTH_SCOPES = [
+  "openid",
+  "profile",
+  "offline_access",
+  "api://test-api-client-id/User.Caseworker",
+];
 
 describe("AuthAdaptor", () => {
   let authPort: StubbedInstance<AuthPort>;
@@ -21,7 +27,12 @@ describe("AuthAdaptor", () => {
     res = stubInterface<Response>();
     next = sinon.stub();
     req.session = {} as any;
-    adaptor = new AuthAdaptor(authPort, REDIRECT_URI, POST_LOGOUT_URI);
+    adaptor = new AuthAdaptor(
+      authPort,
+      REDIRECT_URI,
+      POST_LOGOUT_URI,
+      AUTH_SCOPES,
+    );
   });
 
   afterEach(() => {
@@ -35,7 +46,8 @@ describe("AuthAdaptor", () => {
       authPort.getAuthCodeUrl.resolves(authUrl);
 
       await adaptor.login(req, res);
-
+      assert.deepEqual(authPort.getAuthCodeUrl.firstCall.args[0], AUTH_SCOPES);
+      assert.equal(authPort.getAuthCodeUrl.firstCall.args[1], REDIRECT_URI);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], authUrl);
     });
@@ -48,18 +60,28 @@ describe("AuthAdaptor", () => {
   });
 
   describe("callback", () => {
-    it("stores userId and userName in session and redirects to /", async () => {
+    it("stores userId, userName and accessToken in session and redirects to /", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
         userName: "Test User",
+        accessToken: "access-token-xyz",
       });
 
       await adaptor.callback(req, res);
 
+      assert.equal(
+        authPort.acquireTokenByCode.firstCall.args[0],
+        "auth-code-123",
+      );
+      assert.deepEqual(
+        authPort.acquireTokenByCode.firstCall.args[1],
+        AUTH_SCOPES,
+      );
       assert.deepEqual(req.session.user, {
         userId: "user-oid-abc",
         userName: "Test User",
+        accessToken: "access-token-xyz",
       });
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");

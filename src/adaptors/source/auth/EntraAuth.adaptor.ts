@@ -1,6 +1,7 @@
 import type {
   ConfidentialClientApplication,
   AuthorizationCodeRequest,
+  AuthenticationResult,
 } from "@azure/msal-node";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
@@ -28,6 +29,16 @@ export class EntraAuthAdaptor implements AuthPort {
     return {
       userId: result.account?.homeAccountId ?? result.uniqueId,
       userName: result.account?.name ?? undefined,
+      ...this.#getAccessTokenField(result),
     };
+  }
+
+  #getAccessTokenField(
+    result: AuthenticationResult,
+  ): Pick<AuthTokenResult, "accessToken"> | Record<string, never> {
+    if (typeof result.accessToken === "string" && result.accessToken !== "") {
+      return { accessToken: result.accessToken };
+    }
+    return {};
   }
 }
