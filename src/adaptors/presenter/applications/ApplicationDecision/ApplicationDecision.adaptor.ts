@@ -19,14 +19,14 @@ import {
 import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
 import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
-import { SubmitDecisionUseCase } from "#src/use-cases/applications/decision/SubmitDecision.useCase.js";
+import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 
 interface DecisionUseCases {
   prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
   processDecisionSelectionUseCase: ProcessDecisionSelectionUseCase;
   processJustificationUseCase: ProcessJustificationUseCase;
   prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
-  submitDecisionUseCase: SubmitDecisionUseCase;
+  refuseDecisionUseCase: RefuseDecisionUseCase;
 }
 
 export class ApplicationDecisionAdaptor {
@@ -34,7 +34,7 @@ export class ApplicationDecisionAdaptor {
   private readonly processDecisionSelectionUseCase: ProcessDecisionSelectionUseCase;
   private readonly processJustificationUseCase: ProcessJustificationUseCase;
   private readonly prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
-  private readonly submitDecisionUseCase: SubmitDecisionUseCase;
+  private readonly refuseDecisionUseCase: RefuseDecisionUseCase;
 
   constructor(
     private readonly viewApplicationAdaptor: ApplicationPort,
@@ -52,8 +52,8 @@ export class ApplicationDecisionAdaptor {
     this.prepareConfirmationViewUseCase =
       useCases.prepareConfirmationViewUseCase ??
       new PrepareConfirmationViewUseCase();
-    this.submitDecisionUseCase =
-      useCases.submitDecisionUseCase ?? new SubmitDecisionUseCase();
+    this.refuseDecisionUseCase =
+      useCases.refuseDecisionUseCase ?? new RefuseDecisionUseCase();
   }
 
   async renderApplicationDecisionForm(
@@ -237,18 +237,25 @@ export class ApplicationDecisionAdaptor {
       req,
       "decision",
     ) as DecisionSessionData | null;
-    const submitDecisionResult = await this.submitDecisionUseCase.execute({
+
+    const { refusalReason, justification } = sessionData ?? {};
+    if (!refusalReason || !justification) {
+      throw new Error(
+        "Missing refusal reason or justification in session data",
+      );
+    }
+
+    const refuseDecisionResult = await this.refuseDecisionUseCase.execute({
       applicationId,
-      overallDecision: sessionData?.overallDecision,
-      refusalReason: sessionData?.refusalReason,
-      justification: sessionData?.justification,
+      refusalReason,
+      justification,
       applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
 
-    if (submitDecisionResult.status === "TECHNICAL_FAILURE") {
+    if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
       throw new Error(
-        submitDecisionResult.message ?? "Unable to submit merits decision",
+        refuseDecisionResult.message ?? "Unable to submit refusal decision",
       );
     }
 

@@ -267,24 +267,25 @@ describe("Test getCoronersLetterDocument", () => {
   });
 });
 
-describe("Test submitMeritsDecision", () => {
+describe("Test submitRefuseDecision", () => {
   it("calls the patch endpoint with the correct URL and payload for REFUSED decision", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
-    await adaptor.submitMeritsDecision("123", "REFUSED", "access-token-123", {
-      refusalReason: "not-in-scope",
-      justification: "This case is not in scope",
-    });
+    await adaptor.submitRefuseDecision(
+      "123",
+      "access-token-123",
+      "not-in-scope",
+      "This case is not in scope",
+    );
 
     sinon.assert.calledOnce(axiosPatchStub);
     sinon.assert.calledWith(
       axiosPatchStub,
-      `${baseUrl}/applications/123/merits-decision`,
+      `${baseUrl}/applications/123/refuse-decision`,
       {
-        meritsDecision: "REFUSED",
         reasonForRefusal: "NOT_IN_SCOPE",
         justification: "This case is not in scope",
       },

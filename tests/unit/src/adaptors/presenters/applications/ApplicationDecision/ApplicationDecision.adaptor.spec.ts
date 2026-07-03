@@ -126,6 +126,18 @@ describe("ApplicationDecisionAdaptor", () => {
       renderApplicationDecisionFormSpy.restore();
     });
 
+    it("throws error if refusal reason is missing from session", () => {
+      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
+      assert.rejects(
+        () =>
+          adaptor.processApplicationDecisionForm(
+            requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+            responseStub,
+          ),
+        new Error("Missing refusal reason or justification in session data"),
+      );
+    });
+
     it("saves overallDecision to session", () => {
       adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
@@ -442,37 +454,38 @@ describe("ApplicationDecisionAdaptor", () => {
       } as unknown as Request["session"];
     });
 
-    it("submits the merits decision with refusalReason and justification when present in session", async () => {
+    it("submits the refusal decision with refusalReason and justification when present in session", async () => {
       sessionHelperStub.getSessionData.returns({
         overallDecision: "REFUSED",
         refusalReason: "not-in-scope",
         justification: "This case is not in scope",
       });
-      viewApplicationSourceStub.submitMeritsDecision.resolves();
+      viewApplicationSourceStub.submitRefuseDecision.resolves();
 
       await adaptor.processConfirmationForm(
         requestStub as Request,
         responseStub,
       );
 
-      assert.equal(viewApplicationSourceStub.submitMeritsDecision.callCount, 1);
+      assert.equal(viewApplicationSourceStub.submitRefuseDecision.callCount, 1);
       assert.deepEqual(
-        viewApplicationSourceStub.submitMeritsDecision.getCall(0).args,
+        viewApplicationSourceStub.submitRefuseDecision.getCall(0).args,
         [
           applicationId,
-          "REFUSED",
           "access-token-123",
-          {
-            refusalReason: "not-in-scope",
-            justification: "This case is not in scope",
-          },
+          "not-in-scope",
+          "This case is not in scope",
         ],
       );
     });
 
     it("redirects to the success page", async () => {
-      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
-      viewApplicationSourceStub.submitMeritsDecision.resolves();
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: "REFUSED",
+        refusalReason: "not-in-scope",
+        justification: "This case is not in scope",
+      });
+      viewApplicationSourceStub.submitRefuseDecision.resolves();
 
       await adaptor.processConfirmationForm(
         requestStub as Request,
@@ -486,16 +499,20 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
-    it("throws when submitting the merits decision fails", async () => {
-      sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
-      viewApplicationSourceStub.submitMeritsDecision.rejects(
+    it("throws when submitting the refusal decision fails", async () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: "REFUSED",
+        refusalReason: "not-in-scope",
+        justification: "This case is not in scope",
+      });
+      viewApplicationSourceStub.submitRefuseDecision.rejects(
         new Error("Merits rejection failed"),
       );
 
       await assert.rejects(
         () =>
           adaptor.processConfirmationForm(requestStub as Request, responseStub),
-        new Error("Unable to submit merits decision"),
+        new Error("Unable to submit refusal decision"),
       );
     });
   });

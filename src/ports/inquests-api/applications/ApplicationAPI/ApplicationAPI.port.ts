@@ -3,11 +3,6 @@ import type {
   ApplicationSummary,
 } from "#src/adaptors/models/application.types.js";
 
-export interface SubmitMeritsDecisionRefusalOptions {
-  refusalReason?: string;
-  justification?: string;
-}
-
 export interface ApplicationPort {
   getAllApplications: (
     accessToken: string | undefined,
@@ -16,11 +11,11 @@ export interface ApplicationPort {
     applicationId: string,
     accessToken: string | undefined,
   ) => Promise<Application>;
-  submitMeritsDecision: (
+  submitRefuseDecision: (
     applicationId: string,
-    meritsDecision: string,
     accessToken: string | undefined,
-    options?: SubmitMeritsDecisionRefusalOptions,
+    refusalReason: string,
+    justification: string,
   ) => Promise<void>;
   getCoronersLetterDocument: (
     applicationId: string,

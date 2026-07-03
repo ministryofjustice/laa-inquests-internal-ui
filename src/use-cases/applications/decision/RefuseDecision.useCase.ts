@@ -4,40 +4,30 @@ import {
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 
-interface SubmitDecisionInput {
+interface RefuseDecisionInput {
   applicationId: string;
-  overallDecision?: string;
-  refusalReason?: string;
-  justification?: string;
+  refusalReason: string;
+  justification: string;
   applicationPort: ApplicationPort;
   accessToken?: string;
 }
 
-export class SubmitDecisionUseCase {
-  async execute(input: SubmitDecisionInput): Promise<UseCaseResult> {
-    if (!input.applicationId || !input.overallDecision) {
+export class RefuseDecisionUseCase {
+  async execute(input: RefuseDecisionInput): Promise<UseCaseResult> {
+    if (!input.applicationId) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message:
-          "Cannot submit a merits decision without applicationId and overallDecision",
+        message: "Cannot refuse a merits decision without applicationId",
       };
     }
 
     try {
-      const refusalOptions =
-        input.overallDecision === "REFUSED"
-          ? {
-              refusalReason: input.refusalReason,
-              justification: input.justification,
-            }
-          : undefined;
-
-      await input.applicationPort.submitMeritsDecision(
+      await input.applicationPort.submitRefuseDecision(
         input.applicationId,
-        input.overallDecision,
         input.accessToken,
-        refusalOptions,
+        input.refusalReason,
+        input.justification,
       );
 
       return {
