@@ -460,7 +460,6 @@ describe("ApplicationDecisionAdaptor", () => {
         viewApplicationSourceStub.submitMeritsDecision.getCall(0).args,
         [
           applicationId,
-          "REFUSED",
           "access-token-123",
           {
             refusalReason: "not-in-scope",

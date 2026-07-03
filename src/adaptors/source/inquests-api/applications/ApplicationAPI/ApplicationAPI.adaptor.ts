@@ -64,32 +64,25 @@ export class ApplicationAPIAdaptor {
 
   async submitMeritsDecision(
     applicationId: string,
-    meritsDecision: string,
     accessToken: string | undefined,
     options?: SubmitMeritsDecisionRefusalOptions,
   ): Promise<void> {
     const payload: {
-      meritsDecision: string;
       reasonForRefusal?: RefusalReason;
       justification?: string;
     } = {
-      meritsDecision,
-      ...(meritsDecision === "REFUSED" && options
-        ? {
-            ...(options.refusalReason && {
-              reasonForRefusal: REFUSAL_REASON_MAP[options.refusalReason],
-            }),
-            ...(options.justification && {
-              justification: options.justification,
-            }),
-          }
-        : {}),
+      ...(options?.refusalReason && {
+        reasonForRefusal: REFUSAL_REASON_MAP[options.refusalReason],
+      }),
+      ...(options?.justification && {
+        justification: options.justification,
+      }),
     };
 
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/merits-decision`,
+      path: `/applications/${applicationId}/refuse-decision`,
       body: payload,
       accessToken,
     });

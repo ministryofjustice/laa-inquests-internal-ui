@@ -109,7 +109,7 @@ export const applicationHandlers = [
   }),
 
   http.patch(
-    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/merits-decision`,
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
       return new HttpResponse(null, { status: 204 });
     },

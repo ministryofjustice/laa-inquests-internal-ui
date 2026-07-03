@@ -239,7 +239,6 @@ export class ApplicationDecisionAdaptor {
     ) as DecisionSessionData | null;
     const submitDecisionResult = await this.submitDecisionUseCase.execute({
       applicationId,
-      overallDecision: sessionData?.overallDecision,
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
       applicationPort: this.viewApplicationAdaptor,

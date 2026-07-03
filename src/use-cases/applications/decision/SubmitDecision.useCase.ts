@@ -6,7 +6,6 @@ import {
 
 interface SubmitDecisionInput {
   applicationId: string;
-  overallDecision?: string;
   refusalReason?: string;
   justification?: string;
   applicationPort: ApplicationPort;
@@ -15,7 +14,7 @@ interface SubmitDecisionInput {
 
 export class SubmitDecisionUseCase {
   async execute(input: SubmitDecisionInput): Promise<UseCaseResult> {
-    if (!input.applicationId || !input.overallDecision) {
+    if (!input.applicationId) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
@@ -25,17 +24,13 @@ export class SubmitDecisionUseCase {
     }
 
     try {
-      const refusalOptions =
-        input.overallDecision === "REFUSED"
-          ? {
-              refusalReason: input.refusalReason,
-              justification: input.justification,
-            }
-          : undefined;
+      const refusalOptions = {
+        refusalReason: input.refusalReason,
+        justification: input.justification,
+      };
 
       await input.applicationPort.submitMeritsDecision(
         input.applicationId,
-        input.overallDecision,
         input.accessToken,
         refusalOptions,
       );

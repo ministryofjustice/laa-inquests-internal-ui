@@ -18,7 +18,6 @@ export interface ApplicationPort {
   ) => Promise<Application>;
   submitMeritsDecision: (
     applicationId: string,
-    meritsDecision: string,
     accessToken: string | undefined,
     options?: SubmitMeritsDecisionRefusalOptions,
   ) => Promise<void>;

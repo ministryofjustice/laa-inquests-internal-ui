@@ -274,7 +274,7 @@ describe("Test submitMeritsDecision", () => {
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
-    await adaptor.submitMeritsDecision("123", "REFUSED", "access-token-123", {
+    await adaptor.submitMeritsDecision("123", "access-token-123", {
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
     });
@@ -282,9 +282,8 @@ describe("Test submitMeritsDecision", () => {
     sinon.assert.calledOnce(axiosPatchStub);
     sinon.assert.calledWith(
       axiosPatchStub,
-      `${baseUrl}/applications/123/merits-decision`,
+      `${baseUrl}/applications/123/refuse-decision`,
       {
-        meritsDecision: "REFUSED",
         reasonForRefusal: "NOT_IN_SCOPE",
         justification: "This case is not in scope",
       },

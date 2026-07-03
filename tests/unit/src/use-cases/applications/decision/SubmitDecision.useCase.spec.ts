@@ -11,7 +11,6 @@ describe("SubmitDecisionUseCase", () => {
 
     const result = await useCase.execute({
       applicationId: "",
-      overallDecision: undefined,
       applicationPort: applicationPortStub,
     });
 
@@ -25,7 +24,6 @@ describe("SubmitDecisionUseCase", () => {
 
     const result = await useCase.execute({
       applicationId: "123",
-      overallDecision: "REFUSED",
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
       applicationPort: applicationPortStub,
@@ -36,7 +34,6 @@ describe("SubmitDecisionUseCase", () => {
     assert.equal(applicationPortStub.submitMeritsDecision.callCount, 1);
     assert.deepEqual(applicationPortStub.submitMeritsDecision.getCall(0).args, [
       "123",
-      "REFUSED",
       "access-token-123",
       {
         refusalReason: "not-in-scope",
@@ -51,7 +48,6 @@ describe("SubmitDecisionUseCase", () => {
 
     const result = await useCase.execute({
       applicationId: "123",
-      overallDecision: "REFUSED",
       applicationPort: applicationPortStub,
     });
 
