@@ -454,22 +454,22 @@ describe("ApplicationDecisionAdaptor", () => {
       } as unknown as Request["session"];
     });
 
-    it("submits the merits decision with refusalReason and justification when present in session", async () => {
+    it("submits the refusal decision with refusalReason and justification when present in session", async () => {
       sessionHelperStub.getSessionData.returns({
         overallDecision: "REFUSED",
         refusalReason: "not-in-scope",
         justification: "This case is not in scope",
       });
-      viewApplicationSourceStub.submitMeritsDecision.resolves();
+      viewApplicationSourceStub.submitRefuseDecision.resolves();
 
       await adaptor.processConfirmationForm(
         requestStub as Request,
         responseStub,
       );
 
-      assert.equal(viewApplicationSourceStub.submitMeritsDecision.callCount, 1);
+      assert.equal(viewApplicationSourceStub.submitRefuseDecision.callCount, 1);
       assert.deepEqual(
-        viewApplicationSourceStub.submitMeritsDecision.getCall(0).args,
+        viewApplicationSourceStub.submitRefuseDecision.getCall(0).args,
         [
           applicationId,
           "access-token-123",
@@ -487,7 +487,7 @@ describe("ApplicationDecisionAdaptor", () => {
         refusalReason: "not-in-scope",
         justification: "This case is not in scope",
       });
-      viewApplicationSourceStub.submitMeritsDecision.resolves();
+      viewApplicationSourceStub.submitRefuseDecision.resolves();
 
       await adaptor.processConfirmationForm(
         requestStub as Request,
@@ -501,20 +501,20 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
-    it("throws when submitting the merits decision fails", async () => {
+    it("throws when submitting the refusal decision fails", async () => {
       sessionHelperStub.getSessionData.returns({
         overallDecision: "REFUSED",
         refusalReason: "not-in-scope",
         justification: "This case is not in scope",
       });
-      viewApplicationSourceStub.submitMeritsDecision.rejects(
+      viewApplicationSourceStub.submitRefuseDecision.rejects(
         new Error("Merits rejection failed"),
       );
 
       await assert.rejects(
         () =>
           adaptor.processConfirmationForm(requestStub as Request, responseStub),
-        new Error("Unable to submit merits decision"),
+        new Error("Unable to submit refusal decision"),
       );
     });
   });

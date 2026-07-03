@@ -9,7 +9,7 @@ import {
   ApplicationSummarySchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
-import type { SubmitMeritsDecisionRefusalOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { SubmitRefuseDecisionOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import {
   patchInquestsApi,
   getInquestsApi,
@@ -62,10 +62,10 @@ export class ApplicationAPIAdaptor {
     return ApplicationSchema.parse(data);
   }
 
-  async submitMeritsDecision(
+  async submitRefuseDecision(
     applicationId: string,
     accessToken: string | undefined,
-    options?: SubmitMeritsDecisionRefusalOptions,
+    options?: SubmitRefuseDecisionOptions,
   ): Promise<void> {
     const payload: {
       reasonForRefusal?: RefusalReason;
