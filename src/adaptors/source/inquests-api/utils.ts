@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosResponse } from "axios";
+import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
 
 interface PatchInquestsApiParams<TBody> {
   http: AxiosInstance;
@@ -15,6 +15,7 @@ interface GetInquestApiParams {
   path: string;
   accessToken: string | undefined;
   headers?: Record<string, string>;
+  axiosConfig?: Omit<AxiosRequestConfig, "headers">;
 }
 
 export async function patchInquestsApi<TResponse, TBody>(
@@ -37,13 +38,14 @@ export async function patchInquestsApi<TResponse, TBody>(
 export async function getInquestsApi<TResponse>(
   params: GetInquestApiParams,
 ): Promise<AxiosResponse<TResponse>> {
-  const { http, baseUrl, path, accessToken, headers } = params;
+  const { http, baseUrl, path, accessToken, headers, axiosConfig } = params;
 
   if (typeof accessToken !== "string" || accessToken === "") {
     throw new Error("Missing access token for Inquests API request");
   }
 
   return await http.get<TResponse>(`${baseUrl}${path}`, {
+    ...axiosConfig,
     headers: {
       ...headers,
       Authorization: `Bearer ${accessToken}`,

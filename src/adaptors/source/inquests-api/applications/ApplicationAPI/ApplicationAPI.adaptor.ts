@@ -100,11 +100,11 @@ export class ApplicationAPIAdaptor {
     accessToken: string | undefined,
   ): Promise<{ data: Buffer; contentType: string }> {
     const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
-      headers: { responseType: "arraybuffer" },
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/coroners-letter`,
       accessToken,
+      axiosConfig: { responseType: "arraybuffer" },
     });
 
     const { headers, data } = response;
