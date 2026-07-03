@@ -237,10 +237,18 @@ export class ApplicationDecisionAdaptor {
       req,
       "decision",
     ) as DecisionSessionData | null;
+
+    const { refusalReason, justification } = sessionData ?? {};
+    if (!refusalReason || !justification) {
+      throw new Error(
+        "Missing refusal reason or justification in session data",
+      );
+    }
+
     const submitDecisionResult = await this.submitDecisionUseCase.execute({
       applicationId,
-      refusalReason: sessionData?.refusalReason,
-      justification: sessionData?.justification,
+      refusalReason,
+      justification,
       applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });

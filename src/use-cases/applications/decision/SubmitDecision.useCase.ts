@@ -6,8 +6,8 @@ import {
 
 interface SubmitDecisionInput {
   applicationId: string;
-  refusalReason?: string;
-  justification?: string;
+  refusalReason: string;
+  justification: string;
   applicationPort: ApplicationPort;
   accessToken?: string;
 }

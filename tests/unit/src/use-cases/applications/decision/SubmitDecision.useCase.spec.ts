@@ -12,6 +12,8 @@ describe("SubmitDecisionUseCase", () => {
     const result = await useCase.execute({
       applicationId: "",
       applicationPort: applicationPortStub,
+      refusalReason: "not-in-scope",
+      justification: "This case is not in scope",
     });
 
     assert.equal(result.status, "TECHNICAL_FAILURE");
@@ -49,6 +51,8 @@ describe("SubmitDecisionUseCase", () => {
     const result = await useCase.execute({
       applicationId: "123",
       applicationPort: applicationPortStub,
+      refusalReason: "not-in-scope",
+      justification: "This case is not in scope",
     });
 
     assert.equal(result.status, "TECHNICAL_FAILURE");
