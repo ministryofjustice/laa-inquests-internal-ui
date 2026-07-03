@@ -473,10 +473,8 @@ describe("ApplicationDecisionAdaptor", () => {
         [
           applicationId,
           "access-token-123",
-          {
-            refusalReason: "not-in-scope",
-            justification: "This case is not in scope",
-          },
+          "not-in-scope",
+          "This case is not in scope",
         ],
       );
     });

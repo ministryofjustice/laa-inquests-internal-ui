@@ -9,7 +9,6 @@ import {
   ApplicationSummarySchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
-import type { SubmitRefuseDecisionOptions } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import {
   patchInquestsApi,
   getInquestsApi,
@@ -65,18 +64,15 @@ export class ApplicationAPIAdaptor {
   async submitRefuseDecision(
     applicationId: string,
     accessToken: string | undefined,
-    options?: SubmitRefuseDecisionOptions,
+    refusalReason: string,
+    justification: string,
   ): Promise<void> {
     const payload: {
-      reasonForRefusal?: RefusalReason;
-      justification?: string;
+      reasonForRefusal: RefusalReason;
+      justification: string;
     } = {
-      ...(options?.refusalReason && {
-        reasonForRefusal: REFUSAL_REASON_MAP[options.refusalReason],
-      }),
-      ...(options?.justification && {
-        justification: options.justification,
-      }),
+      reasonForRefusal: REFUSAL_REASON_MAP[refusalReason],
+      justification,
     };
 
     await patchInquestsApi({

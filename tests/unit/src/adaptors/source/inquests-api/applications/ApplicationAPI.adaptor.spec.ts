@@ -274,10 +274,12 @@ describe("Test submitRefuseDecision", () => {
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
-    await adaptor.submitRefuseDecision("123", "access-token-123", {
-      refusalReason: "not-in-scope",
-      justification: "This case is not in scope",
-    });
+    await adaptor.submitRefuseDecision(
+      "123",
+      "access-token-123",
+      "not-in-scope",
+      "This case is not in scope",
+    );
 
     sinon.assert.calledOnce(axiosPatchStub);
     sinon.assert.calledWith(

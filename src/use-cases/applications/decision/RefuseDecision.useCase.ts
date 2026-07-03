@@ -23,15 +23,11 @@ export class RefuseDecisionUseCase {
     }
 
     try {
-      const refusalOptions = {
-        refusalReason: input.refusalReason,
-        justification: input.justification,
-      };
-
       await input.applicationPort.submitRefuseDecision(
         input.applicationId,
         input.accessToken,
-        refusalOptions,
+        input.refusalReason,
+        input.justification,
       );
 
       return {

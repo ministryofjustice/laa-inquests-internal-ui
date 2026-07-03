@@ -37,10 +37,8 @@ describe("RefuseDecisionUseCase", () => {
     assert.deepEqual(applicationPortStub.submitRefuseDecision.getCall(0).args, [
       "123",
       "access-token-123",
-      {
-        refusalReason: "not-in-scope",
-        justification: "This case is not in scope",
-      },
+      "not-in-scope",
+      "This case is not in scope",
     ]);
   });
 
