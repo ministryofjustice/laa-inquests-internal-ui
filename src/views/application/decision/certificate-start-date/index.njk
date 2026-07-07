@@ -1,0 +1,53 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('errorSummaryTitle'),
+    errorList: [
+      { text: errorSummaries.certificateStartDate.text, href: "#start-date" } if errorSummaries.certificateStartDate
+    ]
+  }) }}
+{% endif %}
+<form data-testid="certificate-start-date" method="post" action="/applications/{{ applicationId }}/decision/certificate-start-date">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+  <h1 class="govuk-heading-l">{{ t('pages.decision.certificateStartDate.header') }}</h1>
+  {{ govukDateInput({
+    id: "start-date",
+    namePrefix: "start-date",
+    fieldset: {
+      legend: {
+        text: t('pages.decision.certificateStartDate.label'),
+        classes: "govuk-fieldset__legend--m"
+      }
+    },
+    hint: {
+      text: t('pages.decision.certificateStartDate.hint')
+    },
+    errorMessage: errorSummaries.certificateStartDate,
+    items: [
+      {
+        name: "day",
+        classes: "govuk-input--width-2" + (" govuk-input--error" if errorSummaries.certificateStartDate),
+        value: day
+      },
+      {
+        name: "month",
+        classes: "govuk-input--width-2" + (" govuk-input--error" if errorSummaries.certificateStartDate),
+        value: month
+      },
+      {
+        name: "year",
+        classes: "govuk-input--width-4" + (" govuk-input--error" if errorSummaries.certificateStartDate),
+        value: year
+      }
+    ]
+  }) }}
+  {{ govukButton({
+    text: "Continue"
+  }) }}
+</form>
+{% endblock pageContent %}

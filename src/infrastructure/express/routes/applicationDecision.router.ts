@@ -4,6 +4,7 @@ import type { IdParams, TypedRequest } from "../api.types.js";
 import type {
   ApplicationDecisionForm,
   JustificationForm,
+  CertificateStartDateForm,
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 
 export function createApplicationDecisionRouter(
@@ -39,6 +40,23 @@ export function createApplicationDecisionRouter(
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.processJustificationForm(
         req as unknown as TypedRequest<JustificationForm, IdParams>,
+        res,
+      );
+    },
+  );
+
+  applicationDecisionRouter.get(
+    "/:applicationId/decision/certificate-start-date",
+    (req: Request, res: Response): void => {
+      applicationDecisionAdaptor.renderCertificateStartDateForm(req, res);
+    },
+  );
+
+  applicationDecisionRouter.post(
+    "/:applicationId/decision/certificate-start-date",
+    (req: Request, res: Response): void => {
+      applicationDecisionAdaptor.processCertificateStartDateForm(
+        req as unknown as TypedRequest<CertificateStartDateForm, IdParams>,
         res,
       );
     },
