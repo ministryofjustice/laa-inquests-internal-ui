@@ -166,6 +166,21 @@ describe("ApplicationDecisionAdaptor", () => {
       );
     });
 
+    it("redirects to the certificate start date page when granted", () => {
+      requestStub.body = { "overall-decision": "GRANTED" };
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/certificate-start-date`,
+      );
+    });
+
     it("saves session data even when there are validation errors", () => {
       requestStub.body = { "overall-decision": "" };
       sessionHelperStub.getSessionData.returns({});
@@ -401,6 +416,168 @@ describe("ApplicationDecisionAdaptor", () => {
     });
   });
 
+  describe("renderCertificateStartDateForm", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+    });
+
+    it("calls res.render with the correct view name and pre-populated date parts", () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: "GRANTED",
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
+      });
+
+      adaptor.renderCertificateStartDateForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/certificate-start-date/index",
+      );
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        applicationId,
+        day: "1",
+        month: "1",
+        year: "2020",
+      });
+    });
+
+    // TODO: Need this per error type? Probably not as it's more checking error summaries is piped through
+    // It's on validator to get it right
+    it("includes errorSummaries in render variables when provided", () => {
+      sessionHelperStub.getSessionData.returns({});
+      const errorSummaries = {
+        certificateStartDate: {
+          text: en.pages.decision.certificateStartDate.validationErrors
+            .notEmpty,
+        },
+      };
+
+      adaptor.renderCertificateStartDateForm(
+        requestStub as Request,
+        responseStub,
+        errorSummaries,
+      );
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        applicationId,
+        day: undefined,
+        month: undefined,
+        year: undefined,
+        errorSummaries,
+      });
+    });
+  });
+
+  describe("processCertificateStartDateForm", () => {
+    let renderCertificateStartDateFormSpy: sinon.SinonSpy;
+
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+      requestStub.body = {
+        "start-date-day": "1",
+        "start-date-month": "1",
+        "start-date-year": "2020",
+      };
+      renderCertificateStartDateFormSpy = sinon.spy(
+        adaptor,
+        "renderCertificateStartDateForm",
+      );
+    });
+
+    afterEach(() => {
+      renderCertificateStartDateFormSpy.restore();
+    });
+
+    // TODO: Test that verifies it isn't saved on TECHNICAL_FAILURE? Do we even want that behaviour?
+    it("saves the certificate start date to session, merged with existing data", () => {
+      sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        {
+          overallDecision: "GRANTED",
+          certificateStartDateDay: "1",
+          certificateStartDateMonth: "1",
+          certificateStartDateYear: "2020",
+          certificateStartDate: "2020-01-01",
+        },
+      ]);
+    });
+
+    it("redirects to the confirmation page", () => {
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/confirmation`,
+      );
+    });
+
+    it("re-renders with a validation error when no date is entered", () => {
+      requestStub.body = {
+        "start-date-day": "",
+        "start-date-month": "",
+        "start-date-year": "",
+      };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.ok(renderCertificateStartDateFormSpy.calledOnce);
+      assert.deepEqual(renderCertificateStartDateFormSpy.getCall(0).args[2], {
+        certificateStartDate: {
+          text: en.pages.decision.certificateStartDate.validationErrors
+            .notEmpty,
+        },
+      });
+    });
+  });
+
   describe("renderConfirmationPage", () => {
     beforeEach(() => {
       requestStub.params = { applicationId };
@@ -429,6 +606,8 @@ describe("ApplicationDecisionAdaptor", () => {
         overallDecision: "REFUSED",
         refusalReasonLabel: "Not in scope",
         justification: "some justification",
+        certificateStartDate: undefined,
+        isGranted: false,
       });
     });
 
@@ -443,6 +622,30 @@ describe("ApplicationDecisionAdaptor", () => {
       const renderVars = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(renderVars.refusalReasonLabel, "unknown-reason");
+    });
+
+    it("renders the granted variant with the certificate start date row and correct back link", () => {
+      const sessionData = {
+        overallDecision: "GRANTED",
+        certificateStartDate: "2020-01-01",
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
+      };
+      sessionHelperStub.getSessionData.returns(sessionData);
+
+      adaptor.renderConfirmationPage(requestStub as Request, responseStub);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision/certificate-start-date`,
+        applicationId,
+        proceeding: sessionData,
+        overallDecision: "GRANTED",
+        refusalReasonLabel: undefined,
+        justification: undefined,
+        certificateStartDate: "1 Jan 2020",
+        isGranted: true,
+      });
     });
   });
 
@@ -513,6 +716,25 @@ describe("ApplicationDecisionAdaptor", () => {
         () =>
           adaptor.processConfirmationForm(requestStub as Request, responseStub),
         new Error("Unable to submit refusal decision"),
+      );
+    });
+
+    it("redirects a granted decision to the success page without calling the refuse API", async () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: "GRANTED",
+        certificateStartDate: "2020-01-01",
+      });
+
+      await adaptor.processConfirmationForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(viewApplicationSourceStub.submitRefuseDecision.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/success`,
       );
     });
   });
