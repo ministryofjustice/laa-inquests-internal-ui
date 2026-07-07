@@ -521,7 +521,6 @@ describe("ApplicationDecisionAdaptor", () => {
           certificateStartDateDay: "1",
           certificateStartDateMonth: "1",
           certificateStartDateYear: "2020",
-          certificateStartDate: "2020-01-01",
         },
       ]);
     });
@@ -627,7 +626,6 @@ describe("ApplicationDecisionAdaptor", () => {
     it("renders the granted variant with the certificate start date row and correct back link", () => {
       const sessionData = {
         overallDecision: "GRANTED",
-        certificateStartDate: "2020-01-01",
         certificateStartDateDay: "1",
         certificateStartDateMonth: "1",
         certificateStartDateYear: "2020",
@@ -722,7 +720,6 @@ describe("ApplicationDecisionAdaptor", () => {
     it("redirects a granted decision to the success page without calling the refuse API", async () => {
       sessionHelperStub.getSessionData.returns({
         overallDecision: "GRANTED",
-        certificateStartDate: "2020-01-01",
       });
 
       await adaptor.processConfirmationForm(

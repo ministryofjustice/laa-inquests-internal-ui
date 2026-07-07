@@ -29,7 +29,7 @@ describe("ProcessCertificateStartDateUseCase", () => {
     });
   });
 
-  it("returns SUCCESS with an ISO certificate start date and merged parts", () => {
+  it("returns SUCCESS with merged certificate start date parts", () => {
     const result = useCase.execute({
       day: "1",
       month: "1",
@@ -44,11 +44,10 @@ describe("ProcessCertificateStartDateUseCase", () => {
       certificateStartDateDay: "1",
       certificateStartDateMonth: "1",
       certificateStartDateYear: "2020",
-      certificateStartDate: "2020-01-01",
     });
   });
 
-  it("zero pads day and month when building the ISO date", () => {
+  it("preserves date parts exactly as entered", () => {
     const result = useCase.execute({
       day: "5",
       month: "9",
@@ -57,6 +56,10 @@ describe("ProcessCertificateStartDateUseCase", () => {
     });
 
     assert.equal(result.status, "SUCCESS");
-    assert.equal(result.data?.certificateStartDate, "2021-09-05");
+    assert.deepEqual(result.data, {
+      certificateStartDateDay: "5",
+      certificateStartDateMonth: "9",
+      certificateStartDateYear: "2021",
+    });
   });
 });

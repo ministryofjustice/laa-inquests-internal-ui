@@ -42,7 +42,9 @@ describe("PrepareConfirmationViewUseCase", () => {
     const result = useCase.execute({
       decisionSessionData: {
         overallDecision: "GRANTED",
-        certificateStartDate: "2020-01-01",
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
       },
     });
 

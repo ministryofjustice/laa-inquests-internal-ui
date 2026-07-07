@@ -1,7 +1,4 @@
-import {
-  EMPTY_ARR_LENGTH,
-  DATE_RADIX,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type {
   CertificateStartDateForm,
   CertificateStartDateFormErrors,
@@ -17,21 +14,6 @@ interface ProcessCertificateStartDateInput {
     form: CertificateStartDateForm,
   ) => Partial<CertificateStartDateFormErrors>;
   existingSessionData?: DecisionSessionData | null;
-}
-
-const ISO_PAD_LENGTH = 2;
-
-// TODO: Generic date handler? Can we copy something from external?
-function toIsoDate(day: string, month: string, year: string): string {
-  const paddedDay = String(Number.parseInt(day, DATE_RADIX)).padStart(
-    ISO_PAD_LENGTH,
-    "0",
-  );
-  const paddedMonth = String(Number.parseInt(month, DATE_RADIX)).padStart(
-    ISO_PAD_LENGTH,
-    "0",
-  );
-  return `${year}-${paddedMonth}-${paddedDay}`;
 }
 
 export class ProcessCertificateStartDateUseCase {
@@ -64,10 +46,7 @@ export class ProcessCertificateStartDateUseCase {
 
     return {
       status: "SUCCESS",
-      data: {
-        ...mergedDecisionData,
-        certificateStartDate: toIsoDate(input.day, input.month, input.year),
-      },
+      data: mergedDecisionData,
     };
   }
 }

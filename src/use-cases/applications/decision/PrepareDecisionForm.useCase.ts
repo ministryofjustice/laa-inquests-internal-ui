@@ -11,7 +11,6 @@ export interface DecisionSessionData {
   overallDecision?: string;
   refusalReason?: string;
   justification?: string;
-  certificateStartDate?: string; // TODO: Do we need this AND day/month/year
   certificateStartDateDay?: string;
   certificateStartDateMonth?: string;
   certificateStartDateYear?: string;
