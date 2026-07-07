@@ -4,8 +4,6 @@ import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/
 describe("ProcessCertificateStartDateUseCase", () => {
   const useCase = new ProcessCertificateStartDateUseCase();
 
-  // TODO: I'm fairly sure this matches out existing pattern, but seems a little excessive to have a use case for this?
-
   it("returns VALIDATION_FAILED with errors and merged date parts", () => {
     const errors = {
       certificateStartDate: { text: "Enter the certificate start date" },
