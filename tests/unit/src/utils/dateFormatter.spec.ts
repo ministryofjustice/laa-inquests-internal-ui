@@ -1,5 +1,9 @@
 import { expect } from "chai";
-import { formatDate, formatDateTime } from "#src/utils/dateFormatter.js";
+import {
+  formatDate,
+  formatDateFromParts,
+  formatDateTime,
+} from "#src/utils/dateFormatter.js";
 
 describe("formatDate()", () => {
   it("formats a valid ISO date string correctly", () => {
@@ -14,6 +18,24 @@ describe("formatDate()", () => {
   it("handles invalid date strings by returning the original input", () => {
     expect(formatDate("invalid-date")).to.equal("invalid-date");
     expect(formatDate("")).to.equal("");
+  });
+});
+
+describe("formatDateFromParts()", () => {
+  it("formats valid day, month, year parts into a readable date", () => {
+    expect(formatDateFromParts("6", "1", "1986")).to.equal("6 Jan 1986");
+    expect(formatDateFromParts("28", "7", "2023")).to.equal("28 Jul 2023");
+  });
+
+  it("formats single-digit days without leading zero", () => {
+    expect(formatDateFromParts("5", "2", "2023")).to.equal("5 Feb 2023");
+  });
+
+  it("returns undefined when any part is missing", () => {
+    expect(formatDateFromParts(undefined, "1", "2023")).to.be.undefined;
+    expect(formatDateFromParts("1", undefined, "2023")).to.be.undefined;
+    expect(formatDateFromParts("1", "1", undefined)).to.be.undefined;
+    expect(formatDateFromParts()).to.be.undefined;
   });
 });
 

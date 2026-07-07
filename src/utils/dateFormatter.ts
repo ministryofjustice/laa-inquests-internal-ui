@@ -12,6 +12,20 @@ export function formatDate(dateString: string): string {
   return `${day} ${month} ${year}`;
 }
 
+export function formatDateFromParts(
+  day?: string,
+  month?: string,
+  year?: string,
+): string | undefined {
+  if (!day || !month || !year) {
+    return undefined;
+  }
+
+  return formatDate(
+    `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+  );
+}
+
 export function formatDateTime(dateString: string): string {
   const date = new Date(dateString);
 
