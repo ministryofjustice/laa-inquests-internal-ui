@@ -449,8 +449,6 @@ describe("ApplicationDecisionAdaptor", () => {
       });
     });
 
-    // TODO: Need this per error type? Probably not as it's more checking error summaries is piped through
-    // It's on validator to get it right
     it("includes errorSummaries in render variables when provided", () => {
       sessionHelperStub.getSessionData.returns({});
       const errorSummaries = {
