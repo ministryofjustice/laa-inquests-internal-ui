@@ -523,7 +523,7 @@ describe("ApplicationDecisionAdaptor", () => {
       ]);
     });
 
-    it("does not save the certificate start date to session on TECHNICAL_FAILURE", () => {
+    it("throws and does not save the certificate start date to session on TECHNICAL_FAILURE", () => {
       const failedUseCase = {
         processCertificateStartDateUseCase: {
           execute: () => ({
@@ -543,16 +543,20 @@ describe("ApplicationDecisionAdaptor", () => {
 
       sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
 
-      adaptorWithTechnicalFailure.processCertificateStartDateForm(
-        requestStub as unknown as TypedRequest<
-          {
-            "start-date-day": string;
-            "start-date-month": string;
-            "start-date-year": string;
-          },
-          IdParams
-        >,
-        responseStub,
+      assert.throws(
+        () =>
+          adaptorWithTechnicalFailure.processCertificateStartDateForm(
+            requestStub as unknown as TypedRequest<
+              {
+                "start-date-day": string;
+                "start-date-month": string;
+                "start-date-year": string;
+              },
+              IdParams
+            >,
+            responseStub,
+          ),
+        /Unable to validate certificate start date/u,
       );
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 0);

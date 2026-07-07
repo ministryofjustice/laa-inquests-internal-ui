@@ -265,10 +265,14 @@ export class ApplicationDecisionAdaptor {
         existingSessionData,
       });
 
-    if (
-      processCertificateStartDateResult.status !== "TECHNICAL_FAILURE" &&
-      processCertificateStartDateResult.data
-    ) {
+    if (processCertificateStartDateResult.status === "TECHNICAL_FAILURE") {
+      throw new Error(
+        processCertificateStartDateResult.message ??
+          "Unable to process certificate start date",
+      );
+    }
+
+    if (processCertificateStartDateResult.data) {
       this.sessionHelper.storeSessionData(req, "decision", {
         ...processCertificateStartDateResult.data,
       });
