@@ -22,11 +22,10 @@
     "build:ts": "tsc",
     "test": "yarn test:unit && yarn test:e2e",
     "test:unit": "yarn build && NODE_ENV=test mocha",
-    "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts",
-    "coverage": "c8 yarn test:unit --check-coverage"
+    "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts"
   },
   "engines": {
-    "node": "25.8.2"
+    "node": "26.4.0"
   },
   "dependencies": {
     "@azure/msal-node": "^5.2.2",
@@ -77,7 +76,6 @@
     "@typescript-eslint/eslint-plugin": "^8.61.0",
     "@typescript-eslint/parser": "^8.61.0",
     "axe-core": "^4.12.0",
-    "c8": "^11.0.0",
     "chai": "^6.2.2",
     "chokidar": "5.0.0",
     "concurrently": "^10.0.3",
