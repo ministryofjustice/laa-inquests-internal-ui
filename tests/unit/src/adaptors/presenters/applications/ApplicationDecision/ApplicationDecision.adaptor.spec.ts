@@ -13,6 +13,7 @@ import {
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
+import type { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -496,8 +497,7 @@ describe("ApplicationDecisionAdaptor", () => {
       renderCertificateStartDateFormSpy.restore();
     });
 
-    // TODO: Test that verifies it isn't saved on TECHNICAL_FAILURE? Do we even want that behaviour?
-    it("saves the certificate start date to session, merged with existing data", () => {
+    it("saves the certificate start date to session on SUCCESS, merged with existing data", () => {
       sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
 
       adaptor.processCertificateStartDateForm(
@@ -521,6 +521,102 @@ describe("ApplicationDecisionAdaptor", () => {
           certificateStartDateDay: "1",
           certificateStartDateMonth: "1",
           certificateStartDateYear: "2020",
+        },
+      ]);
+    });
+
+    it("does not save the certificate start date to session on TECHNICAL_FAILURE", () => {
+      const failedUseCase = {
+        processCertificateStartDateUseCase: {
+          execute: () => ({
+            status: "TECHNICAL_FAILURE",
+            reason: "INVALID_INPUT_STATE",
+            message: "Unable to validate certificate start date",
+          }),
+        } as unknown as ProcessCertificateStartDateUseCase,
+      };
+
+      const adaptorWithTechnicalFailure = new ApplicationDecisionAdaptor(
+        viewApplicationSourceStub,
+        sessionHelperStub,
+        validator,
+        failedUseCase,
+      );
+
+      sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
+
+      adaptorWithTechnicalFailure.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
+    });
+
+    it("saves the certificate start date to session on VALIDATION_FAILED", () => {
+      const validationFailedUseCase = {
+        processCertificateStartDateUseCase: {
+          execute: () => ({
+            status: "VALIDATION_FAILED",
+            validationErrors: {
+              certificateStartDate: {
+                text: en.pages.decision.certificateStartDate.validationErrors
+                  .notEmpty,
+              },
+            },
+            data: {
+              overallDecision: "GRANTED",
+              certificateStartDateDay: "",
+              certificateStartDateMonth: "",
+              certificateStartDateYear: "",
+            },
+          }),
+        } as unknown as ProcessCertificateStartDateUseCase,
+      };
+
+      const adaptorWithValidationFailure = new ApplicationDecisionAdaptor(
+        viewApplicationSourceStub,
+        sessionHelperStub,
+        validator,
+        validationFailedUseCase,
+      );
+
+      sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
+
+      requestStub.body = {
+        "start-date-day": "",
+        "start-date-month": "",
+        "start-date-year": "",
+      };
+
+      adaptorWithValidationFailure.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        {
+          overallDecision: "GRANTED",
+          certificateStartDateDay: "",
+          certificateStartDateMonth: "",
+          certificateStartDateYear: "",
         },
       ]);
     });

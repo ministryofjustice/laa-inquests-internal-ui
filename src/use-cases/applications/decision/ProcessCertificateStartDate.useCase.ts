@@ -16,6 +16,7 @@ interface ProcessCertificateStartDateInput {
   existingSessionData?: DecisionSessionData | null;
 }
 
+// TODO: Add try catch whihch returns TECHNICAL_FAILURE
 export class ProcessCertificateStartDateUseCase {
   execute(
     input: ProcessCertificateStartDateInput,
