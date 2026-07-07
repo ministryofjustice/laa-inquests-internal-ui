@@ -1,5 +1,6 @@
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import type { DecisionSessionData } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
+import { formatDate } from "#src/utils/dateFormatter.js";
 
 interface PrepareConfirmationViewInput {
   decisionSessionData?: DecisionSessionData | null;
@@ -10,6 +11,7 @@ interface PrepareConfirmationViewData {
   overallDecision?: string;
   refusalReasonLabel?: string;
   justification?: string;
+  certificateStartDate?: string;
 }
 
 const refusalReasonLabels: Record<string, string> = {
@@ -33,6 +35,9 @@ export class PrepareConfirmationViewUseCase {
           refusalReasonLabels[decisionSessionData.refusalReason ?? ""] ??
           decisionSessionData.refusalReason,
         justification: decisionSessionData.justification,
+        certificateStartDate: decisionSessionData.certificateStartDate
+          ? formatDate(decisionSessionData.certificateStartDate)
+          : undefined,
       },
     };
   }

@@ -23,6 +23,7 @@ describe("PrepareConfirmationViewUseCase", () => {
       overallDecision: "REFUSED",
       refusalReasonLabel: "Not in scope",
       justification: "insufficient evidence",
+      certificateStartDate: undefined,
     });
   });
 
@@ -35,5 +36,17 @@ describe("PrepareConfirmationViewUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.equal(result.data.refusalReasonLabel, "other");
+  });
+
+  it("formats the certificate start date for a granted decision", () => {
+    const result = useCase.execute({
+      decisionSessionData: {
+        overallDecision: "GRANTED",
+        certificateStartDate: "2020-01-01",
+      },
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(result.data.certificateStartDate, "1 Jan 2020");
   });
 });
