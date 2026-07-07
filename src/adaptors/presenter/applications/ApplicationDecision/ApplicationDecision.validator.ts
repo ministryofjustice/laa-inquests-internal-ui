@@ -8,16 +8,7 @@ import type {
 } from "./models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
-import {
-  JUSTIFICATION_MAX_CHARACTER_LENGTH,
-  DATE_RADIX,
-  MIN_DAY,
-  MAX_DAY,
-  MIN_MONTH,
-  MAX_MONTH,
-  MONTH_OFFSET,
-  MIN_YEAR,
-} from "#src/infrastructure/locales/constants.js";
+import { JUSTIFICATION_MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationDecisionValidator extends FormValidator {
   validateApplicationDecisionForm(
@@ -76,78 +67,27 @@ export class ApplicationDecisionValidator extends FormValidator {
       "start-date-month": monthInput,
       "start-date-year": yearInput,
     } = form;
-    const dayValue = dayInput.trim();
-    const monthValue = monthInput.trim();
-    const yearValue = yearInput.trim();
 
-    if (!dayValue && !monthValue && !yearValue) {
-      errors.certificateStartDate = {
-        text: en.pages.decision.certificateStartDate.validationErrors.notEmpty,
-      };
-      return errors;
-    }
-
-    const parsedDate = this.#parseCertificateStartDate(
-      dayValue,
-      monthValue,
-      yearValue,
+    const error = this.validateDateInput(
+      dayInput.trim(),
+      monthInput.trim(),
+      yearInput.trim(),
+      {
+        missing:
+          en.pages.decision.certificateStartDate.validationErrors.notEmpty,
+        nonNumeric:
+          en.pages.decision.certificateStartDate.validationErrors.invalidDate,
+        invalidDate:
+          en.pages.decision.certificateStartDate.validationErrors.invalidDate,
+        futureDate:
+          en.pages.decision.certificateStartDate.validationErrors.future,
+      },
     );
 
-    if (!parsedDate) {
-      errors.certificateStartDate = {
-        text: en.pages.decision.certificateStartDate.validationErrors
-          .invalidDate,
-      };
-      return errors;
-    }
-
-    if (this.#isFutureDate(parsedDate)) {
-      errors.certificateStartDate = {
-        text: en.pages.decision.certificateStartDate.validationErrors.future,
-      };
+    if (error) {
+      errors.certificateStartDate = { text: error };
     }
 
     return errors;
-  }
-
-  #parseCertificateStartDate(
-    dayValue: string,
-    monthValue: string,
-    yearValue: string,
-  ): Date | null {
-    const day = Number.parseInt(dayValue, DATE_RADIX);
-    const month = Number.parseInt(monthValue, DATE_RADIX);
-    const year = Number.parseInt(yearValue, DATE_RADIX);
-
-    if (!this.#isWithinDateRange(day, month, year)) {
-      return null;
-    }
-
-    const date = new Date(year, month - MONTH_OFFSET, day);
-    const isRealDate =
-      date.getFullYear() === year &&
-      date.getMonth() === month - MONTH_OFFSET &&
-      date.getDate() === day;
-
-    return isRealDate ? date : null;
-  }
-
-  #isWithinDateRange(day: number, month: number, year: number): boolean {
-    if (Number.isNaN(day) || Number.isNaN(month) || Number.isNaN(year)) {
-      return false;
-    }
-    if (day < MIN_DAY || day > MAX_DAY) {
-      return false;
-    }
-    if (month < MIN_MONTH || month > MAX_MONTH) {
-      return false;
-    }
-    return year >= MIN_YEAR;
-  }
-
-  #isFutureDate(date: Date): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date.getTime() > today.getTime();
   }
 }
