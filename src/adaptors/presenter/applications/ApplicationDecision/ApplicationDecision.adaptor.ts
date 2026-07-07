@@ -23,9 +23,7 @@ import { ProcessJustificationUseCase } from "#src/use-cases/applications/decisio
 import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
-
-// TODO: Move this to a constant
-const GRANTED_DECISION = "GRANTED";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 interface DecisionUseCases {
   prepareDecisionFormUseCase: PrepareDecisionFormUseCase;

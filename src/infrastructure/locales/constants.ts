@@ -12,6 +12,8 @@ export const MIN_DAY = 1;
 export const MAX_DAY = 31;
 export const MIN_YEAR = 1000;
 
+export const GRANTED_DECISION = "GRANTED";
+
 export const APPLICATION_TYPES = [
   {
     applicationTypeId: "INITIAL",
