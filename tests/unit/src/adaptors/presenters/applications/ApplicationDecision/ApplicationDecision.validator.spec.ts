@@ -61,4 +61,68 @@ describe("ApplicationDecisionValidator", () => {
       assert.exists(errors.decisionJustification);
     });
   });
+
+  describe("validateCertificateStartDate", () => {
+    const startDateErrors =
+      en.pages.decision.certificateStartDate.validationErrors;
+
+    it("adds a notEmpty error when all date fields are empty", () => {
+      const errors = validator.validateCertificateStartDate({
+        "start-date-day": "",
+        "start-date-month": "",
+        "start-date-year": "",
+      });
+
+      assert.deepInclude(errors, {
+        certificateStartDate: { text: startDateErrors.notEmpty },
+      });
+    });
+
+    it("adds an invalidDate error when the date is not real", () => {
+      const errors = validator.validateCertificateStartDate({
+        "start-date-day": "31",
+        "start-date-month": "2",
+        "start-date-year": "2020",
+      });
+
+      assert.deepInclude(errors, {
+        certificateStartDate: { text: startDateErrors.invalidDate },
+      });
+    });
+
+    it("adds an invalidDate error when a field is out of range", () => {
+      const errors = validator.validateCertificateStartDate({
+        "start-date-day": "10",
+        "start-date-month": "13",
+        "start-date-year": "2020",
+      });
+
+      assert.deepInclude(errors, {
+        certificateStartDate: { text: startDateErrors.invalidDate },
+      });
+    });
+
+    it("adds a future error when the date is in the future", () => {
+      const nextYear = new Date().getFullYear() + 1;
+      const errors = validator.validateCertificateStartDate({
+        "start-date-day": "1",
+        "start-date-month": "1",
+        "start-date-year": String(nextYear),
+      });
+
+      assert.deepInclude(errors, {
+        certificateStartDate: { text: startDateErrors.future },
+      });
+    });
+
+    it("returns no errors for a valid past date", () => {
+      const errors = validator.validateCertificateStartDate({
+        "start-date-day": "1",
+        "start-date-month": "1",
+        "start-date-year": "2020",
+      });
+
+      assert.deepEqual(errors, {});
+    });
+  });
 });
