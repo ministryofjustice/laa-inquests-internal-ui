@@ -2,6 +2,16 @@ export const MAX_CHARACTER_LENGTH = 100;
 export const JUSTIFICATION_MAX_CHARACTER_LENGTH = 1500;
 export const EMPTY_ARR_LENGTH = 0;
 
+// TODO: Look at these
+// We want a generic date handler. Do these variables even make sense?
+export const DATE_RADIX = 10;
+export const MIN_MONTH = 1;
+export const MAX_MONTH = 12;
+export const MONTH_OFFSET = 1;
+export const MIN_DAY = 1;
+export const MAX_DAY = 31;
+export const MIN_YEAR = 1000;
+
 export const APPLICATION_TYPES = [
   {
     applicationTypeId: "INITIAL",
