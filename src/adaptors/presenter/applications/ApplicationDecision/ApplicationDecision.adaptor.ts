@@ -296,10 +296,10 @@ export class ApplicationDecisionAdaptor {
       req,
       "decision",
     ) as DecisionSessionData | null;
-    const isGranted = sessionData?.overallDecision === GRANTED_DECISION;
-    const backUrl = isGranted
-      ? `/applications/${applicationId}/decision/certificate-start-date`
-      : `/applications/${applicationId}/decision/justification`;
+    const backUrl =
+      sessionData?.overallDecision === GRANTED_DECISION
+        ? `/applications/${applicationId}/decision/certificate-start-date`
+        : `/applications/${applicationId}/decision/justification`;
     const prepareConfirmationViewResult: ReturnType<
       PrepareConfirmationViewUseCase["execute"]
     > = this.prepareConfirmationViewUseCase.execute({
@@ -327,7 +327,6 @@ export class ApplicationDecisionAdaptor {
       refusalReasonLabel,
       justification,
       certificateStartDate,
-      isGranted,
     });
   }
 

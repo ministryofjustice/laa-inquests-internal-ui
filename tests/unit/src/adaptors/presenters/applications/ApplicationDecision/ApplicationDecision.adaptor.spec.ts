@@ -704,7 +704,6 @@ describe("ApplicationDecisionAdaptor", () => {
         refusalReasonLabel: "Not in scope",
         justification: "some justification",
         certificateStartDate: undefined,
-        isGranted: false,
       });
     });
 
@@ -740,7 +739,6 @@ describe("ApplicationDecisionAdaptor", () => {
         refusalReasonLabel: undefined,
         justification: undefined,
         certificateStartDate: "1 Jan 2020",
-        isGranted: true,
       });
     });
   });
