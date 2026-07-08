@@ -19,11 +19,13 @@ export interface JustificationFormErrors {
 }
 
 export interface CertificateStartDateForm {
+  "start-date-option": string;
   "start-date-day": string;
   "start-date-month": string;
   "start-date-year": string;
 }
 
 export interface CertificateStartDateFormErrors {
+  certificateStartDateOption?: FormErrorMessage;
   certificateStartDate?: FormErrorMessage;
 }

@@ -126,7 +126,13 @@
         "header": "Certificate start date",
         "label": "Certificate start date",
         "hint": "For example 1 1 1990",
+        "radio": {
+          "legend": "When should the substantive certificate be granted from?",
+          "today": "Today",
+          "anotherDate": "Another date"
+        },
         "validationErrors": {
+          "optionNotEmpty": "Select a certificate start date",
           "notEmpty": "Enter the certificate start date",
           "invalidDate": "Certificate start date must be a real date",
           "future": "Certificate start date must not be in the future"

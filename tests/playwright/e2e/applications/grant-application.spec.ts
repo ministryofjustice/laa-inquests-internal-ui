@@ -28,9 +28,9 @@ async function fillStartDate(
   { day, month, year }: { day: string; month: string; year: string },
 ): Promise<void> {
   const form = page.getByTestId("certificate-start-date");
-  await form.getByLabel("Day").fill(day);
-  await form.getByLabel("Month").fill(month);
-  await form.getByLabel("Year").fill(year);
+  await form.getByLabel("Day", { exact: true }).fill(day);
+  await form.getByLabel("Month", { exact: true }).fill(month);
+  await form.getByLabel("Year", { exact: true }).fill(year);
 }
 
 test.describe.serial("Grant application journey", () => {
@@ -61,7 +61,7 @@ test.describe.serial("Grant application journey", () => {
     await expect(sharedPage).toHaveURL(certificateStartDatePage);
   });
 
-  test("caseworker views the Certificate start date page", async () => {
+  test("caseworker views the Certificate start date page with radio options", async () => {
     await validateGovPage(sharedPage, {
       headerText: certificateStartDateLocale.header,
       backUrl: makeADecisionPage,
@@ -70,15 +70,61 @@ test.describe.serial("Grant application journey", () => {
     const form = sharedPage.getByTestId("certificate-start-date");
     await validateGovForm(form, { action: certificateStartDatePage });
 
-    await expect(form.getByLabel("Day")).toBeVisible();
-    await expect(form.getByLabel("Month")).toBeVisible();
-    await expect(form.getByLabel("Year")).toBeVisible();
+    await expect(form.getByRole("radio", { name: "Today" })).toBeVisible();
+    await expect(
+      form.getByRole("radio", { name: "Another date" }),
+    ).toBeVisible();
   });
 
-  test("caseworker sees a validation error when the date is invalid", async () => {
-    // Exact per-case messages (empty, future, not a real date) are covered by
-    // the validator unit tests. Here we only assert an error is surfaced.
+  test("caseworker sees no pre-selected option and date fields are hidden", async () => {
     const form = sharedPage.getByTestId("certificate-start-date");
+
+    await expect(form.getByRole("radio", { name: "Today" })).not.toBeChecked();
+    await expect(
+      form.getByRole("radio", { name: "Another date" }),
+    ).not.toBeChecked();
+  });
+
+  test("caseworker sees no pre-populated date fields and they are hidden", async () => {
+    const form = sharedPage.getByTestId("certificate-start-date");
+
+    await expect(form.getByLabel("Day", { exact: true })).toHaveValue("");
+    await expect(form.getByLabel("Month", { exact: true })).toHaveValue("");
+    await expect(form.getByLabel("Year", { exact: true })).toHaveValue("");
+
+    await expect(form.getByLabel("Day", { exact: true })).not.toBeVisible();
+    await expect(form.getByLabel("Month", { exact: true })).not.toBeVisible();
+    await expect(form.getByLabel("Year", { exact: true })).not.toBeVisible();
+  });
+
+  test("caseworker sees a validation error when no option is selected", async () => {
+    const form = sharedPage.getByTestId("certificate-start-date");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(certificateStartDatePage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary.getByRole("link").first()).toHaveAttribute(
+      "href",
+      "#start-date-option",
+    );
+    await expect(form.locator(".govuk-error-message")).toBeVisible();
+  });
+
+  test("caseworker selects Another date and sees date input fields revealed", async () => {
+    const form = sharedPage.getByTestId("certificate-start-date");
+    await form.getByRole("radio", { name: "Another date" }).check();
+
+    // Date fields should now be visible
+    await expect(form.getByLabel("Day", { exact: true })).toBeVisible();
+    await expect(form.getByLabel("Month", { exact: true })).toBeVisible();
+    await expect(form.getByLabel("Year", { exact: true })).toBeVisible();
+  });
+
+  test("caseworker sees a validation error when Another date is selected but fields are empty", async () => {
+    const form = sharedPage.getByTestId("certificate-start-date");
+    await form.getByRole("radio", { name: "Another date" }).check();
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(certificateStartDatePage);
@@ -92,9 +138,10 @@ test.describe.serial("Grant application journey", () => {
     await expect(form.locator(".govuk-error-message")).toBeVisible();
   });
 
-  test("caseworker enters a valid date and continues to confirmation page", async () => {
-    await fillStartDate(sharedPage, startDate);
+  test("caseworker enters a valid date with Another date option and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("certificate-start-date");
+    await form.getByRole("radio", { name: "Another date" }).check();
+    await fillStartDate(sharedPage, startDate);
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(confirmationPage);
@@ -157,8 +204,66 @@ test.describe.serial("Grant application journey", () => {
   test("caseworker sees pre-populated data on the certificate start date page", async () => {
     const form = sharedPage.getByTestId("certificate-start-date");
 
-    await expect(form.getByLabel("Day")).toHaveValue(startDate.day);
-    await expect(form.getByLabel("Month")).toHaveValue(startDate.month);
-    await expect(form.getByLabel("Year")).toHaveValue(startDate.year);
+    // Verify "Another date" option is still selected
+    await expect(
+      form.getByRole("radio", { name: "Another date" }),
+    ).toBeChecked();
+
+    // Verify date fields are visible and pre-populated
+    await expect(form.getByLabel("Day", { exact: true })).toBeVisible();
+    await expect(form.getByLabel("Day", { exact: true })).toHaveValue(
+      startDate.day,
+    );
+    await expect(form.getByLabel("Month", { exact: true })).toHaveValue(
+      startDate.month,
+    );
+    await expect(form.getByLabel("Year", { exact: true })).toHaveValue(
+      startDate.year,
+    );
+  });
+
+  test("caseworker selects Today and continues to confirmation page", async () => {
+    const form = sharedPage.getByTestId("certificate-start-date");
+    await form.getByRole("radio", { name: "Today" }).check();
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(confirmationPage);
+  });
+
+  test("caseworker sees today's date on the confirmation page", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = form.locator(".govuk-summary-card");
+
+    // Get today's date formatted as expected
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.toLocaleString("en-GB", { month: "short" });
+    const year = today.getFullYear();
+    const formattedToday = `${day} ${month} ${year}`;
+
+    const startDateRow = summaryCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText(confirmationLocale.certificateStartDateTitle, {
+        exact: true,
+      }),
+    });
+    await expect(startDateRow.getByText(formattedToday)).toBeVisible();
+  });
+
+  test("caseworker clicks Change and sees Today option still selected", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = form.locator(".govuk-summary-card");
+
+    const startDateRow = summaryCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText(confirmationLocale.certificateStartDateTitle, {
+        exact: true,
+      }),
+    });
+    await startDateRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(certificateStartDatePage);
+
+    const dateForm = sharedPage.getByTestId("certificate-start-date");
+    await expect(dateForm.getByRole("radio", { name: "Today" })).toBeChecked();
   });
 });

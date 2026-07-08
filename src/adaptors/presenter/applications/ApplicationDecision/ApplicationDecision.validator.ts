@@ -63,29 +63,40 @@ export class ApplicationDecisionValidator extends FormValidator {
     const errors: Partial<CertificateStartDateFormErrors> = {};
 
     const {
+      "start-date-option": option,
       "start-date-day": dayInput,
       "start-date-month": monthInput,
       "start-date-year": yearInput,
     } = form;
 
-    const error = this.validateDateInput(
-      dayInput.trim(),
-      monthInput.trim(),
-      yearInput.trim(),
-      {
-        missing:
-          en.pages.decision.certificateStartDate.validationErrors.notEmpty,
-        nonNumeric:
-          en.pages.decision.certificateStartDate.validationErrors.invalidDate,
-        invalidDate:
-          en.pages.decision.certificateStartDate.validationErrors.invalidDate,
-        futureDate:
-          en.pages.decision.certificateStartDate.validationErrors.future,
-      },
-    );
+    if (!option) {
+      errors.certificateStartDateOption = {
+        text: en.pages.decision.certificateStartDate.validationErrors
+          .optionNotEmpty,
+      };
+      return errors;
+    }
 
-    if (error) {
-      errors.certificateStartDate = { text: error };
+    if (option === "another-date") {
+      const error = this.validateDateInput(
+        dayInput.trim(),
+        monthInput.trim(),
+        yearInput.trim(),
+        {
+          missing:
+            en.pages.decision.certificateStartDate.validationErrors.notEmpty,
+          nonNumeric:
+            en.pages.decision.certificateStartDate.validationErrors.invalidDate,
+          invalidDate:
+            en.pages.decision.certificateStartDate.validationErrors.invalidDate,
+          futureDate:
+            en.pages.decision.certificateStartDate.validationErrors.future,
+        },
+      );
+
+      if (error) {
+        errors.certificateStartDate = { text: error };
+      }
     }
 
     return errors;

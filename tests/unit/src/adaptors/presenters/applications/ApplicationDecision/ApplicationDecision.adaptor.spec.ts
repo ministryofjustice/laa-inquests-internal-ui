@@ -10,6 +10,7 @@ import { IdParams } from "#src/infrastructure/express/api.types.js";
 import {
   ApplicationDecisionForm,
   JustificationForm,
+  CertificateStartDateForm,
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
@@ -445,6 +446,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
         backUrl: `/applications/${applicationId}/decision`,
         applicationId,
+        startDateOption: undefined,
         day: "1",
         month: "1",
         year: "2020",
@@ -469,6 +471,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
         backUrl: `/applications/${applicationId}/decision`,
         applicationId,
+        startDateOption: undefined,
         day: undefined,
         month: undefined,
         year: undefined,
@@ -483,6 +486,7 @@ describe("ApplicationDecisionAdaptor", () => {
     beforeEach(() => {
       requestStub.params = { applicationId };
       requestStub.body = {
+        "start-date-option": "another-date",
         "start-date-day": "1",
         "start-date-month": "1",
         "start-date-year": "2020",
@@ -497,6 +501,7 @@ describe("ApplicationDecisionAdaptor", () => {
       renderCertificateStartDateFormSpy.restore();
     });
 
+    // TODO: revisit this to see if we need a test using 'today'
     it("saves the certificate start date to session on SUCCESS, merged with existing data", () => {
       sessionHelperStub.getSessionData.returns({
         overallDecision: GRANTED_DECISION,
@@ -504,11 +509,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
       adaptor.processCertificateStartDateForm(
         requestStub as unknown as TypedRequest<
-          {
-            "start-date-day": string;
-            "start-date-month": string;
-            "start-date-year": string;
-          },
+          CertificateStartDateForm,
           IdParams
         >,
         responseStub,
@@ -520,6 +521,7 @@ describe("ApplicationDecisionAdaptor", () => {
         "decision",
         {
           overallDecision: GRANTED_DECISION,
+          certificateStartDateOption: "another-date",
           certificateStartDateDay: "1",
           certificateStartDateMonth: "1",
           certificateStartDateYear: "2020",
@@ -553,11 +555,7 @@ describe("ApplicationDecisionAdaptor", () => {
         () =>
           adaptorWithTechnicalFailure.processCertificateStartDateForm(
             requestStub as unknown as TypedRequest<
-              {
-                "start-date-day": string;
-                "start-date-month": string;
-                "start-date-year": string;
-              },
+              CertificateStartDateForm,
               IdParams
             >,
             responseStub,
@@ -601,6 +599,7 @@ describe("ApplicationDecisionAdaptor", () => {
       });
 
       requestStub.body = {
+        "start-date-option": "another-date",
         "start-date-day": "",
         "start-date-month": "",
         "start-date-year": "",
@@ -608,11 +607,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
       adaptorWithValidationFailure.processCertificateStartDateForm(
         requestStub as unknown as TypedRequest<
-          {
-            "start-date-day": string;
-            "start-date-month": string;
-            "start-date-year": string;
-          },
+          CertificateStartDateForm,
           IdParams
         >,
         responseStub,
@@ -636,11 +631,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
       adaptor.processCertificateStartDateForm(
         requestStub as unknown as TypedRequest<
-          {
-            "start-date-day": string;
-            "start-date-month": string;
-            "start-date-year": string;
-          },
+          CertificateStartDateForm,
           IdParams
         >,
         responseStub,
@@ -655,6 +646,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("re-renders with a validation error when no date is entered", () => {
       requestStub.body = {
+        "start-date-option": "another-date",
         "start-date-day": "",
         "start-date-month": "",
         "start-date-year": "",
@@ -663,11 +655,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
       adaptor.processCertificateStartDateForm(
         requestStub as unknown as TypedRequest<
-          {
-            "start-date-day": string;
-            "start-date-month": string;
-            "start-date-year": string;
-          },
+          CertificateStartDateForm,
           IdParams
         >,
         responseStub,

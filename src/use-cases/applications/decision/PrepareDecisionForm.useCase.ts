@@ -11,6 +11,7 @@ export interface DecisionSessionData {
   overallDecision?: string;
   refusalReason?: string;
   justification?: string;
+  certificateStartDateOption?: string;
   certificateStartDateDay?: string;
   certificateStartDateMonth?: string;
   certificateStartDateYear?: string;

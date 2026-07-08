@@ -68,6 +68,7 @@ describe("ApplicationDecisionValidator", () => {
 
     it("adds a notEmpty error when all date fields are empty", () => {
       const errors = validator.validateCertificateStartDate({
+        "start-date-option": "another-date",
         "start-date-day": "",
         "start-date-month": "",
         "start-date-year": "",
@@ -80,6 +81,7 @@ describe("ApplicationDecisionValidator", () => {
 
     it("adds an invalidDate error when the date is not real", () => {
       const errors = validator.validateCertificateStartDate({
+        "start-date-option": "another-date",
         "start-date-day": "31",
         "start-date-month": "2",
         "start-date-year": "2020",
@@ -92,6 +94,7 @@ describe("ApplicationDecisionValidator", () => {
 
     it("adds an invalidDate error when a field is out of range", () => {
       const errors = validator.validateCertificateStartDate({
+        "start-date-option": "another-date",
         "start-date-day": "10",
         "start-date-month": "13",
         "start-date-year": "2020",
@@ -105,6 +108,7 @@ describe("ApplicationDecisionValidator", () => {
     it("adds a future error when the date is in the future", () => {
       const nextYear = new Date().getFullYear() + 1;
       const errors = validator.validateCertificateStartDate({
+        "start-date-option": "another-date",
         "start-date-day": "1",
         "start-date-month": "1",
         "start-date-year": String(nextYear),
@@ -117,6 +121,7 @@ describe("ApplicationDecisionValidator", () => {
 
     it("returns no errors for a valid past date", () => {
       const errors = validator.validateCertificateStartDate({
+        "start-date-option": "another-date",
         "start-date-day": "1",
         "start-date-month": "1",
         "start-date-year": "2020",
