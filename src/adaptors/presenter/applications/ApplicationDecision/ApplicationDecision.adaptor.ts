@@ -236,6 +236,7 @@ export class ApplicationDecisionAdaptor {
     res.render("application/decision/certificate-start-date/index", {
       backUrl,
       applicationId,
+      startDateOption: sessionData?.certificateStartDateOption,
       day: sessionData?.certificateStartDateDay,
       month: sessionData?.certificateStartDateMonth,
       year: sessionData?.certificateStartDateYear,
@@ -252,6 +253,7 @@ export class ApplicationDecisionAdaptor {
     } = req;
     const {
       body: {
+        "start-date-option": option,
         "start-date-day": day,
         "start-date-month": month,
         "start-date-year": year,
@@ -264,6 +266,7 @@ export class ApplicationDecisionAdaptor {
     ) as DecisionSessionData | null;
     const processCertificateStartDateResult =
       this.processCertificateStartDateUseCase.execute({
+        option,
         day,
         month,
         year,

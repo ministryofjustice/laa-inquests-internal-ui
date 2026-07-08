@@ -1,7 +1,8 @@
 import moment from "moment";
-import { MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
-
-const DATE_MONTH_INDEX_OFFSET = 1;
+import {
+  MAX_CHARACTER_LENGTH,
+  DATE_MONTH_INDEX_OFFSET,
+} from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
   protected exceedsMaxLength(

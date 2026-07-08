@@ -1,4 +1,7 @@
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  DATE_MONTH_INDEX_OFFSET,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import type {
   CertificateStartDateForm,
   CertificateStartDateFormErrors,
@@ -8,6 +11,7 @@ import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.t
 import type { DecisionSessionData } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 
 interface ProcessCertificateStartDateInput {
+  option: string;
   day: string;
   month: string;
   year: string;
@@ -25,17 +29,39 @@ export class ProcessCertificateStartDateUseCase {
     Partial<CertificateStartDateFormErrors>
   > {
     try {
-      const validationErrors = input.validate({
-        "start-date-day": input.day,
-        "start-date-month": input.month,
-        "start-date-year": input.year,
+      const {
+        option,
+        day: inputDay,
+        month: inputMonth,
+        year: inputYear,
+        validate,
+        existingSessionData,
+      } = input;
+
+      const validationErrors = validate({
+        "start-date-option": option,
+        "start-date-day": inputDay,
+        "start-date-month": inputMonth,
+        "start-date-year": inputYear,
       });
 
+      let day = inputDay;
+      let month = inputMonth;
+      let year = inputYear;
+
+      if (option === "today") {
+        const today = new Date();
+        day = String(today.getDate());
+        month = String(today.getMonth() + DATE_MONTH_INDEX_OFFSET);
+        year = String(today.getFullYear());
+      }
+
       const mergedDecisionData: DecisionSessionData = {
-        ...(input.existingSessionData ?? {}),
-        certificateStartDateDay: input.day,
-        certificateStartDateMonth: input.month,
-        certificateStartDateYear: input.year,
+        ...(existingSessionData ?? {}),
+        certificateStartDateOption: option,
+        certificateStartDateDay: day,
+        certificateStartDateMonth: month,
+        certificateStartDateYear: year,
       };
 
       if (Object.keys(validationErrors).length > EMPTY_ARR_LENGTH) {

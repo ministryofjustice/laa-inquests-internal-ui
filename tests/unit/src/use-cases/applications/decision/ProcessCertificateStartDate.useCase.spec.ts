@@ -11,6 +11,7 @@ describe("ProcessCertificateStartDateUseCase", () => {
     };
 
     const result = useCase.execute({
+      option: "another-date",
       day: "",
       month: "",
       year: "",
@@ -22,6 +23,7 @@ describe("ProcessCertificateStartDateUseCase", () => {
     assert.deepEqual(result.validationErrors, errors);
     assert.deepEqual(result.data, {
       overallDecision: GRANTED_DECISION,
+      certificateStartDateOption: "another-date",
       certificateStartDateDay: "",
       certificateStartDateMonth: "",
       certificateStartDateYear: "",
@@ -30,6 +32,7 @@ describe("ProcessCertificateStartDateUseCase", () => {
 
   it("returns SUCCESS with merged certificate start date parts", () => {
     const result = useCase.execute({
+      option: "another-date",
       day: "1",
       month: "1",
       year: "2020",
@@ -40,6 +43,7 @@ describe("ProcessCertificateStartDateUseCase", () => {
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, {
       overallDecision: GRANTED_DECISION,
+      certificateStartDateOption: "another-date",
       certificateStartDateDay: "1",
       certificateStartDateMonth: "1",
       certificateStartDateYear: "2020",
@@ -48,6 +52,7 @@ describe("ProcessCertificateStartDateUseCase", () => {
 
   it("returns TECHNICAL_FAILURE when validate throws", () => {
     const result = useCase.execute({
+      option: "another-date",
       day: "1",
       month: "1",
       year: "2020",
