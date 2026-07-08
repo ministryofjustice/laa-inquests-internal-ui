@@ -4,6 +4,8 @@ export const EMPTY_ARR_LENGTH = 0;
 
 export const GRANTED_DECISION = "GRANTED";
 
+export const DATE_MONTH_INDEX_OFFSET = 1;
+
 export const APPLICATION_TYPES = [
   {
     applicationTypeId: "INITIAL",

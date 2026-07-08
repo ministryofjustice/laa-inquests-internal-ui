@@ -1,4 +1,7 @@
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  DATE_MONTH_INDEX_OFFSET,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import type {
   CertificateStartDateForm,
   CertificateStartDateFormErrors,
@@ -49,7 +52,7 @@ export class ProcessCertificateStartDateUseCase {
       if (option === "today") {
         const today = new Date();
         day = String(today.getDate());
-        month = String(today.getMonth() + 1); //TODO: Is there a constant defined for the offset already?
+        month = String(today.getMonth() + DATE_MONTH_INDEX_OFFSET);
         year = String(today.getFullYear());
       }
 

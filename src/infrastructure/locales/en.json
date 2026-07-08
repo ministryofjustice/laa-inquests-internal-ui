@@ -123,11 +123,11 @@
         }
       },
       "certificateStartDate": {
-        "header": "Certificate start date",
-        "label": "Certificate start date",
+        "header": "Make a decision",
+        "label": "Make a decision",
         "hint": "For example 1 1 1990",
         "radio": {
-          "legend": "When should the substantive certificate be granted from?",
+          "hint": "When should the substantive certificate be granted from?",
           "today": "Today",
           "anotherDate": "Another date"
         },

@@ -48,12 +48,7 @@
 
   {{ govukRadios({
     name: "start-date-option",
-    fieldset: {
-      legend: {
-        text: t('pages.decision.certificateStartDate.radio.legend'),
-        classes: "govuk-fieldset__legend--m"
-      }
-    },
+    hint: { text: t('pages.decision.certificateStartDate.radio.hint') },
     errorMessage: errorSummaries.certificateStartDateOption,
     items: [
       {

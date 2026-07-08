@@ -501,7 +501,6 @@ describe("ApplicationDecisionAdaptor", () => {
       renderCertificateStartDateFormSpy.restore();
     });
 
-    // TODO: revisit this to see if we need a test using 'today'
     it("saves the certificate start date to session on SUCCESS, merged with existing data", () => {
       sessionHelperStub.getSessionData.returns({
         overallDecision: GRANTED_DECISION,
