@@ -125,7 +125,7 @@
       "certificateStartDate": {
         "header": "Certificate start date",
         "label": "Certificate start date",
-        "hint": "For example, 27 3 2026",
+        "hint": "For example 1 1 1990",
         "validationErrors": {
           "notEmpty": "Enter the certificate start date",
           "invalidDate": "Certificate start date must be a real date",
