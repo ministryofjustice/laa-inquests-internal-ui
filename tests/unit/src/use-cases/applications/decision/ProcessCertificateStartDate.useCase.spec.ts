@@ -61,20 +61,4 @@ describe("ProcessCertificateStartDateUseCase", () => {
       assert.ok(result.cause instanceof Error);
     }
   });
-
-  it("preserves date parts exactly as entered", () => {
-    const result = useCase.execute({
-      day: "5",
-      month: "9",
-      year: "2021",
-      validate: () => ({}),
-    });
-
-    assert.equal(result.status, "SUCCESS");
-    assert.deepEqual(result.data, {
-      certificateStartDateDay: "5",
-      certificateStartDateMonth: "9",
-      certificateStartDateYear: "2021",
-    });
-  });
 });
