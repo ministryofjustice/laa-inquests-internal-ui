@@ -354,21 +354,12 @@ export class ApplicationDecisionAdaptor {
         throw new Error("Unable to submit grant decision");
       }
     } else {
-      const { refusalReason, justification } = sessionData ?? {};
-      if (!refusalReason || !justification) {
-        throw new Error(
-          "Missing refusal reason or justification in session data",
-        );
-      }
-
-      const refuseDecisionResult = await this.refuseDecisionUseCase.execute({
+      const refuseDecisionResult = await this.#processRefuseDecision(
+        req,
+        res,
         applicationId,
-        refusalReason,
-        justification,
-        applicationPort: this.viewApplicationAdaptor,
-        accessToken: req.session.user?.accessToken,
-      });
-
+        sessionData,
+      );
       if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
         throw new Error(
           refuseDecisionResult.message ?? "Unable to submit refusal decision",
@@ -403,6 +394,27 @@ export class ApplicationDecisionAdaptor {
     return await this.grantDecisionUseCase.execute({
       applicationId,
       certificateStartDate,
+      applicationPort: this.viewApplicationAdaptor,
+      accessToken: req.session.user?.accessToken,
+    });
+  }
+
+  async #processRefuseDecision(
+    req: Request,
+    res: Response,
+    applicationId: string,
+    sessionData: DecisionSessionData | null,
+  ): Promise<UseCaseResult<void>> {
+    const { refusalReason, justification } = sessionData ?? {};
+    if (!refusalReason || !justification) {
+      throw new Error(
+        "Missing refusal reason or justification in session data",
+      );
+    }
+    return await this.refuseDecisionUseCase.execute({
+      applicationId,
+      refusalReason,
+      justification,
       applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
