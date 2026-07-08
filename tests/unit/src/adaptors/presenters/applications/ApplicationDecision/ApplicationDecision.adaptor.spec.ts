@@ -556,7 +556,7 @@ describe("ApplicationDecisionAdaptor", () => {
             >,
             responseStub,
           ),
-        /Unable to validate certificate start date/u,
+        /Unable to validate certificate start date/,
       );
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
