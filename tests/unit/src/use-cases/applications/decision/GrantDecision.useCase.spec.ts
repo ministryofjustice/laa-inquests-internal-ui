@@ -3,7 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 
-describe.only("GrantDecisionUseCase", () => {
+describe("GrantDecisionUseCase", () => {
   const useCase = new GrantDecisionUseCase();
 
   it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when applicationId is empty", async () => {
