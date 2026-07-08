@@ -680,7 +680,7 @@ describe("ApplicationDecisionAdaptor", () => {
       requestStub.params = { applicationId };
     });
 
-    it("calls res.render with the correct view name and variables", () => {
+    it("calls res.render with the correct view name and refuse variables", () => {
       const sessionData = {
         overallDecision: "REFUSED",
         refusalReason: "not-in-scope",
