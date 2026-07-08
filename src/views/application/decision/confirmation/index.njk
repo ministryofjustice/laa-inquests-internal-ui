@@ -25,23 +25,6 @@
       },
       {
         key: {
-          text: t('pages.decision.confirmation.meritsAssessmentTitle')
-        },
-        value: {
-            html: meritsDecisionTag(overallDecision)
-        },
-        actions: {
-          items: [
-            {
-              href: "/applications/" + applicationId + "/decision",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.decision.confirmation.overallDecisionTitle')
-            }
-          ]
-        }
-        },
-        {
-        key: {
             text: t('pages.decision.confirmation.certificateStartDateTitle')
         },
         value: {
@@ -56,7 +39,25 @@
             }
             ]
         }
-        } if overallDecision === "GRANTED",
+      } if overallDecision === "GRANTED",
+
+      {
+        key: {
+          text: t('pages.decision.confirmation.meritsAssessmentTitle')
+        },
+        value: {
+            html: meritsDecisionTag(overallDecision)
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + applicationId + "/decision",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.decision.confirmation.overallDecisionTitle')
+            }
+          ]
+        }
+      },
         {
         key: {
             text: t('pages.decision.confirmation.refusalReasonTitle')
