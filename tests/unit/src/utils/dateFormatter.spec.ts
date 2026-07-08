@@ -27,8 +27,8 @@ describe("formatDateFromParts()", () => {
     expect(formatDateFromParts("28", "7", "2023")).to.equal("28 Jul 2023");
   });
 
-  it("formats single-digit days without leading zero", () => {
-    expect(formatDateFromParts("5", "2", "2023")).to.equal("5 Feb 2023");
+  it("formats single-digit days with leading zero", () => {
+    expect(formatDateFromParts("05", "2", "2023")).to.equal("5 Feb 2023");
   });
 
   it("returns undefined when any part is missing", () => {
