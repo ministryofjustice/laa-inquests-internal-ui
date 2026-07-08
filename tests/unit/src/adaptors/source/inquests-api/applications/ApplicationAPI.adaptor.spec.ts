@@ -35,7 +35,7 @@ const expectedApplication: Application = {
       matterType: "INQUESTS",
       scopeLimitationHeading: "FINAL_HEARING",
       scopeDescription: "This is the scope description",
-      substantiveCostLimitation: 25000,
+      substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
       meritsDecision: "PENDING",
     },
@@ -269,7 +269,7 @@ describe("Test getCoronersLetterDocument", () => {
 });
 
 describe("Test submitRefuseDecision", () => {
-  it("calls the patch endpoint with the correct URL and payload for REFUSED decision", async () => {
+  it("calls the refused endpoint with the correct variables", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
@@ -289,6 +289,26 @@ describe("Test submitRefuseDecision", () => {
       {
         reasonForRefusal: "NOT_IN_SCOPE",
         justification: "This case is not in scope",
+      },
+    );
+  });
+});
+
+describe("Test submitGrantDecision", () => {
+  it("calls the grant endpoint correctly with the correct variables", async () => {
+    const baseUrl = "http://localhost";
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPatchStub.resolves({});
+
+    await adaptor.submitGrantDecision("123", "access-token-123", "2000-01-01");
+
+    sinon.assert.calledOnce(axiosPatchStub);
+    sinon.assert.calledWith(
+      axiosPatchStub,
+      `${baseUrl}/applications/123/grant-decision`,
+      {
+        certificateStartDate: "2000-01-01",
       },
     );
   });

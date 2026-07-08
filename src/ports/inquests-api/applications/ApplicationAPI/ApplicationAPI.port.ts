@@ -17,6 +17,11 @@ export interface ApplicationPort {
     refusalReason: string,
     justification: string,
   ) => Promise<void>;
+  submitGrantDecision: (
+    applicationId: string,
+    accessToken: string | undefined,
+    certificateStartDate: string,
+  ) => Promise<void>;
   getCoronersLetterDocument: (
     applicationId: string,
     accessToken: string | undefined,

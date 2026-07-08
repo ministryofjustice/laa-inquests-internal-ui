@@ -15,6 +15,7 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 import type { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import { DecisionSessionData } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -758,84 +759,231 @@ describe("ApplicationDecisionAdaptor", () => {
       } as unknown as Request["session"];
     });
 
-    it("submits the refusal decision with refusalReason and justification when present in session", async () => {
-      sessionHelperStub.getSessionData.returns({
-        overallDecision: "REFUSED",
-        refusalReason: "not-in-scope",
-        justification: "This case is not in scope",
+    describe("when overallDecision is REFUSED", () => {
+      it("throws error if refusal reason is missing from session", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: "REFUSED",
+          justification: "This case is not in scope",
+        });
+
+        await assert.rejects(
+          () =>
+            adaptor.processConfirmationForm(
+              requestStub as Request,
+              responseStub,
+            ),
+          new Error("Missing refusal reason or justification in session data"),
+        );
       });
-      viewApplicationSourceStub.submitRefuseDecision.resolves();
 
-      await adaptor.processConfirmationForm(
-        requestStub as Request,
-        responseStub,
-      );
+      it("throws error if justification is missing from session", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: "REFUSED",
+          refusalReason: "not-in-scope",
+        });
 
-      assert.equal(viewApplicationSourceStub.submitRefuseDecision.callCount, 1);
-      assert.deepEqual(
-        viewApplicationSourceStub.submitRefuseDecision.getCall(0).args,
-        [
-          applicationId,
-          "access-token-123",
-          "not-in-scope",
-          "This case is not in scope",
-        ],
-      );
+        await assert.rejects(
+          () =>
+            adaptor.processConfirmationForm(
+              requestStub as Request,
+              responseStub,
+            ),
+          new Error("Missing refusal reason or justification in session data"),
+        );
+      });
+
+      it("submits the refusal decision with refusalReason and justification when present in session", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: "REFUSED",
+          refusalReason: "not-in-scope",
+          justification: "This case is not in scope",
+        });
+        viewApplicationSourceStub.submitRefuseDecision.resolves();
+
+        await adaptor.processConfirmationForm(
+          requestStub as Request,
+          responseStub,
+        );
+
+        assert.equal(
+          viewApplicationSourceStub.submitRefuseDecision.callCount,
+          1,
+        );
+        assert.deepEqual(
+          viewApplicationSourceStub.submitRefuseDecision.getCall(0).args,
+          [
+            applicationId,
+            "access-token-123",
+            "not-in-scope",
+            "This case is not in scope",
+          ],
+        );
+      });
+
+      it("redirects to the success page on refusal complete", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: "REFUSED",
+          refusalReason: "not-in-scope",
+          justification: "This case is not in scope",
+        });
+        viewApplicationSourceStub.submitRefuseDecision.resolves();
+
+        await adaptor.processConfirmationForm(
+          requestStub as Request,
+          responseStub,
+        );
+
+        assert.equal(responseStub.redirect.callCount, 1);
+        assert.equal(
+          responseStub.redirect.getCall(0).args[0],
+          `/applications/${applicationId}/decision/success`,
+        );
+      });
+
+      it("throws when submitting the refusal decision fails", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: "REFUSED",
+          refusalReason: "not-in-scope",
+          justification: "This case is not in scope",
+        });
+        viewApplicationSourceStub.submitRefuseDecision.rejects(
+          new Error("Merits rejection failed"),
+        );
+
+        await assert.rejects(
+          () =>
+            adaptor.processConfirmationForm(
+              requestStub as Request,
+              responseStub,
+            ),
+          new Error("Unable to submit refusal decision"),
+        );
+      });
     });
 
-    it("redirects to the success page", async () => {
-      sessionHelperStub.getSessionData.returns({
-        overallDecision: "REFUSED",
-        refusalReason: "not-in-scope",
-        justification: "This case is not in scope",
-      });
-      viewApplicationSourceStub.submitRefuseDecision.resolves();
+    describe("when overallDecision is GRANTED", () => {
+      const throwsIfMissingCertificateStartDate = async (
+        input: Partial<DecisionSessionData>,
+      ) => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: GRANTED_DECISION,
+          ...input,
+        });
 
-      await adaptor.processConfirmationForm(
-        requestStub as Request,
-        responseStub,
-      );
+        await assert.rejects(
+          () =>
+            adaptor.processConfirmationForm(
+              requestStub as Request,
+              responseStub,
+            ),
+          new Error("Missing certificate start date in session data"),
+        );
+      };
 
-      assert.equal(responseStub.redirect.callCount, 1);
-      assert.equal(
-        responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/success`,
-      );
-    });
-
-    it("throws when submitting the refusal decision fails", async () => {
-      sessionHelperStub.getSessionData.returns({
-        overallDecision: "REFUSED",
-        refusalReason: "not-in-scope",
-        justification: "This case is not in scope",
-      });
-      viewApplicationSourceStub.submitRefuseDecision.rejects(
-        new Error("Merits rejection failed"),
-      );
-
-      await assert.rejects(
-        () =>
-          adaptor.processConfirmationForm(requestStub as Request, responseStub),
-        new Error("Unable to submit refusal decision"),
-      );
-    });
-
-    it("redirects a granted decision to the success page without calling the refuse API", async () => {
-      sessionHelperStub.getSessionData.returns({
-        overallDecision: GRANTED_DECISION,
+      it("throws error if certificate start date day is missing from session", async () => {
+        await throwsIfMissingCertificateStartDate({
+          certificateStartDateMonth: "1",
+          certificateStartDateYear: "2024",
+        });
       });
 
-      await adaptor.processConfirmationForm(
-        requestStub as Request,
-        responseStub,
-      );
+      it("throws error if certificate start date month is missing from session", async () => {
+        await throwsIfMissingCertificateStartDate({
+          certificateStartDateDay: "1",
+          certificateStartDateYear: "2024",
+        });
+      });
 
-      assert.equal(viewApplicationSourceStub.submitRefuseDecision.callCount, 0);
-      assert.equal(responseStub.redirect.callCount, 1);
-      assert.equal(
-        responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/success`,
-      );
+      it("throws error if certificate start date year is missing from session", async () => {
+        await throwsIfMissingCertificateStartDate({
+          certificateStartDateDay: "1",
+          certificateStartDateMonth: "1",
+        });
+      });
+
+      it("submits the granted decision with certificate start date when present in session", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: GRANTED_DECISION,
+          certificateStartDateDay: "01",
+          certificateStartDateMonth: "01",
+          certificateStartDateYear: "2024",
+        });
+        viewApplicationSourceStub.submitGrantDecision.resolves();
+
+        await adaptor.processConfirmationForm(
+          requestStub as Request,
+          responseStub,
+        );
+
+        assert.equal(
+          viewApplicationSourceStub.submitGrantDecision.callCount,
+          1,
+        );
+        assert.deepEqual(
+          viewApplicationSourceStub.submitGrantDecision.getCall(0).args,
+          [applicationId, "access-token-123", "2024-01-01"],
+        );
+      });
+
+      it("pads single-digit day and month with leading zeros when submitting the granted decision", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: GRANTED_DECISION,
+          certificateStartDateDay: "1",
+          certificateStartDateMonth: "2",
+          certificateStartDateYear: "2024",
+        });
+        viewApplicationSourceStub.submitGrantDecision.resolves();
+
+        await adaptor.processConfirmationForm(
+          requestStub as Request,
+          responseStub,
+        );
+
+        assert.deepEqual(
+          viewApplicationSourceStub.submitGrantDecision.getCall(0).args[2],
+          "2024-02-01",
+        );
+      });
+
+      it("redirects to the success page on granted decision complete", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: GRANTED_DECISION,
+          certificateStartDateDay: "01",
+          certificateStartDateMonth: "01",
+          certificateStartDateYear: "2024",
+        });
+        viewApplicationSourceStub.submitGrantDecision.resolves();
+
+        await adaptor.processConfirmationForm(
+          requestStub as Request,
+          responseStub,
+        );
+
+        assert.equal(responseStub.redirect.callCount, 1);
+        assert.equal(
+          responseStub.redirect.getCall(0).args[0],
+          `/applications/${applicationId}/decision/success`,
+        );
+      });
+
+      it("throws when submitting the grant decision fails", async () => {
+        sessionHelperStub.getSessionData.returns({
+          overallDecision: GRANTED_DECISION,
+          certificateStartDateDay: "01",
+          certificateStartDateMonth: "01",
+          certificateStartDateYear: "2024",
+        });
+        viewApplicationSourceStub.submitGrantDecision.rejects(new Error());
+
+        await assert.rejects(
+          () =>
+            adaptor.processConfirmationForm(
+              requestStub as Request,
+              responseStub,
+            ),
+          new Error("Unable to submit grant decision"),
+        );
+      });
     });
   });
 

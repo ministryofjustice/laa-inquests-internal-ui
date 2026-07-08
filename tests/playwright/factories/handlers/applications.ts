@@ -44,7 +44,7 @@ const fullApplication = {
       matterType: "INQUESTS",
       scopeLimitationHeading: "FINAL_HEARING",
       scopeDescription: "This is the scope description",
-      substantiveCostLimitation: 25000,
+      substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
       meritsDecision: "PENDING",
     },

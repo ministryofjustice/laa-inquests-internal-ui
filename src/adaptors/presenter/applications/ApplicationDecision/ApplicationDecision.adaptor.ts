@@ -24,6 +24,8 @@ import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
+import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
 interface DecisionUseCases {
   prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
@@ -32,6 +34,7 @@ interface DecisionUseCases {
   processCertificateStartDateUseCase: ProcessCertificateStartDateUseCase;
   prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   refuseDecisionUseCase: RefuseDecisionUseCase;
+  grantDecisionUseCase: GrantDecisionUseCase;
 }
 
 export class ApplicationDecisionAdaptor {
@@ -41,6 +44,7 @@ export class ApplicationDecisionAdaptor {
   private readonly processCertificateStartDateUseCase: ProcessCertificateStartDateUseCase;
   private readonly prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   private readonly refuseDecisionUseCase: RefuseDecisionUseCase;
+  private readonly grantDecisionUseCase: GrantDecisionUseCase;
 
   constructor(
     private readonly viewApplicationAdaptor: ApplicationPort,
@@ -63,6 +67,8 @@ export class ApplicationDecisionAdaptor {
       new PrepareConfirmationViewUseCase();
     this.refuseDecisionUseCase =
       useCases.refuseDecisionUseCase ?? new RefuseDecisionUseCase();
+    this.grantDecisionUseCase =
+      useCases.grantDecisionUseCase ?? new GrantDecisionUseCase();
   }
 
   async renderApplicationDecisionForm(
@@ -338,32 +344,80 @@ export class ApplicationDecisionAdaptor {
     ) as DecisionSessionData | null;
 
     if (sessionData?.overallDecision === GRANTED_DECISION) {
-      res.redirect(`/applications/${applicationId}/decision/success`);
-      return;
+      const grantDecisionResult = await this.#processGrantDecision(
+        req,
+        res,
+        applicationId,
+        sessionData,
+      );
+      if (grantDecisionResult.status === "TECHNICAL_FAILURE") {
+        throw new Error("Unable to submit grant decision");
+      }
+    } else {
+      const refuseDecisionResult = await this.#processRefuseDecision(
+        req,
+        res,
+        applicationId,
+        sessionData,
+      );
+      if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
+        throw new Error(
+          refuseDecisionResult.message ?? "Unable to submit refusal decision",
+        );
+      }
     }
 
+    res.redirect(`/applications/${applicationId}/decision/success`);
+  }
+
+  async #processGrantDecision(
+    req: Request,
+    res: Response,
+    applicationId: string,
+    sessionData: DecisionSessionData | null,
+  ): Promise<UseCaseResult<void>> {
+    const {
+      certificateStartDateDay,
+      certificateStartDateMonth,
+      certificateStartDateYear,
+    } = sessionData ?? {};
+    if (
+      !certificateStartDateDay ||
+      !certificateStartDateMonth ||
+      !certificateStartDateYear
+    ) {
+      throw new Error("Missing certificate start date in session data");
+    }
+    const paddedDay = certificateStartDateDay.padStart(2, "0");
+    const paddedMonth = certificateStartDateMonth.padStart(2, "0");
+    const certificateStartDate = `${certificateStartDateYear}-${paddedMonth}-${paddedDay}`;
+    return await this.grantDecisionUseCase.execute({
+      applicationId,
+      certificateStartDate,
+      applicationPort: this.viewApplicationAdaptor,
+      accessToken: req.session.user?.accessToken,
+    });
+  }
+
+  async #processRefuseDecision(
+    req: Request,
+    res: Response,
+    applicationId: string,
+    sessionData: DecisionSessionData | null,
+  ): Promise<UseCaseResult<void>> {
     const { refusalReason, justification } = sessionData ?? {};
     if (!refusalReason || !justification) {
       throw new Error(
         "Missing refusal reason or justification in session data",
       );
     }
-
-    const refuseDecisionResult = await this.refuseDecisionUseCase.execute({
+    return await this.refuseDecisionUseCase.execute({
       applicationId,
       refusalReason,
       justification,
       applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
-
-    if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
-      throw new Error(
-        refuseDecisionResult.message ?? "Unable to submit refusal decision",
-      );
-    }
-
-    res.redirect(`/applications/${applicationId}/decision/success`);
   }
 
   renderDecisionSuccessPage(req: Request, res: Response): void {
