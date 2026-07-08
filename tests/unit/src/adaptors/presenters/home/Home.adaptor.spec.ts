@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("Home adaptor", () => {
   let homeAdaptor: HomeAdaptor;
@@ -32,7 +33,7 @@ describe("Home adaptor", () => {
         laaReference: 456,
         createdAt: "2026-05-21T08:46:36.793278",
         status: "LIVE",
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
       },
       {
         laaReference: null,

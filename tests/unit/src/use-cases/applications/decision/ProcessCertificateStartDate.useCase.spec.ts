@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("ProcessCertificateStartDateUseCase", () => {
   const useCase = new ProcessCertificateStartDateUseCase();
@@ -14,13 +15,13 @@ describe("ProcessCertificateStartDateUseCase", () => {
       month: "",
       year: "",
       validate: () => errors,
-      existingSessionData: { overallDecision: "GRANTED" },
+      existingSessionData: { overallDecision: GRANTED_DECISION },
     });
 
     assert.equal(result.status, "VALIDATION_FAILED");
     assert.deepEqual(result.validationErrors, errors);
     assert.deepEqual(result.data, {
-      overallDecision: "GRANTED",
+      overallDecision: GRANTED_DECISION,
       certificateStartDateDay: "",
       certificateStartDateMonth: "",
       certificateStartDateYear: "",
@@ -33,12 +34,12 @@ describe("ProcessCertificateStartDateUseCase", () => {
       month: "1",
       year: "2020",
       validate: () => ({}),
-      existingSessionData: { overallDecision: "GRANTED" },
+      existingSessionData: { overallDecision: GRANTED_DECISION },
     });
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, {
-      overallDecision: "GRANTED",
+      overallDecision: GRANTED_DECISION,
       certificateStartDateDay: "1",
       certificateStartDateMonth: "1",
       certificateStartDateYear: "2020",

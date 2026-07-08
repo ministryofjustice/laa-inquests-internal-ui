@@ -14,6 +14,7 @@ import {
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 import type { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -168,7 +169,7 @@ describe("ApplicationDecisionAdaptor", () => {
     });
 
     it("redirects to the certificate start date page when granted", () => {
-      requestStub.body = { "overall-decision": "GRANTED" };
+      requestStub.body = { "overall-decision": GRANTED_DECISION };
 
       adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
@@ -424,7 +425,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("calls res.render with the correct view name and pre-populated date parts", () => {
       sessionHelperStub.getSessionData.returns({
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
         certificateStartDateDay: "1",
         certificateStartDateMonth: "1",
         certificateStartDateYear: "2020",
@@ -496,7 +497,9 @@ describe("ApplicationDecisionAdaptor", () => {
     });
 
     it("saves the certificate start date to session on SUCCESS, merged with existing data", () => {
-      sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
 
       adaptor.processCertificateStartDateForm(
         requestStub as unknown as TypedRequest<
@@ -515,7 +518,7 @@ describe("ApplicationDecisionAdaptor", () => {
         requestStub,
         "decision",
         {
-          overallDecision: "GRANTED",
+          overallDecision: GRANTED_DECISION,
           certificateStartDateDay: "1",
           certificateStartDateMonth: "1",
           certificateStartDateYear: "2020",
@@ -541,7 +544,9 @@ describe("ApplicationDecisionAdaptor", () => {
         failedUseCase,
       );
 
-      sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
 
       assert.throws(
         () =>
@@ -574,7 +579,7 @@ describe("ApplicationDecisionAdaptor", () => {
               },
             },
             data: {
-              overallDecision: "GRANTED",
+              overallDecision: GRANTED_DECISION,
               certificateStartDateDay: "",
               certificateStartDateMonth: "",
               certificateStartDateYear: "",
@@ -590,7 +595,9 @@ describe("ApplicationDecisionAdaptor", () => {
         validationFailedUseCase,
       );
 
-      sessionHelperStub.getSessionData.returns({ overallDecision: "GRANTED" });
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
 
       requestStub.body = {
         "start-date-day": "",
@@ -615,7 +622,7 @@ describe("ApplicationDecisionAdaptor", () => {
         requestStub,
         "decision",
         {
-          overallDecision: "GRANTED",
+          overallDecision: GRANTED_DECISION,
           certificateStartDateDay: "",
           certificateStartDateMonth: "",
           certificateStartDateYear: "",
@@ -722,7 +729,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("renders the granted variant with the certificate start date row and correct back link", () => {
       const sessionData = {
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
         certificateStartDateDay: "1",
         certificateStartDateMonth: "1",
         certificateStartDateYear: "2020",
@@ -735,7 +742,7 @@ describe("ApplicationDecisionAdaptor", () => {
         backUrl: `/applications/${applicationId}/decision/certificate-start-date`,
         applicationId,
         proceeding: sessionData,
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
         refusalReasonLabel: undefined,
         justification: undefined,
         certificateStartDate: "1 Jan 2020",
@@ -815,7 +822,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("redirects a granted decision to the success page without calling the refuse API", async () => {
       sessionHelperStub.getSessionData.returns({
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
       });
 
       await adaptor.processConfirmationForm(

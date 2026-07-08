@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("PrepareConfirmationViewUseCase", () => {
   const useCase = new PrepareConfirmationViewUseCase();
@@ -41,7 +42,7 @@ describe("PrepareConfirmationViewUseCase", () => {
   it("formats the certificate start date for a granted decision", () => {
     const result = useCase.execute({
       decisionSessionData: {
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
         certificateStartDateDay: "1",
         certificateStartDateMonth: "1",
         certificateStartDateYear: "2020",
