@@ -1,5 +1,6 @@
 import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { http, HttpResponse } from "msw";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 /**
  * Application summaries returned by GET /applications/.
@@ -16,7 +17,7 @@ const applicationSummaries = [
     laa_reference: 2,
     created_at: "2026-05-19T15:49:07.455255",
     status: "LIVE",
-    overall_decision: "GRANTED",
+    overall_decision: GRANTED_DECISION,
   },
 ];
 

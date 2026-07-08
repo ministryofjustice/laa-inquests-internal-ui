@@ -6,6 +6,7 @@ import type {
   Application,
   ApplicationSummary,
 } from "#src/adaptors/models/application.types.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
 const axiosPatchStub = sinon.stub(axios, "patch");
@@ -98,7 +99,7 @@ const expectedApplicationsSummary = [
     laa_reference: 2,
     created_at: "2026-05-19T15:49:07.455255",
     status: "LIVE",
-    overall_decision: "GRANTED",
+    overall_decision: GRANTED_DECISION,
   },
 ];
 
@@ -139,7 +140,7 @@ describe("Test Application API Adaptor", () => {
         laaReference: 2,
         createdAt: "2026-05-19T15:49:07.455255",
         status: "LIVE",
-        overallDecision: "GRANTED",
+        overallDecision: GRANTED_DECISION,
       },
     ]);
   });

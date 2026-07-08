@@ -3,6 +3,8 @@ import type {
   ApplicationDecisionFormErrors,
   JustificationForm,
   JustificationFormErrors,
+  CertificateStartDateForm,
+  CertificateStartDateFormErrors,
 } from "./models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
@@ -50,6 +52,40 @@ export class ApplicationDecisionValidator extends FormValidator {
         text: en.pages.decision.justification.textarea.validationErrors
           .invalidCharacters,
       };
+    }
+
+    return errors;
+  }
+
+  validateCertificateStartDate(
+    form: CertificateStartDateForm,
+  ): Partial<CertificateStartDateFormErrors> {
+    const errors: Partial<CertificateStartDateFormErrors> = {};
+
+    const {
+      "start-date-day": dayInput,
+      "start-date-month": monthInput,
+      "start-date-year": yearInput,
+    } = form;
+
+    const error = this.validateDateInput(
+      dayInput.trim(),
+      monthInput.trim(),
+      yearInput.trim(),
+      {
+        missing:
+          en.pages.decision.certificateStartDate.validationErrors.notEmpty,
+        nonNumeric:
+          en.pages.decision.certificateStartDate.validationErrors.invalidDate,
+        invalidDate:
+          en.pages.decision.certificateStartDate.validationErrors.invalidDate,
+        futureDate:
+          en.pages.decision.certificateStartDate.validationErrors.future,
+      },
+    );
+
+    if (error) {
+      errors.certificateStartDate = { text: error };
     }
 
     return errors;

@@ -13,6 +13,8 @@ import {
 } from "#src/adaptors/presenter/applications/ApplicationDecision/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
+import type { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -163,6 +165,21 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/justification`,
+      );
+    });
+
+    it("redirects to the certificate start date page when granted", () => {
+      requestStub.body = { "overall-decision": GRANTED_DECISION };
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/certificate-start-date`,
       );
     });
 
@@ -401,12 +418,276 @@ describe("ApplicationDecisionAdaptor", () => {
     });
   });
 
+  describe("renderCertificateStartDateForm", () => {
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+    });
+
+    it("calls res.render with the correct view name and pre-populated date parts", () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
+      });
+
+      adaptor.renderCertificateStartDateForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/decision/certificate-start-date/index",
+      );
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        applicationId,
+        day: "1",
+        month: "1",
+        year: "2020",
+      });
+    });
+
+    it("includes errorSummaries in render variables when provided", () => {
+      sessionHelperStub.getSessionData.returns({});
+      const errorSummaries = {
+        certificateStartDate: {
+          text: en.pages.decision.certificateStartDate.validationErrors
+            .notEmpty,
+        },
+      };
+
+      adaptor.renderCertificateStartDateForm(
+        requestStub as Request,
+        responseStub,
+        errorSummaries,
+      );
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision`,
+        applicationId,
+        day: undefined,
+        month: undefined,
+        year: undefined,
+        errorSummaries,
+      });
+    });
+  });
+
+  describe("processCertificateStartDateForm", () => {
+    let renderCertificateStartDateFormSpy: sinon.SinonSpy;
+
+    beforeEach(() => {
+      requestStub.params = { applicationId };
+      requestStub.body = {
+        "start-date-day": "1",
+        "start-date-month": "1",
+        "start-date-year": "2020",
+      };
+      renderCertificateStartDateFormSpy = sinon.spy(
+        adaptor,
+        "renderCertificateStartDateForm",
+      );
+    });
+
+    afterEach(() => {
+      renderCertificateStartDateFormSpy.restore();
+    });
+
+    it("saves the certificate start date to session on SUCCESS, merged with existing data", () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        {
+          overallDecision: GRANTED_DECISION,
+          certificateStartDateDay: "1",
+          certificateStartDateMonth: "1",
+          certificateStartDateYear: "2020",
+        },
+      ]);
+    });
+
+    it("throws and does not save the certificate start date to session on TECHNICAL_FAILURE", () => {
+      const failedUseCase = {
+        processCertificateStartDateUseCase: {
+          execute: () => ({
+            status: "TECHNICAL_FAILURE",
+            reason: "INVALID_INPUT_STATE",
+            message: "Unable to validate certificate start date",
+          }),
+        } as unknown as ProcessCertificateStartDateUseCase,
+      };
+
+      const adaptorWithTechnicalFailure = new ApplicationDecisionAdaptor(
+        viewApplicationSourceStub,
+        sessionHelperStub,
+        validator,
+        failedUseCase,
+      );
+
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
+
+      assert.throws(
+        () =>
+          adaptorWithTechnicalFailure.processCertificateStartDateForm(
+            requestStub as unknown as TypedRequest<
+              {
+                "start-date-day": string;
+                "start-date-month": string;
+                "start-date-year": string;
+              },
+              IdParams
+            >,
+            responseStub,
+          ),
+        /Unable to validate certificate start date/,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
+    });
+
+    it("saves the certificate start date to session on VALIDATION_FAILED", () => {
+      const validationFailedUseCase = {
+        processCertificateStartDateUseCase: {
+          execute: () => ({
+            status: "VALIDATION_FAILED",
+            validationErrors: {
+              certificateStartDate: {
+                text: en.pages.decision.certificateStartDate.validationErrors
+                  .notEmpty,
+              },
+            },
+            data: {
+              overallDecision: GRANTED_DECISION,
+              certificateStartDateDay: "",
+              certificateStartDateMonth: "",
+              certificateStartDateYear: "",
+            },
+          }),
+        } as unknown as ProcessCertificateStartDateUseCase,
+      };
+
+      const adaptorWithValidationFailure = new ApplicationDecisionAdaptor(
+        viewApplicationSourceStub,
+        sessionHelperStub,
+        validator,
+        validationFailedUseCase,
+      );
+
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
+
+      requestStub.body = {
+        "start-date-day": "",
+        "start-date-month": "",
+        "start-date-year": "",
+      };
+
+      adaptorWithValidationFailure.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        {
+          overallDecision: GRANTED_DECISION,
+          certificateStartDateDay: "",
+          certificateStartDateMonth: "",
+          certificateStartDateYear: "",
+        },
+      ]);
+    });
+
+    it("redirects to the confirmation page", () => {
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/confirmation`,
+      );
+    });
+
+    it("re-renders with a validation error when no date is entered", () => {
+      requestStub.body = {
+        "start-date-day": "",
+        "start-date-month": "",
+        "start-date-year": "",
+      };
+      sessionHelperStub.getSessionData.returns({});
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          {
+            "start-date-day": string;
+            "start-date-month": string;
+            "start-date-year": string;
+          },
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.ok(renderCertificateStartDateFormSpy.calledOnce);
+      assert.deepEqual(renderCertificateStartDateFormSpy.getCall(0).args[2], {
+        certificateStartDate: {
+          text: en.pages.decision.certificateStartDate.validationErrors
+            .notEmpty,
+        },
+      });
+    });
+  });
+
   describe("renderConfirmationPage", () => {
     beforeEach(() => {
       requestStub.params = { applicationId };
     });
 
-    it("calls res.render with the correct view name and variables", () => {
+    it("calls res.render with the correct view name and refuse variables", () => {
       const sessionData = {
         overallDecision: "REFUSED",
         refusalReason: "not-in-scope",
@@ -429,6 +710,7 @@ describe("ApplicationDecisionAdaptor", () => {
         overallDecision: "REFUSED",
         refusalReasonLabel: "Not in scope",
         justification: "some justification",
+        certificateStartDate: undefined,
       });
     });
 
@@ -443,6 +725,28 @@ describe("ApplicationDecisionAdaptor", () => {
       const renderVars = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(renderVars.refusalReasonLabel, "unknown-reason");
+    });
+
+    it("renders the granted variant with the certificate start date row and correct back link", () => {
+      const sessionData = {
+        overallDecision: GRANTED_DECISION,
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
+      };
+      sessionHelperStub.getSessionData.returns(sessionData);
+
+      adaptor.renderConfirmationPage(requestStub as Request, responseStub);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision/certificate-start-date`,
+        applicationId,
+        proceeding: sessionData,
+        overallDecision: GRANTED_DECISION,
+        refusalReasonLabel: undefined,
+        justification: undefined,
+        certificateStartDate: "1 Jan 2020",
+      });
     });
   });
 
@@ -513,6 +817,24 @@ describe("ApplicationDecisionAdaptor", () => {
         () =>
           adaptor.processConfirmationForm(requestStub as Request, responseStub),
         new Error("Unable to submit refusal decision"),
+      );
+    });
+
+    it("redirects a granted decision to the success page without calling the refuse API", async () => {
+      sessionHelperStub.getSessionData.returns({
+        overallDecision: GRANTED_DECISION,
+      });
+
+      await adaptor.processConfirmationForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(viewApplicationSourceStub.submitRefuseDecision.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/success`,
       );
     });
   });

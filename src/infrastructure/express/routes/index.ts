@@ -20,6 +20,7 @@ import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applicatio
 import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
 import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
+import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
@@ -59,6 +60,8 @@ const buildApplicationOverviewViewUseCase =
 const prepareDecisionFormUseCase = new PrepareDecisionFormUseCase();
 const processDecisionSelectionUseCase = new ProcessDecisionSelectionUseCase();
 const processJustificationUseCase = new ProcessJustificationUseCase();
+const processCertificateStartDateUseCase =
+  new ProcessCertificateStartDateUseCase();
 const prepareConfirmationViewUseCase = new PrepareConfirmationViewUseCase();
 const submitDecisionUseCase = new RefuseDecisionUseCase();
 const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase();
@@ -79,6 +82,7 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
     prepareDecisionFormUseCase,
     processDecisionSelectionUseCase,
     processJustificationUseCase,
+    processCertificateStartDateUseCase,
     prepareConfirmationViewUseCase,
     refuseDecisionUseCase: submitDecisionUseCase,
   },

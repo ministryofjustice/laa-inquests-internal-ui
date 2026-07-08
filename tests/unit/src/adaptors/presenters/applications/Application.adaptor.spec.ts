@@ -3,6 +3,7 @@ import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("Application adaptor", () => {
   let applicationAdaptor: ApplicationAdaptor;
@@ -346,7 +347,7 @@ describe("Application adaptor", () => {
   it("renders green 'Assessment complete' tag when overallDecision is not PENDING", async () => {
     viewApplicationAdaptorStub.getApplication.resolves({
       ...application,
-      overallDecision: "GRANTED",
+      overallDecision: GRANTED_DECISION,
     });
     await applicationAdaptor.renderApplicationPage(
       requestStub,

@@ -17,3 +17,13 @@ export interface JustificationFormErrors {
   decisionReason?: FormErrorMessage;
   decisionJustification?: FormErrorMessage;
 }
+
+export interface CertificateStartDateForm {
+  "start-date-day": string;
+  "start-date-month": string;
+  "start-date-year": string;
+}
+
+export interface CertificateStartDateFormErrors {
+  certificateStartDate?: FormErrorMessage;
+}

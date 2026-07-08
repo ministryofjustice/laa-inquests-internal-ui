@@ -10,6 +10,8 @@ import type {
   ApplicationDecisionFormErrors,
   JustificationForm,
   JustificationFormErrors,
+  CertificateStartDateForm,
+  CertificateStartDateFormErrors,
 } from "./models/form.types.js";
 import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
 import {
@@ -18,13 +20,16 @@ import {
 } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
 import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
+import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 interface DecisionUseCases {
   prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
   processDecisionSelectionUseCase: ProcessDecisionSelectionUseCase;
   processJustificationUseCase: ProcessJustificationUseCase;
+  processCertificateStartDateUseCase: ProcessCertificateStartDateUseCase;
   prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   refuseDecisionUseCase: RefuseDecisionUseCase;
 }
@@ -33,6 +38,7 @@ export class ApplicationDecisionAdaptor {
   private readonly prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
   private readonly processDecisionSelectionUseCase: ProcessDecisionSelectionUseCase;
   private readonly processJustificationUseCase: ProcessJustificationUseCase;
+  private readonly processCertificateStartDateUseCase: ProcessCertificateStartDateUseCase;
   private readonly prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   private readonly refuseDecisionUseCase: RefuseDecisionUseCase;
 
@@ -49,6 +55,9 @@ export class ApplicationDecisionAdaptor {
       new ProcessDecisionSelectionUseCase();
     this.processJustificationUseCase =
       useCases.processJustificationUseCase ?? new ProcessJustificationUseCase();
+    this.processCertificateStartDateUseCase =
+      useCases.processCertificateStartDateUseCase ??
+      new ProcessCertificateStartDateUseCase();
     this.prepareConfirmationViewUseCase =
       useCases.prepareConfirmationViewUseCase ??
       new PrepareConfirmationViewUseCase();
@@ -135,6 +144,13 @@ export class ApplicationDecisionAdaptor {
       return;
     }
 
+    if (decisionToPersist === GRANTED_DECISION) {
+      res.redirect(
+        `/applications/${applicationId}/decision/certificate-start-date`,
+      );
+      return;
+    }
+
     res.redirect(`/applications/${applicationId}/decision/justification`);
   }
 
@@ -200,13 +216,90 @@ export class ApplicationDecisionAdaptor {
     res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }
 
-  renderConfirmationPage(req: Request, res: Response): void {
+  renderCertificateStartDateForm(
+    req: Request,
+    res: Response,
+    errorSummaries?: Partial<CertificateStartDateFormErrors>,
+  ): void {
     const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/decision/justification`;
+    const backUrl = `/applications/${applicationId}/decision`;
     const sessionData = this.sessionHelper.getSessionData(
       req,
       "decision",
     ) as DecisionSessionData | null;
+    res.render("application/decision/certificate-start-date/index", {
+      backUrl,
+      applicationId,
+      day: sessionData?.certificateStartDateDay,
+      month: sessionData?.certificateStartDateMonth,
+      year: sessionData?.certificateStartDateYear,
+      ...(errorSummaries && { errorSummaries }),
+    });
+  }
+
+  processCertificateStartDateForm(
+    req: TypedRequest<CertificateStartDateForm, IdParams>,
+    res: Response,
+  ): void {
+    const {
+      params: { applicationId },
+    } = req;
+    const {
+      body: {
+        "start-date-day": day,
+        "start-date-month": month,
+        "start-date-year": year,
+      },
+    } = req;
+
+    const existingSessionData = this.sessionHelper.getSessionData(
+      req as unknown as Request,
+      "decision",
+    ) as DecisionSessionData | null;
+    const processCertificateStartDateResult =
+      this.processCertificateStartDateUseCase.execute({
+        day,
+        month,
+        year,
+        validate: (form) => this.validator.validateCertificateStartDate(form),
+        existingSessionData,
+      });
+
+    if (processCertificateStartDateResult.status === "TECHNICAL_FAILURE") {
+      throw new Error(
+        processCertificateStartDateResult.message ??
+          "Unable to process certificate start date",
+      );
+    }
+
+    if (processCertificateStartDateResult.data) {
+      this.sessionHelper.storeSessionData(req, "decision", {
+        ...processCertificateStartDateResult.data,
+      });
+    }
+
+    if (processCertificateStartDateResult.status === "VALIDATION_FAILED") {
+      this.renderCertificateStartDateForm(
+        req as unknown as Request,
+        res,
+        processCertificateStartDateResult.validationErrors,
+      );
+      return;
+    }
+
+    res.redirect(`/applications/${applicationId}/decision/confirmation`);
+  }
+
+  renderConfirmationPage(req: Request, res: Response): void {
+    const applicationId = req.params.applicationId as string;
+    const sessionData = this.sessionHelper.getSessionData(
+      req,
+      "decision",
+    ) as DecisionSessionData | null;
+    const backUrl =
+      sessionData?.overallDecision === GRANTED_DECISION
+        ? `/applications/${applicationId}/decision/certificate-start-date`
+        : `/applications/${applicationId}/decision/justification`;
     const prepareConfirmationViewResult: ReturnType<
       PrepareConfirmationViewUseCase["execute"]
     > = this.prepareConfirmationViewUseCase.execute({
@@ -218,8 +311,13 @@ export class ApplicationDecisionAdaptor {
     }
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
-    const { proceeding, overallDecision, refusalReasonLabel, justification } =
-      prepareConfirmationViewResult.data;
+    const {
+      proceeding,
+      overallDecision,
+      refusalReasonLabel,
+      justification,
+      certificateStartDate,
+    } = prepareConfirmationViewResult.data;
 
     res.render("application/decision/confirmation/index", {
       backUrl,
@@ -228,6 +326,7 @@ export class ApplicationDecisionAdaptor {
       overallDecision,
       refusalReasonLabel,
       justification,
+      certificateStartDate,
     });
   }
 
@@ -237,6 +336,11 @@ export class ApplicationDecisionAdaptor {
       req,
       "decision",
     ) as DecisionSessionData | null;
+
+    if (sessionData?.overallDecision === GRANTED_DECISION) {
+      res.redirect(`/applications/${applicationId}/decision/success`);
+      return;
+    }
 
     const { refusalReason, justification } = sessionData ?? {};
     if (!refusalReason || !justification) {

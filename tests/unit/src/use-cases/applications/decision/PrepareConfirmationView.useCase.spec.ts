@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 describe("PrepareConfirmationViewUseCase", () => {
   const useCase = new PrepareConfirmationViewUseCase();
@@ -23,6 +24,7 @@ describe("PrepareConfirmationViewUseCase", () => {
       overallDecision: "REFUSED",
       refusalReasonLabel: "Not in scope",
       justification: "insufficient evidence",
+      certificateStartDate: undefined,
     });
   });
 
@@ -35,5 +37,19 @@ describe("PrepareConfirmationViewUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.equal(result.data.refusalReasonLabel, "other");
+  });
+
+  it("formats the certificate start date for a granted decision", () => {
+    const result = useCase.execute({
+      decisionSessionData: {
+        overallDecision: GRANTED_DECISION,
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
+      },
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(result.data.certificateStartDate, "1 Jan 2020");
   });
 });
