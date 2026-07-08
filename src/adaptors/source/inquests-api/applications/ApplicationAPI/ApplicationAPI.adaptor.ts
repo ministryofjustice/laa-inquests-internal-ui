@@ -84,6 +84,26 @@ export class ApplicationAPIAdaptor {
     });
   }
 
+  async submitGrantDecision(
+    applicationId: string,
+    accessToken: string | undefined,
+    certificateStartDate: string,
+  ): Promise<void> {
+    const payload: {
+      certificateStartDate: string;
+    } = {
+      certificateStartDate,
+    };
+
+    await patchInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/grant-decision`,
+      body: payload,
+      accessToken,
+    });
+  }
+
   async getCoronersLetterDocument(
     applicationId: string,
     accessToken: string | undefined,
