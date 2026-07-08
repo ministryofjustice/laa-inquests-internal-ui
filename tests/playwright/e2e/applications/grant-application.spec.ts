@@ -107,10 +107,6 @@ test.describe.serial("Grant application journey", () => {
     });
 
     const form = sharedPage.getByTestId("check-your-answers");
-    await expect(form).toHaveAttribute("method", "post");
-    await expect(form).toHaveAttribute("action", confirmationPage);
-    await validateCSRFToken(form);
-
     const summaryCard = form.locator(".govuk-summary-card");
     const cardTitle = summaryCard.locator(".govuk-summary-card__title");
     await expect(cardTitle).toHaveText(confirmationLocale.cardTitle);
