@@ -8,11 +8,8 @@ import indexRouter from "#src/infrastructure/express/routes/index.js";
 import livereload from "connect-livereload";
 import config from "#src/infrastructure/config/config.js";
 import {
-  handleAxiosErrors,
-  handleCustomErrors,
   handleRouteNotFound,
   handleServerErrors,
-  handleZodErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
 import { initializeI18nextSync } from "./infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import cookieParser from "cookie-parser";
@@ -87,9 +84,6 @@ if (process.env.NODE_ENV === "production") {
 app.use("/", indexRouter);
 
 app.all("{*splat}", handleRouteNotFound);
-app.use(handleCustomErrors);
-app.use(handleAxiosErrors);
-app.use(handleZodErrors);
 app.use(handleServerErrors);
 
 if (process.env.NODE_ENV === "development") {
