@@ -13,4 +13,4 @@ ignore:
         reason: "Temp ignore not using vulnerable feature."
   "SNYK-JS-TAR-17909152":
     - "*":
-        reason: "Bundled within npm@11.17.0
+        reason: "Bundled within npm@11.17.0"
