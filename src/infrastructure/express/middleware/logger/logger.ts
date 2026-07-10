@@ -4,8 +4,6 @@ import type {
   LogLevel,
   OpenSearchLog,
 } from "#src/infrastructure/express/middleware/logger/opensearchlog.types.js";
-import { isAxiosError } from "axios";
-import { isAxiosErrResponse } from "#src/infrastructure/express/middleware/errors/errors.types.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/api.types.js";
 
 class Logger {
@@ -48,11 +46,6 @@ class Logger {
   #getErrorMessage(err: unknown): string {
     if (typeof err === "string") {
       return err;
-    } else if (isAxiosError(err)) {
-      if (isAxiosErrResponse(err.response)) {
-        return `CODE: ${err.code} - ${err.response.data}`;
-      }
-      return `CODE: ${err.code}`;
     } else if (err instanceof Error) {
       return err.message;
     } else {
