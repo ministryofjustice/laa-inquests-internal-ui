@@ -107,7 +107,7 @@ export const applicationHandlers = [
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
-    const appToReturn = fullApplication;
+    const appToReturn = { ...fullApplication };
     const decision =
       applicationSummaries[Number(params.id) - 1].overall_decision;
     appToReturn.overallDecision = decision;
