@@ -14,6 +14,7 @@ const meritsLocale = en.pages.decision.merits;
 const certificateStartDateLocale = en.pages.decision.certificateStartDate;
 const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
+const overviewLocale = en.pages.applicationOverview;
 
 const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
@@ -21,6 +22,7 @@ const overviewPage = `/applications/${applicationId}/overview`;
 const successPage = `/applications/${applicationId}/decision/success`;
 const certificateStartDatePage = `/applications/${applicationId}/decision/certificate-start-date`;
 const checkYourAnswersPage = `/applications/${applicationId}/decision/confirmation`;
+const certificateUrl = `/applications/${applicationId}/certificate`;
 
 const startDate = { day: "1", month: "1", year: "2020" };
 const formattedStartDate = "1 Jan 2020";
@@ -294,5 +296,23 @@ test.describe.serial("Grant application journey", () => {
       name: successLocale.applicationOverviewReturnButton,
     });
     await expect(button).toHaveAttribute("href", overviewPage);
+  });
+
+  test("caseworker views certificate link", async ({ page }) => {
+    const button = await sharedPage.getByRole("button", {
+      name: successLocale.applicationOverviewReturnButton,
+    });
+    await button.click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(sharedPage).toHaveURL(overviewPage);
+
+    const viewCertificateLink = await sharedPage.getByRole("link", {
+      name: overviewLocale.details.viewCertificate,
+    });
+
+    await expect(viewCertificateLink).toBeVisible();
+    await viewCertificateLink.click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(sharedPage).toHaveURL(certificateUrl);
   });
 });

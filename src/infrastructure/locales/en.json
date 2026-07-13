@@ -53,6 +53,9 @@
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
     "applicationOverview": {
+      "details": {
+        "viewCertificate": "View certificate"
+      },
       "people": {
         "provider": {
           "fallbackFirmName": "Could not retrieve Provider details. Please try again later"
