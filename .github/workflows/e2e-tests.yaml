@@ -58,6 +58,9 @@ jobs:
             alembic upgrade head
 
       - name: Start API container
+        env:
+          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
         run: |
           docker run -d --name inquests-api --network host \
             -e SECRET_KEY=TEST_KEY \
@@ -66,6 +69,8 @@ jobs:
             -e DB_NAME=api \
             -e DB_HOST=127.0.0.1 \
             -e DB_PORT=5432 \
+            -e INQUESTS_API_TENANT_ID \
+            -e INQUESTS_API_CLIENT_ID=api://${INQUESTS_API_CLIENT_ID} \
             ghcr.io/ministryofjustice/laa-inquests-api:latest
 
       - name: Wait for API to be ready
@@ -99,8 +104,13 @@ jobs:
             ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')
             }}
 
+      - name: Create auth state directory
+        run: mkdir -p tests/playwright/.auth
+
       - name: Run Playwright tests
-        run: yarn test:e2e
+        run: |
+          yarn seed-app
+          yarn test:e2e
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
@@ -119,6 +129,13 @@ jobs:
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "100"
           RATE_WINDOW_MS: "900000"
+          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          E2E_CASEWORKER_USERNAME: ${{ secrets.E2E_CASEWORKER_USERNAME }}
+          E2E_CASEWORKER_PASSWORD: ${{ secrets.E2E_CASEWORKER_PASSWORD }}
+          E2E_CASEWORKER_MFA_TOTP_SECRET: ${{ secrets.E2E_CASEWORKER_MFA_TOTP_SECRET }}
 
       - name: Show API logs on failure
         if: failure()
