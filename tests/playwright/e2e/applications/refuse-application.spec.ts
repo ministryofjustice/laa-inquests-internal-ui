@@ -14,6 +14,7 @@ const meritsLocale = en.pages.decision.merits;
 const justificationLocale = en.pages.decision.justification;
 const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
+const overviewLocale = en.pages.applicationOverview;
 
 const applicationId = "1";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
@@ -311,5 +312,20 @@ test.describe.serial("Refuse application journey", () => {
       "href",
       `/applications/${applicationId}/overview`,
     );
+  });
+
+  test("caseworker views overall application with updated and no view certificate link", async ({
+    page,
+  }) => {
+    const button = await sharedPage.getByRole("button", {
+      name: successLocale.applicationOverviewReturnButton,
+    });
+    await button.click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(sharedPage).toHaveURL(overviewPage);
+    const viewCertificateLink = await sharedPage.getByRole("link", {
+      name: overviewLocale.details.viewCertificate,
+    });
+    await expect(viewCertificateLink).toBeHidden();
   });
 });

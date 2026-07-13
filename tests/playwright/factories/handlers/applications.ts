@@ -21,7 +21,7 @@ const applicationSummaries = [
     laa_reference: 2,
     created_at: "2026-05-19T15:49:07.455255",
     status: "LIVE",
-    overall_decision: GRANTED_DECISION,
+    overall_decision: PENDING_DECISION,
   },
 ];
 
@@ -29,7 +29,6 @@ const applicationSummaries = [
  * Full application returned by GET /applications/:id.
  * Shape matches the camelCase payload the real API returns for a single application.
  */
-let currentDecision = PENDING_DECISION;
 const fullApplication = {
   laaReference: 1,
   createdAt: "2026-05-18T15:49:07.455255",
@@ -38,7 +37,7 @@ const fullApplication = {
   usedDelegatedFunctions: true,
   applicationType: "INITIAL",
   autoGrant: true,
-  overallDecision: currentDecision,
+  overallDecision: PENDING_DECISION,
   proceedings: [
     {
       proceedingId: "PC049",
@@ -51,7 +50,7 @@ const fullApplication = {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: currentDecision,
+      meritsDecision: PENDING_DECISION,
     },
   ],
   publicBodies: [
@@ -108,16 +107,21 @@ export const applicationHandlers = [
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
-    return HttpResponse.json({
-      ...fullApplication,
-      laaReference: Number(params.id),
-    });
+    const appToReturn = fullApplication;
+    const decision =
+      applicationSummaries[Number(params.id) - 1].overall_decision;
+    appToReturn.overallDecision = decision;
+    appToReturn.proceedings[0].meritsDecision = decision;
+    appToReturn.laaReference = Number(params.id);
+
+    return HttpResponse.json(appToReturn);
   }),
 
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
-      currentDecision = REFUSED_DECISION;
+      applicationSummaries[Number(params.id) - 1].overall_decision =
+        REFUSED_DECISION;
       return new HttpResponse(null, { status: 204 });
     },
   ),
@@ -125,7 +129,8 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/grant-decision`,
     ({ params }) => {
-      currentDecision = GRANTED_DECISION;
+      applicationSummaries[Number(params.id) - 1].overall_decision =
+        GRANTED_DECISION;
       return new HttpResponse(null, { status: 204 });
     },
   ),

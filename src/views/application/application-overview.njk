@@ -19,9 +19,12 @@
         <div class="govuk-grid-column-one-half">
             <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
         </div>
-        <div class="govuk-grid-column-one-half  govuk-!-padding-top-3">
-            <a href="/applications/{{ application.laaReference }}/certificate" class="govuk-link">{{ t('pages.applicationOverview.details.viewCertificate') }}</a>
-        </div>
+        {% if application.overallDecision == "GRANTED" %}
+            <div class="govuk-grid-column-one-half  govuk-!-padding-top-3">
+                <a href="/applications/{{ application.laaReference }}/certificate" class="govuk-link">{{ t('pages.applicationOverview.details.viewCertificate') }}</a>
+            </div>
+        {% endif %}
+        
     </div>
     {% set applicationDetailsHtml %}
         <h2 class="govuk-heading-m">Overview</h2>
