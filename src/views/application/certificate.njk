@@ -12,6 +12,170 @@
             <div class="govuk-grid-column-two-thirds">
                 <h1 class="govuk-heading-xl">Civil Legal Aid Certificate</h1>
             </div>
+            <div class="govuk-grid-column-two-thirds">
+                <p class="govuk-body">
+                    <strong>Client:</strong> PLACEHOLDER
+                    <br/>
+                    <strong>LAA Reference number:</strong> PLACEHOLDER
+                    <br/>
+                    <strong>Date created:</strong> PLACEHOLDER
+                </p>
+            </div>
+            <section class="overview">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <h2 class="govuk-heading-l">Overview</h2>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <div class="certificate-details-table">
+                            {{ govukSummaryList({
+                                card: {
+                                    title: {
+                                        text: "Certificate details"
+                                    }
+                                },
+                                rows: [
+                                {
+                                    key: {
+                                        text: "Client name"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Client address"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Firm name"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Office address"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Opponent details"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Guardian name"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Guardian address"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                }]
+                            }) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-two-thirds">
+                            <div class="certificate-summary-table">
+                                {{ govukSummaryList({
+                                card: {
+                                    title: {
+                                        text: "Certificate summary"
+                                    }
+                                },
+                                rows: [
+                                {
+                                    key: {
+                                        text: "Certificate type"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Status"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Effective date"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "End date"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Reinstatement date"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Cost limitation"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Cost limitation effective date"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Certificate limitation"
+                                    },
+                                    value: {
+                                        text: "PLACEHOLDER"
+                                    }
+                                }]
+                            }) }}
+                            </div>
+                        </div>
+                    </div>
+            </section>
         </div>
     <div/>
 {% endblock %}
