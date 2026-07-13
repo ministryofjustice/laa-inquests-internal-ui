@@ -3,6 +3,8 @@ export const JUSTIFICATION_MAX_CHARACTER_LENGTH = 1500;
 export const EMPTY_ARR_LENGTH = 0;
 
 export const GRANTED_DECISION = "GRANTED";
+export const REFUSED_DECISION = "REFUSED";
+export const PENDING_DECISION = "PENDING";
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 

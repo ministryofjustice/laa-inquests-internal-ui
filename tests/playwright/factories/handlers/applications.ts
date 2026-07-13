@@ -1,6 +1,10 @@
 import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { http, HttpResponse } from "msw";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import {
+  GRANTED_DECISION,
+  PENDING_DECISION,
+  REFUSED_DECISION,
+} from "#src/infrastructure/locales/constants.js";
 
 /**
  * Application summaries returned by GET /applications/.
@@ -11,13 +15,13 @@ const applicationSummaries = [
     laa_reference: 1,
     created_at: "2026-05-18T15:49:07.455255",
     status: "LIVE",
-    overall_decision: "PENDING",
+    overall_decision: PENDING_DECISION,
   },
   {
     laa_reference: 2,
     created_at: "2026-05-19T15:49:07.455255",
     status: "LIVE",
-    overall_decision: GRANTED_DECISION,
+    overall_decision: PENDING_DECISION,
   },
 ];
 
@@ -33,7 +37,7 @@ const fullApplication = {
   usedDelegatedFunctions: true,
   applicationType: "INITIAL",
   autoGrant: true,
-  overallDecision: "PENDING",
+  overallDecision: PENDING_DECISION,
   proceedings: [
     {
       proceedingId: "PC049",
@@ -46,7 +50,7 @@ const fullApplication = {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: "PENDING",
+      meritsDecision: PENDING_DECISION,
     },
   ],
   publicBodies: [
@@ -103,15 +107,30 @@ export const applicationHandlers = [
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
-    return HttpResponse.json({
-      ...fullApplication,
-      laaReference: Number(params.id),
-    });
+    const appToReturn = { ...fullApplication };
+    const decision =
+      applicationSummaries[Number(params.id) - 1].overall_decision;
+    appToReturn.overallDecision = decision;
+    appToReturn.proceedings[0].meritsDecision = decision;
+    appToReturn.laaReference = Number(params.id);
+
+    return HttpResponse.json(appToReturn);
   }),
 
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
+      applicationSummaries[Number(params.id) - 1].overall_decision =
+        REFUSED_DECISION;
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
+
+  http.patch(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/grant-decision`,
+    ({ params }) => {
+      applicationSummaries[Number(params.id) - 1].overall_decision =
+        GRANTED_DECISION;
       return new HttpResponse(null, { status: 204 });
     },
   ),
