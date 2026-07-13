@@ -1,6 +1,10 @@
 import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { http, HttpResponse } from "msw";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import {
+  GRANTED_DECISION,
+  PENDING_DECISION,
+  REFUSED_DECISION,
+} from "#src/infrastructure/locales/constants.js";
 
 /**
  * Application summaries returned by GET /applications/.
@@ -11,7 +15,7 @@ const applicationSummaries = [
     laa_reference: 1,
     created_at: "2026-05-18T15:49:07.455255",
     status: "LIVE",
-    overall_decision: "PENDING",
+    overall_decision: PENDING_DECISION,
   },
   {
     laa_reference: 2,
@@ -25,6 +29,7 @@ const applicationSummaries = [
  * Full application returned by GET /applications/:id.
  * Shape matches the camelCase payload the real API returns for a single application.
  */
+let currentDecision = PENDING_DECISION;
 const fullApplication = {
   laaReference: 1,
   createdAt: "2026-05-18T15:49:07.455255",
@@ -33,7 +38,7 @@ const fullApplication = {
   usedDelegatedFunctions: true,
   applicationType: "INITIAL",
   autoGrant: true,
-  overallDecision: "PENDING",
+  overallDecision: currentDecision,
   proceedings: [
     {
       proceedingId: "PC049",
@@ -46,7 +51,7 @@ const fullApplication = {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: "PENDING",
+      meritsDecision: currentDecision,
     },
   ],
   publicBodies: [
@@ -112,6 +117,15 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
+      currentDecision = REFUSED_DECISION;
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
+
+  http.patch(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/grant-decision`,
+    ({ params }) => {
+      currentDecision = GRANTED_DECISION;
       return new HttpResponse(null, { status: 204 });
     },
   ),
