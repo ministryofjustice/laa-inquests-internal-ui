@@ -94,375 +94,400 @@ describe("Application adaptor", () => {
     };
   });
 
-  it("render application overview page", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves(application);
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "application/application-overview");
-  });
-
-  it("render application overview page passes application data and proceedings", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves(application);
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      application: {
-        laaReference: 123,
-        applicationType: "Initial application",
-      },
-      proceedings: [
-        {
-          proceedingDescription: "description of proceeding",
-          certificateType: "Substantive",
-          clientInvolvementType: "Respondent",
-          levelOfService: "Full representation",
-          substantiveCostLimitation: "£10,000",
-        },
-      ],
-      backUrl: "/",
+  describe("renderApplicationPage", () => {
+    it("render application overview page", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "application/application-overview");
     });
-  });
 
-  it("render application overview page passes people tab data", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves(application);
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      application: {
-        client: {
-          clientFirstName: "test",
-          clientLastName: "test",
-          dateOfBirth: "01-02-1990",
-          nationalInsuranceNumber: "QQ123456C",
-          correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
-          correspondenceAddress: null,
-          homeAddress: {
-            addressLine1: "1 High Street",
-            addressLine2: null,
-            townOrCity: "London",
-            county: "Greater London",
-            postcode: "SW1A 1AA",
-          },
+    it("render application overview page passes application data and proceedings", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        application: {
+          laaReference: 123,
+          applicationType: "Initial application",
         },
-        deceased: {
-          deceasedFirstName: "test example",
-          deceasedLastName: "test",
-          deceasedDateOfBirth: "01-02-1990",
-          deceasedDateOfDeath: "01-02-2003",
-          coronersReference: "3452423",
-          furtherInformation: "",
-          clientRelationshipToDeceased: "brother",
-        },
-        publicBodies: [
+        proceedings: [
           {
-            publicBodyId: "Cabinet Office",
-            publicBodyDescription: "Cabinet Office",
+            proceedingDescription: "description of proceeding",
+            certificateType: "Substantive",
+            clientInvolvementType: "Respondent",
+            levelOfService: "Full representation",
+            substantiveCostLimitation: "£10,000",
           },
         ],
+        backUrl: "/",
+      });
+    });
+
+    it("render application overview page passes people tab data", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        application: {
+          client: {
+            clientFirstName: "test",
+            clientLastName: "test",
+            dateOfBirth: "01-02-1990",
+            nationalInsuranceNumber: "QQ123456C",
+            correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
+            correspondenceAddress: null,
+            homeAddress: {
+              addressLine1: "1 High Street",
+              addressLine2: null,
+              townOrCity: "London",
+              county: "Greater London",
+              postcode: "SW1A 1AA",
+            },
+          },
+          deceased: {
+            deceasedFirstName: "test example",
+            deceasedLastName: "test",
+            deceasedDateOfBirth: "01-02-1990",
+            deceasedDateOfDeath: "01-02-2003",
+            coronersReference: "3452423",
+            furtherInformation: "",
+            clientRelationshipToDeceased: "brother",
+          },
+          publicBodies: [
+            {
+              publicBodyId: "Cabinet Office",
+              publicBodyDescription: "Cabinet Office",
+            },
+          ],
+          provider: {
+            firmName: "Test Firm Ltd",
+            accountNumber: "0KA123",
+            emailAddress: "testfirm@example.com",
+          },
+        },
+        clientHomeAddressDisplay:
+          "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
+        clientCorrespondenceAddressDisplay:
+          "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
+      });
+    });
+
+    it("uses provider office placeholder when correspondence source is USE_PROVIDER_ADDRESS", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        client: {
+          ...application.client,
+          correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
+        },
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        clientCorrespondenceAddressDisplay: "Provider office address",
+      });
+    });
+
+    it("renders specified correspondence address and care of recipient details", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        correspondenceRecipient: {
+          recipientType: "Solicitor",
+          recipientName: "Alex Jones",
+        },
+        client: {
+          ...application.client,
+          correspondenceAddressSource: "USE_SPECIFIED_ADDRESS",
+          correspondenceAddress: {
+            addressLine1: "2 Station Road",
+            addressLine2: "Suite 5",
+            townOrCity: "Leeds",
+            county: null,
+            postcode: "LS1 1AA",
+          },
+        },
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        clientCorrespondenceAddressDisplay:
+          "2 Station Road<br>Suite 5<br>Leeds<br>LS1 1AA",
+        careOfRecipientDisplay: "Solicitor<br>Alex Jones",
+      });
+    });
+    it("renders No fixed abode when hasNoFixedAbode is true", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        client: {
+          ...application.client,
+          hasNoFixedAbode: true,
+          correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
+        },
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        clientHomeAddressDisplay: "No fixed abode",
+        clientCorrespondenceAddressDisplay: "Provider office address",
+      });
+    });
+
+    it("renders null provider safely without throwing", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        provider: null,
+      });
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        application: { provider: null },
+      });
+    });
+
+    it("renders fallback message when provider firmName is null", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
         provider: {
-          firmName: "Test Firm Ltd",
-          accountNumber: "0KA123",
-          emailAddress: "testfirm@example.com",
+          ...application.provider,
+          firmName: null,
         },
-      },
-      clientHomeAddressDisplay:
-        "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
-      clientCorrespondenceAddressDisplay:
-        "1 High Street<br>London<br>Greater London<br>SW1A 1AA",
-    });
-  });
+      });
 
-  it("uses provider office placeholder when correspondence source is USE_PROVIDER_ADDRESS", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      client: {
-        ...application.client,
-        correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
-      },
-    });
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
 
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      clientCorrespondenceAddressDisplay: "Provider office address",
-    });
-  });
-
-  it("renders specified correspondence address and care of recipient details", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      correspondenceRecipient: {
-        recipientType: "Solicitor",
-        recipientName: "Alex Jones",
-      },
-      client: {
-        ...application.client,
-        correspondenceAddressSource: "USE_SPECIFIED_ADDRESS",
-        correspondenceAddress: {
-          addressLine1: "2 Station Road",
-          addressLine2: "Suite 5",
-          townOrCity: "Leeds",
-          county: null,
-          postcode: "LS1 1AA",
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        application: {
+          provider: {
+            firmName:
+              "Could not retrieve Provider details. Please try again later",
+          },
         },
-      },
+      });
     });
 
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      clientCorrespondenceAddressDisplay:
-        "2 Station Road<br>Suite 5<br>Leeds<br>LS1 1AA",
-      careOfRecipientDisplay: "Solicitor<br>Alex Jones",
-    });
-  });
-  it("renders No fixed abode when hasNoFixedAbode is true", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      client: {
-        ...application.client,
-        hasNoFixedAbode: true,
-        correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
-      },
-    });
-
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      clientHomeAddressDisplay: "No fixed abode",
-      clientCorrespondenceAddressDisplay: "Provider office address",
-    });
-  });
-
-  it("renders null provider safely without throwing", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      provider: null,
-    });
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      application: { provider: null },
-    });
-  });
-
-  it("renders fallback message when provider firmName is null", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      provider: {
-        ...application.provider,
-        firmName: null,
-      },
-    });
-
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      application: {
+    it("renders fallback message when provider firmName is empty", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
         provider: {
-          firmName:
-            "Could not retrieve Provider details. Please try again later",
+          ...application.provider,
+          firmName: "",
         },
-      },
-    });
-  });
+      });
 
-  it("renders fallback message when provider firmName is empty", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      provider: {
-        ...application.provider,
-        firmName: "",
-      },
-    });
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
 
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      application: {
-        provider: {
-          firmName:
-            "Could not retrieve Provider details. Please try again later",
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        application: {
+          provider: {
+            firmName:
+              "Could not retrieve Provider details. Please try again later",
+          },
         },
-      },
+      });
     });
-  });
 
-  it("renders grey 'Awaiting assessment' tag when overallDecision is PENDING", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves(application);
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      statusTag: { text: "Awaiting assessment", classes: "govuk-tag--grey" },
+    it("renders grey 'Awaiting assessment' tag when overallDecision is PENDING", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        statusTag: { text: "Awaiting assessment", classes: "govuk-tag--grey" },
+      });
     });
-  });
 
-  it("renders green 'Assessment complete' tag when overallDecision is not PENDING", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      overallDecision: GRANTED_DECISION,
+    it("renders green 'Assessment complete' tag when overallDecision is not PENDING", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        overallDecision: GRANTED_DECISION,
+      });
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        statusTag: { text: "Assessment complete", classes: "govuk-tag--green" },
+      });
     });
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      statusTag: { text: "Assessment complete", classes: "govuk-tag--green" },
-    });
-  });
 
-  it("passes coronersLetter fileName from the application response to the view", async () => {
-    viewApplicationAdaptorStub.getApplication.resolves({
-      ...application,
-      coronersLetter: {
-        fileName: "test-document.pdf",
-      },
-    });
-    await applicationAdaptor.renderApplicationPage(
-      requestStub,
-      responseStub,
-      "123",
-    );
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.partialDeepStrictEqual(renderArgs[1], {
-      application: {
+    it("passes coronersLetter fileName from the application response to the view", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
         coronersLetter: {
           fileName: "test-document.pdf",
         },
-      },
+      });
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        application: {
+          coronersLetter: {
+            fileName: "test-document.pdf",
+          },
+        },
+      });
     });
   });
 
-  it("serveCoronersLetterDocument calls port and sends buffer with correct headers", async () => {
-    const mockBuffer = Buffer.from("fake document data");
-    viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
-      data: mockBuffer,
-      contentType: "image/jpeg",
+  describe("serveCoronersLetterDocument", () => {
+    it("serveCoronersLetterDocument calls port and sends buffer with correct headers", async () => {
+      const mockBuffer = Buffer.from("fake document data");
+      viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
+        data: mockBuffer,
+        contentType: "image/jpeg",
+      });
+
+      await applicationAdaptor.serveCoronersLetterDocument(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(
+        viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
+        1,
+      );
+      assert.deepStrictEqual(
+        viewApplicationAdaptorStub.getCoronersLetterDocument.getCall(0).args,
+        ["123", "test-access-token"],
+      );
+      assert.equal(responseStub.setHeader.callCount, 2);
+      assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+        "Content-Type",
+        "image/jpeg",
+      ]);
+      assert.deepStrictEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        "inline",
+      ]);
+      assert.equal(responseStub.send.callCount, 1);
+      assert.deepStrictEqual(responseStub.send.getCall(0).args, [mockBuffer]);
     });
 
-    await applicationAdaptor.serveCoronersLetterDocument(
-      requestStub,
-      responseStub,
-      "123",
-    );
+    it("serveCoronersLetterDocument handles different content types", async () => {
+      const mockBuffer = Buffer.from("fake pdf data");
+      viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
+        data: mockBuffer,
+        contentType: "application/pdf",
+      });
 
-    assert.equal(
-      viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
-      1,
-    );
-    assert.deepStrictEqual(
-      viewApplicationAdaptorStub.getCoronersLetterDocument.getCall(0).args,
-      ["123", "test-access-token"],
-    );
-    assert.equal(responseStub.setHeader.callCount, 2);
-    assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
-      "Content-Type",
-      "image/jpeg",
-    ]);
-    assert.deepStrictEqual(responseStub.setHeader.getCall(1).args, [
-      "Content-Disposition",
-      "inline",
-    ]);
-    assert.equal(responseStub.send.callCount, 1);
-    assert.deepStrictEqual(responseStub.send.getCall(0).args, [mockBuffer]);
-  });
+      await applicationAdaptor.serveCoronersLetterDocument(
+        requestStub,
+        responseStub,
+        "456",
+      );
 
-  it("serveCoronersLetterDocument handles different content types", async () => {
-    const mockBuffer = Buffer.from("fake pdf data");
-    viewApplicationAdaptorStub.getCoronersLetterDocument.resolves({
-      data: mockBuffer,
-      contentType: "application/pdf",
+      assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+        "Content-Type",
+        "application/pdf",
+      ]);
     });
 
-    await applicationAdaptor.serveCoronersLetterDocument(
-      requestStub,
-      responseStub,
-      "456",
-    );
+    it("serveCoronersLetterDocument renders error page when port call fails", async () => {
+      viewApplicationAdaptorStub.getCoronersLetterDocument.rejects(
+        new Error("API error"),
+      );
 
-    assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
-      "Content-Type",
-      "application/pdf",
-    ]);
+      // Configure the stub to return itself for chaining
+      responseStub.status.returns(responseStub);
+
+      await applicationAdaptor.serveCoronersLetterDocument(
+        requestStub,
+        responseStub,
+        "789",
+      );
+
+      assert.equal(
+        viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
+        1,
+      );
+      assert.equal(responseStub.status.callCount, 1);
+      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
+      assert.equal(responseStub.render.callCount, 1);
+      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+        "application/error",
+        {
+          status: "Unable to retrieve document",
+          error: "Unable to retrieve document. Please try again later",
+        },
+      ]);
+      assert.equal(responseStub.send.callCount, 0);
+    });
   });
 
-  it("serveCoronersLetterDocument renders error page when port call fails", async () => {
-    viewApplicationAdaptorStub.getCoronersLetterDocument.rejects(
-      new Error("API error"),
-    );
+  describe("renderCertificatePage", () => {
+    it("renders certificate page", () => {
+      applicationAdaptor.renderCertificatePage(
+        requestStub,
+        responseStub,
+        application.laaReference.toString(),
+      );
 
-    // Configure the stub to return itself for chaining
-    responseStub.status.returns(responseStub);
-
-    await applicationAdaptor.serveCoronersLetterDocument(
-      requestStub,
-      responseStub,
-      "789",
-    );
-
-    assert.equal(
-      viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
-      1,
-    );
-    assert.equal(responseStub.status.callCount, 1);
-    assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
-    assert.equal(responseStub.render.callCount, 1);
-    assert.deepStrictEqual(responseStub.render.getCall(0).args, [
-      "application/error",
-      {
-        status: "Unable to retrieve document",
-        error: "Unable to retrieve document. Please try again later",
-      },
-    ]);
-    assert.equal(responseStub.send.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "application/certificate");
+      // TODO: add other data to this when we don't hardcode
+      assert.deepStrictEqual(renderArgs[1], {
+        backUrl: `/applications/${application.laaReference}/overview`,
+        certificateDetails: {
+          laaReference: application.laaReference.toString(),
+        },
+      });
+    });
   });
 });

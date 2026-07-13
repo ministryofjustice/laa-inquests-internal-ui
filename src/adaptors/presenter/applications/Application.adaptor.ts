@@ -126,6 +126,18 @@ export class ApplicationAdaptor {
       });
     }
   }
+
+  // eslint-disable-next-line @typescript-eslint/require-await -- temp ignore
+  async renderCertificatePage(
+    req: Request,
+    res: Response,
+    applicationId: string,
+  ): Promise<void> {
+    res.render("application/certificate", {
+      backUrl: `/applications/${applicationId}/overview`,
+      certificateDetails: { laaReference: applicationId },
+    });
+  }
 }
 
 function mapApplication(application: Application): Application {
