@@ -1,1 +1,1 @@
-export const CASEWORKER_DISPLAY_NAME = "External Test [LAA]";
+export const CASEWORKER_DISPLAY_NAME = "[MOJUSER] - [INTSILAS] Internal E2E";
