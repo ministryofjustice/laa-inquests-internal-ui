@@ -98,18 +98,125 @@
                     </div>
                 </div>
                 <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-two-thirds">
-                            <div class="certificate-summary-table">
-                                {{ govukSummaryList({
-                                card: {
-                                    title: {
-                                        text: "Certificate summary"
-                                    }
+                    <div class="govuk-grid-column-two-thirds">
+                        {{ govukInsetText({
+                            text: "This is to certify that the status of the certificate is as specified in the Certificate summary. Its scope is specified in the proceedings listed and is subject to the limitations and conditions."
+                        }) }}
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <div class="certificate-summary-table">
+                            {{ govukSummaryList({
+                            card: {
+                                title: {
+                                    text: "Certificate summary"
+                                }
+                            },
+                            rows: [
+                            {
+                                key: {
+                                    text: "Certificate type"
                                 },
-                                rows: [
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Status"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Effective date"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "End date"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Reinstatement date"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Cost limitation"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Cost limitation effective date"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Certificate limitation"
+                                },
+                                value: {
+                                    text: "placeholder"
+                                }
+                            }]
+                        }) }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="scope">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        {{ govukInsetText({
+                            text: "This certificate imposes both scope and financially implications on the work to be done under it. Providers should check the limitations imposed carefully and apply for an amendment where appropriate."
+                        }) }}
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        {{ govukWarningText({
+                            text: "Payment will not be made for work undertaken outside the scope specified or in excess of the cost limit.",
+                            iconFallbackText: "Warning"
+                        }) }}
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <h2 class="govuk-heading-l">Scope</h2>
+                    </div>
+                </div>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-two-thirds">
+                        <div class="certificate-proceeding-1">
+                            {{ govukSummaryList({
+                            card: {
+                                title: {
+                                    text: "1. placeholder"
+                                }
+                            },
+                            rows: [
                                 {
                                     key: {
-                                        text: "Certificate type"
+                                        text: "Description"
                                     },
                                     value: {
                                         text: "placeholder"
@@ -117,7 +224,79 @@
                                 },
                                 {
                                     key: {
-                                        text: "Status"
+                                        text: "Category of law"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Current proceeding status"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Date work can be commenced on the above proceeding"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Proceeding end date"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Client involvement type"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Level of service"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Date current level of service effective"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Previous level of service"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Date previous level of service effective"
+                                    },
+                                    value: {
+                                        text: "placeholder"
+                                    }
+                                },
+                                {
+                                    key: {
+                                        text: "Limitation"
                                     },
                                     value: {
                                         text: "placeholder"
@@ -138,44 +317,13 @@
                                     value: {
                                         text: "placeholder"
                                     }
-                                },
-                                {
-                                    key: {
-                                        text: "Reinstatement date"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Cost limitation"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Cost limitation effective date"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Certificate limitation"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                }]
+                                }
+                            ]
                             }) }}
-                            </div>
                         </div>
                     </div>
+                </div>
             </section>
         </div>
-    <div/>
+    </div>
 {% endblock %}
