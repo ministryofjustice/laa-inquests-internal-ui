@@ -43,6 +43,25 @@ function createApplicationRouter(
     },
   );
 
+  applicationRouter.get(
+    "/:applicationId/certificate",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      const {
+        params: { applicationId },
+      } = req;
+      const applicationIdParam: string = applicationId as string;
+      try {
+        await applicationDisplayAdaptor.renderCertificatePage(
+          req,
+          res,
+          applicationIdParam,
+        );
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return applicationRouter;
 }
 

@@ -66,6 +66,9 @@
         "message": "Unable to retrieve document. Please try again later"
       }
     },
+    "applicationCertificate": {
+      "title": "Civil legal aid certificate"
+    },
     "decision": {
       "success": {
         "header": "Application for Inquest legal aid assessed complete",
