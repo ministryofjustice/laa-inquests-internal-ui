@@ -120,25 +120,6 @@ Prerequisites, Docker Desktop
   docker stop {container_id}
   ```
 
-## Testing
-
-### Test router
-
-File: `src/infrastructure/express/routes/test.router.ts`
-
-This directory contains routes that are only mounted when running the application
-in the test environment (i.e. when `NODE_ENV === 'test'`).
-
-From Playwright tests or fixtures call:
-
-```ts
-await page.goto("/test/auth-session");
-```
-
-The endpoint sets `req.session.user.userId = 'test-user-id'` and saves the session.
-After calling it, browser pages will have the session cookie and can access
-protected routes.
-
 ## GitHub Actions
 
 - These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.

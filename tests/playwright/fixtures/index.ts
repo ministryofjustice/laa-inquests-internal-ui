@@ -12,7 +12,6 @@ interface TestFixtures {
 
 export const test = base.extend<TestFixtures>({
   page: async ({ page }, use): Promise<void> => {
-    await page.goto("/test/auth-session");
     await use(page);
   },
 
