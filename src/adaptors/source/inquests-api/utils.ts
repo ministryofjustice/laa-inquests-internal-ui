@@ -41,7 +41,6 @@ export async function getInquestsApi<TResponse>(
   params: GetInquestApiParams,
 ): Promise<AxiosResponse<TResponse>> {
   const { http, baseUrl, path, accessToken, axiosConfig = {} } = params;
-  console.log(baseUrl, path, "<------------------Inquests API endpoint");
   if (typeof accessToken !== "string" || accessToken === "") {
     throw new Error("Missing access token for Inquests API request");
   }
