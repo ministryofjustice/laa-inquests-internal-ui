@@ -23,83 +23,162 @@ const applicationSummaries = [
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
+  {
+    laa_reference: 3,
+    created_at: "2026-07-13T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: PENDING_DECISION,
+  },
 ];
 
 /**
  * Full application returned by GET /applications/:id.
  * Shape matches the camelCase payload the real API returns for a single application.
  */
-const fullApplication = {
-  laaReference: 1,
-  createdAt: "2026-05-18T15:49:07.455255",
-  updatedAt: "2026-05-18T15:49:07.455279",
-  status: "LIVE",
-  usedDelegatedFunctions: true,
-  applicationType: "INITIAL",
-  autoGrant: true,
-  overallDecision: PENDING_DECISION,
-  proceedings: [
-    {
-      proceedingId: "PC049",
-      proceedingDescription: "CAPA",
-      categoryOfLaw: "INQUESTS",
-      certificateType: "SUBSTANTIVE",
-      levelOfService: "FULL_REPRESENTATION",
-      matterType: "INQUESTS",
-      scopeLimitationHeading: "FINAL_HEARING",
-      scopeDescription: "This is the scope description",
-      substantiveCostLimitation: 10000,
-      clientInvolvementType: "RESPONDENT",
-      meritsDecision: PENDING_DECISION,
+const fullApplications = [
+  {
+    laaReference: 1,
+    createdAt: "2026-05-18T15:49:07.455255",
+    updatedAt: "2026-05-18T15:49:07.455279",
+    status: "LIVE",
+    usedDelegatedFunctions: true,
+    applicationType: "INITIAL",
+    autoGrant: true,
+    overallDecision: PENDING_DECISION,
+    proceedings: [
+      {
+        proceedingId: "PC049",
+        proceedingDescription: "CAPA",
+        categoryOfLaw: "INQUESTS",
+        certificateType: "SUBSTANTIVE",
+        levelOfService: "FULL_REPRESENTATION",
+        matterType: "INQUESTS",
+        scopeLimitationHeading: "FINAL_HEARING",
+        scopeDescription: "This is the scope description",
+        substantiveCostLimitation: 10000,
+        clientInvolvementType: "RESPONDENT",
+        meritsDecision: PENDING_DECISION,
+      },
+    ],
+    publicBodies: [
+      {
+        publicBodyId: "Department for Transport",
+        publicBodyDescription: "Department for Transport",
+      },
+    ],
+    provider: {
+      firmName: "Test Firm Ltd",
+      accountNumber: "0KA123",
+      emailAddress: "testfirm@example.com",
     },
-  ],
-  publicBodies: [
-    {
-      publicBodyId: "Department for Transport",
-      publicBodyDescription: "Department for Transport",
+    correspondenceRecipient: null,
+    client: {
+      clientId: 1,
+      clientFirstName: "Test",
+      clientLastName: "Surname",
+      clientLastNameAtBirth: "Birthname",
+      dateOfBirth: "01-01-1990",
+      nationalInsuranceNumber: "PC123456C",
+      correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
+      correspondenceAddress: null,
+      homeAddress: {
+        addressLine1: "1 High Street",
+        addressLine2: null,
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      },
+      hasAppliedPreviously: false,
+      prevApplicationReference: null,
+      hasNoFixedAbode: false,
+      isClientCorrespondenceRecipient: true,
     },
-  ],
-  provider: {
-    firmName: "Test Firm Ltd",
-    accountNumber: "0KA123",
-    emailAddress: "testfirm@example.com",
-  },
-  correspondenceRecipient: null,
-  client: {
-    clientId: 1,
-    clientFirstName: "Test",
-    clientLastName: "Surname",
-    clientLastNameAtBirth: "Birthname",
-    dateOfBirth: "01-01-1990",
-    nationalInsuranceNumber: "PC123456C",
-    correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
-    correspondenceAddress: null,
-    homeAddress: {
-      addressLine1: "1 High Street",
-      addressLine2: null,
-      townOrCity: "London",
-      county: "Greater London",
-      postcode: "SW1A 1AA",
+    deceased: {
+      deceasedId: 1,
+      deceasedFirstName: "Bob",
+      deceasedLastName: "Boberton",
+      deceasedDateOfBirth: "01-01-2000",
+      deceasedDateOfDeath: "01-01-2025",
+      coronersReference: "123456",
+      furtherInformation: "Test information",
+      clientRelationshipToDeceased: "Guardian",
     },
-    hasAppliedPreviously: false,
-    prevApplicationReference: null,
-    hasNoFixedAbode: false,
-    isClientCorrespondenceRecipient: true,
+    coronersLetter: {
+      fileName: "coroners_letter.png",
+    },
   },
-  deceased: {
-    deceasedId: 1,
-    deceasedFirstName: "Bob",
-    deceasedLastName: "Boberton",
-    deceasedDateOfBirth: "01-01-2000",
-    deceasedDateOfDeath: "01-01-2025",
-    coronersReference: "123456",
-    furtherInformation: "Test information",
-    clientRelationshipToDeceased: "Guardian",
+  {
+    laaReference: 3,
+    createdAt: "2026-05-18T15:49:07.455255",
+    updatedAt: "2026-05-18T15:49:07.455279",
+    status: "LIVE",
+    usedDelegatedFunctions: true,
+    applicationType: "INITIAL",
+    autoGrant: true,
+    overallDecision: PENDING_DECISION,
+    proceedings: [
+      {
+        proceedingId: "PC049",
+        proceedingDescription: "CAPA",
+        categoryOfLaw: "INQUESTS",
+        certificateType: "SUBSTANTIVE",
+        levelOfService: "FULL_REPRESENTATION",
+        matterType: "INQUESTS",
+        scopeLimitationHeading: "FINAL_HEARING",
+        scopeDescription: "This is the scope description",
+        substantiveCostLimitation: 10000,
+        clientInvolvementType: "RESPONDENT",
+        meritsDecision: PENDING_DECISION,
+      },
+    ],
+    publicBodies: [
+      {
+        publicBodyId: "Department for Transport",
+        publicBodyDescription: "Department for Transport",
+      },
+    ],
+    provider: {
+      firmName: "Test Firm Ltd",
+      accountNumber: "0KA123",
+      emailAddress: "testfirm@example.com",
+    },
+    correspondenceRecipient: null,
+    client: {
+      clientId: 1,
+      clientFirstName: "Test",
+      clientLastName: "Surname",
+      clientLastNameAtBirth: "Birthname",
+      dateOfBirth: "01-01-1990",
+      nationalInsuranceNumber: "PC123456C",
+      correspondenceAddressSource: "USE_CLIENT_HOME_ADDRESS",
+      correspondenceAddress: null,
+      homeAddress: {
+        addressLine1: "1 High Street",
+        addressLine2: null,
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      },
+      hasAppliedPreviously: false,
+      prevApplicationReference: null,
+      hasNoFixedAbode: false,
+      isClientCorrespondenceRecipient: true,
+    },
+    deceased: {
+      deceasedId: 1,
+      deceasedFirstName: "Bob",
+      deceasedLastName: "Boberton",
+      deceasedDateOfBirth: "01-01-2000",
+      deceasedDateOfDeath: "01-01-2025",
+      coronersReference: "123456",
+      furtherInformation: "Test information",
+      clientRelationshipToDeceased: "Guardian",
+    },
+    coronersLetter: {
+      fileName: "coroners_letter.png",
+    },
   },
-  coronersLetter: {
-    fileName: "coroners_letter.png",
-  },
-};
+];
 
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
@@ -107,11 +186,19 @@ export const applicationHandlers = [
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
+    let fullApplication;
+    if (params.id == "1") {
+      fullApplication = fullApplications[0];
+    }
+    if (params.id == "3") {
+      fullApplication = fullApplications[1];
+    }
+
     const appToReturn = { ...fullApplication };
     const decision =
       applicationSummaries[Number(params.id) - 1].overall_decision;
     appToReturn.overallDecision = decision;
-    appToReturn.proceedings[0].meritsDecision = decision;
+    appToReturn.proceedings![0].meritsDecision = decision;
     appToReturn.laaReference = Number(params.id);
 
     return HttpResponse.json(appToReturn);

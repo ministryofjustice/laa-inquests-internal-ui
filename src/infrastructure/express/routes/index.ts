@@ -126,5 +126,4 @@ router.use("/applications", requireAuth, [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
 ]);
-
 export default router;
