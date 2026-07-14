@@ -57,6 +57,14 @@ jobs:
             ghcr.io/ministryofjustice/laa-inquests-api:latest \
             alembic upgrade head
 
+      - name: Seed one application for homepage e2e checks
+        run: yarn seed-app
+        env:
+          API_DB_CONTAINER_ID: ${{ job.services.api-db.id }}
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: api
+
       - name: Start API container
         env:
           INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}

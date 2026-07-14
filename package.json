@@ -16,6 +16,7 @@
     "lint:fix": "yarn eslint . --fix --concurrency=auto; yarn prettier . --write",
     "dev": "yarn build:ts && concurrently \"tsc --watch\" \"node public/esbuild.js --watch\" \"nodemon\"",
     "docker": "docker compose -f docker-compose.test.yaml up --build",
+    "seed-app": "sh ./scripts/seed-app.sh",
     "deploy": "./scripts/deploy.sh",
     "prepare": "husky",
     "tsc": "tsc --noEmit",
