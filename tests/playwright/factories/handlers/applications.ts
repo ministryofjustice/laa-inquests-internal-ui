@@ -181,10 +181,6 @@ const fullApplications = [
 ];
 
 export const applicationHandlers = [
-  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
-    return HttpResponse.json(applicationSummaries);
-  }),
-
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
     let fullApplication;
     if (params.id == "3") {
