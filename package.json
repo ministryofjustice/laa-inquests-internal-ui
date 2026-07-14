@@ -22,8 +22,7 @@
     "build:ts": "tsc",
     "test": "yarn test:unit && yarn test:e2e",
     "test:unit": "yarn build && NODE_ENV=test mocha",
-    "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts",
-    "seed-app": "yarn clean && yarn build:ts && node public/esbuild.js && PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn playwright test --config=tests/playwright/playwright.config.ts --project=setup --project='seed application'"
+    "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts"
   },
   "engines": {
     "node": "26.4.0"

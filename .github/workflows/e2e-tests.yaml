@@ -109,7 +109,6 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          yarn seed-app
           yarn test:e2e
         env:
           CI: true
