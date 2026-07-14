@@ -38,7 +38,6 @@ export class ApplicationAPIAdaptor {
       path: "/applications/",
       accessToken,
     });
-    console.log(data, "<-------------- More raw response");
     return data
       .map((application) => ({
         laaReference: application.laa_reference,

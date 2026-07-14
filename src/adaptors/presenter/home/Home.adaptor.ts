@@ -40,10 +40,6 @@ export class HomeAdaptor {
       });
 
     if (applicationsListResult.status !== "SUCCESS") {
-      console.log(
-        applicationsListResult,
-        "<-------------- Applications list result",
-      );
       throw new Error("Unable to build applications list view");
     }
 
