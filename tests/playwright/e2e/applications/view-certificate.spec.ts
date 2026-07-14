@@ -8,7 +8,7 @@ const certificateLocale = en.pages.applicationCertificate;
 const applicationOverviewUrl = `/applications/${applicationId}/overview`;
 const applicationCertificateUrl = `/applications/${applicationId}/certificate`;
 
-test.describe.only("View certificate page", () => {
+test.describe("View certificate page", () => {
   test("back button links back to applications list", async ({ page }) => {
     await page.goto(applicationCertificateUrl);
     await validateGovPage(page, {
