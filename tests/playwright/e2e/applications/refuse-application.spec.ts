@@ -298,7 +298,9 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       sharedPage.getByText(successLocale.referenceLabel),
     ).toBeVisible();
-    await expect(sharedPage.getByText(applicationId)).toBeVisible();
+    await expect(
+      sharedPage.getByText(applicationId, { exact: true }),
+    ).toBeVisible();
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.whatHappensNext }),
     ).toBeVisible();

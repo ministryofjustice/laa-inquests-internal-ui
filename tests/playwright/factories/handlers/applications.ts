@@ -187,11 +187,10 @@ export const applicationHandlers = [
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
     let fullApplication;
-    if (params.id == "1") {
-      fullApplication = fullApplications[0];
-    }
     if (params.id == "3") {
       fullApplication = fullApplications[1];
+    } else {
+      fullApplication = fullApplications[0];
     }
 
     const appToReturn = { ...fullApplication };
