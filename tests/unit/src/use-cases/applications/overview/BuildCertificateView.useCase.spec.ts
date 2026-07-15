@@ -2,6 +2,7 @@ import { strict as assert } from "assert";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
+import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 
 describe("BuildCertificateViewUseCase", () => {
   const certificateDetails = {
@@ -63,5 +64,30 @@ describe("BuildCertificateViewUseCase", () => {
       applicationPortStub.getCertificateDetails.getCall(0).args,
       ["1", "access-token-123"],
     );
+  });
+
+  it("returns TECHNICAL_FAILURE when applicationId is missing", async () => {
+    const result = await useCase.execute({
+      applicationId: "",
+      accessToken: "access-token-123",
+    });
+
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE);
+    assert.equal(applicationPortStub.getCertificateDetails.called, false);
+  });
+
+  it("returns TECHNICAL_FAILURE when certificate retrieval fails", async () => {
+    const error = new Error("Get certificate details failed");
+    applicationPortStub.getCertificateDetails.rejects(error);
+
+    const result = await useCase.execute({
+      applicationId: "1",
+      accessToken: "access-token-123",
+    });
+
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
+    assert.equal(result.cause, error);
   });
 });

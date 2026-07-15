@@ -541,20 +541,29 @@ describe("Application adaptor", () => {
       });
     });
 
-    it("throws when certificate view cannot be built", async () => {
+    it("renders an error page when certificate view cannot be built", async () => {
+      responseStub.status.returns(responseStub);
       buildCertificateViewUseCaseStub.execute.resolves({
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
       });
 
-      await assert.rejects(
-        applicationAdaptor.renderCertificatePage(
-          requestStub,
-          responseStub,
-          application.laaReference.toString(),
-        ),
-        new Error("Unable to build certificate view"),
+      await applicationAdaptor.renderCertificatePage(
+        requestStub,
+        responseStub,
+        application.laaReference.toString(),
       );
+
+      assert.equal(responseStub.status.callCount, 1);
+      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
+      assert.equal(responseStub.render.callCount, 1);
+      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+        "application/error",
+        {
+          status: "Unable to retrieve certificate",
+          error: "Unable to retrieve certificate. Please try again later",
+        },
+      ]);
     });
   });
 });
