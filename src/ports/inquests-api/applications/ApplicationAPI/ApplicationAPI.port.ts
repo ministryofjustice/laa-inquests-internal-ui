@@ -27,5 +27,8 @@ export interface ApplicationPort {
     applicationId: string,
     accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
-  getCertificateDetails: (applicationId: string) => Promise<Certificate>;
+  getCertificateDetails: (
+    applicationId: string,
+    accessToken: string | undefined,
+  ) => Promise<Certificate>;
 }

@@ -5,6 +5,7 @@ import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applica
 import type {
   Application,
   ApplicationSummary,
+  Certificate,
 } from "#src/adaptors/models/application.types.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
@@ -102,6 +103,36 @@ const expectedApplicationsSummary = [
     overall_decision: GRANTED_DECISION,
   },
 ];
+
+const expectedCertificate: Certificate = {
+  clientName: "John Doe",
+  clientAddress: "1 Test Road, London",
+  firmName: "Test Solicitors",
+  officeAddress: "Test Office Address, London",
+  opponentDetails: ["Cabinet Office"],
+  guardianName: "Not applicable",
+  guardianAddress: "Not applicable",
+  certificateType: "SUBSTANTIVE",
+  status: "LIVE",
+  effectiveDate: "2026-05-21T08:46:36.793278",
+  endDate: "Not applicable",
+  reinstatementDate: "Not applicable",
+  costLimitation: "10000",
+  costLimitationEffectiveDate: "Not applicable",
+  certificateLimitation: "Not applicable",
+  careOrderDescription: "Description of proceeding",
+  categoryOfLaw: "INQUESTS",
+  currentProceedingStatus: "LIVE",
+  dateWorkCanCommence: "2026-05-21T08:46:36.793278",
+  proceedingEndDate: "Not applicable",
+  clientInvolvementType: "Applicant",
+  levelOfService: "FULL_REPRESENTATION",
+  dateCurrentLevelOfServiceEffective: "2026-05-21T08:46:36.793278",
+  previousLevelOfService: "Not applicable",
+  datePreviousLevelOfServiceEffective: "Not applicable",
+  scopeLimitationHeading: "FINAL_HEARING",
+  scopeLimitationDescription: "This is the scope description",
+};
 
 describe("Test Application API Adaptor", () => {
   it("Test get All Applications calls axios", async () => {
@@ -265,6 +296,64 @@ describe("Test getCoronersLetterDocument", () => {
 
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "application/octet-stream");
+  });
+});
+
+describe("Test getCertificateDetails", () => {
+  it("calls axios.get with the correct URL and Authorization header", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedCertificate,
+    });
+
+    await adaptor.getCertificateDetails("123", "access-token-123");
+
+    sinon.assert.calledOnce(axiosGetStub);
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/123/certificate`,
+      {
+        headers: {
+          Authorization: "Bearer access-token-123",
+        },
+      },
+    );
+  });
+
+  it("returns parsed certificate details", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedCertificate,
+    });
+
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.deepEqual(result, expectedCertificate);
+  });
+
+  it("throws when access token is missing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    try {
+      await adaptor.getCertificateDetails("123", undefined);
+      assert.fail("Expected getCertificateDetails to throw");
+    } catch (error) {
+      assert.equal(
+        (error as Error).message,
+        "Missing access token for Inquests API request",
+      );
+    }
   });
 });
 

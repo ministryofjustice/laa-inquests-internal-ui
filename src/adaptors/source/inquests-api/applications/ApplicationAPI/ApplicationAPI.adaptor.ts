@@ -8,6 +8,7 @@ import type {
 import {
   ApplicationSchema,
   ApplicationSummarySchema,
+  CertificateSchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import {
@@ -130,8 +131,17 @@ export class ApplicationAPIAdaptor {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- temp ignore
-  async getCertificateDetails(applicationId: string): Promise<Certificate> {
-    throw new Error("Not implemented");
+  async getCertificateDetails(
+    applicationId: string,
+    accessToken: string | undefined,
+  ): Promise<Certificate> {
+    const { data }: AxiosResponse<Certificate> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/certificate`,
+      accessToken,
+    });
+
+    return CertificateSchema.parse(data);
   }
 }
