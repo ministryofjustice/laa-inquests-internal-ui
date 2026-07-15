@@ -105,6 +105,8 @@ const expectedApplicationsSummary = [
 ];
 
 const expectedCertificate: Certificate = {
+  laaReference: 1,
+  dateCreated: "2026-05-19T15:49:07.455255",
   clientName: "John Doe",
   clientAddress: "1 Test Road, London",
   firmName: "Test Solicitors",

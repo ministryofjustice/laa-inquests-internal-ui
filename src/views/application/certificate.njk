@@ -14,9 +14,9 @@
                 <p class="govuk-body">
                     <strong>Client:</strong> {{certificateDetails.clientName}}
                     <br/>
-                    <strong>LAA Reference number:</strong> placeholder
+                    <strong>LAA Reference number:</strong> {{certificateDetails.laaReference}}
                     <br/>
-                    <strong>Date created:</strong> placeholder
+                    <strong>Date created:</strong> {{certificateDetails.dateCreated}}
                 </p>
             </div>
             <section class="overview">
@@ -210,7 +210,7 @@
                             {{ govukSummaryList({
                             card: {
                                 title: {
-                                    text: `1. placeholder`
+                                    text: "1. placeholder"
                                 }
                             },
                             rows: [

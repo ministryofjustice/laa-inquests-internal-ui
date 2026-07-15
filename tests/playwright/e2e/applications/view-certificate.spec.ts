@@ -53,7 +53,7 @@ test.describe("View certificate page", () => {
     ).toBeVisible();
     await expect(certificateOverviewTable.getByText("Firm name")).toBeVisible();
     await expect(
-      certificateOverviewTable.getByText("Office address"),
+      certificateOverviewTable.getByText("Office address", { exact: true }),
     ).toBeVisible();
     await expect(
       certificateOverviewTable.getByText("Opponent details"),

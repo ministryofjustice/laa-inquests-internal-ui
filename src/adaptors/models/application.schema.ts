@@ -95,6 +95,8 @@ export const ApplicationSummarySchema = z.object({
 });
 
 export const CertificateSchema = z.object({
+  laaReference: z.number(),
+  dateCreated: z.string(),
   clientName: z.string(),
   clientAddress: z.string(),
   firmName: z.string(),
