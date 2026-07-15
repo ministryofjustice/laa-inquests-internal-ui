@@ -151,6 +151,7 @@ export class ApplicationAdaptor {
         accessToken: req.session.user?.accessToken,
       });
 
+    // TODO: Handle 404s
     if (certificateViewResult.status === "TECHNICAL_FAILURE") {
       logger.logError(
         "GET Certificate Page",
@@ -164,10 +165,6 @@ export class ApplicationAdaptor {
         error: "Unable to retrieve certificate. Please try again later",
       });
       return;
-    }
-
-    if (certificateViewResult.status !== "SUCCESS") {
-      throw new Error("Unable to build certificate view");
     }
 
     res.render("application/certificate", {

@@ -574,7 +574,7 @@ describe("Application adaptor", () => {
       });
     });
 
-    it("renders an error page when certificate view cannot be built", async () => {
+    it("renders an error page when certificate view returns with TECHNICAL_FAILURE", async () => {
       responseStub.status.returns(responseStub);
       buildCertificateViewUseCaseStub.execute.resolves({
         status: "TECHNICAL_FAILURE",
@@ -600,7 +600,7 @@ describe("Application adaptor", () => {
       ]);
     });
 
-    it("logs error when certificate view cannot be built", async () => {
+    it("logs error when certificate returns with TECHNICAL_FAILURE", async () => {
       buildCertificateViewUseCaseStub.execute.resolves({
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
