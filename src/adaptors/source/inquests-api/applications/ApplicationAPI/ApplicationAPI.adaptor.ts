@@ -2,6 +2,7 @@ import axios, { type AxiosResponse, type AxiosStatic } from "axios";
 import type {
   Application,
   ApplicationSummary,
+  Certificate,
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
@@ -127,5 +128,10 @@ export class ApplicationAPIAdaptor {
       data: Buffer.from(data),
       contentType: contentTypeString,
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/require-await -- temp ignore
+  async getCertificateDetails(applicationId: string): Promise<Certificate> {
+    throw new Error("Not implemented");
   }
 }

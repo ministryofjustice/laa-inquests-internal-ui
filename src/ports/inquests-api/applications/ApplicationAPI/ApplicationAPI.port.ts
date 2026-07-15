@@ -1,6 +1,7 @@
 import type {
   Application,
   ApplicationSummary,
+  Certificate,
 } from "#src/adaptors/models/application.types.js";
 
 export interface ApplicationPort {
@@ -26,4 +27,5 @@ export interface ApplicationPort {
     applicationId: string,
     accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
+  getCertificateDetails: (applicationId: string) => Promise<Certificate>;
 }
