@@ -139,11 +139,11 @@ export class ApplicationAdaptor {
     res: Response,
     applicationId: string,
   ): Promise<void> {
-    // logger.logInfo(
-    //   "GET Certificate Page",
-    //   `Certificate details for application ${applicationId} requested.`,
-    //   req,
-    // );
+    logger.logInfo(
+      "GET Certificate Page",
+      `Certificate details for application ${applicationId} requested.`,
+      req,
+    );
 
     const certificateViewResult =
       await this.buildCertificateViewUseCase.execute({
@@ -152,12 +152,12 @@ export class ApplicationAdaptor {
       });
 
     if (certificateViewResult.status === "TECHNICAL_FAILURE") {
-      // logger.logError(
-      //   "GET Certificate Page",
-      //   `Failed to build certificate view for application ${applicationId}`,
-      //   certificateViewResult.cause ?? certificateViewResult.message,
-      //   req,
-      // );
+      logger.logError(
+        "GET Certificate Page",
+        `Failed to build certificate view for application ${applicationId}`,
+        certificateViewResult.cause ?? certificateViewResult.message,
+        req,
+      );
 
       res.status(500).render("application/error", {
         status: "Unable to retrieve certificate",

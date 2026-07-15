@@ -1,9 +1,11 @@
 import { strict as assert } from "assert";
+import sinon from "sinon";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 
@@ -13,6 +15,8 @@ describe("Application adaptor", () => {
   let requestStub: StubbedInstance<Request>;
   let viewApplicationAdaptorStub: StubbedInstance<ApplicationPort>;
   let buildCertificateViewUseCaseStub: StubbedInstance<BuildCertificateViewUseCase>;
+  let logInfoStub: sinon.SinonStub;
+  let logErrorStub: sinon.SinonStub;
 
   const application = {
     laaReference: 123,
@@ -122,6 +126,8 @@ describe("Application adaptor", () => {
     viewApplicationAdaptorStub = stubInterface<ApplicationPort>();
     buildCertificateViewUseCaseStub =
       stubInterface<BuildCertificateViewUseCase>();
+    logInfoStub = sinon.stub(logger, "logInfo");
+    logErrorStub = sinon.stub(logger, "logError");
     buildCertificateViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
       data: certificateDetails,
@@ -135,6 +141,10 @@ describe("Application adaptor", () => {
       userId: "test-user-id",
       accessToken: "test-access-token",
     };
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   describe("renderApplicationPage", () => {
@@ -514,13 +524,13 @@ describe("Application adaptor", () => {
   });
 
   describe("renderCertificatePage", () => {
-    it("renders certificate page", async () => {
+    it("calls certificate view use case once with application id and access token", async () => {
       await applicationAdaptor.renderCertificatePage(
         requestStub,
         responseStub,
         application.laaReference.toString(),
       );
-      // TODO: Make own unit test
+
       assert.equal(buildCertificateViewUseCaseStub.execute.callCount, 1);
       assert.deepStrictEqual(
         buildCertificateViewUseCaseStub.execute.getCall(0).args,
@@ -530,6 +540,29 @@ describe("Application adaptor", () => {
             accessToken: "test-access-token",
           },
         ],
+      );
+    });
+
+    it("logs info when certificate page is requested", async () => {
+      await applicationAdaptor.renderCertificatePage(
+        requestStub,
+        responseStub,
+        application.laaReference.toString(),
+      );
+
+      assert.equal(logInfoStub.callCount, 1);
+      assert.deepStrictEqual(logInfoStub.getCall(0).args, [
+        "GET Certificate Page",
+        `Certificate details for application ${application.laaReference} requested.`,
+        requestStub,
+      ]);
+    });
+
+    it("renders certificate page", async () => {
+      await applicationAdaptor.renderCertificatePage(
+        requestStub,
+        responseStub,
+        application.laaReference.toString(),
       );
 
       assert.equal(responseStub.render.callCount, 1);
@@ -546,6 +579,7 @@ describe("Application adaptor", () => {
       buildCertificateViewUseCaseStub.execute.resolves({
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+        message: "Unable to build certificate view",
       });
 
       await applicationAdaptor.renderCertificatePage(
@@ -563,6 +597,29 @@ describe("Application adaptor", () => {
           status: "Unable to retrieve certificate",
           error: "Unable to retrieve certificate. Please try again later",
         },
+      ]);
+    });
+
+    it("logs error when certificate view cannot be built", async () => {
+      buildCertificateViewUseCaseStub.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+        message: "Unable to build certificate view",
+      });
+
+      responseStub.status.returns(responseStub);
+      await applicationAdaptor.renderCertificatePage(
+        requestStub,
+        responseStub,
+        application.laaReference.toString(),
+      );
+
+      assert.equal(logErrorStub.callCount, 1);
+      assert.deepStrictEqual(logErrorStub.getCall(0).args, [
+        "GET Certificate Page",
+        `Failed to build certificate view for application ${application.laaReference}`,
+        "Unable to build certificate view",
+        requestStub,
       ]);
     });
   });
