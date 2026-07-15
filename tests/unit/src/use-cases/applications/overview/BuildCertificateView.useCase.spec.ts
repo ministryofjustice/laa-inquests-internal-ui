@@ -3,7 +3,7 @@ import { StubbedInstance, stubInterface } from "ts-sinon";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 
-describe.only("BuildCertificateViewUseCase", () => {
+describe("BuildCertificateViewUseCase", () => {
   const certificateDetails = {
     clientName: "John Doe",
     clientAddress: "1 Test Road, London",
@@ -44,18 +44,24 @@ describe.only("BuildCertificateViewUseCase", () => {
   });
 
   it("should return SUCCESS and certificate details when given a valid applicationId", async () => {
-    const result = await useCase.execute({ applicationId: "1" });
+    const result = await useCase.execute({
+      applicationId: "1",
+      accessToken: "access-token-123",
+    });
     assert.equal(result.status, "SUCCESS");
 
     assert.deepEqual(result.data, certificateDetails);
   });
 
   it("should call the applicationPort.getCertificateDetails method with the correct applicationId", async () => {
-    const result = await useCase.execute({ applicationId: "1" });
+    await useCase.execute({
+      applicationId: "1",
+      accessToken: "access-token-123",
+    });
     assert.equal(applicationPortStub.getCertificateDetails.calledOnce, true);
     assert.deepEqual(
       applicationPortStub.getCertificateDetails.getCall(0).args,
-      ["1"],
+      ["1", "access-token-123"],
     );
   });
 });
