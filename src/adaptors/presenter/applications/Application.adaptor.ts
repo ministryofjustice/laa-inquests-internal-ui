@@ -6,6 +6,7 @@ import type {
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import {
   APPLICATION_TYPES,
@@ -31,13 +32,19 @@ export class ApplicationAdaptor {
 
   private readonly buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase;
 
+  private readonly buildCertificateViewUseCase: BuildCertificateViewUseCase;
+
   constructor(
     viewApplicationAdaptor: ApplicationPort,
     buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(),
+    buildCertificateViewUseCase: BuildCertificateViewUseCase = new BuildCertificateViewUseCase(
+      viewApplicationAdaptor,
+    ),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
     this.buildApplicationOverviewViewUseCase =
       buildApplicationOverviewViewUseCase;
+    this.buildCertificateViewUseCase = buildCertificateViewUseCase;
   }
 
   async renderApplicationPage(
@@ -127,15 +134,27 @@ export class ApplicationAdaptor {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- temp ignore
   async renderCertificatePage(
     req: Request,
     res: Response,
     applicationId: string,
   ): Promise<void> {
+    // TODO add logging statement here for viewing certificate page
+
+    const certificateViewResult =
+      await this.buildCertificateViewUseCase.execute({
+        applicationId,
+        accessToken: req.session.user?.accessToken,
+      });
+
+    // TODO: Handle technical failures and return appropriate error page
+    if (certificateViewResult.status !== "SUCCESS") {
+      throw new Error("Unable to build certificate view");
+    }
+
     res.render("application/certificate", {
       backUrl: `/applications/${applicationId}/overview`,
-      certificateDetails: { laaReference: applicationId },
+      certificateDetails: certificateViewResult.data,
     });
   }
 }
