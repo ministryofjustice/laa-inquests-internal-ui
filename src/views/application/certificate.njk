@@ -73,7 +73,7 @@
                                         text: "Opponent details"
                                     },
                                     value: {
-                                        text: "placeholder"
+                                        html: certificateDetails.opponentDetails.join("<br/>")
                                     }
                                 },
                                 {
@@ -219,7 +219,7 @@
                                         text: "Description"
                                     },
                                     value: {
-                                        text: "placeholder"
+                                        text: certificateDetails.careOrderDescription
                                     }
                                 },
                                 {
@@ -315,7 +315,7 @@
                                         text: "End date"
                                     },
                                     value: {
-                                        text: certificateDetails.proceedingEndDate
+                                        text: certificateDetails.endDate
                                     }
                                 }
                             ]

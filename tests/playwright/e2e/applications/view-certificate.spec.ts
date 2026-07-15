@@ -143,7 +143,9 @@ test.describe("View certificate page", () => {
       hasText: "Description",
     });
 
-    await expect(scopeTable.getByText("Description")).toBeVisible();
+    await expect(
+      scopeTable.getByText("Description", { exact: true }),
+    ).toBeVisible();
     await expect(scopeTable.getByText("Category of law")).toBeVisible();
     await expect(
       scopeTable.getByText("Current proceeding status"),
