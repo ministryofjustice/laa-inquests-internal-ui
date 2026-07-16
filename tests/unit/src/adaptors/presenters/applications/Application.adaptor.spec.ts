@@ -572,7 +572,10 @@ describe("Application adaptor", () => {
       assert.equal(renderArgs[0], "application/certificate");
       assert.deepStrictEqual(renderArgs[1], {
         backUrl: `/applications/${application.laaReference}/overview`,
-        certificateDetails,
+        certificateDetails: {
+          ...certificateDetails,
+          costLimitation: "£10,000",
+        },
       });
     });
 

@@ -167,9 +167,16 @@ export class ApplicationAdaptor {
       return;
     }
 
+    const certificateDetails = {
+      ...certificateViewResult.data,
+      costLimitation: formatCurrency(
+        Number(certificateViewResult.data?.costLimitation),
+      ),
+    };
+
     res.render("application/certificate", {
       backUrl: `/applications/${applicationId}/overview`,
-      certificateDetails: certificateViewResult.data,
+      certificateDetails,
     });
   }
 }
