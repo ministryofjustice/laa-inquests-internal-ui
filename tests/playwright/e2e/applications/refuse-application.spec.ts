@@ -16,7 +16,7 @@ const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
 const overviewLocale = en.pages.applicationOverview;
 
-const applicationId = "1";
+const applicationId = "3";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
@@ -33,7 +33,6 @@ test.describe.serial("Refuse application journey", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
-    await sharedPage.request.get("/test/auth-session");
   });
 
   test.afterAll(async () => {
@@ -298,7 +297,9 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       sharedPage.getByText(successLocale.referenceLabel),
     ).toBeVisible();
-    await expect(sharedPage.getByText(applicationId)).toBeVisible();
+    await expect(
+      sharedPage.getByText(applicationId, { exact: true }),
+    ).toBeVisible();
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.whatHappensNext }),
     ).toBeVisible();

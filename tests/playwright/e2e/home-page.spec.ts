@@ -1,5 +1,6 @@
 import { test, expect } from "../fixtures/index.js";
 import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
+import { CASEWORKER_DISPLAY_NAME } from "#tests/playwright/constants/Caseworker.js";
 
 test.describe("Home page", () => {
   test.beforeEach(async ({ page }) => {
@@ -40,7 +41,7 @@ test.describe("Home page", () => {
     });
     const navLinks = navigation.getByRole("link");
 
-    await expect(navLinks.nth(0)).toHaveText("Test User");
+    await expect(navLinks.nth(0)).toHaveText(CASEWORKER_DISPLAY_NAME);
     await expect(navLinks.nth(1)).toHaveText("Sign out");
   });
 

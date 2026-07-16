@@ -1,0 +1,1 @@
+export const CASEWORKER_DISPLAY_NAME = "[MOJUSER] - [INTSILAS] Internal E2E";

@@ -4,7 +4,6 @@ import { TEST_CONFIG } from "../../playwright.config.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import {
   continueToNextPage,
-  validateCSRFToken,
   validateGovForm,
   validateGovPage,
   validateSubmitButton,
@@ -46,7 +45,6 @@ test.describe.serial("Grant application journey", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
-    await sharedPage.request.get("/test/auth-session");
   });
 
   test.afterAll(async () => {
@@ -285,7 +283,9 @@ test.describe.serial("Grant application journey", () => {
     await expect(
       sharedPage.getByText(successLocale.referenceLabel),
     ).toBeVisible();
-    await expect(sharedPage.getByText(applicationId)).toBeVisible();
+    await expect(
+      sharedPage.getByText(applicationId, { exact: true }),
+    ).toBeVisible();
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.whatHappensNext }),
     ).toBeVisible();
