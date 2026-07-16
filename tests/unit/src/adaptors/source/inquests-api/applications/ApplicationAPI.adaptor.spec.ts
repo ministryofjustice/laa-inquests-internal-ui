@@ -111,7 +111,7 @@ const expectedCertificate: Certificate = {
   clientAddress: "1 Test Road, London",
   firmName: "Test Solicitors",
   officeAddress: "Test Office Address, London",
-  opponentDetails: ["Cabinet Office"],
+  opponentDetails: "Cabinet Office",
   guardianName: "Not applicable",
   guardianAddress: "Not applicable",
   certificateType: "SUBSTANTIVE",
