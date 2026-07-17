@@ -11,6 +11,7 @@ import {
   CertificateSchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
+import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
 import {
   patchInquestsApi,
   getInquestsApi,
@@ -44,7 +45,7 @@ export class ApplicationAPIAdaptor {
       .map((application) => ({
         laaReference: application.laa_reference,
         createdAt: application.created_at,
-        status: application.status,
+        status: mapApplicationStatusForDisplay(application.status),
         overallDecision: application.overall_decision,
       }))
       .map((application) => ApplicationSummarySchema.parse(application));
@@ -60,7 +61,14 @@ export class ApplicationAPIAdaptor {
       path: `/applications/${applicationId}`,
       accessToken,
     });
-    return ApplicationSchema.parse(data);
+    const application = ApplicationSchema.parse(data);
+
+    return {
+      ...application,
+      status:
+        mapApplicationStatusForDisplay(application.status) ??
+        application.status,
+    };
   }
 
   async submitRefuseDecision(
@@ -142,6 +150,24 @@ export class ApplicationAPIAdaptor {
       accessToken,
     });
 
-    return CertificateSchema.parse(data);
+    const certificate = CertificateSchema.parse(data);
+
+    return {
+      ...certificate,
+      status:
+        mapApplicationStatusForDisplay(certificate.status) ??
+        certificate.status,
+      currentProceedingStatus:
+        mapApplicationStatusForDisplay(certificate.currentProceedingStatus) ??
+        certificate.currentProceedingStatus,
+    };
   }
+}
+
+function mapApplicationStatusForDisplay(status: string | null): string | null {
+  if (!status) {
+    return status;
+  }
+
+  return (APPLICATION_STATUSES as Record<string, string>)[status] ?? status;
 }

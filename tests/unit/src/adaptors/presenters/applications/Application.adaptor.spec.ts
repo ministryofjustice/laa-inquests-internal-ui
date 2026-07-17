@@ -4,7 +4,10 @@ import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import {
+  APPLICATION_STATUSES,
+  GRANTED_DECISION,
+} from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
@@ -22,7 +25,7 @@ describe("Application adaptor", () => {
     laaReference: 123,
     createdAt: "2026-05-21T08:46:36.793278",
     updatedAt: "2026-05-21T08:46:36.793294",
-    status: "LIVE",
+    status: APPLICATION_STATUSES.LIVE,
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
@@ -102,7 +105,7 @@ describe("Application adaptor", () => {
     guardianName: "Not applicable",
     guardianAddress: "Not applicable",
     certificateType: "SUBSTANTIVE",
-    status: "LIVE",
+    status: APPLICATION_STATUSES.LIVE,
     effectiveDate: "2025-09-05T08:46:36.793278",
     endDate: "Not applicable",
     reinstatementDate: "Not applicable",
@@ -111,7 +114,7 @@ describe("Application adaptor", () => {
     certificateLimitation: "Not applicable",
     careOrderDescription: "Description of proceeding",
     categoryOfLaw: "INQUESTS",
-    currentProceedingStatus: "LIVE",
+    currentProceedingStatus: APPLICATION_STATUSES.LIVE,
     dateWorkCanCommence: "2025-09-05T08:46:36.793278",
     proceedingEndDate: "Not applicable",
     clientInvolvementType: "Applicant",

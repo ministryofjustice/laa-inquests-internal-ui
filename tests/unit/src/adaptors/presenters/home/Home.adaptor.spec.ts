@@ -26,13 +26,13 @@ describe("Home adaptor", () => {
       {
         laaReference: 123,
         createdAt: "2026-05-20T08:46:36.793278",
-        status: "LIVE",
+        status: "Live",
         overallDecision: "PENDING",
       },
       {
         laaReference: 456,
         createdAt: "2026-05-21T08:46:36.793278",
-        status: "LIVE",
+        status: "Live",
         overallDecision: GRANTED_DECISION,
       },
       {
@@ -97,7 +97,7 @@ describe("Home adaptor", () => {
       {
         laaReference: 123,
         createdAt: "2026-05-20T08:46:36.793278",
-        status: "LIVE",
+        status: "Live",
         overallDecision: "PENDING",
       },
     ] as any);

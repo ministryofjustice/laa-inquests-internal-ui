@@ -10,7 +10,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     laaReference: 123,
     createdAt: "2026-05-21T08:46:36.793278",
     updatedAt: "2026-05-21T08:46:36.793294",
-    status: "LIVE",
+    status: "Live",
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,

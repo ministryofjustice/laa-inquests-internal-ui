@@ -7,7 +7,12 @@ import type {
   ApplicationSummary,
   Certificate,
 } from "#src/adaptors/models/application.types.js";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import {
+  APPLICATION_STATUSES,
+  GRANTED_DECISION,
+} from "#src/infrastructure/locales/constants.js";
+
+const LIVE_STATUS = "LIVE";
 
 const axiosGetStub = sinon.stub(axios, "get");
 const axiosPatchStub = sinon.stub(axios, "patch");
@@ -21,7 +26,7 @@ const expectedApplication: Application = {
   laaReference: 1,
   createdAt: "2026-05-18T15:49:07.455255",
   updatedAt: "2026-05-18T15:49:07.455279",
-  status: "LIVE",
+  status: APPLICATION_STATUSES.LIVE,
   usedDelegatedFunctions: true,
   applicationType: "INITIAL",
   autoGrant: true,
@@ -93,13 +98,13 @@ const expectedApplicationsSummary = [
   {
     laa_reference: 1,
     created_at: "2026-05-18T15:49:07.455255",
-    status: "LIVE",
+    status: LIVE_STATUS,
     overall_decision: "PENDING",
   },
   {
     laa_reference: 2,
     created_at: "2026-05-19T15:49:07.455255",
-    status: "LIVE",
+    status: LIVE_STATUS,
     overall_decision: GRANTED_DECISION,
   },
 ];
@@ -115,7 +120,7 @@ const expectedCertificate: Certificate = {
   guardianName: "Not applicable",
   guardianAddress: "Not applicable",
   certificateType: "SUBSTANTIVE",
-  status: "LIVE",
+  status: APPLICATION_STATUSES.LIVE,
   effectiveDate: "2026-05-21T08:46:36.793278",
   endDate: "Not applicable",
   reinstatementDate: "Not applicable",
@@ -124,7 +129,7 @@ const expectedCertificate: Certificate = {
   certificateLimitation: "Not applicable",
   careOrderDescription: "Description of proceeding",
   categoryOfLaw: "INQUESTS",
-  currentProceedingStatus: "LIVE",
+  currentProceedingStatus: APPLICATION_STATUSES.LIVE,
   dateWorkCanCommence: "2026-05-21T08:46:36.793278",
   proceedingEndDate: "Not applicable",
   clientInvolvementType: "Applicant",
@@ -166,13 +171,13 @@ describe("Test Application API Adaptor", () => {
       {
         laaReference: 1,
         createdAt: "2026-05-18T15:49:07.455255",
-        status: "LIVE",
+        status: APPLICATION_STATUSES.LIVE,
         overallDecision: "PENDING",
       },
       {
         laaReference: 2,
         createdAt: "2026-05-19T15:49:07.455255",
-        status: "LIVE",
+        status: APPLICATION_STATUSES.LIVE,
         overallDecision: GRANTED_DECISION,
       },
     ]);

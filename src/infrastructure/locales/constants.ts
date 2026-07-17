@@ -12,6 +12,10 @@ export enum APPLICATION_TYPES {
   INITIAL = "Initial application",
 }
 
+export enum APPLICATION_STATUSES {
+  LIVE = "Live",
+}
+
 export enum CERTIFICATE_TYPES {
   SUBSTANTIVE = "Substantive",
 }
