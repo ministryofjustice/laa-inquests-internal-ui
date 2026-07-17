@@ -11,11 +11,11 @@ import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import {
   APPLICATION_TYPES,
-  CATEGORY_OF_LAW,
+  CATEGORIES_OF_LAW,
   CERTIFICATE_TYPES,
   CLIENT_ROLES,
-  LEVEL_OF_SERVICE,
-  SCOPE_OF_LIMITATION,
+  LEVELS_OF_SERVICE,
+  SCOPE_OF_LIMITATIONS,
 } from "#src/infrastructure/locales/constants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
@@ -154,11 +154,13 @@ export class ApplicationAdaptor {
       });
 
     // TODO: Handle 404s
-    if (certificateViewResult.status === "TECHNICAL_FAILURE") {
+    if (certificateViewResult.status !== "SUCCESS") {
       logger.logError(
         "GET Certificate Page",
         `Failed to build certificate view for application ${applicationId}`,
-        certificateViewResult.cause ?? certificateViewResult.message,
+        certificateViewResult.status === "TECHNICAL_FAILURE"
+          ? (certificateViewResult.cause ?? certificateViewResult.message)
+          : undefined,
         req,
       );
 
@@ -172,19 +174,17 @@ export class ApplicationAdaptor {
 
     const certificateDetails = {
       ...data,
-      effectiveDate: formatDate(data?.effectiveDate),
-      dateWorkCanCommence: formatDate(data?.dateWorkCanCommence),
+      effectiveDate: formatDate(data.effectiveDate),
+      dateWorkCanCommence: formatDate(data.dateWorkCanCommence),
       dateCurrentLevelOfServiceEffective: formatDate(
-        data?.dateCurrentLevelOfServiceEffective,
+        data.dateCurrentLevelOfServiceEffective,
       ),
-      costLimitation: formatCurrency(Number(data?.costLimitation)),
-      certificateType: mapCertificateTypeForDisplay(data?.certificateType ?? ""),
-      categoryOfLaw: mapCategoryOfLawForDisplay(
-        data?.categoryOfLaw ?? "",
-      ),
-      levelOfService: mapLevelOfServiceForDisplay(data?.levelOfService ?? ""),
+      costLimitation: formatCurrency(Number(data.costLimitation)),
+      certificateType: mapCertificateTypeForDisplay(data.certificateType),
+      categoryOfLaw: mapCategoryOfLawForDisplay(data.categoryOfLaw),
+      levelOfService: mapLevelOfServiceForDisplay(data.levelOfService),
       scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
-        data?.scopeLimitationHeading ?? "",
+        data.scopeLimitationHeading,
       ),
     };
 
@@ -197,9 +197,9 @@ export class ApplicationAdaptor {
 
 function mapApplication(application: Application): Application {
   const applicationType =
-    APPLICATION_TYPES.find(
-      (t) => t.applicationTypeId === application.applicationType,
-    )?.applicationTypeDescription ?? application.applicationType;
+    (APPLICATION_TYPES as Record<string, string>)[
+      application.applicationType
+    ] ?? application.applicationType;
 
   const provider = application.provider
     ? {
@@ -246,8 +246,8 @@ function mapProceedings(proceedings: Proceeding[]): Array<
 
 function mapCertificateTypeForDisplay(certificateType: string): string {
   return (
-    CERTIFICATE_TYPES.find((type) => type.certificateTypeId === certificateType)
-      ?.certificateTypeDescription ?? certificateType
+    (CERTIFICATE_TYPES as Record<string, string>)[certificateType] ??
+    certificateType
   );
 }
 
@@ -255,16 +255,15 @@ function mapClientInvolvementTypeForDisplay(
   clientInvolvementType: string,
 ): string {
   return (
-    CLIENT_ROLES.find((role) => role.clientRoleId === clientInvolvementType)
-      ?.clientRoleDescription ?? clientInvolvementType
+    (CLIENT_ROLES as Record<string, string>)[clientInvolvementType] ??
+    clientInvolvementType
   );
 }
 
 function mapLevelOfServiceForDisplay(levelOfService: string): string {
   return (
-    LEVEL_OF_SERVICE.find(
-      (service) => service.levelOfServiceId === levelOfService,
-    )?.levelOfServiceDescription ?? levelOfService
+    (LEVELS_OF_SERVICE as Record<string, string>)[levelOfService] ??
+    levelOfService
   );
 }
 
@@ -272,17 +271,15 @@ function mapScopeLimitationHeadingForDisplay(
   scopeLimitationHeading: string,
 ): string {
   return (
-    SCOPE_OF_LIMITATION.find(
-      (scope) => scope.scopeOfLimitationId === scopeLimitationHeading,
-    )?.scopeOfLimitationDescription ?? scopeLimitationHeading
+    (SCOPE_OF_LIMITATIONS as Record<string, string>)[scopeLimitationHeading] ??
+    scopeLimitationHeading
   );
 }
 
 function mapCategoryOfLawForDisplay(categoryOfLaw: string): string {
   return (
-    CATEGORY_OF_LAW.find(
-      (category) => category.categoryOfLawId === categoryOfLaw,
-    )?.categoryOfLawDescription ?? categoryOfLaw
+    (CATEGORIES_OF_LAW as Record<string, string>)[categoryOfLaw] ??
+    categoryOfLaw
   );
 }
 
