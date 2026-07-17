@@ -221,27 +221,52 @@ function mapProceedings(proceedings: Proceeding[]): Array<
 > {
   return proceedings.map((proceeding) => ({
     ...proceeding,
-    certificateType:
-      CERTIFICATE_TYPES.find(
-        (type) => type.certificateTypeId === proceeding.certificateType,
-      )?.certificateTypeDescription ?? proceeding.certificateType,
-    clientInvolvementType:
-      CLIENT_ROLES.find(
-        (role) => role.clientRoleId === proceeding.clientInvolvementType,
-      )?.clientRoleDescription ?? proceeding.clientInvolvementType,
-    levelOfService:
-      LEVEL_OF_SERVICE.find(
-        (service) => service.levelOfServiceId === proceeding.levelOfService,
-      )?.levelOfServiceDescription ?? proceeding.levelOfService,
-    scopeLimitationHeading:
-      SCOPE_OF_LIMITATION.find(
-        (scope) =>
-          scope.scopeOfLimitationId === proceeding.scopeLimitationHeading,
-      )?.lscopeOfLimitationDescription ?? proceeding.scopeLimitationHeading,
+    certificateType: mapCertificateTypeForDisplay(proceeding.certificateType),
+    clientInvolvementType: mapClientInvolvementTypeForDisplay(
+      proceeding.clientInvolvementType,
+    ),
+    levelOfService: mapLevelOfServiceForDisplay(proceeding.levelOfService),
+    scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
+      proceeding.scopeLimitationHeading,
+    ),
     substantiveCostLimitation: formatCurrency(
       proceeding.substantiveCostLimitation,
     ),
   }));
+}
+
+function mapCertificateTypeForDisplay(certificateType: string): string {
+  return (
+    CERTIFICATE_TYPES.find((type) => type.certificateTypeId === certificateType)
+      ?.certificateTypeDescription ?? certificateType
+  );
+}
+
+function mapClientInvolvementTypeForDisplay(
+  clientInvolvementType: string,
+): string {
+  return (
+    CLIENT_ROLES.find((role) => role.clientRoleId === clientInvolvementType)
+      ?.clientRoleDescription ?? clientInvolvementType
+  );
+}
+
+function mapLevelOfServiceForDisplay(levelOfService: string): string {
+  return (
+    LEVEL_OF_SERVICE.find(
+      (service) => service.levelOfServiceId === levelOfService,
+    )?.levelOfServiceDescription ?? levelOfService
+  );
+}
+
+function mapScopeLimitationHeadingForDisplay(
+  scopeLimitationHeading: string,
+): string {
+  return (
+    SCOPE_OF_LIMITATION.find(
+      (scope) => scope.scopeOfLimitationId === scopeLimitationHeading,
+    )?.scopeOfLimitationDescription ?? scopeLimitationHeading
+  );
 }
 
 function getHomeAddressDisplay(application: Application): string {

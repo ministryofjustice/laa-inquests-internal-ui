@@ -39,6 +39,6 @@ export const LEVEL_OF_SERVICE = [
 export const SCOPE_OF_LIMITATION = [
   {
     scopeOfLimitationId: "FINAL_HEARING",
-    lscopeOfLimitationDescription: "Final hearing",
+    scopeOfLimitationDescription: "Final hearing",
   },
 ];
