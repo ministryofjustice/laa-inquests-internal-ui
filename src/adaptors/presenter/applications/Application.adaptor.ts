@@ -174,6 +174,7 @@ export class ApplicationAdaptor {
 
     const certificateDetails = {
       ...data,
+      dateCreated: formatDate(data.dateCreated),
       effectiveDate: formatDate(data.effectiveDate),
       dateWorkCanCommence: formatDate(data.dateWorkCanCommence),
       dateCurrentLevelOfServiceEffective: formatDate(
