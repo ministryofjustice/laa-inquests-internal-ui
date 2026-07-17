@@ -25,7 +25,7 @@ const checkYourAnswersPage = `/applications/${applicationId}/decision/confirmati
 const certificateUrl = `/applications/${applicationId}/certificate`;
 
 const startDate = { day: "1", month: "1", year: "2020" };
-const formattedStartDate = "1 Jan 2020";
+const formattedStartDate = "01 January 2020";
 
 async function fillStartDate(
   page: Page,
@@ -240,8 +240,8 @@ test.describe.serial("Grant application journey", () => {
 
     // Get today's date formatted as expected
     const today = new Date();
-    const day = today.getDate();
-    const month = today.toLocaleString("en-GB", { month: "short" });
+    const day = String(today.getDate()).padStart(2, "0");
+    const month = today.toLocaleString("en-GB", { month: "long" });
     const year = today.getFullYear();
     const formattedToday = `${day} ${month} ${year}`;
 

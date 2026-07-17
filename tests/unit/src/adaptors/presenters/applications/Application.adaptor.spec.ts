@@ -90,6 +90,7 @@ describe("Application adaptor", () => {
     },
   };
 
+  // TODO: Remove N/A if date is returned null?
   const certificateDetails = {
     laaReference: 1,
     dateCreated: "2026-05-19T15:49:07.455255",
@@ -102,7 +103,7 @@ describe("Application adaptor", () => {
     guardianAddress: "Not applicable",
     certificateType: "SUBSTANTIVE",
     status: "LIVE",
-    effectiveDate: "2026-05-21T08:46:36.793278",
+    effectiveDate: "2025-09-05T08:46:36.793278",
     endDate: "Not applicable",
     reinstatementDate: "Not applicable",
     costLimitation: "10000",
@@ -111,11 +112,11 @@ describe("Application adaptor", () => {
     careOrderDescription: "Description of proceeding",
     categoryOfLaw: "INQUESTS",
     currentProceedingStatus: "LIVE",
-    dateWorkCanCommence: "2026-05-21T08:46:36.793278",
+    dateWorkCanCommence: "2025-09-05T08:46:36.793278",
     proceedingEndDate: "Not applicable",
     clientInvolvementType: "Applicant",
     levelOfService: "FULL_REPRESENTATION",
-    dateCurrentLevelOfServiceEffective: "2026-05-21T08:46:36.793278",
+    dateCurrentLevelOfServiceEffective: "2025-09-05T08:46:36.793278",
     previousLevelOfService: "Not applicable",
     datePreviousLevelOfServiceEffective: "Not applicable",
     scopeLimitationHeading: "FINAL_HEARING",
@@ -574,6 +575,9 @@ describe("Application adaptor", () => {
         backUrl: `/applications/${application.laaReference}/overview`,
         certificateDetails: {
           ...certificateDetails,
+          effectiveDate: "05 September 2025",
+          dateWorkCanCommence: "05 September 2025",
+          dateCurrentLevelOfServiceEffective: "05 September 2025",
           costLimitation: "£10,000",
         },
       });

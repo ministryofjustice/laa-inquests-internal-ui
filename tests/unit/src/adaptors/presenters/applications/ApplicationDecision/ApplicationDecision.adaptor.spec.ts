@@ -733,7 +733,7 @@ describe("ApplicationDecisionAdaptor", () => {
         overallDecision: GRANTED_DECISION,
         refusalReasonLabel: undefined,
         justification: undefined,
-        certificateStartDate: "1 Jan 2020",
+        certificateStartDate: "01 January 2020",
       });
     });
   });

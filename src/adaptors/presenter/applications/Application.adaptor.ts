@@ -8,6 +8,7 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { formatCurrency } from "#src/utils/formatter.js";
+import { formatDate } from "#src/utils/dateFormatter.js";
 import {
   APPLICATION_TYPES,
   CERTIFICATE_TYPES,
@@ -166,12 +167,16 @@ export class ApplicationAdaptor {
       });
       return;
     }
+    const { data } = certificateViewResult;
 
     const certificateDetails = {
-      ...certificateViewResult.data,
-      costLimitation: formatCurrency(
-        Number(certificateViewResult.data?.costLimitation),
+      ...data,
+      effectiveDate: formatDate(data?.effectiveDate),
+      dateWorkCanCommence: formatDate(data?.dateWorkCanCommence),
+      dateCurrentLevelOfServiceEffective: formatDate(
+        data?.dateCurrentLevelOfServiceEffective,
       ),
+      costLimitation: formatCurrency(Number(data?.costLimitation)),
     };
 
     res.render("application/certificate", {
