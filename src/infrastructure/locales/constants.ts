@@ -42,3 +42,10 @@ export const SCOPE_OF_LIMITATION = [
     scopeOfLimitationDescription: "Final hearing",
   },
 ];
+
+export const CATEGORY_OF_LAW = [
+  {
+    categoryOfLawId: "INQUESTS",
+    categoryOfLawDescription: "Inquests",
+  },
+];

@@ -579,6 +579,10 @@ describe("Application adaptor", () => {
           dateWorkCanCommence: "05 September 2025",
           dateCurrentLevelOfServiceEffective: "05 September 2025",
           costLimitation: "£10,000",
+          certificateType: "Substantive",
+          categoryOfLaw: "Inquests",
+          levelOfService: "Full representation",
+          scopeLimitationHeading: "Final hearing",
         },
       });
     });

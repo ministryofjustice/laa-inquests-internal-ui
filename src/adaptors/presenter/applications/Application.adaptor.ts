@@ -11,6 +11,7 @@ import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import {
   APPLICATION_TYPES,
+  CATEGORY_OF_LAW,
   CERTIFICATE_TYPES,
   CLIENT_ROLES,
   LEVEL_OF_SERVICE,
@@ -177,6 +178,14 @@ export class ApplicationAdaptor {
         data?.dateCurrentLevelOfServiceEffective,
       ),
       costLimitation: formatCurrency(Number(data?.costLimitation)),
+      certificateType: mapCertificateTypeForDisplay(data?.certificateType ?? ""),
+      categoryOfLaw: mapCategoryOfLawForDisplay(
+        data?.categoryOfLaw ?? "",
+      ),
+      levelOfService: mapLevelOfServiceForDisplay(data?.levelOfService ?? ""),
+      scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
+        data?.scopeLimitationHeading ?? "",
+      ),
     };
 
     res.render("application/certificate", {
@@ -266,6 +275,14 @@ function mapScopeLimitationHeadingForDisplay(
     SCOPE_OF_LIMITATION.find(
       (scope) => scope.scopeOfLimitationId === scopeLimitationHeading,
     )?.scopeOfLimitationDescription ?? scopeLimitationHeading
+  );
+}
+
+function mapCategoryOfLawForDisplay(categoryOfLaw: string): string {
+  return (
+    CATEGORY_OF_LAW.find(
+      (category) => category.categoryOfLawId === categoryOfLaw,
+    )?.categoryOfLawDescription ?? categoryOfLaw
   );
 }
 
