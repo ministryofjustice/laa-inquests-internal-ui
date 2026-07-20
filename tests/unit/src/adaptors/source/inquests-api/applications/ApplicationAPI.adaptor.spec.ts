@@ -376,8 +376,7 @@ describe("Test getCertificateDetails", () => {
     }
   });
 
-  // TODO: remove/change these 3 tests, when we change to not throw on non-404 errors, but instead return a different failure reason
-  it("re-throws when the API responds with a non-404 error", async () => {
+  it("returns a FAILURE result with UPSTREAM_REJECTED when the API responds with a non-404 error", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
@@ -391,16 +390,19 @@ describe("Test getCertificateDetails", () => {
     );
     axiosGetStub.rejects(serverError);
 
-    try {
-      await adaptor.getCertificateDetails("123", "access-token-123");
-      assert.fail("Expected getCertificateDetails to throw");
-    } catch (error) {
-      assert.equal(error, serverError);
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "UPSTREAM_REJECTED");
+      assert.equal(result.cause, serverError);
     }
   });
 
-  // TODO: this one too, return a different failure reason instead of throwing
-  it("re-throws when no response is received from the server", async () => {
+  it("returns a FAILURE result with UPSTREAM_REJECTED when no response is received from the server", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
@@ -408,26 +410,30 @@ describe("Test getCertificateDetails", () => {
     const networkError = new axios.AxiosError("Network Error", "ERR_NETWORK");
     axiosGetStub.rejects(networkError);
 
-    try {
-      await adaptor.getCertificateDetails("123", "access-token-123");
-      assert.fail("Expected getCertificateDetails to throw");
-    } catch (error) {
-      assert.equal(error, networkError);
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "UPSTREAM_REJECTED");
+      assert.equal(result.cause, networkError);
     }
   });
 
-  // TODO: also update this test to return a different failure reason instead of throwing
-  it("throws when access token is missing", async () => {
+  it("returns a FAILURE result with UPSTREAM_REJECTED when the access token is missing", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
 
-    try {
-      await adaptor.getCertificateDetails("123", undefined);
-      assert.fail("Expected getCertificateDetails to throw");
-    } catch (error) {
+    const result = await adaptor.getCertificateDetails("123", undefined);
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "UPSTREAM_REJECTED");
       assert.equal(
-        (error as Error).message,
+        (result.cause as Error).message,
         "Missing access token for Inquests API request",
       );
     }

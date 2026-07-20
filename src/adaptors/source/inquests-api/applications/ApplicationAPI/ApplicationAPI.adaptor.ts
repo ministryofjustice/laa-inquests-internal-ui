@@ -178,8 +178,12 @@ export class ApplicationAPIAdaptor {
         };
       }
 
-      // TODO: don't throw, return a different failure reason
-      throw error;
+      return {
+        status: "FAILURE",
+        reason: OUTBOUND_ADAPTER_FAILURE_REASONS.UPSTREAM_REJECTED,
+        message: `Failed to retrieve certificate for application ${applicationId}`,
+        cause: error,
+      };
     }
   }
 }
