@@ -114,6 +114,7 @@ describe("Application adaptor", () => {
     costLimitationEffectiveDate: "Not applicable",
     certificateLimitation: "Not applicable",
     proceedingName: "Description of proceeding",
+    proceedingDescription: "Description of proceeding",
     categoryOfLaw: "INQUESTS",
     currentProceedingStatus: APPLICATION_STATUSES.LIVE,
     dateWorkCanCommence: "2025-09-05",

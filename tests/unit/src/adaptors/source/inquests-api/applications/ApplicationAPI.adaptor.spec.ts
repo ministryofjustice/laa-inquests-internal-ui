@@ -129,6 +129,7 @@ const expectedCertificate: Certificate = {
   costLimitationEffectiveDate: "Not applicable",
   certificateLimitation: "Not applicable",
   proceedingName: "Description of proceeding",
+  proceedingDescription: "Description of proceeding",
   categoryOfLaw: "INQUESTS",
   currentProceedingStatus: APPLICATION_STATUSES.LIVE,
   dateWorkCanCommence: "2026-05-21T08:46:36.793278",

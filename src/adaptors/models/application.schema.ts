@@ -114,6 +114,7 @@ export const CertificateSchema = z.object({
   costLimitationEffectiveDate: z.string().nullable(),
   certificateLimitation: z.string(),
   proceedingName: z.string(),
+  proceedingDescription: z.string(),
   categoryOfLaw: z.string(),
   currentProceedingStatus: z.string(),
   dateWorkCanCommence: z.string(),
