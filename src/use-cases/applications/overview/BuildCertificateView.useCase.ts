@@ -13,7 +13,6 @@ interface BuildCertificateViewInput {
 export class BuildCertificateViewUseCase {
   constructor(private readonly applicationPort: ApplicationPort) {}
 
-  // TODO: Return BuildCertificateViewData instead of Certificate
   async execute(
     input: BuildCertificateViewInput,
   ): Promise<UseCaseResult<Certificate>> {
@@ -26,15 +25,24 @@ export class BuildCertificateViewUseCase {
     }
 
     try {
-      const certificateDetails =
+      const certificateResult =
         await this.applicationPort.getCertificateDetails(
           input.applicationId,
           input.accessToken,
         );
 
+      if (certificateResult.status === "FAILURE") {
+        return {
+          status: "TECHNICAL_FAILURE",
+          reason: certificateResult.reason,
+          message: certificateResult.message,
+          cause: certificateResult.cause,
+        };
+      }
+
       return {
         status: "SUCCESS",
-        data: certificateDetails,
+        data: certificateResult.data,
       };
     } catch (error) {
       return {

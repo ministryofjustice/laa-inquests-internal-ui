@@ -42,7 +42,10 @@ describe("BuildCertificateViewUseCase", () => {
 
   beforeEach(() => {
     applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.getCertificateDetails.resolves(certificateDetails);
+    applicationPortStub.getCertificateDetails.resolves({
+      status: "SUCCESS",
+      data: certificateDetails,
+    });
     useCase = new BuildCertificateViewUseCase(applicationPortStub);
   });
 
@@ -79,7 +82,44 @@ describe("BuildCertificateViewUseCase", () => {
     assert.equal(applicationPortStub.getCertificateDetails.called, false);
   });
 
-  it("returns TECHNICAL_FAILURE when certificate retrieval fails", async () => {
+  it("returns TECHNICAL_FAILURE with RESOURCE_NOT_FOUND when the certificate is not found", async () => {
+    const cause = new Error("Certificate not found for application 1");
+    applicationPortStub.getCertificateDetails.resolves({
+      status: "FAILURE",
+      reason: "RESOURCE_NOT_FOUND",
+      message: "Certificate not found for application 1",
+      cause,
+    });
+
+    const result = await useCase.execute({
+      applicationId: "1",
+      accessToken: "access-token-123",
+    });
+
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND);
+    assert.equal(result.cause, cause);
+  });
+
+  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when the adaptor reports an upstream failure", async () => {
+    const cause = new Error("Upstream error");
+    applicationPortStub.getCertificateDetails.resolves({
+      status: "FAILURE",
+      reason: "UPSTREAM_REJECTED",
+      cause,
+    });
+
+    const result = await useCase.execute({
+      applicationId: "1",
+      accessToken: "access-token-123",
+    });
+
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
+    assert.equal(result.cause, cause);
+  });
+
+  it("returns TECHNICAL_FAILURE when certificate retrieval throws", async () => {
     const error = new Error("Get certificate details failed");
     applicationPortStub.getCertificateDetails.rejects(error);
 

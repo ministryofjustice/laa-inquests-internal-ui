@@ -12,6 +12,8 @@ import {
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
+import { OUTBOUND_ADAPTER_FAILURE_REASONS } from "#src/ports/common/outboundAdapterResult.types.js";
+import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 import {
   patchInquestsApi,
   getInquestsApi,
@@ -142,25 +144,43 @@ export class ApplicationAPIAdaptor {
   async getCertificateDetails(
     applicationId: string,
     accessToken: string | undefined,
-  ): Promise<Certificate> {
-    const { data }: AxiosResponse<Certificate> = await getInquestsApi({
-      http: this.http,
-      baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/certificate`,
-      accessToken,
-    });
+  ): Promise<OutboundAdapterResult<Certificate>> {
+    try {
+      const { data }: AxiosResponse<Certificate> = await getInquestsApi({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: `/applications/${applicationId}/certificate`,
+        accessToken,
+      });
 
-    const certificate = CertificateSchema.parse(data);
+      const certificate = CertificateSchema.parse(data);
 
-    return {
-      ...certificate,
-      status:
-        mapApplicationStatusForDisplay(certificate.status) ??
-        certificate.status,
-      currentProceedingStatus:
-        mapApplicationStatusForDisplay(certificate.currentProceedingStatus) ??
-        certificate.currentProceedingStatus,
-    };
+      return {
+        status: "SUCCESS",
+        data: {
+          ...certificate,
+          status:
+            mapApplicationStatusForDisplay(certificate.status) ??
+            certificate.status,
+          currentProceedingStatus:
+            mapApplicationStatusForDisplay(
+              certificate.currentProceedingStatus,
+            ) ?? certificate.currentProceedingStatus,
+        },
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return {
+          status: "FAILURE",
+          reason: OUTBOUND_ADAPTER_FAILURE_REASONS.RESOURCE_NOT_FOUND,
+          message: `Certificate not found for application ${applicationId}`,
+          cause: error,
+        };
+      }
+
+      // TODO: don't throw, return a different failure reason
+      throw error;
+    }
   }
 }
 

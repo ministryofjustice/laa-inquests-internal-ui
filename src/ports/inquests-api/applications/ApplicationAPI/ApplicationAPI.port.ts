@@ -3,6 +3,7 @@ import type {
   ApplicationSummary,
   Certificate,
 } from "#src/adaptors/models/application.types.js";
+import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 
 export interface ApplicationPort {
   getAllApplications: (
@@ -30,5 +31,5 @@ export interface ApplicationPort {
   getCertificateDetails: (
     applicationId: string,
     accessToken: string | undefined,
-  ) => Promise<Certificate>;
+  ) => Promise<OutboundAdapterResult<Certificate>>;
 }

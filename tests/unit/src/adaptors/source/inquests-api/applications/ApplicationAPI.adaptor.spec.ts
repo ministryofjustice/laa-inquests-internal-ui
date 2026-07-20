@@ -344,9 +344,79 @@ describe("Test getCertificateDetails", () => {
       "access-token-123",
     );
 
-    assert.deepEqual(result, expectedCertificate);
+    assert.equal(result.status, "SUCCESS");
+    if (result.status === "SUCCESS") {
+      assert.deepEqual(result.data, expectedCertificate);
+    }
   });
 
+  it("returns a FAILURE result with RESOURCE_NOT_FOUND when the API responds with 404", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const notFoundError = new axios.AxiosError(
+      "Not Found",
+      "ERR_BAD_REQUEST",
+      undefined,
+      undefined,
+      { status: 404 } as any,
+    );
+    axiosGetStub.rejects(notFoundError);
+
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "RESOURCE_NOT_FOUND");
+      assert.equal(result.cause, notFoundError);
+    }
+  });
+
+  // TODO: remove/change these 3 tests, when we change to not throw on non-404 errors, but instead return a different failure reason
+  it("re-throws when the API responds with a non-404 error", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const serverError = new axios.AxiosError(
+      "Server Error",
+      "ERR_BAD_RESPONSE",
+      undefined,
+      undefined,
+      { status: 500 } as any,
+    );
+    axiosGetStub.rejects(serverError);
+
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+      assert.fail("Expected getCertificateDetails to throw");
+    } catch (error) {
+      assert.equal(error, serverError);
+    }
+  });
+
+  // TODO: this one too, return a different failure reason instead of throwing
+  it("re-throws when no response is received from the server", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const networkError = new axios.AxiosError("Network Error", "ERR_NETWORK");
+    axiosGetStub.rejects(networkError);
+
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+      assert.fail("Expected getCertificateDetails to throw");
+    } catch (error) {
+      assert.equal(error, networkError);
+    }
+  });
+
+  // TODO: also update this test to return a different failure reason instead of throwing
   it("throws when access token is missing", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
