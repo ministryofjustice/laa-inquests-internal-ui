@@ -31,6 +31,7 @@ describe("ApplicationDecisionAdaptor", () => {
   const applicationId = "1";
   const mockProceeding = {
     proceedingId: "MN035",
+    proceedingName: "Clinical Negligence",
     proceedingDescription: "Clinical Negligence",
     categoryOfLaw: "INQUEST",
     certificateType: "SUBSTANTIVE",

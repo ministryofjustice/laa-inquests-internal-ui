@@ -34,6 +34,7 @@ const expectedApplication: Application = {
   proceedings: [
     {
       proceedingId: "PC049",
+      proceedingName: "CAPA",
       proceedingDescription: "CAPA",
       categoryOfLaw: "INQUESTS",
       certificateType: "SUBSTANTIVE",

@@ -18,6 +18,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     proceedings: [
       {
         proceedingId: "MN035",
+        proceedingName: "description of proceeding",
         proceedingDescription: "description of proceeding",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",
