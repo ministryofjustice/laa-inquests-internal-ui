@@ -48,6 +48,7 @@ const fullApplications = [
     proceedings: [
       {
         proceedingId: "PC049",
+        proceedingName: "CAPA",
         proceedingDescription: "CAPA",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",
@@ -119,6 +120,7 @@ const fullApplications = [
     proceedings: [
       {
         proceedingId: "PC049",
+        proceedingName: "CAPA",
         proceedingDescription: "CAPA",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",

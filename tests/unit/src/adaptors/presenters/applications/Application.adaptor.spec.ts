@@ -23,7 +23,8 @@ describe("Application adaptor", () => {
     proceedings: [
       {
         proceedingId: "MN035",
-        proceedingDescription: "description of proceeding",
+        proceedingName: "description of proceeding",
+        proceedingDescription: "detailed description of proceeding",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",
         levelOfService: "FULL_REPRESENTATION",
@@ -123,7 +124,7 @@ describe("Application adaptor", () => {
         },
         proceedings: [
           {
-            proceedingDescription: "description of proceeding",
+            proceedingName: "description of proceeding",
             certificateType: "Substantive",
             clientInvolvementType: "Respondent",
             levelOfService: "Full representation",
