@@ -176,9 +176,7 @@ test.describe("View certificate page", () => {
     const response = await page.goto("/applications/999/certificate");
 
     expect(response?.status()).toBe(404);
-    await expect(
-      page.getByRole("heading", { name: "Certificate not found" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
     await expect(
       page.getByText(
         "The certificate for this application could not be found.",
