@@ -110,7 +110,7 @@ describe("Application adaptor", () => {
     effectiveDate: "2025-09-05",
     endDate: "Not applicable",
     reinstatementDate: "Not applicable",
-    costLimitation: "10000",
+    costLimitation: 10000,
     costLimitationEffectiveDate: "Not applicable",
     certificateLimitation: "Not applicable",
     proceedingName: "Description of proceeding",

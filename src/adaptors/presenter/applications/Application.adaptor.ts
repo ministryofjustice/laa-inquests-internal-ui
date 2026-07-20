@@ -192,7 +192,7 @@ export class ApplicationAdaptor {
       dateCurrentLevelOfServiceEffective: formatDate(
         data.dateCurrentLevelOfServiceEffective,
       ),
-      costLimitation: formatCurrency(Number(data.costLimitation)),
+      costLimitation: formatCurrency(data.costLimitation),
       certificateType: mapCertificateTypeForDisplay(data.certificateType),
       categoryOfLaw: mapCategoryOfLawForDisplay(data.categoryOfLaw),
       levelOfService: mapLevelOfServiceForDisplay(data.levelOfService),

@@ -125,7 +125,7 @@ const expectedCertificate: Certificate = {
   effectiveDate: "2026-05-21T08:46:36.793278",
   endDate: "Not applicable",
   reinstatementDate: "Not applicable",
-  costLimitation: "10000",
+  costLimitation: 10000,
   costLimitationEffectiveDate: "Not applicable",
   certificateLimitation: "Not applicable",
   proceedingName: "Description of proceeding",
