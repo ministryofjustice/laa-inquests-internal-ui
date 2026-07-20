@@ -617,6 +617,32 @@ describe("Application adaptor", () => {
       ]);
     });
 
+    it("renders a 404 not found page when certificate view returns RESOURCE_NOT_FOUND", async () => {
+      responseStub.status.returns(responseStub);
+      buildCertificateViewUseCaseStub.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND,
+        message: "Certificate not found for application 123",
+      });
+
+      await applicationAdaptor.renderCertificatePage(
+        requestStub,
+        responseStub,
+        application.laaReference.toString(),
+      );
+
+      assert.equal(responseStub.status.callCount, 1);
+      assert.deepStrictEqual(responseStub.status.getCall(0).args, [404]);
+      assert.equal(responseStub.render.callCount, 1);
+      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+        "application/error",
+        {
+          status: "Certificate not found",
+          error: "The certificate for this application could not be found.",
+        },
+      ]);
+    });
+
     it("logs error when certificate returns with TECHNICAL_FAILURE", async () => {
       buildCertificateViewUseCaseStub.execute.resolves({
         status: "TECHNICAL_FAILURE",

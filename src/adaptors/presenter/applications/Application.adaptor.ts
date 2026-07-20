@@ -7,6 +7,7 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
+import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import {
@@ -153,7 +154,6 @@ export class ApplicationAdaptor {
         accessToken: req.session.user?.accessToken,
       });
 
-    // TODO: Handle 404s
     if (certificateViewResult.status !== "SUCCESS") {
       logger.logError(
         "GET Certificate Page",
@@ -163,6 +163,18 @@ export class ApplicationAdaptor {
           : undefined,
         req,
       );
+
+      if (
+        certificateViewResult.status === "TECHNICAL_FAILURE" &&
+        certificateViewResult.reason ===
+          TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND
+      ) {
+        res.status(404).render("application/error", {
+          status: "Certificate not found",
+          error: "The certificate for this application could not be found.",
+        });
+        return;
+      }
 
       res.status(500).render("application/error", {
         status: "Unable to retrieve certificate",

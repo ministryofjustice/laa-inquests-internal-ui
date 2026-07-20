@@ -186,7 +186,10 @@ export const applicationHandlers = [
 
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/certificate`,
-    () => {
+    ({ params }) => {
+      if (params.id === "999") {
+        return new HttpResponse(null, { status: 404 });
+      }
       return HttpResponse.json(certificate);
     },
   ),
