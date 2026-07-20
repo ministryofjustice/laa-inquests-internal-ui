@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import type { Locator, Page } from "playwright";
+import { CASEWORKER_DISPLAY_NAME } from "#tests/playwright/constants/Caseworker.js";
 
 export async function continueToNextPage(
   form: Locator,
@@ -63,7 +64,7 @@ export async function validateMojHeader(page: Page): Promise<void> {
   await expect(navigation).toBeVisible();
 
   const accountNameLink = navigation.getByRole("link", {
-    name: "Test User",
+    name: CASEWORKER_DISPLAY_NAME,
   });
   await expect(accountNameLink).toBeVisible();
 

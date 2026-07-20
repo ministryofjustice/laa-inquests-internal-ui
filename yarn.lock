@@ -802,6 +802,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/hashes@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@noble/hashes@npm:2.2.0"
+  checksum: 10c0/cad8630c504d6b9271984f685cd0af9101b40988fc2dfbe17ccdf068a9941f95cc5c9957d89e9ca4b7ca94c15cb35f93510c5d53a09fbcc83ee503b93d0a1034
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:^1.1.5":
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
@@ -4806,6 +4813,7 @@ __metadata:
     msw: "npm:^2.14.6"
     nodemon: "npm:^3.1.14"
     nunjucks: "npm:^3.2.4"
+    otpauth: "npm:^9.5.1"
     playwright-core: "npm:^1.60.0"
     prettier: "npm:^3.8.3"
     sass: "npm:^1.100.0"
@@ -5521,6 +5529,15 @@ __metadata:
   version: 2.0.2
   resolution: "opts@npm:2.0.2"
   checksum: 10c0/c6056d5c959f8f3e221c16cf5cf16eae0ed6cc36c6944d3bd0e8affa1dd7c8c9da47343a62bb1a98cfe3b3dce3c088f9cbb90d97b6b0286372a5c7c2281c8ebb
+  languageName: node
+  linkType: hard
+
+"otpauth@npm:^9.5.1":
+  version: 9.5.1
+  resolution: "otpauth@npm:9.5.1"
+  dependencies:
+    "@noble/hashes": "npm:2.2.0"
+  checksum: 10c0/ed9c6f2cd7541225378555ab09951aa15efaafc820bfe84c4c1ac24a81a27c08817ff11b8030e19ebf13a3858d40a1c1e9118bddb6686577763c38efaa1cb8b3
   languageName: node
   linkType: hard
 
