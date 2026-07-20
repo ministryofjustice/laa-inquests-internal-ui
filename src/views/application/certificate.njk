@@ -73,7 +73,7 @@
                                         text: "Opponent details"
                                     },
                                     value: {
-                                        html: certificateDetails.opponentDetails.join("<br/>")
+                                        html: (certificateDetails.opponentDetails ?? []).join("<br/>")
                                     }
                                 },
                                 {
