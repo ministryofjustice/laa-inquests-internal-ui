@@ -637,7 +637,7 @@ describe("Application adaptor", () => {
       assert.deepStrictEqual(responseStub.render.getCall(0).args, [
         "application/error",
         {
-          status: "Certificate not found",
+          status: 404,
           error: "The certificate for this application could not be found.",
         },
       ]);

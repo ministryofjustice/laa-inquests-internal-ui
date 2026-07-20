@@ -170,7 +170,7 @@ export class ApplicationAdaptor {
           TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND
       ) {
         res.status(404).render("application/error", {
-          status: "Certificate not found",
+          status: 404,
           error: "The certificate for this application could not be found.",
         });
         return;
