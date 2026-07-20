@@ -136,7 +136,7 @@ test.describe("View certificate page", () => {
     });
     await expect(scopeHeader).toBeVisible();
     // TODO: change this to check for actual proceeding in the header
-    const scopeTableHeading = page.getByText("1. placeholder", { exact: true });
+    const scopeTableHeading = page.getByText("1.");
     await expect(scopeTableHeading).toBeVisible();
 
     const scopeTable = page.locator(".govuk-summary-list", {
