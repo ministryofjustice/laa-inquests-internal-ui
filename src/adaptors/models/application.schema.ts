@@ -102,7 +102,7 @@ export const CertificateSchema = z.object({
   clientAddress: z.string(),
   firmName: z.string(),
   officeAddress: z.string(),
-  opponentDetails: z.string(),
+  opponentDetails: z.string().array(),
   guardianName: z.string(),
   guardianAddress: z.string(),
   certificateType: z.string(),
