@@ -200,7 +200,7 @@ const certificate = {
   costLimitation: "10000",
   costLimitationEffectiveDate: "Not applicable",
   certificateLimitation: "Not applicable",
-  careOrderDescription: "Description of proceeding",
+  proceedingName: "Description of proceeding",
   categoryOfLaw: "INQUESTS",
   currentProceedingStatus: "LIVE",
   dateWorkCanCommence: "2025-09-05T08:46:36.793278",
