@@ -42,6 +42,7 @@ const DeceasedSchema = z.object({
 
 export const ProceedingSchema = z.object({
   proceedingId: z.string(),
+  proceedingName: z.string().optional().nullable(),
   proceedingDescription: z.string().optional().nullable(),
   categoryOfLaw: z.string(),
   certificateType: z.string(),
