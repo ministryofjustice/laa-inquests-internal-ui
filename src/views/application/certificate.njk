@@ -49,7 +49,7 @@
                                         text: "Client address"
                                     },
                                     value: {
-                                        text: Object.values(certificateDetails.clientAddress ?? {}).filter(v => !!v).join("<br/>")
+                                        html: certificateDetails.clientAddress
                                     }
                                 },
                                 {
@@ -65,7 +65,7 @@
                                         text: "Office address"
                                     },
                                     value: {
-                                        text: Object.values(certificateDetails.officeAddress ?? {}).filter(v => !!v).join("<br/>")
+                                        html: certificateDetails.officeAddress
                                     }
                                 },
                                 {
@@ -73,7 +73,7 @@
                                         text: "Opponent details"
                                     },
                                     value: {
-                                        html: (certificateDetails.opponentDetails ?? []).join("<br/>")
+                                        html: certificateDetails.opponentDetails
                                     }
                                 },
                                 {

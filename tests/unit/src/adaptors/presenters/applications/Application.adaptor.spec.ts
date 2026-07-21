@@ -592,6 +592,9 @@ describe("Application adaptor", () => {
         backUrl: `/applications/${application.laaReference}/overview`,
         certificateDetails: {
           ...certificateDetails,
+          clientAddress: "1 Test Road<br>London<br>SW1A 1AA",
+          officeAddress: "Test Office Address<br>London<br>SW1A 1AA",
+          opponentDetails: "Cabinet Office",
           dateCreated: "19 May 2026",
           effectiveDate: "05 September 2025",
           dateWorkCanCommence: "05 September 2025",

@@ -11,6 +11,10 @@ import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.t
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import {
+  escapeHtml,
+  formatAddressToHtml,
+} from "#src/utils/addressFormatter.js";
+import {
   APPLICATION_TYPES,
   CATEGORIES_OF_LAW,
   CERTIFICATE_TYPES,
@@ -186,6 +190,11 @@ export class ApplicationAdaptor {
 
     const certificateDetails = {
       ...data,
+      clientAddress: formatAddressToHtml(data.clientAddress),
+      officeAddress: formatAddressToHtml(data.officeAddress),
+      opponentDetails: (data.opponentDetails ?? [])
+        .map(escapeHtml)
+        .join("<br>"),
       dateCreated: formatDate(data.dateCreated),
       effectiveDate: formatDate(data.effectiveDate),
       dateWorkCanCommence: formatDate(data.dateWorkCanCommence),
@@ -305,7 +314,7 @@ function getHomeAddressDisplay(application: Application): string {
     return "Not provided";
   }
 
-  return addressToHtml(application.client.homeAddress);
+  return formatAddressToHtml(application.client.homeAddress);
 }
 
 function getCorrespondenceDisplay(
@@ -359,7 +368,7 @@ function getCorrespondenceDisplay(
     }
 
     return {
-      clientCorrespondenceAddressDisplay: addressToHtml(
+      clientCorrespondenceAddressDisplay: formatAddressToHtml(
         application.client.correspondenceAddress,
       ),
       careOfRecipientDisplay,
@@ -373,36 +382,8 @@ function getCorrespondenceDisplay(
 
   return {
     clientCorrespondenceAddressDisplay: application.client.correspondenceAddress
-      ? addressToHtml(application.client.correspondenceAddress)
+      ? formatAddressToHtml(application.client.correspondenceAddress)
       : "Not provided",
     careOfRecipientDisplay,
   };
-}
-
-function addressToHtml(address: {
-  addressLine1: string;
-  addressLine2?: string | null;
-  townOrCity: string;
-  county?: string | null;
-  postcode: string;
-}): string {
-  return [
-    address.addressLine1,
-    address.addressLine2,
-    address.townOrCity,
-    address.county,
-    address.postcode,
-  ]
-    .filter((line): line is string => Boolean(line && line.trim().length > 0))
-    .map(escapeHtml)
-    .join("<br>");
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
