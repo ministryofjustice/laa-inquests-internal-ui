@@ -94,7 +94,6 @@ describe("Application adaptor", () => {
     },
   };
 
-  // TODO: Remove N/A if date is returned null?
   const certificateDetails = {
     laaReference: 1,
     dateCreated: "2026-05-19",

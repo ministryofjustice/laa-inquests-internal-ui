@@ -135,7 +135,6 @@ test.describe("View certificate page", () => {
       level: 2,
     });
     await expect(scopeHeader).toBeVisible();
-    // TODO: change this to check for actual proceeding in the header
     const scopeTableHeading = page.getByText("1.");
     await expect(scopeTableHeading).toBeVisible();
 
