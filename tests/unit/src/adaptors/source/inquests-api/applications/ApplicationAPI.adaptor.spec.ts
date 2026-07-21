@@ -112,7 +112,7 @@ const expectedApplicationsSummary = [
 
 const expectedCertificate: Certificate = {
   laaReference: 1,
-  dateCreated: "2026-05-19T15:49:07.455255",
+  dateCreated: "2026-05-19",
   clientName: "John Doe",
   clientAddress: {
     addressLine1: "1 Test Road",
@@ -134,7 +134,7 @@ const expectedCertificate: Certificate = {
   guardianAddress: "Not applicable",
   certificateType: "SUBSTANTIVE",
   status: APPLICATION_STATUSES.LIVE,
-  effectiveDate: "2026-05-21T08:46:36.793278",
+  effectiveDate: "2026-05-21",
   endDate: "Not applicable",
   reinstatementDate: "Not applicable",
   costLimitation: 10000,
@@ -144,11 +144,11 @@ const expectedCertificate: Certificate = {
   proceedingDescription: "Description of proceeding",
   categoryOfLaw: "INQUESTS",
   currentProceedingStatus: APPLICATION_STATUSES.LIVE,
-  dateWorkCanCommence: "2026-05-21T08:46:36.793278",
+  dateWorkCanCommence: "2026-05-21",
   proceedingEndDate: "Not applicable",
   clientInvolvementType: "Applicant",
   levelOfService: "FULL_REPRESENTATION",
-  dateCurrentLevelOfServiceEffective: "2026-05-21T08:46:36.793278",
+  dateCurrentLevelOfServiceEffective: "2026-05-21",
   previousLevelOfService: "Not applicable",
   datePreviousLevelOfServiceEffective: "Not applicable",
   scopeLimitationHeading: "FINAL_HEARING",
