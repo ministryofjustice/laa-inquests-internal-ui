@@ -53,7 +53,7 @@ test.describe("View certificate page", () => {
     ).toBeVisible();
     await expect(certificateOverviewTable.getByText("Firm name")).toBeVisible();
     await expect(
-      certificateOverviewTable.getByText("Office address"),
+      certificateOverviewTable.getByText("Office address", { exact: true }),
     ).toBeVisible();
     await expect(
       certificateOverviewTable.getByText("Opponent details"),
@@ -135,15 +135,16 @@ test.describe("View certificate page", () => {
       level: 2,
     });
     await expect(scopeHeader).toBeVisible();
-    // TODO: change this to check for actual proceeding in the header
-    const scopeTableHeading = page.getByText("1. placeholder", { exact: true });
+    const scopeTableHeading = page.getByText("1.");
     await expect(scopeTableHeading).toBeVisible();
 
     const scopeTable = page.locator(".govuk-summary-list", {
       hasText: "Description",
     });
 
-    await expect(scopeTable.getByText("Description")).toBeVisible();
+    await expect(
+      scopeTable.getByText("Description", { exact: true }),
+    ).toBeVisible();
     await expect(scopeTable.getByText("Category of law")).toBeVisible();
     await expect(
       scopeTable.getByText("Current proceeding status"),
@@ -165,6 +166,20 @@ test.describe("View certificate page", () => {
     await expect(scopeTable.getByText("Effective date")).toBeVisible();
     await expect(
       scopeTable.getByText("End date", { exact: true }),
+    ).toBeVisible();
+  });
+
+  test("shows a not found page when the certificate does not exist", async ({
+    page,
+  }) => {
+    const response = await page.goto("/applications/999/certificate");
+
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
+    await expect(
+      page.getByText(
+        "The certificate for this application could not be found.",
+      ),
     ).toBeVisible();
   });
 });

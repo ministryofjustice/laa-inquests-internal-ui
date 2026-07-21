@@ -2,6 +2,7 @@ import type { z } from "zod";
 import type {
   ApplicationSchema,
   ApplicationSummarySchema,
+  CertificateSchema,
   ProceedingSchema,
 } from "./application.schema.js";
 
@@ -20,3 +21,5 @@ export const REFUSAL_REASON_MAP: Record<string, RefusalReason> = {
   "insufficient-information": RefusalReason.INSUFFICIENT_INFORMATION,
   "duplicate-case": RefusalReason.DUPLICATE_CASE,
 };
+
+export type Certificate = z.infer<typeof CertificateSchema>;

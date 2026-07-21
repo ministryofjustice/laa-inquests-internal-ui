@@ -22,6 +22,7 @@ import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
@@ -58,9 +59,13 @@ const processCertificateStartDateUseCase =
 const prepareConfirmationViewUseCase = new PrepareConfirmationViewUseCase();
 const submitDecisionUseCase = new RefuseDecisionUseCase();
 const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase();
+const buildCertificateViewUseCase = new BuildCertificateViewUseCase(
+  viewApplicationAdaptor,
+);
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
   buildApplicationOverviewViewUseCase,
+  buildCertificateViewUseCase,
 );
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,

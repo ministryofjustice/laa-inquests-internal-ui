@@ -50,6 +50,6 @@ describe("PrepareConfirmationViewUseCase", () => {
     });
 
     assert.equal(result.status, "SUCCESS");
-    assert.equal(result.data.certificateStartDate, "1 Jan 2020");
+    assert.equal(result.data.certificateStartDate, "01 January 2020");
   });
 });

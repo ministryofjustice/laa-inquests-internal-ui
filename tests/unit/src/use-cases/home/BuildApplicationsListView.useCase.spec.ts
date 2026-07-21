@@ -12,7 +12,7 @@ describe("BuildApplicationsListViewUseCase", () => {
       {
         laaReference: 1,
         createdAt: "2026-05-18T15:49:07.455255",
-        status: "LIVE",
+        status: "Live",
         overallDecision: "PENDING",
       },
     ];

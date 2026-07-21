@@ -8,37 +8,30 @@ export const PENDING_DECISION = "PENDING";
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
-export const APPLICATION_TYPES = [
-  {
-    applicationTypeId: "INITIAL",
-    applicationTypeDescription: "Initial application",
-  },
-];
+export enum APPLICATION_TYPES {
+  INITIAL = "Initial application",
+}
 
-export const CERTIFICATE_TYPES = [
-  {
-    certificateTypeId: "SUBSTANTIVE",
-    certificateTypeDescription: "Substantive",
-  },
-];
+export enum APPLICATION_STATUSES {
+  LIVE = "Live",
+}
 
-export const CLIENT_ROLES = [
-  {
-    clientRoleId: "RESPONDENT",
-    clientRoleDescription: "Respondent",
-  },
-];
+export enum CERTIFICATE_TYPES {
+  SUBSTANTIVE = "Substantive",
+}
 
-export const LEVEL_OF_SERVICE = [
-  {
-    levelOfServiceId: "FULL_REPRESENTATION",
-    levelOfServiceDescription: "Full representation",
-  },
-];
+export enum CLIENT_ROLES {
+  RESPONDENT = "Respondent",
+}
 
-export const SCOPE_OF_LIMITATION = [
-  {
-    scopeOfLimitationId: "FINAL_HEARING",
-    lscopeOfLimitationDescription: "Final hearing",
-  },
-];
+export enum LEVELS_OF_SERVICE {
+  FULL_REPRESENTATION = "Full representation",
+}
+
+export enum SCOPE_OF_LIMITATIONS {
+  FINAL_HEARING = "Final hearing",
+}
+
+export enum CATEGORIES_OF_LAW {
+  INQUESTS = "Inquests",
+}

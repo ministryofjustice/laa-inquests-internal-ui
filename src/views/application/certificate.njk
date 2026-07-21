@@ -12,122 +12,279 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <p class="govuk-body">
-                    <strong>Client:</strong> placeholder
+                    <strong>Client:</strong> {{certificateDetails.clientName}}
                     <br/>
-                    <strong>LAA Reference number:</strong> placeholder
+                    <strong>LAA Reference number:</strong> {{certificateDetails.laaReference}}
                     <br/>
-                    <strong>Date created:</strong> placeholder
+                    <strong>Date created:</strong> {{certificateDetails.dateCreated}}
                 </p>
             </div>
             <section class="overview">
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        <h2 class="govuk-heading-m">Overview</h2>
-                    </div>
+                <div class="govuk-grid-column-two-thirds">
+                    <h2 class="govuk-heading-m">Overview</h2>
                 </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        <div class="certificate-details-table">
-                            {{ govukSummaryList({
-                                card: {
-                                    title: {
-                                        text: "Certificate details"
-                                    },
-                                    classes: "govuk-!-margin-bottom-0"
-                                },
-                                rows: [
-                                {
-                                    key: {
-                                        text: "Client name"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Client address"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Firm name"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Office address"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Opponent details"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Guardian name"
-                                    },
-                                    value: {
-                                        text: "Not applicable"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Guardian address"
-                                    },
-                                    value: {
-                                        text: "Not applicable"
-                                    }
-                                }]
-                            }) }}
-                        </div>
-                    </div>
-                </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        {{ govukInsetText({
-                            text: "This is to certify that the status of the certificate is as specified in the Certificate summary. Its scope is specified in the proceedings listed and is subject to the limitations and conditions."
-                        }) }}
-                    </div>
-                </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        <div class="certificate-summary-table">
-                            {{ govukSummaryList({
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="certificate-details-table">
+                        {{ govukSummaryList({
                             card: {
                                 title: {
-                                    text: "Certificate summary"
+                                    text: "Certificate details"
                                 },
                                 classes: "govuk-!-margin-bottom-0"
                             },
                             rows: [
                             {
                                 key: {
-                                    text: "Certificate type"
+                                    text: "Client name"
                                 },
                                 value: {
-                                    text: "placeholder"
+                                    text: certificateDetails.clientName
                                 }
                             },
                             {
                                 key: {
-                                    text: "Status"
+                                    text: "Client address"
                                 },
                                 value: {
-                                    text: "placeholder"
+                                    html: certificateDetails.clientAddress
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Firm name"
+                                },
+                                value: {
+                                    text: certificateDetails.firmName
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Office address"
+                                },
+                                value: {
+                                    html: certificateDetails.officeAddress
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Opponent details"
+                                },
+                                value: {
+                                    html: certificateDetails.opponentDetails
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Guardian name"
+                                },
+                                value: {
+                                    text: certificateDetails.guardianName
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Guardian address"
+                                },
+                                value: {
+                                    text: certificateDetails.guardianAddress
+                                }
+                            }]
+                        }) }}
+                    </div>
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    {{ govukInsetText({
+                        text: "This is to certify that the status of the certificate is as specified in the Certificate summary. Its scope is specified in the proceedings listed and is subject to the limitations and conditions."
+                    }) }}
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="certificate-summary-table">
+                        {{ govukSummaryList({
+                        card: {
+                            title: {
+                                text: "Certificate summary"
+                            },
+                            classes: "govuk-!-margin-bottom-0"
+                        },
+                        rows: [
+                        {
+                            key: {
+                                text: "Certificate type"
+                            },
+                            value: {
+                                text: certificateDetails.certificateType
+                            }
+                        },
+                        {
+                            key: {
+                                text: "Status"
+                            },
+                            value: {
+                                text: certificateDetails.status
+                            }
+                        },
+                        {
+                            key: {
+                                text: "Effective date"
+                            },
+                            value: {
+                                text: certificateDetails.effectiveDate
+                            }
+                        },
+                        {
+                            key: {
+                                text: "End date"
+                            },
+                            value: {
+                                text: "Not applicable"
+                            }
+                        },
+                        {
+                            key: {
+                                text: "Reinstatement date"
+                            },
+                            value: {
+                                text: "Not applicable"
+                            }
+                        },
+                        {
+                            key: {
+                                text: "Cost limitation"
+                            },
+                            value: {
+                                text: certificateDetails.costLimitation
+                            }
+                        },
+                        {
+                            key: {
+                                text: "Cost limitation effective date"
+                            },
+                            value: {
+                                text: "Not applicable"
+                            }
+                        },
+                        {
+                            key: {
+                                text: "Certificate limitation"
+                            },
+                            value: {
+                                text: certificateDetails.certificateLimitation
+                            }
+                        }]
+                    }) }}
+                    </div>
+                </div>
+            </section>
+            <section class="scope">
+                <div class="govuk-grid-column-two-thirds">
+                    {{ govukInsetText({
+                        text: "This certificate imposes both scope and financially implications on the work to be done under it. Providers should check the limitations imposed carefully and apply for an amendment where appropriate."
+                    }) }}
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    {{ govukWarningText({
+                        text: "Payment will not be made for work undertaken outside the scope specified or in excess of the cost limit.",
+                        iconFallbackText: "Warning"
+                    }) }}
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    <h2 class="govuk-heading-m">Scope</h2>
+                </div>
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="certificate-proceeding-1">
+                        {{ govukSummaryList({
+                        card: {
+                            title: {
+                                text: "1. " + certificateDetails.proceedingName
+                            }
+                        },
+                        rows: [
+                            {
+                                key: {
+                                    text: "Description"
+                                },
+                                value: {
+                                    text: certificateDetails.proceedingDescription
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Category of law"
+                                },
+                                value: {
+                                    text: certificateDetails.categoryOfLaw
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Current proceeding status"
+                                },
+                                value: {
+                                    text: certificateDetails.currentProceedingStatus
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Date work can be commenced on the above proceeding"
+                                },
+                                value: {
+                                    text: certificateDetails.dateWorkCanCommence
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Proceeding end date"
+                                },
+                                value: {
+                                    text: "Not applicable"
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Client involvement type"
+                                },
+                                value: {
+                                    text: certificateDetails.clientInvolvementType
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Level of service"
+                                },
+                                value: {
+                                    text: certificateDetails.levelOfService
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Date current level of service effective"
+                                },
+                                value: {
+                                    text: certificateDetails.dateCurrentLevelOfServiceEffective
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Previous level of service"
+                                },
+                                value: {
+                                    text: certificateDetails.previousLevelOfService
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Date previous level of service effective"
+                                },
+                                value: {
+                                    text: certificateDetails.datePreviousLevelOfServiceEffective
+                                }
+                            },
+                            {
+                                key: {
+                                    text: "Limitation"
+                                },
+                                value: {
+                                    html: certificateDetails.scopeLimitationHeading + "<br/><br/>" + certificateDetails.scopeLimitationDescription
                                 }
                             },
                             {
@@ -135,7 +292,7 @@
                                     text: "Effective date"
                                 },
                                 value: {
-                                    text: "placeholder"
+                                    text: certificateDetails.effectiveDate
                                 }
                             },
                             {
@@ -145,182 +302,9 @@
                                 value: {
                                     text: "Not applicable"
                                 }
-                            },
-                            {
-                                key: {
-                                    text: "Reinstatement date"
-                                },
-                                value: {
-                                    text: "Not applicable"
-                                }
-                            },
-                            {
-                                key: {
-                                    text: "Cost limitation"
-                                },
-                                value: {
-                                    text: "placeholder"
-                                }
-                            },
-                            {
-                                key: {
-                                    text: "Cost limitation effective date"
-                                },
-                                value: {
-                                    text: "Not applicable"
-                                }
-                            },
-                            {
-                                key: {
-                                    text: "Certificate limitation"
-                                },
-                                value: {
-                                    text: "Not applicable"
-                                }
-                            }]
+                            }
+                        ]
                         }) }}
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section class="scope">
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        {{ govukInsetText({
-                            text: "This certificate imposes both scope and financially implications on the work to be done under it. Providers should check the limitations imposed carefully and apply for an amendment where appropriate."
-                        }) }}
-                    </div>
-                </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        {{ govukWarningText({
-                            text: "Payment will not be made for work undertaken outside the scope specified or in excess of the cost limit.",
-                            iconFallbackText: "Warning"
-                        }) }}
-                    </div>
-                </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        <h2 class="govuk-heading-m">Scope</h2>
-                    </div>
-                </div>
-                <div class="govuk-grid-row">
-                    <div class="govuk-grid-column-two-thirds">
-                        <div class="certificate-proceeding-1">
-                            {{ govukSummaryList({
-                            card: {
-                                title: {
-                                    text: "1. placeholder"
-                                }
-                            },
-                            rows: [
-                                {
-                                    key: {
-                                        text: "Description"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Category of law"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Current proceeding status"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Date work can be commenced on the above proceeding"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Proceeding end date"
-                                    },
-                                    value: {
-                                        text: "Not applicable"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Client involvement type"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Level of service"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Date current level of service effective"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Previous level of service"
-                                    },
-                                    value: {
-                                        text: "Not applicable"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Date previous level of service effective"
-                                    },
-                                    value: {
-                                        text: "Not applicable"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Limitation"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "Effective date"
-                                    },
-                                    value: {
-                                        text: "placeholder"
-                                    }
-                                },
-                                {
-                                    key: {
-                                        text: "End date"
-                                    },
-                                    value: {
-                                        text: "Not applicable"
-                                    }
-                                }
-                            ]
-                            }) }}
-                        </div>
                     </div>
                 </div>
             </section>

@@ -6,13 +6,21 @@ import type {
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
+import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
+import { formatDate } from "#src/utils/dateFormatter.js";
+import {
+  escapeHtml,
+  formatAddressToHtml,
+} from "#src/utils/addressFormatter.js";
 import {
   APPLICATION_TYPES,
+  CATEGORIES_OF_LAW,
   CERTIFICATE_TYPES,
   CLIENT_ROLES,
-  LEVEL_OF_SERVICE,
-  SCOPE_OF_LIMITATION,
+  LEVELS_OF_SERVICE,
+  SCOPE_OF_LIMITATIONS,
 } from "#src/infrastructure/locales/constants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
@@ -31,13 +39,19 @@ export class ApplicationAdaptor {
 
   private readonly buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase;
 
+  private readonly buildCertificateViewUseCase: BuildCertificateViewUseCase;
+
   constructor(
     viewApplicationAdaptor: ApplicationPort,
     buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(),
+    buildCertificateViewUseCase: BuildCertificateViewUseCase = new BuildCertificateViewUseCase(
+      viewApplicationAdaptor,
+    ),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
     this.buildApplicationOverviewViewUseCase =
       buildApplicationOverviewViewUseCase;
+    this.buildCertificateViewUseCase = buildCertificateViewUseCase;
   }
 
   async renderApplicationPage(
@@ -127,24 +141,87 @@ export class ApplicationAdaptor {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- temp ignore
   async renderCertificatePage(
     req: Request,
     res: Response,
     applicationId: string,
   ): Promise<void> {
+    logger.logInfo(
+      "GET Certificate Page",
+      `Certificate details for application ${applicationId} requested.`,
+      req,
+    );
+
+    const certificateViewResult =
+      await this.buildCertificateViewUseCase.execute({
+        applicationId,
+        accessToken: req.session.user?.accessToken,
+      });
+
+    if (certificateViewResult.status !== "SUCCESS") {
+      logger.logError(
+        "GET Certificate Page",
+        `Failed to build certificate view for application ${applicationId}`,
+        certificateViewResult.status === "TECHNICAL_FAILURE"
+          ? (certificateViewResult.cause ?? certificateViewResult.message)
+          : undefined,
+        req,
+      );
+
+      if (
+        certificateViewResult.status === "TECHNICAL_FAILURE" &&
+        certificateViewResult.reason ===
+          TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND
+      ) {
+        res.status(404).render("application/error", {
+          status: 404,
+          error: "The certificate for this application could not be found.",
+        });
+        return;
+      }
+
+      res.status(500).render("application/error", {
+        status: "Unable to retrieve certificate",
+        error: "Unable to retrieve certificate. Please try again later",
+      });
+      return;
+    }
+    const { data } = certificateViewResult;
+
+    const certificateDetails = {
+      ...data,
+      clientAddress: formatAddressToHtml(data.clientAddress),
+      officeAddress: formatAddressToHtml(data.officeAddress),
+      opponentDetails: (data.opponentDetails ?? [])
+        .map(escapeHtml)
+        .join("<br>"),
+      dateCreated: formatDate(data.dateCreated),
+      effectiveDate: formatDate(data.effectiveDate),
+      dateWorkCanCommence: formatDate(data.dateWorkCanCommence),
+      dateCurrentLevelOfServiceEffective: formatDate(
+        data.dateCurrentLevelOfServiceEffective,
+      ),
+      costLimitation: formatCurrency(data.costLimitation),
+      certificateType: mapCertificateTypeForDisplay(data.certificateType),
+      categoryOfLaw: mapCategoryOfLawForDisplay(data.categoryOfLaw),
+      levelOfService: mapLevelOfServiceForDisplay(data.levelOfService),
+      scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
+        data.scopeLimitationHeading,
+      ),
+    };
+
     res.render("application/certificate", {
       backUrl: `/applications/${applicationId}/overview`,
-      certificateDetails: { laaReference: applicationId },
+      certificateDetails,
     });
   }
 }
 
 function mapApplication(application: Application): Application {
   const applicationType =
-    APPLICATION_TYPES.find(
-      (t) => t.applicationTypeId === application.applicationType,
-    )?.applicationTypeDescription ?? application.applicationType;
+    (APPLICATION_TYPES as Record<string, string>)[
+      application.applicationType
+    ] ?? application.applicationType;
 
   const provider = application.provider
     ? {
@@ -175,27 +252,57 @@ function mapProceedings(proceedings: Proceeding[]): Array<
 > {
   return proceedings.map((proceeding) => ({
     ...proceeding,
-    certificateType:
-      CERTIFICATE_TYPES.find(
-        (type) => type.certificateTypeId === proceeding.certificateType,
-      )?.certificateTypeDescription ?? proceeding.certificateType,
-    clientInvolvementType:
-      CLIENT_ROLES.find(
-        (role) => role.clientRoleId === proceeding.clientInvolvementType,
-      )?.clientRoleDescription ?? proceeding.clientInvolvementType,
-    levelOfService:
-      LEVEL_OF_SERVICE.find(
-        (service) => service.levelOfServiceId === proceeding.levelOfService,
-      )?.levelOfServiceDescription ?? proceeding.levelOfService,
-    scopeLimitationHeading:
-      SCOPE_OF_LIMITATION.find(
-        (scope) =>
-          scope.scopeOfLimitationId === proceeding.scopeLimitationHeading,
-      )?.lscopeOfLimitationDescription ?? proceeding.scopeLimitationHeading,
+    certificateType: mapCertificateTypeForDisplay(proceeding.certificateType),
+    clientInvolvementType: mapClientInvolvementTypeForDisplay(
+      proceeding.clientInvolvementType,
+    ),
+    levelOfService: mapLevelOfServiceForDisplay(proceeding.levelOfService),
+    scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
+      proceeding.scopeLimitationHeading,
+    ),
     substantiveCostLimitation: formatCurrency(
       proceeding.substantiveCostLimitation,
     ),
   }));
+}
+
+function mapCertificateTypeForDisplay(certificateType: string): string {
+  return (
+    (CERTIFICATE_TYPES as Record<string, string>)[certificateType] ??
+    certificateType
+  );
+}
+
+function mapClientInvolvementTypeForDisplay(
+  clientInvolvementType: string,
+): string {
+  return (
+    (CLIENT_ROLES as Record<string, string>)[clientInvolvementType] ??
+    clientInvolvementType
+  );
+}
+
+function mapLevelOfServiceForDisplay(levelOfService: string): string {
+  return (
+    (LEVELS_OF_SERVICE as Record<string, string>)[levelOfService] ??
+    levelOfService
+  );
+}
+
+function mapScopeLimitationHeadingForDisplay(
+  scopeLimitationHeading: string,
+): string {
+  return (
+    (SCOPE_OF_LIMITATIONS as Record<string, string>)[scopeLimitationHeading] ??
+    scopeLimitationHeading
+  );
+}
+
+function mapCategoryOfLawForDisplay(categoryOfLaw: string): string {
+  return (
+    (CATEGORIES_OF_LAW as Record<string, string>)[categoryOfLaw] ??
+    categoryOfLaw
+  );
 }
 
 function getHomeAddressDisplay(application: Application): string {
@@ -207,7 +314,7 @@ function getHomeAddressDisplay(application: Application): string {
     return "Not provided";
   }
 
-  return addressToHtml(application.client.homeAddress);
+  return formatAddressToHtml(application.client.homeAddress);
 }
 
 function getCorrespondenceDisplay(
@@ -261,7 +368,7 @@ function getCorrespondenceDisplay(
     }
 
     return {
-      clientCorrespondenceAddressDisplay: addressToHtml(
+      clientCorrespondenceAddressDisplay: formatAddressToHtml(
         application.client.correspondenceAddress,
       ),
       careOfRecipientDisplay,
@@ -275,36 +382,8 @@ function getCorrespondenceDisplay(
 
   return {
     clientCorrespondenceAddressDisplay: application.client.correspondenceAddress
-      ? addressToHtml(application.client.correspondenceAddress)
+      ? formatAddressToHtml(application.client.correspondenceAddress)
       : "Not provided",
     careOfRecipientDisplay,
   };
-}
-
-function addressToHtml(address: {
-  addressLine1: string;
-  addressLine2?: string | null;
-  townOrCity: string;
-  county?: string | null;
-  postcode: string;
-}): string {
-  return [
-    address.addressLine1,
-    address.addressLine2,
-    address.townOrCity,
-    address.county,
-    address.postcode,
-  ]
-    .filter((line): line is string => Boolean(line && line.trim().length > 0))
-    .map(escapeHtml)
-    .join("<br>");
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }

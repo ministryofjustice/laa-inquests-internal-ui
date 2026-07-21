@@ -5,8 +5,14 @@ import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applica
 import type {
   Application,
   ApplicationSummary,
+  Certificate,
 } from "#src/adaptors/models/application.types.js";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import {
+  APPLICATION_STATUSES,
+  GRANTED_DECISION,
+} from "#src/infrastructure/locales/constants.js";
+
+const LIVE_STATUS = "LIVE";
 
 const axiosGetStub = sinon.stub(axios, "get");
 const axiosPatchStub = sinon.stub(axios, "patch");
@@ -20,7 +26,7 @@ const expectedApplication: Application = {
   laaReference: 1,
   createdAt: "2026-05-18T15:49:07.455255",
   updatedAt: "2026-05-18T15:49:07.455279",
-  status: "LIVE",
+  status: APPLICATION_STATUSES.LIVE,
   usedDelegatedFunctions: true,
   applicationType: "INITIAL",
   autoGrant: true,
@@ -93,16 +99,61 @@ const expectedApplicationsSummary = [
   {
     laa_reference: 1,
     created_at: "2026-05-18T15:49:07.455255",
-    status: "LIVE",
+    status: LIVE_STATUS,
     overall_decision: "PENDING",
   },
   {
     laa_reference: 2,
     created_at: "2026-05-19T15:49:07.455255",
-    status: "LIVE",
+    status: LIVE_STATUS,
     overall_decision: GRANTED_DECISION,
   },
 ];
+
+const expectedCertificate: Certificate = {
+  laaReference: 1,
+  dateCreated: "2026-05-19",
+  clientName: "John Doe",
+  clientAddress: {
+    addressLine1: "1 Test Road",
+    addressLine2: null,
+    townOrCity: "London",
+    county: null,
+    postcode: "SW1A 1AA",
+  },
+  firmName: "Test Solicitors",
+  officeAddress: {
+    addressLine1: "Test Office Address",
+    addressLine2: null,
+    townOrCity: "London",
+    county: null,
+    postcode: "SW1A 1AA",
+  },
+  opponentDetails: ["Cabinet Office"],
+  guardianName: "Not applicable",
+  guardianAddress: "Not applicable",
+  certificateType: "SUBSTANTIVE",
+  status: APPLICATION_STATUSES.LIVE,
+  effectiveDate: "2026-05-21",
+  endDate: "Not applicable",
+  reinstatementDate: "Not applicable",
+  costLimitation: 10000,
+  costLimitationEffectiveDate: "Not applicable",
+  certificateLimitation: "Not applicable",
+  proceedingName: "Description of proceeding",
+  proceedingDescription: "Description of proceeding",
+  categoryOfLaw: "INQUESTS",
+  currentProceedingStatus: APPLICATION_STATUSES.LIVE,
+  dateWorkCanCommence: "2026-05-21",
+  proceedingEndDate: "Not applicable",
+  clientInvolvementType: "Applicant",
+  levelOfService: "FULL_REPRESENTATION",
+  dateCurrentLevelOfServiceEffective: "2026-05-21",
+  previousLevelOfService: "Not applicable",
+  datePreviousLevelOfServiceEffective: "Not applicable",
+  scopeLimitationHeading: "FINAL_HEARING",
+  scopeLimitationDescription: "This is the scope description",
+};
 
 describe("Test Application API Adaptor", () => {
   it("Test get All Applications calls axios", async () => {
@@ -134,13 +185,13 @@ describe("Test Application API Adaptor", () => {
       {
         laaReference: 1,
         createdAt: "2026-05-18T15:49:07.455255",
-        status: "LIVE",
+        status: APPLICATION_STATUSES.LIVE,
         overallDecision: "PENDING",
       },
       {
         laaReference: 2,
         createdAt: "2026-05-19T15:49:07.455255",
-        status: "LIVE",
+        status: APPLICATION_STATUSES.LIVE,
         overallDecision: GRANTED_DECISION,
       },
     ]);
@@ -266,6 +317,140 @@ describe("Test getCoronersLetterDocument", () => {
 
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "application/octet-stream");
+  });
+});
+
+describe("Test getCertificateDetails", () => {
+  it("calls axios.get with the correct URL and Authorization header", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedCertificate,
+    });
+
+    await adaptor.getCertificateDetails("123", "access-token-123");
+
+    sinon.assert.calledOnce(axiosGetStub);
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/123/certificate`,
+      {
+        headers: {
+          Authorization: "Bearer access-token-123",
+        },
+      },
+    );
+  });
+
+  it("returns parsed certificate details", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedCertificate,
+    });
+
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "SUCCESS");
+    if (result.status === "SUCCESS") {
+      assert.deepEqual(result.data, expectedCertificate);
+    }
+  });
+
+  it("returns a FAILURE result with RESOURCE_NOT_FOUND when the API responds with 404", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const notFoundError = new axios.AxiosError(
+      "Not Found",
+      "ERR_BAD_REQUEST",
+      undefined,
+      undefined,
+      { status: 404 } as any,
+    );
+    axiosGetStub.rejects(notFoundError);
+
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "RESOURCE_NOT_FOUND");
+      assert.equal(result.cause, notFoundError);
+    }
+  });
+
+  it("returns a FAILURE result with UPSTREAM_REJECTED when the API responds with a non-404 error", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const serverError = new axios.AxiosError(
+      "Server Error",
+      "ERR_BAD_RESPONSE",
+      undefined,
+      undefined,
+      { status: 500 } as any,
+    );
+    axiosGetStub.rejects(serverError);
+
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "UPSTREAM_REJECTED");
+      assert.equal(result.cause, serverError);
+    }
+  });
+
+  it("returns a FAILURE result with UPSTREAM_REJECTED when no response is received from the server", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const networkError = new axios.AxiosError("Network Error", "ERR_NETWORK");
+    axiosGetStub.rejects(networkError);
+
+    const result = await adaptor.getCertificateDetails(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "UPSTREAM_REJECTED");
+      assert.equal(result.cause, networkError);
+    }
+  });
+
+  it("returns a FAILURE result with UPSTREAM_REJECTED when the access token is missing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    const result = await adaptor.getCertificateDetails("123", undefined);
+
+    assert.equal(result.status, "FAILURE");
+    if (result.status === "FAILURE") {
+      assert.equal(result.reason, "UPSTREAM_REJECTED");
+      assert.equal(
+        (result.cause as Error).message,
+        "Missing access token for Inquests API request",
+      );
+    }
   });
 });
 

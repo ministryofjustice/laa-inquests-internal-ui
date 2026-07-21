@@ -2,13 +2,18 @@ import axios, { type AxiosResponse, type AxiosStatic } from "axios";
 import type {
   Application,
   ApplicationSummary,
+  Certificate,
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
   ApplicationSchema,
   ApplicationSummarySchema,
+  CertificateSchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
+import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
+import { OUTBOUND_ADAPTER_FAILURE_REASONS } from "#src/ports/common/outboundAdapterResult.types.js";
+import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 import {
   patchInquestsApi,
   getInquestsApi,
@@ -42,7 +47,7 @@ export class ApplicationAPIAdaptor {
       .map((application) => ({
         laaReference: application.laa_reference,
         createdAt: application.created_at,
-        status: application.status,
+        status: mapApplicationStatusForDisplay(application.status),
         overallDecision: application.overall_decision,
       }))
       .map((application) => ApplicationSummarySchema.parse(application));
@@ -58,7 +63,14 @@ export class ApplicationAPIAdaptor {
       path: `/applications/${applicationId}`,
       accessToken,
     });
-    return ApplicationSchema.parse(data);
+    const application = ApplicationSchema.parse(data);
+
+    return {
+      ...application,
+      status:
+        mapApplicationStatusForDisplay(application.status) ??
+        application.status,
+    };
   }
 
   async submitRefuseDecision(
@@ -128,4 +140,58 @@ export class ApplicationAPIAdaptor {
       contentType: contentTypeString,
     };
   }
+
+  async getCertificateDetails(
+    applicationId: string,
+    accessToken: string | undefined,
+  ): Promise<OutboundAdapterResult<Certificate>> {
+    try {
+      const { data }: AxiosResponse<Certificate> = await getInquestsApi({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: `/applications/${applicationId}/certificate`,
+        accessToken,
+      });
+
+      const certificate = CertificateSchema.parse(data);
+
+      return {
+        status: "SUCCESS",
+        data: {
+          ...certificate,
+          status:
+            mapApplicationStatusForDisplay(certificate.status) ??
+            certificate.status,
+          currentProceedingStatus:
+            mapApplicationStatusForDisplay(
+              certificate.currentProceedingStatus,
+            ) ?? certificate.currentProceedingStatus,
+        },
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return {
+          status: "FAILURE",
+          reason: OUTBOUND_ADAPTER_FAILURE_REASONS.RESOURCE_NOT_FOUND,
+          message: `Certificate not found for application ${applicationId}`,
+          cause: error,
+        };
+      }
+
+      return {
+        status: "FAILURE",
+        reason: OUTBOUND_ADAPTER_FAILURE_REASONS.UPSTREAM_REJECTED,
+        message: `Failed to retrieve certificate for application ${applicationId}`,
+        cause: error,
+      };
+    }
+  }
+}
+
+function mapApplicationStatusForDisplay(status: string | null): string | null {
+  if (!status) {
+    return status;
+  }
+
+  return (APPLICATION_STATUSES as Record<string, string>)[status] ?? status;
 }
