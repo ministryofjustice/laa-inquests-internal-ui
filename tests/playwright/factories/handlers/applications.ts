@@ -184,7 +184,7 @@ const fullApplications = [
 
 const certificate = {
   laaReference: 1,
-  dateCreated: "2026-05-19T15:49:07.455255",
+  dateCreated: "2026-05-19",
   clientName: "John Doe",
   clientAddress: {
     addressLine1: "1 Test Road",
@@ -206,7 +206,7 @@ const certificate = {
   guardianAddress: "Not applicable",
   certificateType: "SUBSTANTIVE",
   status: "LIVE",
-  effectiveDate: "2025-09-05T08:46:36.793278",
+  effectiveDate: "2025-09-05",
   endDate: "Not applicable",
   reinstatementDate: "Not applicable",
   costLimitation: 10000,
@@ -216,11 +216,11 @@ const certificate = {
   proceedingDescription: "Description of proceeding",
   categoryOfLaw: "INQUESTS",
   currentProceedingStatus: "LIVE",
-  dateWorkCanCommence: "2025-09-05T08:46:36.793278",
+  dateWorkCanCommence: "2025-09-05",
   proceedingEndDate: "Not applicable",
   clientInvolvementType: "Applicant",
   levelOfService: "FULL_REPRESENTATION",
-  dateCurrentLevelOfServiceEffective: "2025-09-05T08:46:36.793278",
+  dateCurrentLevelOfServiceEffective: "2025-09-05",
   previousLevelOfService: "Not applicable",
   datePreviousLevelOfServiceEffective: "Not applicable",
   scopeLimitationHeading: "FINAL_HEARING",
