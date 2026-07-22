@@ -145,7 +145,7 @@ jobs:
     environment: uat
     needs: deploy
     runs-on: ubuntu-latest
-    if: always() && github.ref_name == 'main'
+    if: always()
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
