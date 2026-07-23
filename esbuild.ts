@@ -60,6 +60,7 @@ const externalModules: string[] = [
   "http-errors",
   "@azure/msal-node",
   "*.node",
+  "debug",
 ];
 
 const buildScss = async (
