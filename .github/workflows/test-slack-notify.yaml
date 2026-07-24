@@ -6,10 +6,10 @@ on:
       environment:
         description: "Target environment webhook"
         required: true
-        default: "uat"
+        default: "dev"
         type: choice
         options:
-          - uat
+          - dev
           - staging
           - prod
       status:
@@ -29,11 +29,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Notify UAT webhook
-        if: ${{ inputs.environment == 'uat' }}
+      - name: Notify dev webhook
+        if: ${{ inputs.environment == 'dev' }}
         uses: ./.github/actions/notify
         with:
-          app-environment: uat
+          app-environment: dev
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
           pipeline_status: ${{ inputs.status }}
 
