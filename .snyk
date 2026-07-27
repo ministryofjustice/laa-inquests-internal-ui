@@ -17,3 +17,8 @@ ignore:
   "SNYK-JS-TAR-17909068":
     - "*":
         reason: "Bundled within npm@11.17.0"
+  "SNYK-JS-BRACEEXPANSION-18313044":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm. Resolved when npm releases version
+          with brace-expansion@5.0.7."
