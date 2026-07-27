@@ -37,7 +37,7 @@ process.env.AUTH_CLIENT_SECRET ??= "test-client-secret";
 process.env.AUTH_REDIRECT_URI ??= "http://localhost:3000/auth/callback";
 process.env.AUTH_POST_LOGOUT_URI ??= "http://localhost:3000";
 process.env.INQUESTS_API_URL ??=
-  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk";
+  "https://laa-inquests-api-dev.apps.live.cloud-platform.service.justice.gov.uk";
 
 // Now import and start the actual Express application
 const appModulePath = "#public/app.js";

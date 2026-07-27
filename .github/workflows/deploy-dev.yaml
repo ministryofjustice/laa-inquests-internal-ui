@@ -18,10 +18,10 @@ on:
       environment:
         description: "Github deployment environment"
         required: false
-        default: "uat"
+        default: "dev"
         type: choice
         options:
-          - uat
+          - dev
 
 jobs:
   code-linting:
@@ -105,7 +105,7 @@ jobs:
   deploy:
     if: ${{ !contains(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
-    environment: uat
+    environment: dev
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
@@ -116,10 +116,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
-      - name: Deploy to uat
+      - name: Deploy to dev
         uses: ./.github/actions/deploy
         with:
-          app-environment: uat
+          app-environment: dev
           auth_client_id: ${{ vars.AUTH_CLIENT_ID }}
           auth_client_secret: ${{ vars.AUTH_CLIENT_SECRET }}
           auth_directory_url: ${{ vars.AUTH_DIRECTORY_URL }}
@@ -142,7 +142,7 @@ jobs:
           ratewindow_ms: ${{ vars.RATE_WINDOW_MS }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
   notify-slack:
-    environment: uat
+    environment: dev
     needs: deploy
     runs-on: ubuntu-latest
     if: always() && github.ref_name == 'main'
@@ -152,6 +152,6 @@ jobs:
       - name: Send Slack Notification
         uses: ./.github/actions/notify
         with:
-          app-environment: uat
+          app-environment: dev
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
           pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
