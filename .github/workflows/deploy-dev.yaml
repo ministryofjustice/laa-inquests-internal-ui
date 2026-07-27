@@ -141,17 +141,17 @@ jobs:
           ratelimit_max: ${{ vars.RATE_LIMIT_MAX }}
           ratewindow_ms: ${{ vars.RATE_WINDOW_MS }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
-  # notify-slack:
-  #   environment: dev
-  #   needs: deploy
-  #   runs-on: ubuntu-latest
-  #   if: always() && github.ref_name == 'main'
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v6
-  #     - name: Send Slack Notification
-  #       uses: ./.github/actions/notify
-  #       with:
-  #         app-environment: dev
-  #         slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_DEV }}
-  #         pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
+  notify-slack:
+    environment: dev
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always() && github.ref_name == 'main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+      - name: Send Slack Notification
+        uses: ./.github/actions/notify
+        with:
+          app-environment: dev
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
+          pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
