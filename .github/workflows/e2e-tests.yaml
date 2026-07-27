@@ -70,7 +70,7 @@ jobs:
             -e DB_HOST=127.0.0.1 \
             -e DB_PORT=5432 \
             -e INQUESTS_API_TENANT_ID \
-            -e INQUESTS_API_CLIENT_ID=api://${INQUESTS_API_CLIENT_ID} \
+            -e INQUESTS_API_CLIENT_ID \
             ghcr.io/ministryofjustice/laa-inquests-api:latest
 
       - name: Wait for API to be ready
