@@ -34,7 +34,7 @@ describe("Application adaptor", () => {
       {
         proceedingId: "IQPC",
         proceedingName: "Death in police custody",
-        proceedingDescription: "detailed description of proceeding",
+        proceedingDescription: "Death in police custody",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",
         levelOfService: "FULL_REPRESENTATION",
