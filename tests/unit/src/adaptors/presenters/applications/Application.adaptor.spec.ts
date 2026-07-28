@@ -32,8 +32,8 @@ describe("Application adaptor", () => {
     overallDecision: "PENDING",
     proceedings: [
       {
-        proceedingId: "MN035",
-        proceedingName: "description of proceeding",
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
         proceedingDescription: "detailed description of proceeding",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",
@@ -195,7 +195,7 @@ describe("Application adaptor", () => {
         },
         proceedings: [
           {
-            proceedingName: "description of proceeding",
+            proceedingName: "Death in police custody",
             certificateType: "Substantive",
             clientInvolvementType: "Respondent",
             levelOfService: "Full representation",
