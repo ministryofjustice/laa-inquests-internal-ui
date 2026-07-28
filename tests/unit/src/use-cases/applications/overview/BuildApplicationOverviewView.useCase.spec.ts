@@ -17,9 +17,9 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     overallDecision: "PENDING",
     proceedings: [
       {
-        proceedingId: "MN035",
-        proceedingName: "description of proceeding",
-        proceedingDescription: "description of proceeding",
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        proceedingDescription: "Death in police custody",
         categoryOfLaw: "INQUESTS",
         certificateType: "SUBSTANTIVE",
         levelOfService: "FULL_REPRESENTATION",

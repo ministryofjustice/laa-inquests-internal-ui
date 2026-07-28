@@ -33,9 +33,9 @@ const expectedApplication: Application = {
   overallDecision: "PENDING",
   proceedings: [
     {
-      proceedingId: "PC049",
-      proceedingName: "CAPA",
-      proceedingDescription: "CAPA",
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      proceedingDescription: "Death in police custody",
       categoryOfLaw: "INQUESTS",
       certificateType: "SUBSTANTIVE",
       levelOfService: "FULL_REPRESENTATION",
