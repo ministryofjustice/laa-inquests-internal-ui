@@ -79,7 +79,7 @@ export const ApplicationSchema = z.object({
   applicationType: z.string(),
   autoGrant: z.boolean(),
   overallDecision: z.string().optional().nullable(),
-  proceedings: z.array(ProceedingSchema),
+  proceeding: ProceedingSchema,
   publicBodies: z.array(PublicBodySchema),
   provider: ProviderSchema.optional().nullable(),
   correspondenceRecipient: CorrespondenceRecipientSchema.optional().nullable(),

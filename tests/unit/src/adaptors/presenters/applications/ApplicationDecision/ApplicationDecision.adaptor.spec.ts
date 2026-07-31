@@ -59,25 +59,10 @@ describe("ApplicationDecisionAdaptor", () => {
   });
 
   describe("renderApplicationDecisionForm", () => {
-    it("throws an error if there are no proceedings", async () => {
-      viewApplicationSourceStub.getApplication.resolves({
-        proceedings: [],
-      } as any);
-
-      await assert.rejects(
-        () =>
-          adaptor.renderApplicationDecisionForm(
-            requestStub as Request,
-            responseStub,
-          ),
-        new Error("Application has no proceedings"),
-      );
-    });
-
     it("calls res.render with the correct view name", async () => {
       viewApplicationSourceStub.getApplication.resolves({
         overallDecision: "PENDING",
-        proceedings: [mockProceeding],
+        proceeding: mockProceeding,
       } as any);
 
       await adaptor.renderApplicationDecisionForm(
@@ -93,7 +78,7 @@ describe("ApplicationDecisionAdaptor", () => {
     it("calls res.render with the correct variables", async () => {
       viewApplicationSourceStub.getApplication.resolves({
         overallDecision: "PENDING",
-        proceedings: [mockProceeding],
+        proceeding: mockProceeding,
       } as any);
       sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
 

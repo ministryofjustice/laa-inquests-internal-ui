@@ -1,9 +1,6 @@
 import type { Application } from "#src/adaptors/models/application.types.js";
 import { toTitleCase } from "#src/utils/formatter.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
+import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
 export interface DecisionSessionData {
   certificateType?: string;
@@ -18,7 +15,7 @@ export interface DecisionSessionData {
 }
 
 interface PrepareDecisionFormInput {
-  application: Pick<Application, "proceedings" | "overallDecision">;
+  application: Pick<Application, "proceeding" | "overallDecision">;
   sessionDecision?: DecisionSessionData | null;
 }
 
@@ -34,19 +31,10 @@ export class PrepareDecisionFormUseCase {
   execute(
     input: PrepareDecisionFormInput,
   ): UseCaseResult<PrepareDecisionFormData> {
-    if (!input.application.proceedings.length) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message: "Application has no proceedings",
-      };
-    }
-
-    // Only the first proceeding is shown in this form today.
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- first item extraction is intentional
-    const [firstProceeding] = input.application.proceedings;
     const proceeding = {
-      certificateType: toTitleCase(firstProceeding.certificateType),
+      certificateType: toTitleCase(
+        input.application.proceeding.certificateType,
+      ),
       meritsDecision: toTitleCase(
         input.application.overallDecision ?? "PENDING",
       ),
