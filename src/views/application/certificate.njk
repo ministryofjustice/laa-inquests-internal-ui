@@ -191,11 +191,11 @@
                     <h2 class="govuk-heading-m">Scope</h2>
                 </div>
                 <div class="govuk-grid-column-two-thirds">
-                    <div class="certificate-proceeding-1">
+                    <div class="certificate-proceeding">
                         {{ govukSummaryList({
                         card: {
-                            title: {
-                                text: "1. " + certificateDetails.proceedingName
+                           title: {
+                                 text: certificateDetails.proceedingName
                             }
                         },
                         rows: [

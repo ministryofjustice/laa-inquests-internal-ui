@@ -70,7 +70,7 @@ test.describe("Application details tab", () => {
     await expect(
       applicationDetailsPanel.getByRole("heading", {
         level: 2,
-        name: "Proceedings",
+        name: "Proceeding",
         exact: true,
       }),
     ).toBeVisible();
