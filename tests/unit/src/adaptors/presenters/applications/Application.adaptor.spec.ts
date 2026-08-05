@@ -30,22 +30,20 @@ describe("Application adaptor", () => {
     applicationType: "INITIAL",
     autoGrant: true,
     overallDecision: "PENDING",
-    proceedings: [
-      {
-        proceedingId: "IQPC",
-        proceedingName: "Death in police custody",
-        proceedingDescription: "Death in police custody",
-        categoryOfLaw: "INQUESTS",
-        certificateType: "SUBSTANTIVE",
-        levelOfService: "FULL_REPRESENTATION",
-        matterType: "INQUESTS",
-        scopeLimitationHeading: "FINAL_HEARING",
-        scopeDescription: "This is the scope description",
-        substantiveCostLimitation: 10000,
-        clientInvolvementType: "RESPONDENT",
-        meritsDecision: "PENDING",
-      },
-    ],
+    proceeding: {
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      proceedingDescription: "Death in police custody",
+      categoryOfLaw: "INQUESTS",
+      certificateType: "SUBSTANTIVE",
+      levelOfService: "FULL_REPRESENTATION",
+      matterType: "INQUESTS",
+      scopeLimitationHeading: "FINAL_HEARING",
+      scopeDescription: "This is the scope description",
+      substantiveCostLimitation: 10000,
+      clientInvolvementType: "RESPONDENT",
+      meritsDecision: "PENDING",
+    },
     publicBodies: [
       {
         publicBodyId: "Cabinet Office",
@@ -193,15 +191,13 @@ describe("Application adaptor", () => {
           laaReference: 123,
           applicationType: "Initial application",
         },
-        proceedings: [
-          {
-            proceedingName: "Death in police custody",
-            certificateType: "Substantive",
-            clientInvolvementType: "Respondent",
-            levelOfService: "Full representation",
-            substantiveCostLimitation: "£10,000",
-          },
-        ],
+        proceeding: {
+          proceedingName: "Death in police custody",
+          certificateType: "Substantive",
+          clientInvolvementType: "Respondent",
+          levelOfService: "Full representation",
+          substantiveCostLimitation: "£10,000",
+        },
         backUrl: "/",
       });
     });

@@ -80,7 +80,7 @@ export class ApplicationAdaptor {
     }
 
     const application = mapApplication(overviewViewResult.data.application);
-    const proceedings = mapProceedings(application.proceedings);
+    const proceeding = mapProceeding(application.proceeding);
     const clientHomeAddressDisplay = getHomeAddressDisplay(application);
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
       getCorrespondenceDisplay(application, clientHomeAddressDisplay);
@@ -94,7 +94,7 @@ export class ApplicationAdaptor {
 
     res.render("application/application-overview", {
       application,
-      proceedings,
+      proceeding,
       clientHomeAddressDisplay,
       clientCorrespondenceAddressDisplay,
       careOfRecipientDisplay,
@@ -245,12 +245,13 @@ function mapProviderFirmName(firmName: string | null): string {
   return firmName;
 }
 
-function mapProceedings(proceedings: Proceeding[]): Array<
-  Omit<Proceeding, "substantiveCostLimitation"> & {
-    substantiveCostLimitation: string;
-  }
-> {
-  return proceedings.map((proceeding) => ({
+function mapProceeding(proceeding: Proceeding): Omit<
+  Proceeding,
+  "substantiveCostLimitation"
+> & {
+  substantiveCostLimitation: string;
+} {
+  return {
     ...proceeding,
     certificateType: mapCertificateTypeForDisplay(proceeding.certificateType),
     clientInvolvementType: mapClientInvolvementTypeForDisplay(
@@ -263,7 +264,7 @@ function mapProceedings(proceedings: Proceeding[]): Array<
     substantiveCostLimitation: formatCurrency(
       proceeding.substantiveCostLimitation,
     ),
-  }));
+  };
 }
 
 function mapCertificateTypeForDisplay(certificateType: string): string {

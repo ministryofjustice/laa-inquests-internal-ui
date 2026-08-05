@@ -4,22 +4,10 @@ import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision
 describe("PrepareDecisionFormUseCase", () => {
   const useCase = new PrepareDecisionFormUseCase();
 
-  it("returns TECHNICAL_FAILURE when application has no proceedings", () => {
-    const result = useCase.execute({
-      application: {
-        proceedings: [],
-        overallDecision: "PENDING",
-      } as any,
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
-  });
-
   it("returns SUCCESS with formatted proceeding and selected session decision", () => {
     const result = useCase.execute({
       application: {
-        proceedings: [{ certificateType: "SUBSTANTIVE" }],
+        proceeding: { certificateType: "SUBSTANTIVE" },
         overallDecision: "PENDING",
       } as any,
       sessionDecision: { overallDecision: "REFUSED" },

@@ -135,7 +135,10 @@ test.describe("View certificate page", () => {
       level: 2,
     });
     await expect(scopeHeader).toBeVisible();
-    const scopeTableHeading = page.getByText("1.");
+
+    const scopeTableHeading = page.locator(
+      ".certificate-proceeding .govuk-summary-card__title",
+    );
     await expect(scopeTableHeading).toBeVisible();
 
     const scopeTable = page.locator(".govuk-summary-list", {

@@ -45,22 +45,20 @@ const fullApplications = [
     applicationType: "INITIAL",
     autoGrant: true,
     overallDecision: PENDING_DECISION,
-    proceedings: [
-      {
-        proceedingId: "IQPC",
-        proceedingName: "Death in police custody",
-        proceedingDescription: "Death in police custody",
-        categoryOfLaw: "INQUESTS",
-        certificateType: "SUBSTANTIVE",
-        levelOfService: "FULL_REPRESENTATION",
-        matterType: "INQUESTS",
-        scopeLimitationHeading: "FINAL_HEARING",
-        scopeDescription: "This is the scope description",
-        substantiveCostLimitation: 10000,
-        clientInvolvementType: "RESPONDENT",
-        meritsDecision: PENDING_DECISION,
-      },
-    ],
+    proceeding: {
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      proceedingDescription: "Death in police custody",
+      categoryOfLaw: "INQUESTS",
+      certificateType: "SUBSTANTIVE",
+      levelOfService: "FULL_REPRESENTATION",
+      matterType: "INQUESTS",
+      scopeLimitationHeading: "FINAL_HEARING",
+      scopeDescription: "This is the scope description",
+      substantiveCostLimitation: 10000,
+      clientInvolvementType: "RESPONDENT",
+      meritsDecision: PENDING_DECISION,
+    },
     publicBodies: [
       {
         publicBodyId: "Department for Transport",
@@ -117,22 +115,20 @@ const fullApplications = [
     applicationType: "INITIAL",
     autoGrant: true,
     overallDecision: PENDING_DECISION,
-    proceedings: [
-      {
-        proceedingId: "PC049",
-        proceedingName: "CAPA",
-        proceedingDescription: "CAPA",
-        categoryOfLaw: "INQUESTS",
-        certificateType: "SUBSTANTIVE",
-        levelOfService: "FULL_REPRESENTATION",
-        matterType: "INQUESTS",
-        scopeLimitationHeading: "FINAL_HEARING",
-        scopeDescription: "This is the scope description",
-        substantiveCostLimitation: 10000,
-        clientInvolvementType: "RESPONDENT",
-        meritsDecision: PENDING_DECISION,
-      },
-    ],
+    proceeding: {
+      proceedingId: "PC049",
+      proceedingName: "CAPA",
+      proceedingDescription: "CAPA",
+      categoryOfLaw: "INQUESTS",
+      certificateType: "SUBSTANTIVE",
+      levelOfService: "FULL_REPRESENTATION",
+      matterType: "INQUESTS",
+      scopeLimitationHeading: "FINAL_HEARING",
+      scopeDescription: "This is the scope description",
+      substantiveCostLimitation: 10000,
+      clientInvolvementType: "RESPONDENT",
+      meritsDecision: PENDING_DECISION,
+    },
     publicBodies: [
       {
         publicBodyId: "Department for Transport",
@@ -240,7 +236,7 @@ export const applicationHandlers = [
     const decision =
       applicationSummaries[Number(params.id) - 1].overall_decision;
     appToReturn.overallDecision = decision;
-    appToReturn.proceedings![0].meritsDecision = decision;
+    appToReturn.proceeding!.meritsDecision = decision;
     appToReturn.laaReference = Number(params.id);
 
     return HttpResponse.json(appToReturn);

@@ -36,7 +36,7 @@
                 },
                 {
                     key: { text: "Certificate type" },
-                    value: { text: proceedings[0].certificateType }
+                    value: { text: proceeding.certificateType }
                 },
                 {
                     key: { text: "Merits application" },
@@ -44,29 +44,29 @@
                 }
             ]
         }) }}
-        <h2 class="govuk-heading-m">Proceedings</h2>
+        <h2 class="govuk-heading-m">Proceeding</h2>
         {{ govukSummaryList({
             card: {
                 title: {
-                    text: "1. " ~ proceedings[0].proceedingName
+                    text: proceeding.proceedingName
                 }
             },
             rows: [
                 {
                     key: { text: "Client role" },
-                    value: { text: proceedings[0].clientInvolvementType }
+                    value: { text: proceeding.clientInvolvementType }
                 },
                 {
                     key: { text: "Level of service" },
-                    value: { text: proceedings[0].levelOfService }
+                    value: { text: proceeding.levelOfService }
                 },
                 {
                     key: { text: "Scope limitation" },
-                    value: { text: proceedings[0].scopeLimitationHeading }
+                    value: { text: proceeding.scopeLimitationHeading }
                 },
                 {
                     key: { text: "Cost limit" },
-                    value: { text: proceedings[0].substantiveCostLimitation }
+                    value: { text: proceeding.substantiveCostLimitation }
                 }
             ]
         }) }}
