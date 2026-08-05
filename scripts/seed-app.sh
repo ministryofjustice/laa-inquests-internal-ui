@@ -44,22 +44,6 @@ VALUES (
 )
 ON CONFLICT (deceased_id) DO NOTHING;
 
-INSERT INTO application_proceeding; (
-  application_proceeding_id,
-  client_involvement_type,
-  merits_decision,
-  laa_reference,
-  proceeding_id
-)
-VALUES (
-  12345,
-  'RESPONDENT',
-  'PENDING',
-  12345,
-  'IQPC'
-)
-ON CONFLICT (application_proceeding_id) DO NOTHING;
-
 INSERT INTO public.application (
   laa_reference,
   created_at,
@@ -85,6 +69,22 @@ VALUES (
   12345
 )
 ON CONFLICT (laa_reference) DO NOTHING;
+
+INSERT INTO application_proceeding (
+  application_proceeding_id,
+  client_involvement_type,
+  merits_decision,
+  laa_reference,
+  proceeding_id
+)
+VALUES (
+  12345,
+  'RESPONDENT',
+  'PENDING',
+  12345,
+  'IQPC'
+)
+ON CONFLICT (application_proceeding_id) DO NOTHING;
 SQL
   exit 0
 fi
