@@ -145,6 +145,27 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.equal(result.data.totalRemaining, 9200);
   });
 
+  it("excludes assessed claims that are not accepted or pay in full from the total", async () => {
+    const claimsPortStub = stubInterface<ClaimsPort>();
+    claimsPortStub.getClaims.withArgs("123", false, undefined).resolves([]);
+    claimsPortStub.getClaims.withArgs("123", true, undefined).resolves([
+      { ...assessedClaim, claimId: 1, statusId: "PAY_IN_FULL" },
+      { ...assessedClaim, claimId: 2, statusId: "ACCEPTED" },
+      { ...assessedClaim, claimId: 3, statusId: "REJECTED" },
+      { ...assessedClaim, claimId: 4, statusId: "REJECTED_WITH_AMENDMENT" },
+      { ...assessedClaim, claimId: 5, statusId: "SUBMITTED" },
+    ]);
+
+    const result = await useCase.execute({
+      applicationId: "123",
+      claimsPort: claimsPortStub,
+      substantiveCertificate: 10000,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(result.data.totalRemaining, 6000);
+  });
+
   it("returns hasClaims false when both lists are empty", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.resolves([]);

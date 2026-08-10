@@ -54,3 +54,5 @@ export enum CLAIM_DECISION_STATUSES {
   PAY_IN_FULL = "Pay in full",
   PENDING = "Pending",
 }
+
+export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];

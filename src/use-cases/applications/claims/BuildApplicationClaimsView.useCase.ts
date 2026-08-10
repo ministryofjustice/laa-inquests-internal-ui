@@ -5,6 +5,7 @@ import {
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { getClaimCost } from "#src/utils/claimCost.js";
+import { PAYABLE_CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
 
 interface BuildApplicationClaimsViewInput {
   applicationId: string;
@@ -51,10 +52,13 @@ export class BuildApplicationClaimsViewUseCase {
       sortByDateDescending(toBeAssessedClaims);
       sortByDateDescending(assessedClaims);
 
-      const amountClaimed = assessedClaims.reduce(
-        (total, claim) => total + getClaimCost(claim),
-        0,
-      );
+      const amountClaimed = assessedClaims
+        .filter((claim) =>
+          PAYABLE_CLAIM_STATUSES.includes(
+            claim.statusId ?? claim.claimDecisionStatus ?? "",
+          ),
+        )
+        .reduce((total, claim) => total + getClaimCost(claim), 0);
 
       return {
         status: "SUCCESS",
