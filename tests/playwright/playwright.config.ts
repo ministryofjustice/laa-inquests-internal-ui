@@ -81,7 +81,8 @@ export default defineConfig({
         process.env.AUTH_DIRECTORY_URL ??
         "https://login.microsoftonline.com/test-tenant-id",
       AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID ?? "test-client-id",
-      AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "test-client-secret",
+      AUTH_CLIENT_SECRET:
+        process.env.AUTH_CLIENT_SECRET ?? "test-client-secret",
       AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
       INQUESTS_API_CLIENT_ID: process.env.INQUESTS_API_CLIENT_ID ?? "",
