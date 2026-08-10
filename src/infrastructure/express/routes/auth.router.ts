@@ -34,5 +34,18 @@ export function createAuthRouter(
     },
   );
 
+  // Test-only login endpoint that seeds a session without hitting Entra ID.
+  // Never mounted outside the test environment.
+  if (process.env.NODE_ENV === "test") {
+    authRouter.get("/test-login", (req: Request, res: Response): void => {
+      req.session.user = {
+        userId: "test-caseworker",
+        userName: "[MOJUSER] - [INTSILAS] Internal E2E",
+        accessToken: "test-access-token",
+      };
+      res.redirect("/");
+    });
+  }
+
   return authRouter;
 }
