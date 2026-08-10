@@ -166,6 +166,7 @@ describe("Application adaptor", () => {
         totalRemaining: 10000,
       },
     });
+    viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
     applicationAdaptor = new ApplicationAdaptor(
       viewApplicationAdaptorStub,
       undefined,

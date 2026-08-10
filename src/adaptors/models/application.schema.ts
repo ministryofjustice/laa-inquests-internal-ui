@@ -127,3 +127,11 @@ export const CertificateSchema = z.object({
   scopeLimitationHeading: z.string(),
   scopeLimitationDescription: z.string(),
 });
+
+export const HistoryEventSchema = z.object({
+  timestamp: z.string(),
+  actor: z.string(),
+  eventDescription: z.string(),
+  eventData: z.string().optional().nullable(),
+  relatedLink: z.string().optional().nullable(),
+});

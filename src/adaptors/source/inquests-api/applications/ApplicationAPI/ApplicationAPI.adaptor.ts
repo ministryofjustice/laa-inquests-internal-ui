@@ -3,12 +3,14 @@ import type {
   Application,
   ApplicationSummary,
   Certificate,
+  HistoryEventList,
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
   ApplicationSchema,
   ApplicationSummarySchema,
   CertificateSchema,
+  HistoryEventSchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
@@ -184,6 +186,24 @@ export class ApplicationAPIAdaptor {
         message: `Failed to retrieve certificate for application ${applicationId}`,
         cause: error,
       };
+    }
+  }
+
+  async getApplicationHistory(
+    applicationId: string,
+    accessToken: string | undefined,
+  ): Promise<HistoryEventList> {
+    try {
+      const { data }: AxiosResponse<HistoryEventList> = await getInquestsApi({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: `/applications/${applicationId}/history`,
+        accessToken,
+      });
+
+      return data.map((event) => HistoryEventSchema.parse(event));
+    } catch (error) {
+      return [];
     }
   }
 }

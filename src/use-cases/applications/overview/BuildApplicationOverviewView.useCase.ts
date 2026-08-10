@@ -1,4 +1,7 @@
-import type { Application } from "#src/adaptors/models/application.types.js";
+import type {
+  Application,
+  HistoryEventList,
+} from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import {
   TECHNICAL_FAILURE_REASONS,
@@ -13,6 +16,7 @@ interface BuildApplicationOverviewViewInput {
 
 interface BuildApplicationOverviewViewData {
   application: Application;
+  history: HistoryEventList;
 }
 
 export class BuildApplicationOverviewViewUseCase {
@@ -33,9 +37,14 @@ export class BuildApplicationOverviewViewUseCase {
         input.accessToken,
       );
 
+      const history = await input.applicationPort.getApplicationHistory(
+        input.applicationId,
+        input.accessToken,
+      );
+
       return {
         status: "SUCCESS",
-        data: { application },
+        data: { application, history },
       };
     } catch (error) {
       return {
