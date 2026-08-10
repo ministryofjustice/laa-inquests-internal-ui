@@ -29,6 +29,12 @@ const applicationSummaries = [
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
+  {
+    laa_reference: 4,
+    created_at: "2026-07-14T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: PENDING_DECISION,
+  },
 ];
 
 /**
@@ -223,6 +229,41 @@ const certificate = {
   scopeLimitationDescription: "This is the scope description",
 };
 
+/**
+ * Claims returned by GET /applications/:id/claims?assessed=false (SUBMITTED).
+ * Shape matches the payload the real API returns for a claim.
+ */
+const toBeAssessedClaims = [
+  {
+    claimId: 10,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-08-10T13:37:56.629563",
+    totalProfitCostNet: "1000.00",
+    totalProfitCostGross: "1200.00",
+    totalProfitCostVatZero: null,
+    poaTypeId: "PROFIT_COST",
+    statusId: "SUBMITTED",
+    claimDecisionStatus: null,
+  },
+];
+
+/**
+ * Claims returned by GET /applications/:id/claims?assessed=true (non-SUBMITTED).
+ */
+const assessedClaims = [
+  {
+    claimId: 20,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-07-01T09:00:00.000000",
+    totalProfitCostNet: "1600.00",
+    totalProfitCostGross: "2000.00",
+    totalProfitCostVatZero: null,
+    poaTypeId: "PROFIT_COST",
+    statusId: "PAY_IN_FULL",
+    claimDecisionStatus: "PAY_IN_FULL",
+  },
+];
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -238,7 +279,8 @@ export const applicationHandlers = [
 
     const appToReturn = { ...fullApplication };
     const decision =
-      applicationSummaries[Number(params.id) - 1].overall_decision;
+      applicationSummaries[Number(params.id) - 1]?.overall_decision ??
+      PENDING_DECISION;
     appToReturn.overallDecision = decision;
     appToReturn.proceeding!.meritsDecision = decision;
     appToReturn.laaReference = Number(params.id);
@@ -288,6 +330,37 @@ export const applicationHandlers = [
         return new HttpResponse(null, { status: 404 });
       }
       return HttpResponse.json(certificate);
+    },
+  ),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims`,
+    ({ params, request }) => {
+      // Simulate an upstream failure so the Claims tab can degrade gracefully.
+      if (params.id === "998") {
+        return new HttpResponse(null, { status: 500 });
+      }
+
+      const url = new URL(request.url);
+      const assessed = url.searchParams.get("assessed") === "true";
+
+      // id 3: no claims at all (empty state).
+      if (params.id === "3") {
+        return HttpResponse.json([]);
+      }
+
+      // id 2: only claims to be assessed (no assessed claims).
+      if (params.id === "2") {
+        return HttpResponse.json(assessed ? [] : toBeAssessedClaims);
+      }
+
+      // id 4: only assessed claims (nothing to be assessed).
+      if (params.id === "4") {
+        return HttpResponse.json(assessed ? assessedClaims : []);
+      }
+
+      // Default (e.g. id 1): both lists populated.
+      return HttpResponse.json(assessed ? assessedClaims : toBeAssessedClaims);
     },
   ),
 ];

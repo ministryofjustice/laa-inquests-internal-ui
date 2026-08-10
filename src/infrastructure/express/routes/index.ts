@@ -8,6 +8,7 @@ import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
+import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/ClaimsAPI.adaptor.js";
 import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
 import { requireAuth } from "#src/infrastructure/express/middleware/auth/requireAuth.js";
@@ -22,6 +23,7 @@ import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
@@ -49,8 +51,11 @@ const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
   config.INQUESTS_API_URL,
 );
+const claimsAdaptor = new ClaimsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const buildApplicationOverviewViewUseCase =
   new BuildApplicationOverviewViewUseCase();
+const buildApplicationClaimsViewUseCase =
+  new BuildApplicationClaimsViewUseCase();
 const prepareDecisionFormUseCase = new PrepareDecisionFormUseCase();
 const processDecisionSelectionUseCase = new ProcessDecisionSelectionUseCase();
 const processJustificationUseCase = new ProcessJustificationUseCase();
@@ -66,6 +71,8 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
   buildApplicationOverviewViewUseCase,
   buildCertificateViewUseCase,
+  claimsAdaptor,
+  buildApplicationClaimsViewUseCase,
 );
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,

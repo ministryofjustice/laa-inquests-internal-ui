@@ -35,3 +35,14 @@ export enum SCOPE_OF_LIMITATIONS {
 export enum CATEGORIES_OF_LAW {
   INQUESTS = "Inquests",
 }
+
+export const CLAIM_STATUS_SUBMITTED = "SUBMITTED";
+
+export enum CLAIM_TYPES {
+  PAYMENT_ON_ACCOUNT = "Payment on account",
+}
+
+export enum CLAIM_STATUSES {
+  SUBMITTED = "Submitted",
+  PAY_IN_FULL = "Pay in full",
+}
