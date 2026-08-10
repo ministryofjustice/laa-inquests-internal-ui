@@ -15,18 +15,21 @@ jobs:
     outputs:
       status: ${{ job.status }}
 
-    services:
-      api-db:
-        image: postgres:18
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: api
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
-          --health-timeout 3s --health-retries 5
+    # NOTE: The API database is no longer required — the E2E tests mock every
+    # API call via MSW and seed no data. Kept (commented out) for a future
+    # refactor that tests against the real API.
+    # services:
+    #   api-db:
+    #     image: postgres:18
+    #     env:
+    #       POSTGRES_USER: postgres
+    #       POSTGRES_PASSWORD: postgres
+    #       POSTGRES_DB: api
+    #     ports:
+    #       - 5432:5432
+    #     options: >-
+    #       --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
+    #       --health-timeout 3s --health-retries 5
 
     steps:
       - name: Checkout code
@@ -41,60 +44,63 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull API image from GHCR
-        run: docker pull ghcr.io/ministryofjustice/laa-inquests-api:latest
+      # NOTE: The live Inquests API is not currently required for the E2E tests to run as all requests are mocked
+      # via MSW. The steps below are kept (commented out) so the
+      # real-API setup can be restored if we refactor to test against it later.
+      # - name: Pull API image from GHCR
+      #   run: docker pull ghcr.io/ministryofjustice/laa-inquests-api:latest
 
-      - name: Run API database migrations
-        run: |
-          docker run --rm --network host \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=postgres \
-            -e DB_NAME=api \
-            -e DB_HOST=127.0.0.1 \
-            -e DB_PORT=5432 \
-            ghcr.io/ministryofjustice/laa-inquests-api:latest \
-            alembic upgrade head
+      # - name: Run API database migrations
+      #   run: |
+      #     docker run --rm --network host \
+      #       -e DB_USER=postgres \
+      #       -e DB_PASSWORD=postgres \
+      #       -e DB_NAME=api \
+      #       -e DB_HOST=127.0.0.1 \
+      #       -e DB_PORT=5432 \
+      #       ghcr.io/ministryofjustice/laa-inquests-api:latest \
+      #       alembic upgrade head
 
-      - name: Start API container
-        env:
-          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
-          INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
-        run: |
-          docker run -d --name inquests-api --network host \
-            -e SECRET_KEY=TEST_KEY \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=postgres \
-            -e DB_NAME=api \
-            -e DB_HOST=127.0.0.1 \
-            -e DB_PORT=5432 \
-            -e INQUESTS_API_TENANT_ID \
-            -e INQUESTS_API_CLIENT_ID \
-            ghcr.io/ministryofjustice/laa-inquests-api:latest
+      # - name: Start API container
+      #   env:
+      #     INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+      #     INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
+      #   run: |
+      #     docker run -d --name inquests-api --network host \
+      #       -e SECRET_KEY=TEST_KEY \
+      #       -e DB_USER=postgres \
+      #       -e DB_PASSWORD=postgres \
+      #       -e DB_NAME=api \
+      #       -e DB_HOST=127.0.0.1 \
+      #       -e DB_PORT=5432 \
+      #       -e INQUESTS_API_TENANT_ID \
+      #       -e INQUESTS_API_CLIENT_ID \
+      #       ghcr.io/ministryofjustice/laa-inquests-api:latest
 
-      - name: Wait for API to be ready
-        run: |
-          echo "Waiting for the API to become ready..."
-          for attempt in $(seq 1 60); do
-            if curl --fail --silent http://127.0.0.1:8027/ > /dev/null; then
-              echo "API is ready!"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "::error::API did not become ready within 120 seconds"
-          docker logs inquests-api
-          exit 1
+      # - name: Wait for API to be ready
+      #   run: |
+      #     echo "Waiting for the API to become ready..."
+      #     for attempt in $(seq 1 60); do
+      #       if curl --fail --silent http://127.0.0.1:8027/ > /dev/null; then
+      #         echo "API is ready!"
+      #         exit 0
+      #       fi
+      #       sleep 2
+      #     done
+      #     echo "::error::API did not become ready within 120 seconds"
+      #     docker logs inquests-api
+      #     exit 1
 
       - name: Setup Node and Dependencies
         uses: ./.github/actions/setup-node
 
-      - name: Seed one application for homepage e2e checks
-        run: yarn seed-app
-        env:
-          API_DB_CONTAINER_ID: ${{ job.services.api-db.id }}
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          DB_NAME: api
+      # - name: Seed one application for homepage e2e checks
+      #   run: yarn seed-app
+      #   env:
+      #     API_DB_CONTAINER_ID: ${{ job.services.api-db.id }}
+      #     DB_USER: postgres
+      #     DB_PASSWORD: postgres
+      #     DB_NAME: api
 
       - name: Build application
         run: yarn build
@@ -134,18 +140,21 @@ jobs:
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "100"
           RATE_WINDOW_MS: "900000"
-          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
-          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
-          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          # Auth and API secrets are not required — auth is faked and the API
+          # is mocked via MSW in the E2E tests. Kept (commented out) for a
+          # future refactor that tests against real auth/API.
+          # AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+          # AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+          # AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+          # INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
 
-      - name: Show API logs on failure
-        if: failure()
-        run: docker logs inquests-api
+      # - name: Show API logs on failure
+      #   if: failure()
+      #   run: docker logs inquests-api
 
-      - name: Stop API container
-        if: always()
-        run: docker rm -f inquests-api || true
+      # - name: Stop API container
+      #   if: always()
+      #   run: docker rm -f inquests-api || true
 
       - name: Upload trace artifacts
         if: always()
