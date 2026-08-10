@@ -13,6 +13,7 @@ import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overvie
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
+import { getClaimCost } from "#src/utils/claimCost.js";
 import {
   escapeHtml,
   formatAddressToHtml,
@@ -480,7 +481,7 @@ interface ClaimsViewModel {
 function mapClaimRow(claim: Claim, applicationId: string): ClaimRow {
   return {
     date: formatDate(claim.submissionDate),
-    total: formatCurrency(Number(claim.totalProfitCostGross ?? 0)),
+    total: formatCurrency(getClaimCost(claim)),
     status: mapClaimStatus(claim.statusId ?? claim.claimDecisionStatus),
     claimType: mapClaimType(claim.claimTypeId),
     href: `/applications/${applicationId}/claims/${claim.claimId}`,

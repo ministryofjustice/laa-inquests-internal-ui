@@ -4,6 +4,7 @@ import {
   TECHNICAL_FAILURE_REASONS,
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
+import { getClaimCost } from "#src/utils/claimCost.js";
 
 interface BuildApplicationClaimsViewInput {
   applicationId: string;
@@ -48,7 +49,7 @@ export class BuildApplicationClaimsViewUseCase {
       ]);
 
       const amountClaimed = assessedClaims.reduce(
-        (total, claim) => total + Number(claim.totalProfitCostGross ?? 0),
+        (total, claim) => total + getClaimCost(claim),
         0,
       );
 

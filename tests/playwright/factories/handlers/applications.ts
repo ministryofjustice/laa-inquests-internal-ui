@@ -229,10 +229,6 @@ const certificate = {
   scopeLimitationDescription: "This is the scope description",
 };
 
-/**
- * Claims returned by GET /applications/:id/claims?assessed=false (SUBMITTED).
- * Shape matches the payload the real API returns for a claim.
- */
 const toBeAssessedClaims = [
   {
     claimId: 10,
@@ -247,9 +243,6 @@ const toBeAssessedClaims = [
   },
 ];
 
-/**
- * Claims returned by GET /applications/:id/claims?assessed=true (non-SUBMITTED).
- */
 const assessedClaims = [
   {
     claimId: 20,

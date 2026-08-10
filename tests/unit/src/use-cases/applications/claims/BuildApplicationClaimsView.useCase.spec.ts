@@ -93,6 +93,28 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.equal(result.data.totalRemaining, 10000);
   });
 
+  it("uses the vat zero total when an assessed claim has no gross", async () => {
+    const claimsPortStub = stubInterface<ClaimsPort>();
+    claimsPortStub.getClaims.withArgs("123", false, undefined).resolves([]);
+    claimsPortStub.getClaims.withArgs("123", true, undefined).resolves([
+      {
+        ...assessedClaim,
+        totalProfitCostNet: null,
+        totalProfitCostGross: null,
+        totalProfitCostVatZero: "800.00",
+      },
+    ]);
+
+    const result = await useCase.execute({
+      applicationId: "123",
+      claimsPort: claimsPortStub,
+      substantiveCertificate: 10000,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(result.data.totalRemaining, 9200);
+  });
+
   it("returns hasClaims false when both lists are empty", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.resolves([]);
