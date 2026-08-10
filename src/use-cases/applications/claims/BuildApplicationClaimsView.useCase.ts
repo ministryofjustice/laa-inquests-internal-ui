@@ -48,6 +48,9 @@ export class BuildApplicationClaimsViewUseCase {
         ),
       ]);
 
+      sortByDateDescending(toBeAssessedClaims);
+      sortByDateDescending(assessedClaims);
+
       const amountClaimed = assessedClaims.reduce(
         (total, claim) => total + getClaimCost(claim),
         0,
@@ -71,4 +74,12 @@ export class BuildApplicationClaimsViewUseCase {
       };
     }
   }
+}
+
+function sortByDateDescending(claims: Claim[]): void {
+  claims.sort(
+    (first, second) =>
+      new Date(second.submissionDate).getTime() -
+      new Date(first.submissionDate).getTime(),
+  );
 }

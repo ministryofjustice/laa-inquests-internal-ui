@@ -53,6 +53,36 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.equal(result.data.hasClaims, true);
   });
 
+  it("orders each claim list by submission date descending", async () => {
+    const olderClaim: Claim = {
+      ...assessedClaim,
+      claimId: 30,
+      submissionDate: "2026-05-01T09:00:00.000000",
+    };
+    const newerClaim: Claim = {
+      ...assessedClaim,
+      claimId: 40,
+      submissionDate: "2026-09-15T09:00:00.000000",
+    };
+    const claimsPortStub = stubInterface<ClaimsPort>();
+    claimsPortStub.getClaims.withArgs("123", false, undefined).resolves([]);
+    claimsPortStub.getClaims
+      .withArgs("123", true, undefined)
+      .resolves([olderClaim, newerClaim, assessedClaim]);
+
+    const result = await useCase.execute({
+      applicationId: "123",
+      claimsPort: claimsPortStub,
+      substantiveCertificate: 10000,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.deepEqual(
+      result.data.assessedClaims.map((claim) => claim.claimId),
+      [40, 20, 30],
+    );
+  });
+
   it("computes total remaining from the substantive certificate minus assessed gross", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims
