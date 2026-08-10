@@ -25,10 +25,8 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d api"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
+          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
+          --health-timeout 3s --health-retries 5
 
     steps:
       - name: Checkout code
@@ -140,9 +138,6 @@ jobs:
           AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
           AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
           INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
-          E2E_CASEWORKER_USERNAME: ${{ secrets.E2E_CASEWORKER_USERNAME }}
-          E2E_CASEWORKER_PASSWORD: ${{ secrets.E2E_CASEWORKER_PASSWORD }}
-          E2E_CASEWORKER_MFA_TOTP_SECRET: ${{ secrets.E2E_CASEWORKER_MFA_TOTP_SECRET }}
 
       - name: Show API logs on failure
         if: failure()
@@ -164,5 +159,6 @@ jobs:
 
       - name: Notify on test failure
         if: failure()
-        run: echo "::error::Playwright tests failed! Check the test report for
+        run:
+          echo "::error::Playwright tests failed! Check the test report for
           details."

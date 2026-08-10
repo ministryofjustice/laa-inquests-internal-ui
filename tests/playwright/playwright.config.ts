@@ -39,7 +39,7 @@ export default defineConfig({
     {
       name: "setup",
       testDir: "./setup",
-      testMatch: /mfa\.setup\.ts/,
+      testMatch: /auth\.setup\.ts/,
     },
     {
       name: "seed application",
@@ -53,16 +53,6 @@ export default defineConfig({
     },
     {
       name: "e2e - no auth",
-      testIgnore: /e2e\/auth/,
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: AUTH_FILE,
-      },
-      dependencies: ["setup"],
-    },
-    {
-      name: "auth", // The auth tests break the user setup we do earlier, so must go last
-      testDir: "./e2e/auth",
       use: {
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
