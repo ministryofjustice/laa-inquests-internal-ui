@@ -74,9 +74,14 @@ export default defineConfig({
       SESSION_SECRET: "test-secret-key-for-playwright-tests",
       SESSION_NAME: "test-session",
       SERVICE_NAME: "Inquests",
-      AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL ?? "",
-      AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID ?? "",
-      AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "",
+      // Auth is faked via the /auth/test-login route, so real Entra credentials
+      // are never used in test env. MSAL still requires a non-empty client credential to
+      // construct, so fall back to dummy values when none are provided (e.g. CI).
+      AUTH_DIRECTORY_URL:
+        process.env.AUTH_DIRECTORY_URL ??
+        "https://login.microsoftonline.com/test-tenant-id",
+      AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID ?? "test-client-id",
+      AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "test-client-secret",
       AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
       INQUESTS_API_CLIENT_ID: process.env.INQUESTS_API_CLIENT_ID ?? "",
