@@ -36,13 +36,21 @@ export enum CATEGORIES_OF_LAW {
   INQUESTS = "Inquests",
 }
 
-export const CLAIM_STATUS_SUBMITTED = "SUBMITTED";
-
 export enum CLAIM_TYPES {
   PAYMENT_ON_ACCOUNT = "Payment on account",
 }
 
 export enum CLAIM_STATUSES {
   SUBMITTED = "Submitted",
+  ACCEPTED = "Accepted",
   PAY_IN_FULL = "Pay in full",
+  REJECTED = "Rejected",
+  REJECTED_WITH_AMENDMENT = "Rejected with amendment",
+}
+
+export enum CLAIM_DECISION_STATUSES {
+  REJECT = "Reject",
+  GRANT = "Grant",
+  PAY_IN_FULL = "Pay in full",
+  PENDING = "Pending",
 }
