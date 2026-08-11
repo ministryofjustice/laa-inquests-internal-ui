@@ -29,6 +29,36 @@ const applicationSummaries = [
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
+  {
+    laa_reference: 4,
+    created_at: "2026-07-14T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: PENDING_DECISION,
+  },
+  {
+    laa_reference: 5,
+    created_at: "2026-07-15T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: 6,
+    created_at: "2026-07-16T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: 7,
+    created_at: "2026-07-17T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: 8,
+    created_at: "2026-07-18T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
 ];
 
 /**
@@ -223,6 +253,34 @@ const certificate = {
   scopeLimitationDescription: "This is the scope description",
 };
 
+const toBeAssessedClaims = [
+  {
+    claimId: 10,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-08-10T13:37:56.629563",
+    totalProfitCostNet: "1000.00",
+    totalProfitCostGross: "1200.00",
+    totalProfitCostVatZero: null,
+    poaTypeId: "PROFIT_COST",
+    statusId: "SUBMITTED",
+    claimDecisionStatus: null,
+  },
+];
+
+const assessedClaims = [
+  {
+    claimId: 20,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-07-01T09:00:00.000000",
+    totalProfitCostNet: "1600.00",
+    totalProfitCostGross: "2000.00",
+    totalProfitCostVatZero: null,
+    poaTypeId: "PROFIT_COST",
+    statusId: "PAY_IN_FULL",
+    claimDecisionStatus: "PAY_IN_FULL",
+  },
+];
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -237,8 +295,11 @@ export const applicationHandlers = [
     }
 
     const appToReturn = { ...fullApplication };
-    const decision =
-      applicationSummaries[Number(params.id) - 1].overall_decision;
+    const matchingSummary = applicationSummaries.find(
+      (applicationSummary) =>
+        applicationSummary.laa_reference === Number(params.id),
+    );
+    const decision = matchingSummary?.overall_decision ?? PENDING_DECISION;
     appToReturn.overallDecision = decision;
     appToReturn.proceeding!.meritsDecision = decision;
     appToReturn.laaReference = Number(params.id);
@@ -249,8 +310,13 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
-      applicationSummaries[Number(params.id) - 1].overall_decision =
-        REFUSED_DECISION;
+      const matchingSummary = applicationSummaries.find(
+        (applicationSummary) =>
+          applicationSummary.laa_reference === Number(params.id),
+      );
+      if (matchingSummary) {
+        matchingSummary.overall_decision = REFUSED_DECISION;
+      }
       return new HttpResponse(null, { status: 204 });
     },
   ),
@@ -258,8 +324,13 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/grant-decision`,
     ({ params }) => {
-      applicationSummaries[Number(params.id) - 1].overall_decision =
-        GRANTED_DECISION;
+      const matchingSummary = applicationSummaries.find(
+        (applicationSummary) =>
+          applicationSummary.laa_reference === Number(params.id),
+      );
+      if (matchingSummary) {
+        matchingSummary.overall_decision = GRANTED_DECISION;
+      }
       return new HttpResponse(null, { status: 204 });
     },
   ),
@@ -324,4 +395,33 @@ export const applicationHandlers = [
       },
     });
   }),
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims`,
+    ({ params, request }) => {
+      // Simulate an upstream failure so the Claims tab can degrade gracefully.
+      if (params.id === "998") {
+        return new HttpResponse(null, { status: 500 });
+      }
+
+      const url = new URL(request.url);
+      const assessed = url.searchParams.get("assessed") === "true";
+
+      // id 7: no claims at all (empty state).
+      if (params.id === "7") {
+        return HttpResponse.json([]);
+      }
+
+      // id 6: only claims to be assessed (no assessed claims).
+      if (params.id === "6") {
+        return HttpResponse.json(assessed ? [] : toBeAssessedClaims);
+      }
+
+      // id 8: only assessed claims (nothing to be assessed).
+      if (params.id === "8") {
+        return HttpResponse.json(assessed ? assessedClaims : []);
+      }
+
+      // Default (e.g. id 5): both lists populated.
+      return HttpResponse.json(assessed ? assessedClaims : toBeAssessedClaims);
+    },
+  ),
 ];

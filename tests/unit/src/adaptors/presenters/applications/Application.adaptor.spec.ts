@@ -4,12 +4,14 @@ import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import {
   APPLICATION_STATUSES,
   GRANTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
+import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 
 describe("Application adaptor", () => {
@@ -17,7 +19,9 @@ describe("Application adaptor", () => {
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
   let viewApplicationAdaptorStub: StubbedInstance<ApplicationPort>;
+  let claimsAdaptorStub: StubbedInstance<ClaimsPort>;
   let buildCertificateViewUseCaseStub: StubbedInstance<BuildCertificateViewUseCase>;
+  let buildApplicationClaimsViewUseCaseStub: StubbedInstance<BuildApplicationClaimsViewUseCase>;
   let logInfoStub: sinon.SinonStub;
   let logErrorStub: sinon.SinonStub;
 
@@ -141,18 +145,33 @@ describe("Application adaptor", () => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
     viewApplicationAdaptorStub = stubInterface<ApplicationPort>();
+    claimsAdaptorStub = stubInterface<ClaimsPort>();
     buildCertificateViewUseCaseStub =
       stubInterface<BuildCertificateViewUseCase>();
+    buildApplicationClaimsViewUseCaseStub =
+      stubInterface<BuildApplicationClaimsViewUseCase>();
     logInfoStub = sinon.stub(logger, "logInfo");
     logErrorStub = sinon.stub(logger, "logError");
     buildCertificateViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
       data: certificateDetails,
     });
+    buildApplicationClaimsViewUseCaseStub.execute.resolves({
+      status: "SUCCESS",
+      data: {
+        toBeAssessedClaims: [],
+        assessedClaims: [],
+        hasClaims: false,
+        substantiveCertificate: 10000,
+        totalRemaining: 10000,
+      },
+    });
     applicationAdaptor = new ApplicationAdaptor(
       viewApplicationAdaptorStub,
       undefined,
       buildCertificateViewUseCaseStub,
+      claimsAdaptorStub,
+      buildApplicationClaimsViewUseCaseStub,
     );
     requestStub.session.user = {
       userId: "test-user-id",
@@ -448,6 +467,115 @@ describe("Application adaptor", () => {
             fileName: "test-document.pdf",
           },
         },
+      });
+    });
+  });
+
+  describe("renderApplicationPage claims tab", () => {
+    const toBeAssessedClaim = {
+      claimId: 10,
+      claimTypeId: "PAYMENT_ON_ACCOUNT",
+      submissionDate: "2026-08-10T13:37:56.629563",
+      totalProfitCostNet: "1000.00",
+      totalProfitCostGross: "1200.00",
+      totalProfitCostVatZero: null,
+      poaTypeId: "PROFIT_COST",
+      statusId: "SUBMITTED",
+      claimDecisionStatus: null,
+    };
+
+    const assessedClaim = {
+      claimId: 20,
+      claimTypeId: "PAYMENT_ON_ACCOUNT",
+      submissionDate: "2026-07-01T09:00:00.000000",
+      totalProfitCostNet: "1600.00",
+      totalProfitCostGross: "2000.00",
+      totalProfitCostVatZero: null,
+      poaTypeId: "PROFIT_COST",
+      statusId: "PAY_IN_FULL",
+      claimDecisionStatus: "PAY_IN_FULL",
+    };
+
+    it("passes the mapped claims view model to the view", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      buildApplicationClaimsViewUseCaseStub.execute.resolves({
+        status: "SUCCESS",
+        data: {
+          toBeAssessedClaims: [toBeAssessedClaim],
+          assessedClaims: [assessedClaim],
+          hasClaims: true,
+          substantiveCertificate: 10000,
+          totalRemaining: 8000,
+        },
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        claims: {
+          hasClaims: true,
+          substantiveCertificate: "£10,000",
+          totalRemaining: "£8,000",
+          toBeAssessed: [
+            {
+              date: "10 August 2026",
+              total: "£1,200",
+              status: "Submitted",
+              claimType: "Payment on account",
+              href: "/applications/123/claims/10",
+            },
+          ],
+          assessed: [
+            {
+              date: "01 July 2026",
+              total: "£2,000",
+              status: "Pay in full",
+              claimType: "Payment on account",
+              href: "/applications/123/claims/20",
+            },
+          ],
+        },
+      });
+    });
+
+    it("passes the substantive cost limitation to the claims use case", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(buildApplicationClaimsViewUseCaseStub.execute.callCount, 1);
+      const executeArgs =
+        buildApplicationClaimsViewUseCaseStub.execute.getCall(0).args[0];
+      assert.equal(executeArgs.applicationId, "123");
+      assert.equal(executeArgs.substantiveCertificate, 10000);
+    });
+
+    it("renders claims as unavailable when the claims use case fails", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      buildApplicationClaimsViewUseCaseStub.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        claims: { unavailable: true },
       });
     });
   });

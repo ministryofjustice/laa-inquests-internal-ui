@@ -3,13 +3,17 @@ import type {
   Application,
   Proceeding,
 } from "#src/adaptors/models/application.types.js";
+import type { Claim } from "#src/adaptors/models/claim.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
+import { getClaimCost } from "#src/utils/claimCost.js";
 import {
   escapeHtml,
   formatAddressToHtml,
@@ -18,6 +22,8 @@ import {
   APPLICATION_TYPES,
   CATEGORIES_OF_LAW,
   CERTIFICATE_TYPES,
+  CLAIM_STATUSES,
+  CLAIM_TYPES,
   CLIENT_ROLES,
   LEVELS_OF_SERVICE,
   SCOPE_OF_LIMITATIONS,
@@ -37,7 +43,11 @@ const {
 export class ApplicationAdaptor {
   viewApplicationAdaptor: ApplicationPort;
 
+  private readonly claimsAdaptor?: ClaimsPort;
+
   private readonly buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase;
+
+  private readonly buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase;
 
   private readonly buildCertificateViewUseCase: BuildCertificateViewUseCase;
 
@@ -47,10 +57,14 @@ export class ApplicationAdaptor {
     buildCertificateViewUseCase: BuildCertificateViewUseCase = new BuildCertificateViewUseCase(
       viewApplicationAdaptor,
     ),
+    claimsAdaptor?: ClaimsPort,
+    buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
+    this.claimsAdaptor = claimsAdaptor;
     this.buildApplicationOverviewViewUseCase =
       buildApplicationOverviewViewUseCase;
+    this.buildApplicationClaimsViewUseCase = buildApplicationClaimsViewUseCase;
     this.buildCertificateViewUseCase = buildCertificateViewUseCase;
   }
 
@@ -92,6 +106,12 @@ export class ApplicationAdaptor {
       ? { text: "Awaiting assessment", classes: "govuk-tag--grey" }
       : { text: "Assessment complete", classes: "govuk-tag--green" };
 
+    const claims = await this.#buildClaimsView(
+      req,
+      applicationId,
+      overviewViewResult.data.application.proceeding.substantiveCostLimitation,
+    );
+
     res.render("application/application-overview", {
       application,
       proceeding,
@@ -99,8 +119,60 @@ export class ApplicationAdaptor {
       clientCorrespondenceAddressDisplay,
       careOfRecipientDisplay,
       statusTag,
+      claims,
       backUrl: "/",
     });
+  }
+
+  async #buildClaimsView(
+    req: Request,
+    applicationId: string,
+    substantiveCertificate: number,
+  ): Promise<ClaimsViewModel> {
+    const { claimsAdaptor, buildApplicationClaimsViewUseCase } = this;
+
+    if (!claimsAdaptor) {
+      logger.logError(
+        "GET Application claims",
+        `No claims adaptor configured for application ${applicationId}`,
+        undefined,
+        req,
+      );
+      return { unavailable: true };
+    }
+
+    const claimsViewResult = await buildApplicationClaimsViewUseCase.execute({
+      applicationId,
+      claimsPort: claimsAdaptor,
+      substantiveCertificate,
+      accessToken: req.session.user?.accessToken,
+    });
+
+    if (claimsViewResult.status !== "SUCCESS") {
+      logger.logError(
+        "GET Application claims",
+        `Failed to build claims view for application ${applicationId}`,
+        claimsViewResult.status === "TECHNICAL_FAILURE"
+          ? (claimsViewResult.cause ?? claimsViewResult.message)
+          : undefined,
+        req,
+      );
+      return { unavailable: true };
+    }
+
+    const { data } = claimsViewResult;
+
+    return {
+      hasClaims: data.hasClaims,
+      substantiveCertificate: formatCurrency(data.substantiveCertificate),
+      totalRemaining: formatCurrency(data.totalRemaining),
+      toBeAssessed: data.toBeAssessedClaims.map((claim) =>
+        mapClaimRow(claim, applicationId),
+      ),
+      assessed: data.assessedClaims.map((claim) =>
+        mapClaimRow(claim, applicationId),
+      ),
+    };
   }
 
   async serveCoronersLetterDocument(
@@ -387,4 +459,43 @@ function getCorrespondenceDisplay(
       : "Not provided",
     careOfRecipientDisplay,
   };
+}
+
+interface ClaimRow {
+  date: string;
+  total: string;
+  status: string;
+  claimType: string;
+  href: string;
+}
+
+interface ClaimsViewModel {
+  unavailable?: boolean;
+  hasClaims?: boolean;
+  substantiveCertificate?: string;
+  totalRemaining?: string;
+  toBeAssessed?: ClaimRow[];
+  assessed?: ClaimRow[];
+}
+
+function mapClaimRow(claim: Claim, applicationId: string): ClaimRow {
+  return {
+    date: formatDate(claim.submissionDate),
+    total: formatCurrency(getClaimCost(claim)),
+    status: mapClaimStatus(claim.statusId ?? claim.claimDecisionStatus),
+    claimType: mapClaimType(claim.claimTypeId),
+    href: `/applications/${applicationId}/claims/${claim.claimId}`,
+  };
+}
+
+function mapClaimType(claimTypeId: string): string {
+  return (CLAIM_TYPES as Record<string, string>)[claimTypeId] ?? claimTypeId;
+}
+
+function mapClaimStatus(status: string | null | undefined): string {
+  if (!status) {
+    return "";
+  }
+
+  return (CLAIM_STATUSES as Record<string, string>)[status] ?? status;
 }

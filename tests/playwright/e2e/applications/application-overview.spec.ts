@@ -32,6 +32,7 @@ test.describe("Application overview page", () => {
     ).toBeVisible();
     await expect(page.getByRole("tab", { name: "People" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "History" })).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
   });
 });
 

@@ -35,3 +35,24 @@ export enum SCOPE_OF_LIMITATIONS {
 export enum CATEGORIES_OF_LAW {
   INQUESTS = "Inquests",
 }
+
+export enum CLAIM_TYPES {
+  PAYMENT_ON_ACCOUNT = "Payment on account",
+}
+
+export enum CLAIM_STATUSES {
+  SUBMITTED = "Submitted",
+  ACCEPTED = "Accepted",
+  PAY_IN_FULL = "Pay in full",
+  REJECTED = "Rejected",
+  REJECTED_WITH_AMENDMENT = "Rejected with amendment",
+}
+
+export enum CLAIM_DECISION_STATUSES {
+  REJECT = "Reject",
+  GRANT = "Grant",
+  PAY_IN_FULL = "Pay in full",
+  PENDING = "Pending",
+}
+
+export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];

@@ -67,6 +67,7 @@ Use Axios injected via the constructor. Never instantiate Axios inside an adapto
 - Always handle rejected promises explicitly.
 - Templates contain **no** business logic. Use GOV.UK Frontend macros for all standard components.
 - Do not access `process.env` directly — use the typed `config` object in `src/infrastructure/config/config.ts`.
+- Prefer `if/else` conditional statements for control flow.
 
 ### Naming
 
