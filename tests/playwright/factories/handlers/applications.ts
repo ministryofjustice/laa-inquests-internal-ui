@@ -395,6 +395,7 @@ export const applicationHandlers = [
       },
     });
   }),
+  http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims`,
     ({ params, request }) => {
       // Simulate an upstream failure so the Claims tab can degrade gracefully.

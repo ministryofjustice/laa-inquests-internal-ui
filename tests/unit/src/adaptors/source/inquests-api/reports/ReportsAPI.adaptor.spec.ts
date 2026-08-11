@@ -1,9 +1,8 @@
 import sinon from "sinon";
-import axios from "axios";
 import { assert } from "chai";
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
 
-const axiosGetStub = sinon.stub(axios, "get");
+const axiosGetStub = sinon.stub();
 
 afterEach(() => {
   axiosGetStub.reset();
