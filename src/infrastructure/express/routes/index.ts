@@ -25,6 +25,8 @@ import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
+import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
+import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -72,6 +74,7 @@ const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
+const reportsAdaptor = new ReportsAdaptor();
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
@@ -126,6 +129,12 @@ router.get("/error", (req: Request, res: Response): void => {
 });
 
 router.use("/auth", createAuthRouter(express.Router(), authAdaptor));
+
+router.use(
+  "/reports",
+  requireAuth,
+  createReportsRouter(express.Router(), reportsAdaptor),
+);
 
 router.use("/applications", requireAuth, [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),

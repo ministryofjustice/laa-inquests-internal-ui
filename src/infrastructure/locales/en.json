@@ -50,6 +50,10 @@
       },
       "reportsButton": "View Reports"
     },
+    "reports": {
+      "heading": "Reports",
+      "downloadApplicationsBacklogLink": "Download Applications Backlog"
+    },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     },
