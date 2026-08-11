@@ -64,6 +64,24 @@
       "documentError": {
         "pageTitle": "Unable to retrieve document – {SERVICE_NAME} – GOV.UK",
         "message": "Unable to retrieve document. Please try again later"
+      },
+      "claims": {
+        "tabLabel": "Claims",
+        "noClaims": "There are no claims associated with this application yet.",
+        "unavailable": "Claims are currently unavailable. Please try again later.",
+        "totalHeading": "Total",
+        "substantiveCertificate": "Substantive certificate:",
+        "totalRemaining": "Total remaining:",
+        "toBeAssessedHeading": "Claims to be assessed",
+        "assessedHeading": "Assessed claims",
+        "table": {
+          "date": "Date",
+          "totalAmount": "Total amount",
+          "status": "Status",
+          "typeOfClaim": "Type of claim",
+          "view": "View",
+          "viewLink": "See details"
+        }
       }
     },
     "applicationCertificate": {
