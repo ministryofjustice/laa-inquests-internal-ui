@@ -58,8 +58,7 @@
 
   <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.heading') }}</h1>
   <h2 class="govuk-heading-m">{{ laaReference }}</h2>
-  {# Change claimStatus to govuk-tag--blue #}
-  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}:  {{ claimStatus }}</h3>
+  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
 
   {{ govukSummaryList({
     card: {

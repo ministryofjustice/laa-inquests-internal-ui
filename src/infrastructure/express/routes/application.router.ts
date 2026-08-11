@@ -86,46 +86,6 @@ function createApplicationRouter(
     },
   );
 
-  applicationRouter.post(
-    "/:applicationId/claims/:claimId",
-    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      const {
-        params: { applicationId, claimId },
-      } = req;
-      const applicationIdParam = applicationId as string;
-      const claimIdParam = claimId as string;
-
-      try {
-        await claimAssessmentAdaptor.processClaimAssessmentPage(
-          req,
-          res,
-          applicationIdParam,
-          claimIdParam,
-        );
-      } catch (err: unknown) {
-        next(err);
-      }
-    },
-  );
-
-  applicationRouter.get(
-    "/:applicationId/claims/:claimId/confirmation",
-    (req: Request, res: Response): void => {
-      const {
-        params: { applicationId, claimId },
-      } = req;
-      const applicationIdParam = applicationId as string;
-      const claimIdParam = claimId as string;
-
-      claimAssessmentAdaptor.renderClaimAssessmentConfirmationPage(
-        req,
-        res,
-        applicationIdParam,
-        claimIdParam,
-      );
-    },
-  );
-
   return applicationRouter;
 }
 
