@@ -3,7 +3,7 @@ import { validateHeader } from "../../utils/govuk-validators.js";
 
 test.describe("Claims tab", () => {
   test("should show the Claims tab", async ({ page }) => {
-    await page.goto(`/applications/1/overview`);
+    await page.goto(`/applications/5/overview`);
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
@@ -11,7 +11,7 @@ test.describe("Claims tab", () => {
 });
 
 test.describe("Claims tab - with claims", () => {
-  const applicationId = "1";
+  const applicationId = "5";
 
   test("should show the total section", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
@@ -96,7 +96,7 @@ test.describe("Claims tab - with claims", () => {
 });
 
 test.describe("Claims tab - empty state", () => {
-  const applicationId = "3";
+  const applicationId = "7";
 
   test("should show the no claims message and no tables", async ({ page }) => {
     await page.goto(`/applications/${applicationId}/overview`);
@@ -111,7 +111,7 @@ test.describe("Claims tab - empty state", () => {
 });
 
 test.describe("Claims tab - only claims to be assessed", () => {
-  const applicationId = "2";
+  const applicationId = "6";
 
   test("should show the to be assessed table and hide the assessed table", async ({
     page,
@@ -134,7 +134,7 @@ test.describe("Claims tab - only claims to be assessed", () => {
 });
 
 test.describe("Claims tab - only assessed claims", () => {
-  const applicationId = "4";
+  const applicationId = "8";
 
   test("should show the assessed table and hide the to be assessed table", async ({
     page,

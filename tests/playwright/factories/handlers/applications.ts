@@ -35,6 +35,30 @@ const applicationSummaries = [
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
+  {
+    laa_reference: 5,
+    created_at: "2026-07-15T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: 6,
+    created_at: "2026-07-16T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: 7,
+    created_at: "2026-07-17T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: 8,
+    created_at: "2026-07-18T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: GRANTED_DECISION,
+  },
 ];
 
 /**
@@ -271,9 +295,11 @@ export const applicationHandlers = [
     }
 
     const appToReturn = { ...fullApplication };
-    const decision =
-      applicationSummaries[Number(params.id) - 1]?.overall_decision ??
-      PENDING_DECISION;
+    const matchingSummary = applicationSummaries.find(
+      (applicationSummary) =>
+        applicationSummary.laa_reference === Number(params.id),
+    );
+    const decision = matchingSummary?.overall_decision ?? PENDING_DECISION;
     appToReturn.overallDecision = decision;
     appToReturn.proceeding!.meritsDecision = decision;
     appToReturn.laaReference = Number(params.id);
@@ -284,8 +310,13 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
-      applicationSummaries[Number(params.id) - 1].overall_decision =
-        REFUSED_DECISION;
+      const matchingSummary = applicationSummaries.find(
+        (applicationSummary) =>
+          applicationSummary.laa_reference === Number(params.id),
+      );
+      if (matchingSummary) {
+        matchingSummary.overall_decision = REFUSED_DECISION;
+      }
       return new HttpResponse(null, { status: 204 });
     },
   ),
@@ -293,8 +324,13 @@ export const applicationHandlers = [
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/grant-decision`,
     ({ params }) => {
-      applicationSummaries[Number(params.id) - 1].overall_decision =
-        GRANTED_DECISION;
+      const matchingSummary = applicationSummaries.find(
+        (applicationSummary) =>
+          applicationSummary.laa_reference === Number(params.id),
+      );
+      if (matchingSummary) {
+        matchingSummary.overall_decision = GRANTED_DECISION;
+      }
       return new HttpResponse(null, { status: 204 });
     },
   ),
@@ -337,22 +373,22 @@ export const applicationHandlers = [
       const url = new URL(request.url);
       const assessed = url.searchParams.get("assessed") === "true";
 
-      // id 3: no claims at all (empty state).
-      if (params.id === "3") {
+      // id 7: no claims at all (empty state).
+      if (params.id === "7") {
         return HttpResponse.json([]);
       }
 
-      // id 2: only claims to be assessed (no assessed claims).
-      if (params.id === "2") {
+      // id 6: only claims to be assessed (no assessed claims).
+      if (params.id === "6") {
         return HttpResponse.json(assessed ? [] : toBeAssessedClaims);
       }
 
-      // id 4: only assessed claims (nothing to be assessed).
-      if (params.id === "4") {
+      // id 8: only assessed claims (nothing to be assessed).
+      if (params.id === "8") {
         return HttpResponse.json(assessed ? assessedClaims : []);
       }
 
-      // Default (e.g. id 1): both lists populated.
+      // Default (e.g. id 5): both lists populated.
       return HttpResponse.json(assessed ? assessedClaims : toBeAssessedClaims);
     },
   ),
