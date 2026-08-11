@@ -290,4 +290,22 @@ export const applicationHandlers = [
       return HttpResponse.json(certificate);
     },
   ),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/reports/applications/backlog`,
+    () => {
+      const backlogCsv = Buffer.from(
+        "Application / Case Reference Number,Current Application Status,Application Received Date,Firm Name,Firm Account Number,Proceeding Code,Matter Type\n" +
+          "1,PENDING,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
+          "2,PENDING,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
+          "10,PENDING,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
+      );
+      return new HttpResponse(backlogCsv, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv",
+        },
+      });
+    },
+  ),
 ];

@@ -74,7 +74,7 @@ const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
-const reportsAdaptor = new ReportsAdaptor();
+const reportsAdaptor = new ReportsAdaptor(viewApplicationAdaptor);
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),

@@ -16,5 +16,16 @@ export function createReportsRouter(
     },
   );
 
+  reportsRouter.get(
+    "/applications/backlog",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        await reportsAdaptor.downloadApplicationsBacklog(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return reportsRouter;
 }

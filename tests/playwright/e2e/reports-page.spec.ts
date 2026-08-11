@@ -23,4 +23,26 @@ test.describe("Reports page", () => {
       "/reports/applications/backlog",
     );
   });
+
+  test("download link returns csv attachment response", async ({ page }) => {
+    await page.goto("/reports");
+
+    const backlogResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/reports/applications/backlog") &&
+        response.request().method() === "GET",
+    );
+
+    await page
+      .getByRole("link", { name: "Download Applications Backlog" })
+      .click();
+
+    const backlogResponse = await backlogResponsePromise;
+
+    expect(backlogResponse.status()).toBe(200);
+    expect(backlogResponse.headers()["content-type"]).toContain("text/csv");
+    expect(backlogResponse.headers()["content-disposition"]).toContain(
+      "attachment",
+    );
+  });
 });
