@@ -47,7 +47,13 @@
         "createdDate": "Created Date",
         "status": "Status",
         "decision": "Decision"
-      }
+      },
+      "reportsButton": "View Reports"
+    },
+    "reports": {
+      "heading": "Reports",
+      "downloadApplicationsBacklogLink": "Download Applications Backlog",
+      "downloadClaimsBacklogLink": "Download Claims Backlog"
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"

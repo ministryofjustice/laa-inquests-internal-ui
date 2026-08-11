@@ -1,10 +1,9 @@
 import sinon from "sinon";
-import axios from "axios";
 import { assert } from "chai";
 import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/ClaimsAPI.adaptor.js";
 import type { Claim } from "#src/adaptors/models/claim.types.js";
 
-const axiosGetStub = sinon.stub(axios, "get");
+const axiosGetStub = sinon.stub();
 
 afterEach(() => {
   axiosGetStub.reset();
