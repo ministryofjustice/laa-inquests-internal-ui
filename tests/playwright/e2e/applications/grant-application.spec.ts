@@ -47,8 +47,8 @@ test.describe.serial("Grant application journey", () => {
     sharedPage = await sharedContext.newPage();
   });
 
-  test.afterEach(async ({ checkAccessibility }) => {
-    await checkAccessibility();
+  test.afterEach(async ({ checkPageAccessibility }) => {
+    await checkPageAccessibility(sharedPage);
   });
 
   test.afterAll(async () => {
@@ -302,12 +302,12 @@ test.describe.serial("Grant application journey", () => {
     await expect(button).toHaveAttribute("href", overviewPage);
   });
 
-  test("caseworker views certificate link", async ({ page }) => {
+  test("caseworker views certificate link", async () => {
     const button = await sharedPage.getByRole("button", {
       name: successLocale.applicationOverviewReturnButton,
     });
     await button.click();
-    await page.waitForLoadState("domcontentloaded");
+    await sharedPage.waitForLoadState("domcontentloaded");
     await expect(sharedPage).toHaveURL(overviewPage);
 
     const viewCertificateLink = await sharedPage.getByRole("link", {
@@ -316,7 +316,7 @@ test.describe.serial("Grant application journey", () => {
 
     await expect(viewCertificateLink).toBeVisible();
     await viewCertificateLink.click();
-    await page.waitForLoadState("domcontentloaded");
+    await sharedPage.waitForLoadState("domcontentloaded");
     await expect(sharedPage).toHaveURL(certificateUrl);
   });
 });
