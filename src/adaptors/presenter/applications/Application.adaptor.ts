@@ -29,6 +29,7 @@ import {
   LEVELS_OF_SERVICE,
   SCOPE_OF_LIMITATIONS,
 } from "#src/infrastructure/locales/constants.js";
+import { HISTORY_EVENT_FORMATTERS } from "#src/adaptors/presenter/applications/historyEventFormatters.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const {
@@ -506,6 +507,20 @@ function mapClaimStatus(status: string | null | undefined): string {
 
   return (CLAIM_STATUSES as Record<string, string>)[status] ?? status;
 }
+function formatHistoryEventUpdate(
+  eventReference: string,
+  eventData: Record<string, unknown> | null | undefined,
+): string {
+  // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Dynamic property access requires bracket notation
+  const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
+
+  const historyEventHeading = formatter
+    ? formatter(eventData)
+    : escapeHtml(eventReference);
+
+  return `<strong>${historyEventHeading}</strong>`;
+}
+
 function formatHistoryRows(history: HistoryEventList): {
   historyRows: Array<Array<{ text?: string; html?: string }>>;
   hasHistory: boolean;
@@ -517,12 +532,10 @@ function formatHistoryRows(history: HistoryEventList): {
   const historyRows = history.map((event) => {
     const timestamp = formatDateTime(event.timestamp);
     const actor = escapeHtml(event.actor);
-    const eventDescriptionHtml = `<strong>${escapeHtml(event.eventDescription)}</strong>`;
-    const eventDataHtml =
-      event.eventData && event.eventData.trim().length > 0
-        ? ` ${escapeHtml(event.eventData)}`
-        : "";
-    const update = eventDescriptionHtml + eventDataHtml;
+    const update = formatHistoryEventUpdate(
+      event.eventReference,
+      event.eventData,
+    );
 
     return [{ text: timestamp }, { text: actor }, { html: update }];
   });

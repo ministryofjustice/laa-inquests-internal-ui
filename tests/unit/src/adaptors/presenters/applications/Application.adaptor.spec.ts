@@ -13,6 +13,7 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 describe("Application adaptor", () => {
   let applicationAdaptor: ApplicationAdaptor;
@@ -140,6 +141,11 @@ describe("Application adaptor", () => {
     scopeLimitationHeading: "FINAL_HEARING",
     scopeLimitationDescription: "This is the scope description",
   };
+
+  before(() => {
+    // Initialize i18next for translation tests
+    initializeI18nextSync();
+  });
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
@@ -805,6 +811,299 @@ describe("Application adaptor", () => {
         "Unable to build certificate view",
         requestStub,
       ]);
+    });
+  });
+
+  describe("history formatting", () => {
+    it("renders empty history when getApplicationHistory returns empty array", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        historyRows: [],
+        hasHistory: false,
+      });
+    });
+
+    it("renders Application received event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-21T10:30:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-001",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(historyRows.length, 1);
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application received</strong>",
+      );
+    });
+
+    it("renders Application granted event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-22T14:15:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: { meritsDecision: "granted" },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application granted</strong>",
+      );
+    });
+
+    it("renders Certificate created event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-23T09:00:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-003",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Certificate created</strong>",
+      );
+    });
+
+    it("renders Interested parties updated event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-24T16:45:00.000Z",
+          actor: "John Doe",
+          eventReference: "EVT-BUS-APP-004",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Interested parties updated</strong>",
+      );
+    });
+
+    it("renders unknown event reference with escaped fallback", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-25T11:00:00.000Z",
+          actor: "Admin",
+          eventReference: "UNKNOWN-EVENT-CODE",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>UNKNOWN-EVENT-CODE</strong>",
+      );
+    });
+
+    it("escapes HTML in actor field", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-26T12:00:00.000Z",
+          actor: "<script>alert('xss')</script>",
+          eventReference: "EVT-BUS-APP-001",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][1].text,
+        "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+      );
+    });
+
+    it("escapes HTML in unknown event reference fallback", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-27T13:30:00.000Z",
+          actor: "System",
+          eventReference: "<script>alert('xss')</script>",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;</strong>",
+      );
+    });
+
+    it("formats event data with meritsDecision substitution", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: { meritsDecision: "granted" },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application granted</strong>",
+      );
+    });
+
+    it("formats multiple history events in correct order", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-21T10:00:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-001",
+          eventData: null,
+        },
+        {
+          timestamp: "2026-05-22T11:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: { meritsDecision: "granted" },
+        },
+        {
+          timestamp: "2026-05-23T12:00:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-003",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(historyRows.length, 3);
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application received</strong>",
+      );
+      assert.equal(
+        historyRows[1][2].html,
+        "<strong>Application granted</strong>",
+      );
+      assert.equal(
+        historyRows[2][2].html,
+        "<strong>Certificate created</strong>",
+      );
     });
   });
 });
