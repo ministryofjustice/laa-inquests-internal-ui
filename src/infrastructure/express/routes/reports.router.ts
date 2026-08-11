@@ -27,5 +27,16 @@ export function createReportsRouter(
     },
   );
 
+  reportsRouter.get(
+    "/claims/backlog",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        await reportsAdaptor.downloadClaimsBacklog(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return reportsRouter;
 }

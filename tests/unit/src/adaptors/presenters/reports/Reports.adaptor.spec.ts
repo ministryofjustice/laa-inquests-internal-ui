@@ -77,4 +77,51 @@ describe("Reports adaptor", () => {
     ]);
     assert.equal(responseStub.send.callCount, 0);
   });
+
+  it("downloads claims backlog report with attachment headers", async () => {
+    const mockBuffer = Buffer.from("col1,col2\n1,2");
+    applicationPortStub.getClaimsBacklogReport.resolves({
+      data: mockBuffer,
+      contentType: "text/csv",
+    });
+
+    await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
+
+    assert.equal(applicationPortStub.getClaimsBacklogReport.callCount, 1);
+    assert.deepEqual(
+      applicationPortStub.getClaimsBacklogReport.firstCall.args,
+      ["test-access-token"],
+    );
+    assert.equal(responseStub.setHeader.callCount, 2);
+    assert.deepEqual(responseStub.setHeader.getCall(0).args, [
+      "Content-Type",
+      "text/csv",
+    ]);
+    assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+      "Content-Disposition",
+      'attachment; filename="claims-backlog.csv"',
+    ]);
+    assert.equal(responseStub.send.callCount, 1);
+    assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
+  });
+
+  it("renders error page when claims backlog report retrieval fails", async () => {
+    applicationPortStub.getClaimsBacklogReport.rejects(new Error("API error"));
+    responseStub.status.returns(responseStub);
+
+    await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
+
+    assert.equal(applicationPortStub.getClaimsBacklogReport.callCount, 1);
+    assert.equal(responseStub.status.callCount, 1);
+    assert.deepEqual(responseStub.status.firstCall.args, [500]);
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "application/error",
+      {
+        status: "Unable to retrieve report",
+        error: "Unable to retrieve report. Please try again later",
+      },
+    ]);
+    assert.equal(responseStub.send.callCount, 0);
+  });
 });

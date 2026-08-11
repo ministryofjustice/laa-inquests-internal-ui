@@ -154,4 +154,79 @@ describe("createReportsRouter", () => {
     assert.equal(next.callCount, 1);
     assert.equal(next.firstCall.args[0], error);
   });
+
+  it("registers GET /claims/backlog route", () => {
+    const reportsAdaptor = stubInterface<ReportsAdaptor>();
+    const router = createReportsRouter(express.Router(), reportsAdaptor);
+    const route = (
+      router as unknown as { stack: Array<{ route?: { path: string } }> }
+    ).stack.find((layer) => layer.route?.path === "/claims/backlog")?.route;
+
+    assert.notEqual(route, undefined);
+  });
+
+  it("delegates GET /claims/backlog handler to reports adaptor", async () => {
+    const reportsAdaptor = stubInterface<ReportsAdaptor>();
+    const router = createReportsRouter(express.Router(), reportsAdaptor);
+    const route = (
+      router as unknown as {
+        stack: Array<{
+          route?: {
+            path: string;
+            stack: Array<{
+              handle: (
+                req: Request,
+                res: Response,
+                next: NextFunction,
+              ) => Promise<void>;
+            }>;
+          };
+        }>;
+      }
+    ).stack.find((layer) => layer.route?.path === "/claims/backlog")?.route;
+    const req = stubInterface<Request>();
+    const res = stubInterface<Response>();
+    const next = sinon.stub();
+
+    await route?.stack[0].handle(req, res, next);
+
+    assert.equal(reportsAdaptor.downloadClaimsBacklog.callCount, 1);
+    assert.deepEqual(reportsAdaptor.downloadClaimsBacklog.firstCall.args, [
+      req,
+      res,
+    ]);
+    assert.equal(next.callCount, 0);
+  });
+
+  it("calls next when claims backlog download handler throws", async () => {
+    const reportsAdaptor = stubInterface<ReportsAdaptor>();
+    const router = createReportsRouter(express.Router(), reportsAdaptor);
+    const route = (
+      router as unknown as {
+        stack: Array<{
+          route?: {
+            path: string;
+            stack: Array<{
+              handle: (
+                req: Request,
+                res: Response,
+                next: NextFunction,
+              ) => Promise<void>;
+            }>;
+          };
+        }>;
+      }
+    ).stack.find((layer) => layer.route?.path === "/claims/backlog")?.route;
+    const req = stubInterface<Request>();
+    const res = stubInterface<Response>();
+    const next = sinon.stub();
+    const error = new Error("claims backlog failed");
+
+    reportsAdaptor.downloadClaimsBacklog.rejects(error);
+
+    await route?.stack[0].handle(req, res, next);
+
+    assert.equal(next.callCount, 1);
+    assert.equal(next.firstCall.args[0], error);
+  });
 });

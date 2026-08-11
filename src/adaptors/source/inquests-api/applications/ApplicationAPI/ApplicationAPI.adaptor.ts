@@ -163,6 +163,28 @@ export class ApplicationAPIAdaptor {
     };
   }
 
+  async getClaimsBacklogReport(
+    accessToken: string | undefined,
+  ): Promise<{ data: Buffer; contentType: string }> {
+    const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: "/reports/claims/backlog",
+      accessToken,
+      axiosConfig: { responseType: "arraybuffer" },
+    });
+
+    const { headers, data } = response;
+    const { "content-type": contentType } = headers;
+    const contentTypeString =
+      typeof contentType === "string" ? contentType : "text/csv";
+
+    return {
+      data: Buffer.from(data),
+      contentType: contentTypeString,
+    };
+  }
+
   async getCertificateDetails(
     applicationId: string,
     accessToken: string | undefined,

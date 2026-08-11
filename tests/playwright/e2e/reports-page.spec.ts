@@ -1,7 +1,7 @@
 import { test, expect } from "../fixtures/index.js";
 
 test.describe("Reports page", () => {
-  test("displays reports heading and backlog download link", async ({
+  test("displays reports heading and backlog download links", async ({
     page,
   }) => {
     await page.goto("/reports");
@@ -13,14 +13,22 @@ test.describe("Reports page", () => {
       ),
     ).toBeVisible();
 
-    const backlogLink = page.getByRole("link", {
+    const applicationsBacklogLink = page.getByRole("link", {
       name: "Download Applications Backlog",
     });
+    const claimsBacklogLink = page.getByRole("link", {
+      name: "Download Claims Backlog",
+    });
 
-    await expect(backlogLink).toBeVisible();
-    await expect(backlogLink).toHaveAttribute(
+    await expect(applicationsBacklogLink).toBeVisible();
+    await expect(applicationsBacklogLink).toHaveAttribute(
       "href",
       "/reports/applications/backlog",
+    );
+    await expect(claimsBacklogLink).toBeVisible();
+    await expect(claimsBacklogLink).toHaveAttribute(
+      "href",
+      "/reports/claims/backlog",
     );
   });
 
@@ -42,6 +50,30 @@ test.describe("Reports page", () => {
     expect(backlogResponse.status()).toBe(200);
     expect(backlogResponse.headers()["content-type"]).toContain("text/csv");
     expect(backlogResponse.headers()["content-disposition"]).toContain(
+      "attachment",
+    );
+  });
+
+  test("claims download link returns csv attachment response", async ({
+    page,
+  }) => {
+    await page.goto("/reports");
+
+    const claimsBacklogResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/reports/claims/backlog") &&
+        response.request().method() === "GET",
+    );
+
+    await page.getByRole("link", { name: "Download Claims Backlog" }).click();
+
+    const claimsBacklogResponse = await claimsBacklogResponsePromise;
+
+    expect(claimsBacklogResponse.status()).toBe(200);
+    expect(claimsBacklogResponse.headers()["content-type"]).toContain(
+      "text/csv",
+    );
+    expect(claimsBacklogResponse.headers()["content-disposition"]).toContain(
       "attachment",
     );
   });

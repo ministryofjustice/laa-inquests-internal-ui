@@ -45,4 +45,38 @@ export class ReportsAdaptor {
       });
     }
   }
+
+  async downloadClaimsBacklog(req: Request, res: Response): Promise<void> {
+    logger.logInfo(
+      "GET Claims Backlog Report",
+      "Claims backlog report requested.",
+      req,
+    );
+
+    try {
+      const { data, contentType } =
+        await this.applicationPort.getClaimsBacklogReport(
+          req.session.user?.accessToken,
+        );
+
+      res.setHeader("Content-Type", contentType);
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="claims-backlog.csv"',
+      );
+      res.send(data);
+    } catch (error) {
+      logger.logError(
+        "GET Claims Backlog Report",
+        "Failed to retrieve claims backlog report",
+        error,
+        req,
+      );
+
+      res.status(500).render("application/error", {
+        status: "Unable to retrieve report",
+        error: "Unable to retrieve report. Please try again later",
+      });
+    }
+  }
 }

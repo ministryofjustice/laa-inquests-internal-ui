@@ -31,6 +31,9 @@ export interface ApplicationPort {
   getApplicationsBacklogReport: (
     accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
+  getClaimsBacklogReport: (
+    accessToken: string | undefined,
+  ) => Promise<{ data: Buffer; contentType: string }>;
   getCertificateDetails: (
     applicationId: string,
     accessToken: string | undefined,
