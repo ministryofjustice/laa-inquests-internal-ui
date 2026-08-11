@@ -13,7 +13,10 @@ test.describe("Claims tab", () => {
 test.describe("Claims tab - with claims", () => {
   const applicationId = "5";
 
-  test("should show the total section", async ({ page }) => {
+  test("should show the total section", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto(`/applications/${applicationId}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
@@ -26,6 +29,7 @@ test.describe("Claims tab - with claims", () => {
     await expect(
       claimsPanel.locator("p", { hasText: "Total remaining:" }),
     ).toContainText("£8,000");
+    await checkAccessibility();
   });
 
   test("should show the claims to be assessed table", async ({ page }) => {

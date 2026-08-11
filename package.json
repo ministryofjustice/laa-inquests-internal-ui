@@ -23,7 +23,7 @@
     "build:ts": "tsc",
     "test": "yarn test:unit && yarn test:e2e",
     "test:unit": "yarn build && NODE_ENV=test mocha",
-    "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts"
+    "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts --reporter=list"
   },
   "engines": {
     "node": "26.5.1"
