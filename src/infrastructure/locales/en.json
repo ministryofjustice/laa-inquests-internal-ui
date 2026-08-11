@@ -47,7 +47,8 @@
         "createdDate": "Created Date",
         "status": "Status",
         "decision": "Decision"
-      }
+      },
+      "reportsButton": "View Reports"
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"

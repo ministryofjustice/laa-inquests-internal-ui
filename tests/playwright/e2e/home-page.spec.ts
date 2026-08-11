@@ -34,6 +34,11 @@ test.describe("Home page", () => {
     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
   });
 
+  test("should have the correct link for reports button", async ({ page }) => {
+    const reportsLink = page.getByRole("link", { name: "View Reports" });
+    await expect(reportsLink).toHaveAttribute("href", "/reports");
+  });
+
   test("navigation items should be in correct order", async ({ page }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
