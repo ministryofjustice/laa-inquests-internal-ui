@@ -104,6 +104,7 @@ Each journey step must cover:
 - Each validation error
 - Back and continue/submit buttons
 - CSRF (if a form page)
+- Accessibility tests with `checkAccessibility`
 
 Develop utility functions per step (e.g. functions in `form-validation-utils.js`).
 
