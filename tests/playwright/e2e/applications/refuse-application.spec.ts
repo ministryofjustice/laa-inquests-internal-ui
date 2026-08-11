@@ -35,6 +35,10 @@ test.describe.serial("Refuse application journey", () => {
     sharedPage = await sharedContext.newPage();
   });
 
+  test.afterEach(async ({ checkAccessibility }) => {
+    await checkAccessibility();
+  });
+
   test.afterAll(async () => {
     await sharedContext.close();
   });

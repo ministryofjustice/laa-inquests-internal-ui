@@ -8,11 +8,16 @@ import {
 const applicationId = "1";
 
 test.describe("Application overview page", () => {
-  test("should have the correct title and back link", async ({ page }) => {
+  test("should have the correct title and back link", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await expect(page).toHaveTitle(/Inquests – GOV.UK/);
     await validateGovPage(page, { headerText: applicationId, backUrl: "/" });
+
+    await checkAccessibility();
   });
 
   test("should have a status tag", async ({ page }) => {
@@ -37,7 +42,10 @@ test.describe("Application overview page", () => {
 });
 
 test.describe("Application details tab", () => {
-  test("should have the overview content", async ({ page }) => {
+  test("should have the overview content", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -57,6 +65,8 @@ test.describe("Application details tab", () => {
     await expect(
       overviewSummaryList.getByText("Merits application"),
     ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("should have the proceedings content", async ({ page }) => {
@@ -146,7 +156,10 @@ test.describe("Application details tab", () => {
 });
 
 test.describe("People tab", () => {
-  test("should have the client content", async ({ page }) => {
+  test("should have the client content", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto(`/applications/${applicationId}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
@@ -166,6 +179,8 @@ test.describe("People tab", () => {
       "Correspondence address",
       "Relationship to deceased",
     ]);
+
+    await checkAccessibility();
   });
 
   test("should have the deceased content", async ({ page }) => {

@@ -9,12 +9,17 @@ const applicationOverviewUrl = `/applications/${applicationId}/overview`;
 const applicationCertificateUrl = `/applications/${applicationId}/certificate`;
 
 test.describe("View certificate page", () => {
-  test("back button links back to applications list", async ({ page }) => {
+  test("back button links back to applications list", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto(applicationCertificateUrl);
     await validateGovPage(page, {
       headerText: certificateLocale.title,
       backUrl: applicationOverviewUrl,
     });
+
+    await checkAccessibility();
   });
 
   test("should have the correct header", async ({ page }) => {
