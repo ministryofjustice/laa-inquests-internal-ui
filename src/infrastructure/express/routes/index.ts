@@ -6,6 +6,7 @@ import createApplicationRouter from "#src/infrastructure/express/routes/applicat
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
+import { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/ClaimsAPI.adaptor.js";
@@ -24,6 +25,7 @@ import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/deci
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
+import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
@@ -56,6 +58,7 @@ const buildApplicationOverviewViewUseCase =
   new BuildApplicationOverviewViewUseCase();
 const buildApplicationClaimsViewUseCase =
   new BuildApplicationClaimsViewUseCase();
+const buildClaimAssessmentViewUseCase = new BuildClaimAssessmentViewUseCase();
 const prepareDecisionFormUseCase = new PrepareDecisionFormUseCase();
 const processDecisionSelectionUseCase = new ProcessDecisionSelectionUseCase();
 const processJustificationUseCase = new ProcessJustificationUseCase();
@@ -73,6 +76,11 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
   buildCertificateViewUseCase,
   claimsAdaptor,
   buildApplicationClaimsViewUseCase,
+);
+const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
+  viewApplicationAdaptor,
+  claimsAdaptor,
+  buildClaimAssessmentViewUseCase,
 );
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,
@@ -135,7 +143,11 @@ router.get("/error", (req: Request, res: Response): void => {
 router.use("/auth", createAuthRouter(express.Router(), authAdaptor));
 
 router.use("/applications", requireAuth, [
-  createApplicationRouter(express.Router(), applicationDisplayAdaptor),
+  createApplicationRouter(
+    express.Router(),
+    applicationDisplayAdaptor,
+    claimAssessmentAdaptor,
+  ),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
 ]);
 export default router;

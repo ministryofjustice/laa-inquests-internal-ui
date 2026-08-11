@@ -6,4 +6,9 @@ export interface ClaimsPort {
     assessed: boolean,
     accessToken: string | undefined,
   ) => Promise<Claim[]>;
+  getClaimById: (
+    applicationId: string,
+    claimId: string,
+    accessToken: string | undefined,
+  ) => Promise<Claim>;
 }

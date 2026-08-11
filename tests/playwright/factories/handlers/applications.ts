@@ -281,6 +281,30 @@ const assessedClaims = [
   },
 ];
 
+const claimDetail = {
+  claimId: 10,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-08-10T13:37:56.629563",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
+  totalProfitCostVatZero: null,
+  poaTypeId: "PROFIT_COST",
+  substantiveCostLimitation: 10000,
+  claimEvidence: [
+    {
+      fileName: "claim-evidence-1.pdf",
+    },
+    {
+      fileName: "claim-evidence-2.pdf",
+    },
+  ],
+  claimDecision: {
+    claimDecisionId: 123,
+    decision: "REJECT",
+    decisionReasons: [],
+  },
+};
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -359,6 +383,17 @@ export const applicationHandlers = [
         return new HttpResponse(null, { status: 404 });
       }
       return HttpResponse.json(certificate);
+    },
+  ),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId`,
+    ({ params }) => {
+      if (params.id === "5" && params.claimId === "10") {
+        return HttpResponse.json(claimDetail);
+      }
+
+      return new HttpResponse(null, { status: 404 });
     },
   ),
 

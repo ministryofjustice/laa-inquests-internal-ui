@@ -24,6 +24,27 @@ const expectedClaims: Claim[] = [
   },
 ];
 
+const expectedClaimDetail: Claim = {
+  claimId: 10,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-08-11T12:52:29.677Z",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
+  totalProfitCostVatZero: null,
+  poaTypeId: "PROFIT_COST",
+  statusId: "SUBMITTED",
+  claimEvidence: [
+    {
+      fileName: "claim-evidence-1.pdf",
+    },
+  ],
+  claimDecision: {
+    claimDecisionId: 99,
+    decision: "REJECT",
+    decisionReasons: [],
+  },
+};
+
 describe("Test Claims API Adaptor", () => {
   const baseUrl = "https://localhost";
 
@@ -95,5 +116,45 @@ describe("Test Claims API Adaptor", () => {
 
     assert.instanceOf(thrown, Error);
     assert.equal((thrown as Error).message, "network error");
+  });
+
+  it("calls axios with the claim detail endpoint", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({ data: expectedClaimDetail });
+
+    await adaptor.getClaimById("123", "10", "access-token-123");
+
+    assert.isTrue(axiosGetStub.calledOnce);
+    const [url] = axiosGetStub.getCall(0).args;
+    assert.equal(url, `${baseUrl}/applications/123/claims/10`);
+  });
+
+  it("returns parsed claim detail", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({ data: expectedClaimDetail });
+
+    const claim = await adaptor.getClaimById("123", "10", "access-token-123");
+
+    assert.deepEqual(claim, expectedClaimDetail);
+  });
+
+  it("throws when claim detail response fails schema validation", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({ data: { claimId: "not-a-number" } });
+
+    let thrown: unknown;
+    try {
+      await adaptor.getClaimById("123", "10", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, Error);
   });
 });
