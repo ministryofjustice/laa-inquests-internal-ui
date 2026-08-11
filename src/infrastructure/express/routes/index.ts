@@ -27,6 +27,7 @@ import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
+import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -51,6 +52,7 @@ const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
   config.INQUESTS_API_URL,
 );
+const reportsApiAdaptor = new ReportsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const buildApplicationOverviewViewUseCase =
   new BuildApplicationOverviewViewUseCase();
 const prepareDecisionFormUseCase = new PrepareDecisionFormUseCase();
@@ -74,7 +76,7 @@ const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
-const reportsAdaptor = new ReportsAdaptor(viewApplicationAdaptor);
+const reportsAdaptor = new ReportsAdaptor(reportsApiAdaptor);
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),

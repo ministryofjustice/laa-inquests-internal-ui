@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class ReportsAdaptor {
-  constructor(private readonly applicationPort: ApplicationPort) {}
+  constructor(private readonly reportsPort: ReportsPort) {}
 
   renderReportsPage(req: Request, res: Response): void {
     res.render("reports/index");
@@ -21,7 +21,7 @@ export class ReportsAdaptor {
 
     try {
       const { data, contentType } =
-        await this.applicationPort.getApplicationsBacklogReport(
+        await this.reportsPort.getApplicationsBacklogReport(
           req.session.user?.accessToken,
         );
 
@@ -55,7 +55,7 @@ export class ReportsAdaptor {
 
     try {
       const { data, contentType } =
-        await this.applicationPort.getClaimsBacklogReport(
+        await this.reportsPort.getClaimsBacklogReport(
           req.session.user?.accessToken,
         );
 

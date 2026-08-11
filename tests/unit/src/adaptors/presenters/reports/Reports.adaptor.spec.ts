@@ -2,24 +2,24 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
-import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
 
 describe("Reports adaptor", () => {
   let reportsAdaptor: ReportsAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
-  let applicationPortStub: StubbedInstance<ApplicationPort>;
+  let reportsPortStub: StubbedInstance<ReportsPort>;
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
-    applicationPortStub = stubInterface<ApplicationPort>();
+    reportsPortStub = stubInterface<ReportsPort>();
     requestStub.session = {
       user: {
         accessToken: "test-access-token",
       },
     } as never;
-    reportsAdaptor = new ReportsAdaptor(applicationPortStub);
+    reportsAdaptor = new ReportsAdaptor(reportsPortStub);
   });
 
   it("renders reports page", () => {
@@ -31,16 +31,16 @@ describe("Reports adaptor", () => {
 
   it("downloads applications backlog report with attachment headers", async () => {
     const mockBuffer = Buffer.from("col1,col2\n1,2");
-    applicationPortStub.getApplicationsBacklogReport.resolves({
+    reportsPortStub.getApplicationsBacklogReport.resolves({
       data: mockBuffer,
       contentType: "text/csv",
     });
 
     await reportsAdaptor.downloadApplicationsBacklog(requestStub, responseStub);
 
-    assert.equal(applicationPortStub.getApplicationsBacklogReport.callCount, 1);
+    assert.equal(reportsPortStub.getApplicationsBacklogReport.callCount, 1);
     assert.deepEqual(
-      applicationPortStub.getApplicationsBacklogReport.firstCall.args,
+      reportsPortStub.getApplicationsBacklogReport.firstCall.args,
       ["test-access-token"],
     );
     assert.equal(responseStub.setHeader.callCount, 2);
@@ -57,14 +57,14 @@ describe("Reports adaptor", () => {
   });
 
   it("renders error page when backlog report retrieval fails", async () => {
-    applicationPortStub.getApplicationsBacklogReport.rejects(
+    reportsPortStub.getApplicationsBacklogReport.rejects(
       new Error("API error"),
     );
     responseStub.status.returns(responseStub);
 
     await reportsAdaptor.downloadApplicationsBacklog(requestStub, responseStub);
 
-    assert.equal(applicationPortStub.getApplicationsBacklogReport.callCount, 1);
+    assert.equal(reportsPortStub.getApplicationsBacklogReport.callCount, 1);
     assert.equal(responseStub.status.callCount, 1);
     assert.deepEqual(responseStub.status.firstCall.args, [500]);
     assert.equal(responseStub.render.callCount, 1);
@@ -80,18 +80,17 @@ describe("Reports adaptor", () => {
 
   it("downloads claims backlog report with attachment headers", async () => {
     const mockBuffer = Buffer.from("col1,col2\n1,2");
-    applicationPortStub.getClaimsBacklogReport.resolves({
+    reportsPortStub.getClaimsBacklogReport.resolves({
       data: mockBuffer,
       contentType: "text/csv",
     });
 
     await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
 
-    assert.equal(applicationPortStub.getClaimsBacklogReport.callCount, 1);
-    assert.deepEqual(
-      applicationPortStub.getClaimsBacklogReport.firstCall.args,
-      ["test-access-token"],
-    );
+    assert.equal(reportsPortStub.getClaimsBacklogReport.callCount, 1);
+    assert.deepEqual(reportsPortStub.getClaimsBacklogReport.firstCall.args, [
+      "test-access-token",
+    ]);
     assert.equal(responseStub.setHeader.callCount, 2);
     assert.deepEqual(responseStub.setHeader.getCall(0).args, [
       "Content-Type",
@@ -106,12 +105,12 @@ describe("Reports adaptor", () => {
   });
 
   it("renders error page when claims backlog report retrieval fails", async () => {
-    applicationPortStub.getClaimsBacklogReport.rejects(new Error("API error"));
+    reportsPortStub.getClaimsBacklogReport.rejects(new Error("API error"));
     responseStub.status.returns(responseStub);
 
     await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
 
-    assert.equal(applicationPortStub.getClaimsBacklogReport.callCount, 1);
+    assert.equal(reportsPortStub.getClaimsBacklogReport.callCount, 1);
     assert.equal(responseStub.status.callCount, 1);
     assert.deepEqual(responseStub.status.firstCall.args, [500]);
     assert.equal(responseStub.render.callCount, 1);
