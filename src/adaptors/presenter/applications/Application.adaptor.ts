@@ -189,7 +189,7 @@ export class ApplicationAdaptor {
       return { historyRows: [], historyError: true };
     }
 
-    const { historyRows } = formatHistoryRows(historyViewResult.data.history);
+    const historyRows = formatHistoryRows(historyViewResult.data.history);
 
     return { historyRows, historyError: false };
   }
