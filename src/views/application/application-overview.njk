@@ -271,7 +271,7 @@
     {% set historyHtml %}
         {% if historyError %}
             <p class="govuk-body">{{ t('pages.applicationOverview.history.errorMessage') }}</p>
-        {% elif not hasHistory %}
+        {% elif historyRows.length === 0 %}
             <p class="govuk-body">{{ t('pages.applicationOverview.history.noHistory') }}</p>
         {% else %}
             {{ govukTable({

@@ -110,8 +110,10 @@ export class ApplicationAdaptor {
       overviewViewResult.data.application.proceeding.substantiveCostLimitation,
     );
 
-    const { historyRows, hasHistory, historyError } =
-      await this.#buildHistoryView(req, applicationId);
+    const { historyRows, historyError } = await this.#buildHistoryView(
+      req,
+      applicationId,
+    );
 
     res.render("application/application-overview", {
       application,
@@ -122,7 +124,6 @@ export class ApplicationAdaptor {
       statusTag,
       claims,
       historyRows,
-      hasHistory,
       historyError,
       backUrl: "/",
     });
@@ -184,7 +185,6 @@ export class ApplicationAdaptor {
     applicationId: string,
   ): Promise<{
     historyRows: Array<Array<{ text?: string; html?: string }>>;
-    hasHistory: boolean;
     historyError: boolean;
   }> {
     const { viewApplicationAdaptor, buildApplicationHistoryViewUseCase } = this;
@@ -204,14 +204,12 @@ export class ApplicationAdaptor {
           : undefined,
         req,
       );
-      return { historyRows: [], hasHistory: false, historyError: true };
+      return { historyRows: [], historyError: true };
     }
 
-    const { historyRows, hasHistory } = formatHistoryRows(
-      historyViewResult.data.history,
-    );
+    const { historyRows } = formatHistoryRows(historyViewResult.data.history);
 
-    return { historyRows, hasHistory, historyError: false };
+    return { historyRows, historyError: false };
   }
 
   async serveCoronersLetterDocument(

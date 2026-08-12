@@ -686,7 +686,6 @@ describe("Application adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.partialDeepStrictEqual(renderArgs[1], {
         historyRows: [],
-        hasHistory: false,
         historyError: false,
       });
     });
@@ -952,7 +951,6 @@ describe("Application adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.partialDeepStrictEqual(renderArgs[1], {
         historyRows: [],
-        hasHistory: false,
         historyError: true,
       });
     });

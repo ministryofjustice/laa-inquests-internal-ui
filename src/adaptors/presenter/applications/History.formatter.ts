@@ -85,12 +85,7 @@ function formatHistoryEventUpdate(
 
 export function formatHistoryRows(history: HistoryEvent[]): {
   historyRows: Array<Array<{ text?: string; html?: string }>>;
-  hasHistory: boolean;
 } {
-  if (history.length === 0) {
-    return { historyRows: [], hasHistory: false };
-  }
-
   const historyRows = history.map((event) => {
     const timestamp = formatDateTime(event.timestamp);
     const actor = escapeHtml(event.actor);
@@ -102,5 +97,5 @@ export function formatHistoryRows(history: HistoryEvent[]): {
     return [{ text: timestamp }, { text: actor }, { html: update }];
   });
 
-  return { historyRows, hasHistory: true };
+  return { historyRows };
 }
