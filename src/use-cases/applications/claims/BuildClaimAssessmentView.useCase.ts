@@ -2,6 +2,7 @@ import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
   CLAIM_TYPES,
+  PLACEHOLDER_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
@@ -43,8 +44,6 @@ export interface ClaimAssessmentViewData {
   };
   supportingEvidence: ClaimAssessmentEvidenceRow[];
 }
-
-const PLACEHOLDER_VALUE = "-";
 
 export class BuildClaimAssessmentViewUseCase {
   async execute(

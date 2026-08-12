@@ -56,3 +56,5 @@ export enum CLAIM_DECISION_STATUSES {
 }
 
 export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];
+
+export const PLACEHOLDER_VALUE = "-";
