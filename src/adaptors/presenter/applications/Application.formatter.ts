@@ -18,15 +18,10 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { formatCurrency } from "#src/utils/formatter.js";
 
-const {
-  pages: {
-    applicationOverview: {
-      people: {
-        provider: { fallbackFirmName: PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE },
-      },
-    },
-  },
-} = en;
+/* eslint-disable @typescript-eslint/prefer-destructuring -- deeply nested constant */
+const PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE =
+  en.pages.applicationOverview.people.provider.fallbackFirmName;
+/* eslint-enable @typescript-eslint/prefer-destructuring */
 
 export function mapCertificateTypeForDisplay(certificateType: string): string {
   return (
