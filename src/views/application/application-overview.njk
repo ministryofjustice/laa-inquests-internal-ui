@@ -266,6 +266,8 @@
                     rows: assessedRows
                 }) }}
             {% endif %}
+        {% endif %}
+    {% endset %}
     {% set historyHtml %}
         {% if hasHistory %}
             {{ govukTable({
