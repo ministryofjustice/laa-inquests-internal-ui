@@ -35,10 +35,10 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data.history, mockHistory);
     assert.equal(applicationPortStub.getApplicationHistory.callCount, 1);
-    assert.deepEqual(applicationPortStub.getApplicationHistory.getCall(0).args, [
-      "123",
-      "access-token-123",
-    ]);
+    assert.deepEqual(
+      applicationPortStub.getApplicationHistory.getCall(0).args,
+      ["123", "access-token-123"],
+    );
   });
 
   it("returns SUCCESS with empty history array when no history exists", async () => {
@@ -66,8 +66,8 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     assert.equal(result.status, "TECHNICAL_FAILURE");
     assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE);
     assert.equal(
-    result.message,
-    "Cannot build application history view without an applicationId",
+      result.message,
+      "Cannot build application history view without an applicationId",
     );
     assert.equal(applicationPortStub.getApplicationHistory.callCount, 0);
   });

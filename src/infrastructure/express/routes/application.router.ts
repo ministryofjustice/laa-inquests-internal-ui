@@ -1,11 +1,13 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
+import type { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 
 function createApplicationRouter(
   applicationRouter: Router,
   applicationDisplayAdaptor: ApplicationAdaptor,
   claimAssessmentAdaptor: ClaimAssessmentAdaptor,
+  certificateDisplayAdaptor: CertificateAdaptor,
 ): Router {
   applicationRouter.get(
     "/:applicationId/overview",
@@ -53,7 +55,7 @@ function createApplicationRouter(
       } = req;
       const applicationIdParam: string = applicationId as string;
       try {
-        await applicationDisplayAdaptor.renderCertificatePage(
+        await certificateDisplayAdaptor.renderCertificatePage(
           req,
           res,
           applicationIdParam,
