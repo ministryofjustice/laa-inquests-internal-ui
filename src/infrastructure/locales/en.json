@@ -119,10 +119,6 @@
         "validationError": "Select the claim decision"
       }
     },
-    "claimAssessmentConfirmation": {
-      "heading": "Claim decision confirmation placeholder",
-      "body": "This page is a placeholder and does not call the API."
-    },
     "decision": {
       "success": {
         "header": "Application for Inquest legal aid assessed complete",
