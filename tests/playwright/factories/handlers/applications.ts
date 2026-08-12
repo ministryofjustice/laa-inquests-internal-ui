@@ -305,6 +305,12 @@ const claimDetail = {
   },
 };
 
+const claimDetailWithoutEvidence = {
+  ...claimDetail,
+  claimId: 11,
+  claimEvidence: [],
+};
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -391,6 +397,10 @@ export const applicationHandlers = [
     ({ params }) => {
       if (params.id === "5" && params.claimId === "10") {
         return HttpResponse.json(claimDetail);
+      }
+
+      if (params.id === "5" && params.claimId === "11") {
+        return HttpResponse.json(claimDetailWithoutEvidence);
       }
 
       return new HttpResponse(null, { status: 404 });

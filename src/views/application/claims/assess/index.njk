@@ -40,19 +40,6 @@
   ]) %}
 {% endfor %}
 
-{% if not supportingEvidenceRows.length %}
-  {% set supportingEvidenceRows = [
-    {
-      key: {
-        text: '-'
-      },
-      value: {
-        text: '-'
-      }
-    }
-  ] %}
-{% endif %}
-
 <form data-testid="assess-claim" method="post" action="/applications/{{ applicationId }}/claims/{{ claimId }}">
   <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
@@ -151,14 +138,16 @@
     iconFallbackText: t('common.warning')
   }) }}
 
-  {{ govukSummaryList({
-    card: {
-      title: {
-        text: t('pages.claimAssessment.supportingEvidence.otherEvidence')
-      }
-    },
-    rows: supportingEvidenceRows
-  }) }}
+  {% if supportingEvidenceRows.length %}
+    {{ govukSummaryList({
+        card: {
+          title: {
+            text: t('pages.claimAssessment.supportingEvidence.otherEvidence')
+          }
+        },
+        rows: supportingEvidenceRows
+      }) }}
+  {% endif %}
 
   {{ govukRadios({
     idPrefix: 'assess-claim',
