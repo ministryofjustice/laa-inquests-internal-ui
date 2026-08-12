@@ -2,12 +2,12 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildApplicationClaimsViewUseCase", () => {
   const useCase = new BuildApplicationClaimsViewUseCase();
 
-  const toBeAssessedClaim: Claim = {
+  const toBeAssessedClaim: ClaimSummary = {
     claimId: 10,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-10T13:37:56.629563",
@@ -19,7 +19,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     claimDecisionStatus: null,
   };
 
-  const assessedClaim: Claim = {
+  const assessedClaim: ClaimSummary = {
     claimId: 20,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-07-01T09:00:00.000000",
@@ -54,12 +54,12 @@ describe("BuildApplicationClaimsViewUseCase", () => {
   });
 
   it("orders each claim list by submission date descending", async () => {
-    const olderClaim: Claim = {
+    const olderClaim: ClaimSummary = {
       ...assessedClaim,
       claimId: 30,
       submissionDate: "2026-05-01T09:00:00.000000",
     };
-    const newerClaim: Claim = {
+    const newerClaim: ClaimSummary = {
       ...assessedClaim,
       claimId: 40,
       submissionDate: "2026-09-15T09:00:00.000000",

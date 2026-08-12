@@ -2,7 +2,10 @@ import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
 import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/ClaimsAPI.adaptor.js";
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type {
+  ClaimDetail,
+  ClaimSummary,
+} from "#src/adaptors/models/claim.types.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
 
@@ -10,7 +13,7 @@ afterEach(() => {
   axiosGetStub.reset();
 });
 
-const expectedClaims: Claim[] = [
+const expectedClaims: ClaimSummary[] = [
   {
     claimId: 1,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -24,7 +27,7 @@ const expectedClaims: Claim[] = [
   },
 ];
 
-const expectedClaimDetail: Claim = {
+const expectedClaimDetail: ClaimDetail = {
   claimId: 10,
   claimTypeId: "PAYMENT_ON_ACCOUNT",
   submissionDate: "2026-08-11T12:52:29.677Z",

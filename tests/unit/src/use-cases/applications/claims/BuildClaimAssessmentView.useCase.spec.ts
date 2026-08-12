@@ -3,12 +3,12 @@ import { stubInterface } from "ts-sinon";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildClaimAssessmentViewUseCase", () => {
   const useCase = new BuildClaimAssessmentViewUseCase();
 
-  const baseClaim: Claim = {
+  const baseClaim: ClaimDetail = {
     claimId: 10,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-11T12:52:29.677Z",

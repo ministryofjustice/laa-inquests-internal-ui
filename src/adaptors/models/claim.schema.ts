@@ -10,7 +10,7 @@ const ClaimDecisionSchema = z.object({
   decisionReasons: z.array(z.string()).optional().default([]),
 });
 
-export const ClaimSchema = z.object({
+const BaseClaimSchema = z.object({
   claimId: z.number(),
   claimTypeId: z.string(),
   submissionDate: z.string(),
@@ -20,9 +20,14 @@ export const ClaimSchema = z.object({
   poaTypeId: z.string().optional().nullable(),
   statusId: z.string().optional().nullable(),
   claimDecisionStatus: z.string().optional().nullable(),
+});
+
+export const ClaimSummarySchema = BaseClaimSchema;
+
+export const ClaimDetailSchema = BaseClaimSchema.extend({
   substantiveCostLimitation: z.number().optional().nullable(),
   claimEvidence: z.array(ClaimEvidenceSchema).optional(),
   claimDecision: ClaimDecisionSchema.optional().nullable(),
 });
 
-export const ClaimsSchema = z.array(ClaimSchema);
+export const ClaimSummariesSchema = z.array(ClaimSummarySchema);

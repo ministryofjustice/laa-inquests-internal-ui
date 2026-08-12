@@ -1,4 +1,4 @@
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
   CLAIM_TYPES,
@@ -134,7 +134,7 @@ function formatAmount(value: string | number | null | undefined): string {
   return formatCurrency(numericValue);
 }
 
-function getPaymentAmountRaw(claim: Claim): string | null {
+function getPaymentAmountRaw(claim: ClaimDetail): string | null {
   if (
     claim.totalProfitCostVatZero !== null &&
     claim.totalProfitCostVatZero !== undefined &&
@@ -154,7 +154,9 @@ function getPaymentAmountRaw(claim: Claim): string | null {
   return null;
 }
 
-function mapSupportingEvidence(claim: Claim): ClaimAssessmentEvidenceRow[] {
+function mapSupportingEvidence(
+  claim: ClaimDetail,
+): ClaimAssessmentEvidenceRow[] {
   if (claim.claimEvidence === undefined || claim.claimEvidence.length === 0) {
     return [];
   }
