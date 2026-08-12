@@ -1,4 +1,5 @@
 import type { z } from "zod";
-import type { ClaimSchema } from "./claim.schema.js";
+import type { ClaimDetailSchema, ClaimSummarySchema } from "./claim.schema.js";
 
-export type Claim = z.infer<typeof ClaimSchema>;
+export type ClaimSummary = z.infer<typeof ClaimSummarySchema>;
+export type ClaimDetail = z.infer<typeof ClaimDetailSchema>;

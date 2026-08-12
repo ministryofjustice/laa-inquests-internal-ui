@@ -3,7 +3,7 @@ import type {
   Application,
   Proceeding,
 } from "#src/adaptors/models/application.types.js";
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
@@ -478,7 +478,7 @@ interface ClaimsViewModel {
   assessed?: ClaimRow[];
 }
 
-function mapClaimRow(claim: Claim, applicationId: string): ClaimRow {
+function mapClaimRow(claim: ClaimSummary, applicationId: string): ClaimRow {
   return {
     date: formatDate(claim.submissionDate),
     total: formatCurrency(getClaimCost(claim)),

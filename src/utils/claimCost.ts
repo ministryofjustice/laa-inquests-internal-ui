@@ -1,4 +1,4 @@
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 
 function parseCost(value: string | null | undefined): number | undefined {
   if (value === null || value === undefined || value.trim() === "") {
@@ -18,7 +18,7 @@ function parseCost(value: string | null | undefined): number | undefined {
  * the billed amount. Gross therefore takes precedence, falling back to the
  * vat zero total, and finally to 0 when neither is present.
  */
-export function getClaimCost(claim: Claim): number {
+export function getClaimCost(claim: ClaimSummary): number {
   const gross = parseCost(claim.totalProfitCostGross);
   if (gross !== undefined) {
     return gross;

@@ -1,0 +1,180 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('common.errorSummaryTitle'),
+    errorList: [
+      { text: errorSummaries.assessClaim.text, href: '#assess-claim' } if errorSummaries.assessClaim
+    ]
+  }) }}
+{% endif %}
+
+{% set supportingEvidenceRows = [] %}
+{% for evidence in supportingEvidence %}
+  {% set supportingEvidenceRows = supportingEvidenceRows.concat([
+    {
+      key: {
+        text: evidence.fileName
+      },
+      actions: {
+        items: [
+          {
+            href: evidence.viewHref,
+            text: t('pages.claimAssessment.supportingEvidence.view'),
+            visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.view') + ' ' + evidence.fileName
+          },
+          {
+            href: evidence.downloadHref,
+            text: t('pages.claimAssessment.supportingEvidence.download'),
+            visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.download') + ' ' + evidence.fileName
+          }
+        ]
+      }
+    }
+  ]) %}
+{% endfor %}
+
+<form data-testid="assess-claim" method="post" action="/applications/{{ applicationId }}/claims/{{ claimId }}">
+  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+  <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.heading') }}</h1>
+  <h2 class="govuk-heading-m">{{ laaReference }}</h2>
+  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
+
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.overview.title')
+      }
+    },
+    rows: [
+      {
+        key: {
+          text: t('pages.claimAssessment.overview.paymentType')
+        },
+        value: {
+          text: overview.paymentType
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.overview.paymentAmount')
+        },
+        value: {
+          text: overview.paymentAmount
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.overview.substantiveCertificate')
+        },
+        value: {
+          text: overview.substantiveCertificate
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.overview.totalRemaining')
+        },
+        value: {
+          text: overview.totalRemaining
+        }
+      }
+    ]
+  }) }}
+
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.details.title')
+      }
+    },
+    rows: [
+      {
+        key: {
+          text: t('pages.claimAssessment.details.instructedCounsel')
+        },
+        value: {
+          text: details.instructedCounsel
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.details.lastWorkingDate')
+        },
+        value: {
+          text: details.lastWorkingDate
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.details.outcomeOfInquest')
+        },
+        value: {
+          text: details.outcomeOfInquest
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.details.alternateFunding')
+        },
+        value: {
+          text: details.alternateFundingProgressed
+        }
+      }
+    ]
+  }) }}
+
+  <h3 class="govuk-heading-m">{{ t('pages.claimAssessment.supportingEvidence.heading') }}</h3>
+
+  {{ govukWarningText({
+    text: t('pages.claimAssessment.supportingEvidence.warning'),
+    iconFallbackText: t('common.warning')
+  }) }}
+
+  {% if supportingEvidenceRows.length %}
+    {{ govukSummaryList({
+        card: {
+          title: {
+            text: t('pages.claimAssessment.supportingEvidence.otherEvidence')
+          }
+        },
+        rows: supportingEvidenceRows
+      }) }}
+  {% endif %}
+
+  {{ govukRadios({
+    idPrefix: 'assess-claim',
+    name: 'assessClaim',
+    value: assessClaim,
+    fieldset: {
+      legend: {
+        text: t('pages.claimAssessment.radio.label'),
+        isPageHeading: false,
+        classes: 'govuk-fieldset__legend--l'
+      }
+    },
+    errorMessage: errorSummaries.assessClaim,
+    items: [
+      {
+        value: 'pay in full',
+        text: t('pages.claimAssessment.radio.payInFull')
+      },
+      {
+        value: 'reject',
+        text: t('pages.claimAssessment.radio.reject')
+      }
+    ]
+  }) }}
+
+  {{ govukButton({
+    text: t('pages.claimAssessment.continue')
+  }) }}
+</form>
+{% endblock pageContent %}

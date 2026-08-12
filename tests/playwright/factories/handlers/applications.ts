@@ -265,6 +265,17 @@ const toBeAssessedClaims = [
     statusId: "SUBMITTED",
     claimDecisionStatus: null,
   },
+  {
+    claimId: 12,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-08-11T13:37:56.629563",
+    totalProfitCostNet: null,
+    totalProfitCostGross: null,
+    totalProfitCostVatZero: "800.00",
+    poaTypeId: "PROFIT_COST",
+    statusId: "SUBMITTED",
+    claimDecisionStatus: null,
+  },
 ];
 
 const assessedClaims = [
@@ -280,6 +291,44 @@ const assessedClaims = [
     claimDecisionStatus: "PAY_IN_FULL",
   },
 ];
+
+const claimDetail = {
+  claimId: 10,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-08-10T13:37:56.629563",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
+  totalProfitCostVatZero: null,
+  poaTypeId: "PROFIT_COST",
+  substantiveCostLimitation: 10000,
+  claimEvidence: [
+    {
+      fileName: "claim-evidence-1.pdf",
+    },
+    {
+      fileName: "claim-evidence-2.pdf",
+    },
+  ],
+  claimDecision: {
+    claimDecisionId: 123,
+    decision: "REJECT",
+    decisionReasons: [],
+  },
+};
+
+const claimDetailWithoutEvidence = {
+  ...claimDetail,
+  claimId: 11,
+  claimEvidence: [],
+};
+
+const claimDetailVatZeroOnly = {
+  ...claimDetail,
+  claimId: 12,
+  totalProfitCostNet: null,
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: "800.00",
+};
 
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
@@ -363,6 +412,25 @@ export const applicationHandlers = [
   ),
 
   http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId`,
+    ({ params }) => {
+      if (params.id === "5" && params.claimId === "10") {
+        return HttpResponse.json(claimDetail);
+      }
+
+      if (params.id === "5" && params.claimId === "11") {
+        return HttpResponse.json(claimDetailWithoutEvidence);
+      }
+
+      if (params.id === "5" && params.claimId === "12") {
+        return HttpResponse.json(claimDetailVatZeroOnly);
+      }
+
+      return new HttpResponse(null, { status: 404 });
+    },
+  ),
+
+  http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/reports/applications/backlog`,
     () => {
       const backlogCsv = Buffer.from(
@@ -395,6 +463,7 @@ export const applicationHandlers = [
       },
     });
   }),
+
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims`,
     ({ params, request }) => {

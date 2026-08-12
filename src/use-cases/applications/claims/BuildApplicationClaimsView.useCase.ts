@@ -1,4 +1,4 @@
-import type { Claim } from "#src/adaptors/models/claim.types.js";
+import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import {
   TECHNICAL_FAILURE_REASONS,
@@ -15,8 +15,8 @@ interface BuildApplicationClaimsViewInput {
 }
 
 interface BuildApplicationClaimsViewData {
-  toBeAssessedClaims: Claim[];
-  assessedClaims: Claim[];
+  toBeAssessedClaims: ClaimSummary[];
+  assessedClaims: ClaimSummary[];
   hasClaims: boolean;
   substantiveCertificate: number;
   totalRemaining: number;
@@ -80,7 +80,7 @@ export class BuildApplicationClaimsViewUseCase {
   }
 }
 
-function sortByDateDescending(claims: Claim[]): void {
+function sortByDateDescending(claims: ClaimSummary[]): void {
   claims.sort(
     (first, second) =>
       new Date(second.submissionDate).getTime() -

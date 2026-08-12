@@ -32,7 +32,6 @@ deploy_branch() {
                 --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                 --set env.SERVICE_NAME="$SERVICE_NAME" \
-                --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                 --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                 --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                 --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
@@ -68,7 +67,6 @@ deploy_main() {
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
-                          --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                           --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \

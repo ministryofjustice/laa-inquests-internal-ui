@@ -93,6 +93,38 @@
     "applicationCertificate": {
       "title": "Civil legal aid certificate"
     },
+    "claimAssessment": {
+      "heading": "Assess a claim and make a decision",
+      "claimStatus": "Claim status",
+      "continue": "Continue",
+      "overview": {
+        "title": "Overview of the claim",
+        "paymentType": "Payment type",
+        "paymentAmount": "Payment amount",
+        "substantiveCertificate": "Substantive certificate",
+        "totalRemaining": "Total remaining"
+      },
+      "details": {
+        "title": "Details of the claim",
+        "instructedCounsel": "Instructed counsel on the case",
+        "lastWorkingDate": "Last working date",
+        "outcomeOfInquest": "Outcome of inquest",
+        "alternateFunding": "Has the matter progressed to alternate funding?"
+      },
+      "supportingEvidence": {
+        "heading": "Supporting evidence",
+        "warning": "Some pieces of evidence cannot be viewed in browser and may need to be downloaded",
+        "otherEvidence": "Other evidence",
+        "view": "View",
+        "download": "Download"
+      },
+      "radio": {
+        "label": "What is the claim decision?",
+        "payInFull": "Pay in full",
+        "reject": "Reject",
+        "validationError": "Select the claim decision"
+      }
+    },
     "decision": {
       "success": {
         "header": "Application for Inquest legal aid assessed complete",
