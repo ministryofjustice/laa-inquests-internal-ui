@@ -14,8 +14,8 @@ import {
 
 const LIVE_STATUS = "LIVE";
 
-const axiosGetStub = sinon.stub(axios, "get");
-const axiosPatchStub = sinon.stub(axios, "patch");
+const axiosGetStub = sinon.stub();
+const axiosPatchStub = sinon.stub();
 
 afterEach(() => {
   axiosGetStub.reset();

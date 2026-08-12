@@ -35,6 +35,10 @@ test.describe.serial("Refuse application journey", () => {
     sharedPage = await sharedContext.newPage();
   });
 
+  test.afterEach(async ({ checkPageAccessibility }) => {
+    await checkPageAccessibility(sharedPage);
+  });
+
   test.afterAll(async () => {
     await sharedContext.close();
   });
@@ -315,14 +319,12 @@ test.describe.serial("Refuse application journey", () => {
     );
   });
 
-  test("caseworker views overall application with updated and no view certificate link", async ({
-    page,
-  }) => {
+  test("caseworker views overall application with updated and no view certificate link", async () => {
     const button = await sharedPage.getByRole("button", {
       name: successLocale.applicationOverviewReturnButton,
     });
     await button.click();
-    await page.waitForLoadState("domcontentloaded");
+    await sharedPage.waitForLoadState("domcontentloaded");
     await expect(sharedPage).toHaveURL(overviewPage);
     const viewCertificateLink = await sharedPage.getByRole("link", {
       name: overviewLocale.details.viewCertificate,

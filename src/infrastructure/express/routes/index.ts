@@ -29,6 +29,9 @@ import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/cla
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
+import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
+import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
+import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -53,6 +56,7 @@ const viewApplicationAdaptor = new ApplicationAPIAdaptor(
   axios,
   config.INQUESTS_API_URL,
 );
+const reportsApiAdaptor = new ReportsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const claimsAdaptor = new ClaimsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const buildApplicationOverviewViewUseCase =
   new BuildApplicationOverviewViewUseCase();
@@ -87,6 +91,7 @@ const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
+const reportsAdaptor = new ReportsAdaptor(reportsApiAdaptor);
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
@@ -141,6 +146,12 @@ router.get("/error", (req: Request, res: Response): void => {
 });
 
 router.use("/auth", createAuthRouter(express.Router(), authAdaptor));
+
+router.use(
+  "/reports",
+  requireAuth,
+  createReportsRouter(express.Router(), reportsAdaptor),
+);
 
 router.use("/applications", requireAuth, [
   createApplicationRouter(
