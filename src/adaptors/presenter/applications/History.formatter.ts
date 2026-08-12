@@ -1,7 +1,7 @@
 import { escapeHtml } from "#src/utils/addressFormatter.js";
 import { HISTORY_EVENT_REFERENCE } from "#src/infrastructure/locales/constants.js";
 import { formatDateTime } from "#src/utils/dateFormatter.js";
-import type { HistoryEventList } from "#src/adaptors/models/application.types.js";
+import type { HistoryEvent } from "#src/adaptors/models/application.types.js";
 
 /**
  * Type definition for event formatter functions.
@@ -83,7 +83,7 @@ function formatHistoryEventUpdate(
   return `<strong>${historyEventHeading}</strong>`;
 }
 
-export function formatHistoryRows(history: HistoryEventList): {
+export function formatHistoryRows(history: HistoryEvent[]): {
   historyRows: Array<Array<{ text?: string; html?: string }>>;
   hasHistory: boolean;
 } {

@@ -1,4 +1,4 @@
-import type { HistoryEventList } from "#src/adaptors/models/application.types.js";
+import type { HistoryEvent } from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import {
   TECHNICAL_FAILURE_REASONS,
@@ -12,7 +12,7 @@ interface BuildApplicationHistoryViewInput {
 }
 
 interface BuildApplicationHistoryViewData {
-  history: HistoryEventList;
+  history: HistoryEvent[];
 }
 
 export class BuildApplicationHistoryViewUseCase {

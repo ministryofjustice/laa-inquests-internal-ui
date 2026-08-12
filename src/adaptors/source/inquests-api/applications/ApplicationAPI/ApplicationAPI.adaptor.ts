@@ -3,7 +3,7 @@ import type {
   Application,
   ApplicationSummary,
   Certificate,
-  HistoryEventList,
+  HistoryEvent,
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
@@ -192,8 +192,8 @@ export class ApplicationAPIAdaptor {
   async getApplicationHistory(
     applicationId: string,
     accessToken: string | undefined,
-  ): Promise<HistoryEventList> {
-    const { data }: AxiosResponse<HistoryEventList> = await getInquestsApi({
+  ): Promise<HistoryEvent[]> {
+    const { data }: AxiosResponse<HistoryEvent[]> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/history`,
