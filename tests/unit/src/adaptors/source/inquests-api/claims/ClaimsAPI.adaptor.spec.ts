@@ -27,6 +27,20 @@ const expectedClaims: ClaimSummary[] = [
   },
 ];
 
+const expectedNoVatClaims: ClaimSummary[] = [
+  {
+    claimId: 2,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-08-11T13:37:56.629563",
+    totalProfitCostNet: null,
+    totalProfitCostGross: null,
+    totalProfitCostVatZero: "800.00",
+    poaTypeId: "PROFIT_COST",
+    statusId: "SUBMITTED",
+    claimDecisionStatus: null,
+  },
+];
+
 const expectedClaimDetail: ClaimDetail = {
   claimId: 10,
   claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -86,6 +100,17 @@ describe("Test Claims API Adaptor", () => {
     const claims = await adaptor.getClaims("123", true, "access-token-123");
 
     assert.deepEqual(claims, expectedClaims);
+  });
+
+  it("returns parsed claim data when only no-VAT amount is provided", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({ data: expectedNoVatClaims });
+
+    const claims = await adaptor.getClaims("123", false, "access-token-123");
+
+    assert.deepEqual(claims, expectedNoVatClaims);
   });
 
   it("throws when the response fails schema validation", async () => {

@@ -265,6 +265,17 @@ const toBeAssessedClaims = [
     statusId: "SUBMITTED",
     claimDecisionStatus: null,
   },
+  {
+    claimId: 12,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-08-11T13:37:56.629563",
+    totalProfitCostNet: null,
+    totalProfitCostGross: null,
+    totalProfitCostVatZero: "800.00",
+    poaTypeId: "PROFIT_COST",
+    statusId: "SUBMITTED",
+    claimDecisionStatus: null,
+  },
 ];
 
 const assessedClaims = [
@@ -309,6 +320,14 @@ const claimDetailWithoutEvidence = {
   ...claimDetail,
   claimId: 11,
   claimEvidence: [],
+};
+
+const claimDetailVatZeroOnly = {
+  ...claimDetail,
+  claimId: 12,
+  totalProfitCostNet: null,
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: "800.00",
 };
 
 export const applicationHandlers = [
@@ -401,6 +420,10 @@ export const applicationHandlers = [
 
       if (params.id === "5" && params.claimId === "11") {
         return HttpResponse.json(claimDetailWithoutEvidence);
+      }
+
+      if (params.id === "5" && params.claimId === "12") {
+        return HttpResponse.json(claimDetailVatZeroOnly);
       }
 
       return new HttpResponse(null, { status: 404 });

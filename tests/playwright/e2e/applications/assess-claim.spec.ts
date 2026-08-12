@@ -3,14 +3,43 @@ import { expect, test } from "../../fixtures/index.js";
 const applicationId = "5";
 const claimId = "10";
 const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
+const applicationOverviewPage = `/applications/${applicationId}/overview`;
 const claimWithoutEvidenceId = "11";
 const assessClaimNoEvidencePage = `/applications/${applicationId}/claims/${claimWithoutEvidenceId}`;
+const claimVatZeroOnlyId = "12";
+const assessClaimVatZeroOnlyPage = `/applications/${applicationId}/claims/${claimVatZeroOnlyId}`;
 
 test.describe("Assess claim page", () => {
-  test("renders the claim assessment page with summary cards and evidence", async ({
+  test("opens a specific claim from the claims tab and shows that claim's data", async ({
     page,
   }) => {
-    await page.goto(assessClaimPage);
+    await page.goto(applicationOverviewPage);
+    await page.getByRole("tab", { name: "Claims" }).click();
+
+    const claimsPanel = page.locator("#claims");
+    await expect(
+      claimsPanel.getByRole("heading", {
+        level: 2,
+        name: "Claims to be assessed",
+      }),
+    ).toBeVisible();
+    await expect(
+      claimsPanel.getByRole("heading", {
+        level: 2,
+        name: "Assessed claims",
+      }),
+    ).toBeVisible();
+    await expect(claimsPanel.getByText("£1,200")).toBeVisible();
+    await expect(claimsPanel.getByText("£2,000")).toBeVisible();
+
+    const claimToAssessRow = claimsPanel.locator("tbody tr", {
+      has: page.locator(
+        `a[href="/applications/${applicationId}/claims/${claimId}"]`,
+      ),
+    });
+    await claimToAssessRow.getByRole("link", { name: "See details" }).click();
+
+    await expect(page).toHaveURL(assessClaimPage);
 
     await expect(
       page.getByRole("heading", {
@@ -34,6 +63,7 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByText("Payment on account")).toBeVisible();
     await expect(pageForm.getByText("Payment amount")).toBeVisible();
     await expect(pageForm.getByText("£1,200")).toBeVisible();
+    await expect(pageForm.getByText("£2,000")).toHaveCount(0);
     await expect(pageForm.getByText("Substantive certificate")).toBeVisible();
     await expect(pageForm.getByText("Total remaining")).toBeVisible();
     await expect(pageForm.getByText("£10,000")).toHaveCount(2);
@@ -106,5 +136,38 @@ test.describe("Assess claim page", () => {
       pageForm.getByRole("heading", { level: 2, name: "Other evidence" }),
     ).toHaveCount(0);
     await expect(pageForm.locator(".govuk-summary-list__key")).toHaveCount(8);
+  });
+
+  test("shows vat-zero payment amount when gross and net are not provided", async ({
+    page,
+  }) => {
+    await page.goto(applicationOverviewPage);
+    await page.getByRole("tab", { name: "Claims" }).click();
+
+    const claimsPanel = page.locator("#claims");
+    const vatZeroClaimTable = claimsPanel.locator("table", {
+      has: page.locator(
+        `a[href="/applications/${applicationId}/claims/${claimVatZeroOnlyId}"]`,
+      ),
+    });
+    const vatZeroClaimRow = vatZeroClaimTable.locator("tbody tr", {
+      has: page.locator(
+        `a[href="/applications/${applicationId}/claims/${claimVatZeroOnlyId}"]`,
+      ),
+    });
+
+    await expect(vatZeroClaimRow).toContainText("£800");
+    await vatZeroClaimRow.getByRole("link", { name: "See details" }).click();
+
+    await expect(page).toHaveURL(assessClaimVatZeroOnlyPage);
+
+    const pageForm = page.getByTestId("assess-claim");
+    await expect(pageForm).toHaveAttribute(
+      "action",
+      assessClaimVatZeroOnlyPage,
+    );
+    await expect(pageForm.getByText("Payment amount")).toBeVisible();
+    await expect(pageForm.getByText("£800")).toBeVisible();
+    await expect(pageForm.getByText("£1,200")).toHaveCount(0);
   });
 });

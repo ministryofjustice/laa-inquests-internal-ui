@@ -51,7 +51,9 @@ test.describe("Claims tab - with claims", () => {
     await expect(headers.nth(3)).toHaveText("Type of claim");
     await expect(headers.nth(4)).toHaveText("View");
 
-    const row = table.locator("tbody tr").first();
+    const row = table.locator("tbody tr", {
+      has: page.locator(`a[href="/applications/${applicationId}/claims/10"]`),
+    });
     await expect(row).toContainText("10 August 2026");
     await expect(row).toContainText("£1,200");
     await expect(row).toContainText("Submitted");
