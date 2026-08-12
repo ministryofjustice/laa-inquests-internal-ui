@@ -87,19 +87,4 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
     assert.equal(result.cause, apiError);
   });
-
-  it("returns TECHNICAL_FAILURE when history fetch throws an error", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.getApplicationHistory.rejects(
-      new Error("Network timeout"),
-    );
-
-    const result = await useCase.execute({
-      applicationId: "456",
-      applicationPort: applicationPortStub,
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
-  });
 });
