@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import type {
   Application,
-  HistoryEventList,
   Proceeding,
 } from "#src/adaptors/models/application.types.js";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
@@ -13,7 +12,7 @@ import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/c
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
-import { formatDate, formatDateTime } from "#src/utils/dateFormatter.js";
+import { formatDate } from "#src/utils/dateFormatter.js";
 import { getClaimCost } from "#src/utils/claimCost.js";
 import {
   escapeHtml,
@@ -29,7 +28,7 @@ import {
   LEVELS_OF_SERVICE,
   SCOPE_OF_LIMITATIONS,
 } from "#src/infrastructure/locales/constants.js";
-import { HISTORY_EVENT_FORMATTERS } from "#src/adaptors/presenter/applications/historyEventFormatters.js";
+import { formatHistoryRows } from "#src/adaptors/presenter/applications/historyEventFormatters.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const {
@@ -506,39 +505,4 @@ function mapClaimStatus(status: string | null | undefined): string {
   }
 
   return (CLAIM_STATUSES as Record<string, string>)[status] ?? status;
-}
-function formatHistoryEventUpdate(
-  eventReference: string,
-  eventData: Record<string, unknown> | null | undefined,
-): string {
-  // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Dynamic property access requires bracket notation
-  const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
-
-  const historyEventHeading = formatter
-    ? formatter(eventData)
-    : escapeHtml(eventReference);
-
-  return `<strong>${historyEventHeading}</strong>`;
-}
-
-function formatHistoryRows(history: HistoryEventList): {
-  historyRows: Array<Array<{ text?: string; html?: string }>>;
-  hasHistory: boolean;
-} {
-  if (history.length === 0) {
-    return { historyRows: [], hasHistory: false };
-  }
-
-  const historyRows = history.map((event) => {
-    const timestamp = formatDateTime(event.timestamp);
-    const actor = escapeHtml(event.actor);
-    const update = formatHistoryEventUpdate(
-      event.eventReference,
-      event.eventData,
-    );
-
-    return [{ text: timestamp }, { text: actor }, { html: update }];
-  });
-
-  return { historyRows, hasHistory: true };
 }

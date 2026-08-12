@@ -1,5 +1,7 @@
 import { escapeHtml } from "#src/utils/addressFormatter.js";
 import { HISTORY_EVENT_REFERENCE } from "#src/infrastructure/locales/constants.js";
+import { formatDateTime } from "#src/utils/dateFormatter.js";
+import type { HistoryEventList } from "#src/adaptors/models/application.types.js";
 
 /**
  * Type definition for event formatter functions.
@@ -65,4 +67,40 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
 
 function getEscapedString(value: unknown): string {
   return typeof value === "string" ? escapeHtml(value) : "";
+}
+
+function formatHistoryEventUpdate(
+  eventReference: string,
+  eventData: Record<string, unknown> | null | undefined,
+): string {
+  // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Dynamic property access requires bracket notation
+  const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
+
+  const historyEventHeading = formatter
+    ? formatter(eventData)
+    : escapeHtml(eventReference);
+
+  return `<strong>${historyEventHeading}</strong>`;
+}
+
+export function formatHistoryRows(history: HistoryEventList): {
+  historyRows: Array<Array<{ text?: string; html?: string }>>;
+  hasHistory: boolean;
+} {
+  if (history.length === 0) {
+    return { historyRows: [], hasHistory: false };
+  }
+
+  const historyRows = history.map((event) => {
+    const timestamp = formatDateTime(event.timestamp);
+    const actor = escapeHtml(event.actor);
+    const update = formatHistoryEventUpdate(
+      event.eventReference,
+      event.eventData,
+    );
+
+    return [{ text: timestamp }, { text: actor }, { html: update }];
+  });
+
+  return { historyRows, hasHistory: true };
 }
