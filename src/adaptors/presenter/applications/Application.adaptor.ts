@@ -18,7 +18,7 @@ import {
   CLAIM_STATUSES,
   CLAIM_TYPES,
 } from "#src/infrastructure/locales/constants.js";
-import { formatHistoryRows } from "#src/adaptors/presenter/applications/historyEventFormatters.js";
+import { formatHistoryRows } from "#src/adaptors/presenter/applications/History.formatter.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import {
   mapCertificateTypeForDisplay,
@@ -27,7 +27,7 @@ import {
   getHomeAddressDisplay,
   getCorrespondenceDisplay,
   mapScopeLimitationHeadingForDisplay,
-} from "#src/adaptors/presenter/applications/ApplicationFormatters.js";
+} from "#src/adaptors/presenter/applications/Application.formatter.js";
 
 const {
   pages: {

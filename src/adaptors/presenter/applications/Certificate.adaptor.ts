@@ -13,7 +13,7 @@ import {
   mapLevelOfServiceForDisplay,
   mapScopeLimitationHeadingForDisplay,
   mapCategoryOfLawForDisplay,
-} from "#src/adaptors/presenter/applications/ApplicationFormatters.js";
+} from "#src/adaptors/presenter/applications/Application.formatter.js";
 
 export class CertificateAdaptor {
   private readonly buildCertificateViewUseCase: BuildCertificateViewUseCase;
