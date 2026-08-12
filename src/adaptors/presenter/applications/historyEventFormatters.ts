@@ -23,12 +23,46 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
   {
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => "Application received",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002]: (eventData) => {
-      const decision = eventData?.meritsDecision;
-      const decisionText =
-        typeof decision === "string" ? escapeHtml(decision) : "";
-      return `Application ${decisionText}`;
+      const decision = getEscapedString(eventData?.meritsDecision);
+      return `Application ${decision}`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: () => "Certificate created",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: () =>
       "Interested parties updated",
+
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
+      const claimType = getEscapedString(eventData?.claimType);
+      return `${claimType} claim received`;
+    },
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
+      const claimType = getEscapedString(eventData?.claimType);
+      const decision = getEscapedString(eventData?.claimDecision);
+      return `${claimType} claim ${decision}`;
+    },
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData) => {
+      const claimReference = getEscapedString(eventData?.claimReference);
+      return `POA claim ${claimReference} auto-approved`;
+    },
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_004]: (eventData) => {
+      const claimReference = getEscapedString(eventData?.claimReference);
+      return `POA claim ${claimReference} auto-rejected`;
+    },
+
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_001]: () =>
+      "Application submission confirmation sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_002]: () =>
+      "Application granted email sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_003]: () =>
+      "Application granted letter sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_004]: () =>
+      "Application refused email sent",
+
+    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_001]: () =>
+      "Claim submission confirmation sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_002]: () =>
+      "Claim approved email sent",
   };
+
+function getEscapedString(value: unknown): string {
+  return typeof value === "string" ? escapeHtml(value) : "";
+}
