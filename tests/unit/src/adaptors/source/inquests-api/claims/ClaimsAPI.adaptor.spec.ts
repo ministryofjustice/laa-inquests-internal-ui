@@ -20,6 +20,7 @@ const expectedClaims: ClaimSummary[] = [
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "PAY_IN_FULL",
     claimDecisionStatus: "PAY_IN_FULL",
@@ -34,6 +35,7 @@ const expectedNoVatClaims: ClaimSummary[] = [
     totalProfitCostNet: null,
     totalProfitCostGross: null,
     totalProfitCostVatZero: "800.00",
+    totalFundsRemainingAfterClaim: "9200.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
     claimDecisionStatus: null,
@@ -47,6 +49,7 @@ const expectedClaimDetail: ClaimDetail = {
   totalProfitCostNet: "1000.00",
   totalProfitCostGross: "1200.00",
   totalProfitCostVatZero: null,
+  totalFundsRemainingAfterClaim: "8800.00",
   poaTypeId: "PROFIT_COST",
   statusId: "SUBMITTED",
   claimEvidence: [

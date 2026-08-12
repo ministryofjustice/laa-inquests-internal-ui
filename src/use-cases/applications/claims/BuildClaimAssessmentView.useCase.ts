@@ -85,7 +85,7 @@ export class BuildClaimAssessmentViewUseCase {
             paymentType: mapClaimType(claim.claimTypeId),
             paymentAmount: formatAmount(getPaymentAmountRaw(claim)),
             substantiveCertificate: formatAmount(substantiveCostLimitation),
-            totalRemaining: formatAmount(substantiveCostLimitation),
+            totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
           },
           details: {
             instructedCounsel: PLACEHOLDER_VALUE,

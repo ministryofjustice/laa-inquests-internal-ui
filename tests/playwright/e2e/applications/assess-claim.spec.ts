@@ -66,7 +66,8 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByText("£2,000")).toHaveCount(0);
     await expect(pageForm.getByText("Substantive certificate")).toBeVisible();
     await expect(pageForm.getByText("Total remaining")).toBeVisible();
-    await expect(pageForm.getByText("£10,000")).toHaveCount(2);
+    await expect(pageForm.getByText("£10,000")).toHaveCount(1);
+    await expect(pageForm.getByText("£8,800")).toBeVisible();
 
     await expect(pageForm.getByText("Details of the claim")).toBeVisible();
     await expect(
