@@ -7,7 +7,6 @@ import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overvie
 import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
-import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 describe("CertificateAdaptor", () => {
   let buildCertificateViewUseCaseStub: StubbedInstance<BuildCertificateViewUseCase>;
@@ -132,11 +131,6 @@ describe("CertificateAdaptor", () => {
     scopeLimitationHeading: "FINAL_HEARING",
     scopeLimitationDescription: "This is the scope description",
   };
-
-  before(() => {
-    // Initialize i18next for translation tests
-    initializeI18nextSync();
-  });
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();

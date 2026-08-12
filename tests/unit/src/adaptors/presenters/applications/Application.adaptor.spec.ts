@@ -13,7 +13,6 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
-import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 describe("Application adaptor", () => {
   let applicationAdaptor: ApplicationAdaptor;
@@ -141,11 +140,6 @@ describe("Application adaptor", () => {
     scopeLimitationHeading: "FINAL_HEARING",
     scopeLimitationDescription: "This is the scope description",
   };
-
-  before(() => {
-    // Initialize i18next for translation tests
-    initializeI18nextSync();
-  });
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
