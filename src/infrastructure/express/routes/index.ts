@@ -84,7 +84,8 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
 const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   viewApplicationAdaptor,
   claimsAdaptor,
-  buildClaimAssessmentViewUseCase);
+  buildClaimAssessmentViewUseCase,
+);
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,
 );
