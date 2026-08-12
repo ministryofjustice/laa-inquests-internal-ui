@@ -1,8 +1,4 @@
 import type { Request, Response } from "express";
-import type {
-  Application,
-  Proceeding,
-} from "#src/adaptors/models/application.types.js";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
@@ -14,30 +10,16 @@ import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { getClaimCost } from "#src/utils/claimCost.js";
 import {
-  APPLICATION_TYPES,
   CLAIM_STATUSES,
   CLAIM_TYPES,
 } from "#src/infrastructure/locales/constants.js";
 import { formatHistoryRows } from "#src/adaptors/presenter/applications/History.formatter.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import {
-  mapCertificateTypeForDisplay,
-  mapClientInvolvementTypeForDisplay,
-  mapLevelOfServiceForDisplay,
   getHomeAddressDisplay,
   getCorrespondenceDisplay,
-  mapScopeLimitationHeadingForDisplay,
+  mapApplication,
+  mapProceeding,
 } from "#src/adaptors/presenter/applications/Application.formatter.js";
-
-const {
-  pages: {
-    applicationOverview: {
-      people: {
-        provider: { fallbackFirmName: PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE },
-      },
-    },
-  },
-} = en;
 
 export class ApplicationAdaptor {
   viewApplicationAdaptor: ApplicationPort;
@@ -249,56 +231,6 @@ export class ApplicationAdaptor {
       });
     }
   }
-}
-
-function mapApplication(application: Application): Application {
-  const applicationType =
-    (APPLICATION_TYPES as Record<string, string>)[
-      application.applicationType
-    ] ?? application.applicationType;
-
-  const provider = application.provider
-    ? {
-        ...application.provider,
-        firmName: mapProviderFirmName(application.provider.firmName),
-      }
-    : null;
-
-  return {
-    ...application,
-    applicationType,
-    provider,
-  };
-}
-
-function mapProviderFirmName(firmName: string | null): string {
-  if (!firmName || firmName.trim().length === 0) {
-    return PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE;
-  }
-
-  return firmName;
-}
-
-function mapProceeding(proceeding: Proceeding): Omit<
-  Proceeding,
-  "substantiveCostLimitation"
-> & {
-  substantiveCostLimitation: string;
-} {
-  return {
-    ...proceeding,
-    certificateType: mapCertificateTypeForDisplay(proceeding.certificateType),
-    clientInvolvementType: mapClientInvolvementTypeForDisplay(
-      proceeding.clientInvolvementType,
-    ),
-    levelOfService: mapLevelOfServiceForDisplay(proceeding.levelOfService),
-    scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
-      proceeding.scopeLimitationHeading,
-    ),
-    substantiveCostLimitation: formatCurrency(
-      proceeding.substantiveCostLimitation,
-    ),
-  };
 }
 
 interface ClaimRow {

@@ -3,14 +3,30 @@ import {
   escapeHtml,
 } from "#src/utils/addressFormatter.js";
 import {
+  APPLICATION_TYPES,
   CATEGORIES_OF_LAW,
   CERTIFICATE_TYPES,
   CLIENT_ROLES,
   LEVELS_OF_SERVICE,
   SCOPE_OF_LIMITATIONS,
 } from "#src/infrastructure/locales/constants.js";
-import type { Application } from "#src/adaptors/models/application.types.js";
+import type {
+  Application,
+  Proceeding,
+} from "#src/adaptors/models/application.types.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { formatCurrency } from "#src/utils/formatter.js";
+
+const {
+  pages: {
+    applicationOverview: {
+      people: {
+        provider: { fallbackFirmName: PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE },
+      },
+    },
+  },
+} = en;
 
 export function mapCertificateTypeForDisplay(certificateType: string): string {
   return (
@@ -61,6 +77,56 @@ export function getHomeAddressDisplay(application: Application): string {
   }
 
   return formatAddressToHtml(application.client.homeAddress);
+}
+
+export function mapApplication(application: Application): Application {
+  const applicationType =
+    (APPLICATION_TYPES as Record<string, string>)[
+      application.applicationType
+    ] ?? application.applicationType;
+
+  const provider = application.provider
+    ? {
+        ...application.provider,
+        firmName: mapProviderFirmName(application.provider.firmName),
+      }
+    : null;
+
+  return {
+    ...application,
+    applicationType,
+    provider,
+  };
+}
+
+export function mapProviderFirmName(firmName: string | null): string {
+  if (!firmName || firmName.trim().length === 0) {
+    return PROVIDER_FIRM_NAME_UNAVAILABLE_MESSAGE;
+  }
+
+  return firmName;
+}
+
+export function mapProceeding(proceeding: Proceeding): Omit<
+  Proceeding,
+  "substantiveCostLimitation"
+> & {
+  substantiveCostLimitation: string;
+} {
+  return {
+    ...proceeding,
+    certificateType: mapCertificateTypeForDisplay(proceeding.certificateType),
+    clientInvolvementType: mapClientInvolvementTypeForDisplay(
+      proceeding.clientInvolvementType,
+    ),
+    levelOfService: mapLevelOfServiceForDisplay(proceeding.levelOfService),
+    scopeLimitationHeading: mapScopeLimitationHeadingForDisplay(
+      proceeding.scopeLimitationHeading,
+    ),
+    substantiveCostLimitation: formatCurrency(
+      proceeding.substantiveCostLimitation,
+    ),
+  };
 }
 
 export function getCorrespondenceDisplay(
