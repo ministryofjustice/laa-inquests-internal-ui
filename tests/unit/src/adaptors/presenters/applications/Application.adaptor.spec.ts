@@ -166,10 +166,10 @@ describe("Application adaptor", () => {
         totalRemaining: 10000,
       },
     });
+    viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
     applicationAdaptor = new ApplicationAdaptor(
       viewApplicationAdaptorStub,
       undefined,
-      buildCertificateViewUseCaseStub,
       claimsAdaptorStub,
       buildApplicationClaimsViewUseCaseStub,
     );
@@ -666,144 +666,287 @@ describe("Application adaptor", () => {
     });
   });
 
-  describe("renderCertificatePage", () => {
-    it("calls certificate view use case once with application id and access token", async () => {
-      await applicationAdaptor.renderCertificatePage(
+  describe("history formatting", () => {
+    it("renders empty history and no historyError when getApplicationHistory returns empty array", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
+
+      await applicationAdaptor.renderApplicationPage(
         requestStub,
         responseStub,
-        application.laaReference.toString(),
+        "123",
       );
 
-      assert.equal(buildCertificateViewUseCaseStub.execute.callCount, 1);
-      assert.deepStrictEqual(
-        buildCertificateViewUseCaseStub.execute.getCall(0).args,
-        [
-          {
-            applicationId: application.laaReference.toString(),
-            accessToken: "test-access-token",
-          },
-        ],
-      );
-    });
-
-    it("logs info when certificate page is requested", async () => {
-      await applicationAdaptor.renderCertificatePage(
-        requestStub,
-        responseStub,
-        application.laaReference.toString(),
-      );
-
-      assert.equal(logInfoStub.callCount, 1);
-      assert.deepStrictEqual(logInfoStub.getCall(0).args, [
-        "GET Certificate Page",
-        `Certificate details for application ${application.laaReference} requested.`,
-        requestStub,
-      ]);
-    });
-
-    it("renders certificate page", async () => {
-      await applicationAdaptor.renderCertificatePage(
-        requestStub,
-        responseStub,
-        application.laaReference.toString(),
-      );
-
-      assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "application/certificate");
-      assert.deepStrictEqual(renderArgs[1], {
-        backUrl: `/applications/${application.laaReference}/overview`,
-        certificateDetails: {
-          ...certificateDetails,
-          clientAddress: "1 Test Road<br>London<br>SW1A 1AA",
-          officeAddress: "Test Office Address<br>London<br>SW1A 1AA",
-          opponentDetails: "Cabinet Office",
-          dateCreated: "19 May 2026",
-          effectiveDate: "05 September 2025",
-          dateWorkCanCommence: "05 September 2025",
-          dateCurrentLevelOfServiceEffective: "05 September 2025",
-          costLimitation: "£10,000",
-          certificateType: "Substantive",
-          categoryOfLaw: "Inquests",
-          levelOfService: "Full representation",
-          scopeLimitationHeading: "Final hearing",
-        },
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        historyRows: [],
+        historyError: false,
       });
     });
 
-    it("renders an error page when certificate view returns with TECHNICAL_FAILURE", async () => {
-      responseStub.status.returns(responseStub);
-      buildCertificateViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        message: "Unable to build certificate view",
-      });
-
-      await applicationAdaptor.renderCertificatePage(
-        requestStub,
-        responseStub,
-        application.laaReference.toString(),
-      );
-
-      assert.equal(responseStub.status.callCount, 1);
-      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
-        "application/error",
+    it("renders Application received event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
         {
-          status: "Unable to retrieve certificate",
-          error: "Unable to retrieve certificate. Please try again later",
+          timestamp: "2026-05-21T10:30:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-001",
+          eventData: null,
         },
       ]);
-    });
 
-    it("renders a 404 not found page when certificate view returns RESOURCE_NOT_FOUND", async () => {
-      responseStub.status.returns(responseStub);
-      buildCertificateViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND,
-        message: "Certificate not found for application 123",
-      });
-
-      await applicationAdaptor.renderCertificatePage(
+      await applicationAdaptor.renderApplicationPage(
         requestStub,
         responseStub,
-        application.laaReference.toString(),
+        "123",
       );
 
-      assert.equal(responseStub.status.callCount, 1);
-      assert.deepStrictEqual(responseStub.status.getCall(0).args, [404]);
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
-        "application/error",
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(historyRows.length, 1);
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application received</strong>",
+      );
+    });
+
+    it("renders Certificate created event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
         {
-          status: 404,
-          error: "The certificate for this application could not be found.",
+          timestamp: "2026-05-23T09:00:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-003",
+          eventData: null,
         },
       ]);
-    });
 
-    it("logs error when certificate returns with TECHNICAL_FAILURE", async () => {
-      buildCertificateViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        message: "Unable to build certificate view",
-      });
-
-      responseStub.status.returns(responseStub);
-      await applicationAdaptor.renderCertificatePage(
+      await applicationAdaptor.renderApplicationPage(
         requestStub,
         responseStub,
-        application.laaReference.toString(),
+        "123",
       );
 
-      assert.equal(logErrorStub.callCount, 1);
-      assert.deepStrictEqual(logErrorStub.getCall(0).args, [
-        "GET Certificate Page",
-        `Failed to build certificate view for application ${application.laaReference}`,
-        "Unable to build certificate view",
-        requestStub,
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Certificate created</strong>",
+      );
+    });
+
+    it("renders Interested parties updated event with correct label", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-24T16:45:00.000Z",
+          actor: "John Doe",
+          eventReference: "EVT-BUS-APP-004",
+          eventData: null,
+        },
       ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Interested parties updated</strong>",
+      );
+    });
+
+    it("renders unknown event reference with escaped fallback", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-25T11:00:00.000Z",
+          actor: "Admin",
+          eventReference: "UNKNOWN-EVENT-CODE",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>UNKNOWN-EVENT-CODE</strong>",
+      );
+    });
+
+    it("escapes HTML in actor field", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-26T12:00:00.000Z",
+          actor: "<script>alert('xss')</script>",
+          eventReference: "EVT-BUS-APP-001",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][1].text,
+        "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+      );
+    });
+
+    it("escapes HTML in unknown event reference fallback", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-27T13:30:00.000Z",
+          actor: "System",
+          eventReference: "<script>alert('xss')</script>",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;</strong>",
+      );
+    });
+
+    it("formats event data with meritsDecision substitution", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: { meritsDecision: "granted" },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application granted</strong>",
+      );
+    });
+
+    it("formats multiple history events in correct order", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-21T10:00:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-001",
+          eventData: null,
+        },
+        {
+          timestamp: "2026-05-22T11:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: { meritsDecision: "granted" },
+        },
+        {
+          timestamp: "2026-05-23T12:00:00.000Z",
+          actor: "System",
+          eventReference: "EVT-BUS-APP-003",
+          eventData: null,
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(historyRows.length, 3);
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application received</strong>",
+      );
+      assert.equal(
+        historyRows[1][2].html,
+        "<strong>Application granted</strong>",
+      );
+      assert.equal(
+        historyRows[2][2].html,
+        "<strong>Certificate created</strong>",
+      );
+    });
+
+    it("sets historyError flag when getApplicationHistory fails", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.rejects(
+        new Error("API connection failed"),
+      );
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        historyRows: [],
+        historyError: true,
+      });
     });
   });
 });

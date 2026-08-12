@@ -67,6 +67,14 @@
           "fallbackFirmName": "Could not retrieve Provider details. Please try again later"
         }
       },
+      "history": {
+        "tableCaption": "Application history",
+        "dateTimeColumn": "Date and time",
+        "whoColumn": "Who",
+        "updateColumn": "Update",
+        "noHistory": "There is no application history for this record",
+        "errorMessage": "Application history is currently unavailable. Please try again later."
+      },
       "documentError": {
         "pageTitle": "Unable to retrieve document – {SERVICE_NAME} – GOV.UK",
         "message": "Unable to retrieve document. Please try again later"

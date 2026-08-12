@@ -32,6 +32,7 @@ import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildAppli
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
+import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -77,7 +78,6 @@ const buildCertificateViewUseCase = new BuildCertificateViewUseCase(
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
   buildApplicationOverviewViewUseCase,
-  buildCertificateViewUseCase,
   claimsAdaptor,
   buildApplicationClaimsViewUseCase,
 );
@@ -85,6 +85,9 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   viewApplicationAdaptor,
   claimsAdaptor,
   buildClaimAssessmentViewUseCase,
+);
+const certificateDisplayAdaptor = new CertificateAdaptor(
+  buildCertificateViewUseCase,
 );
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,
@@ -158,6 +161,7 @@ router.use("/applications", requireAuth, [
     express.Router(),
     applicationDisplayAdaptor,
     claimAssessmentAdaptor,
+    certificateDisplayAdaptor,
   ),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
 ]);

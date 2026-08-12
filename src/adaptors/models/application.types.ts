@@ -3,12 +3,14 @@ import type {
   ApplicationSchema,
   ApplicationSummarySchema,
   CertificateSchema,
+  HistoryEventSchema,
   ProceedingSchema,
 } from "./application.schema.js";
 
 export type Application = z.infer<typeof ApplicationSchema>;
 export type ApplicationSummary = z.infer<typeof ApplicationSummarySchema>;
 export type Proceeding = z.infer<typeof ProceedingSchema>;
+export type HistoryEvent = z.infer<typeof HistoryEventSchema>;
 
 export enum RefusalReason {
   NOT_IN_SCOPE = "NOT_IN_SCOPE",

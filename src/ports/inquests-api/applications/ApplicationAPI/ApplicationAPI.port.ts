@@ -2,6 +2,7 @@ import type {
   Application,
   ApplicationSummary,
   Certificate,
+  HistoryEvent,
 } from "#src/adaptors/models/application.types.js";
 import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 
@@ -32,4 +33,8 @@ export interface ApplicationPort {
     applicationId: string,
     accessToken: string | undefined,
   ) => Promise<OutboundAdapterResult<Certificate>>;
+  getApplicationHistory: (
+    applicationId: string,
+    accessToken: string | undefined,
+  ) => Promise<HistoryEvent[]>;
 }

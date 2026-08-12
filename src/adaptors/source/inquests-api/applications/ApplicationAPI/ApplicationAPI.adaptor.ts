@@ -3,12 +3,14 @@ import type {
   Application,
   ApplicationSummary,
   Certificate,
+  HistoryEvent,
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
   ApplicationSchema,
   ApplicationSummarySchema,
   CertificateSchema,
+  HistoryEventSchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
@@ -185,6 +187,20 @@ export class ApplicationAPIAdaptor {
         cause: error,
       };
     }
+  }
+
+  async getApplicationHistory(
+    applicationId: string,
+    accessToken: string | undefined,
+  ): Promise<HistoryEvent[]> {
+    const { data }: AxiosResponse<HistoryEvent[]> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/history`,
+      accessToken,
+    });
+
+    return data.map((event) => HistoryEventSchema.parse(event));
   }
 }
 
