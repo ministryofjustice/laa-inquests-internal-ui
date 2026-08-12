@@ -1,41 +1,44 @@
-import type { Application } from "#src/adaptors/models/application.types.js";
+import type { HistoryEventList } from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import {
   TECHNICAL_FAILURE_REASONS,
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 
-interface BuildApplicationOverviewViewInput {
+interface BuildApplicationHistoryViewInput {
   applicationId: string;
   applicationPort: ApplicationPort;
   accessToken?: string;
 }
 
-interface BuildApplicationOverviewViewData {
-  application: Application;
+interface BuildApplicationHistoryViewData {
+  history: HistoryEventList;
 }
 
-export class BuildApplicationOverviewViewUseCase {
+export class BuildApplicationHistoryViewUseCase {
   async execute(
-    input: BuildApplicationOverviewViewInput,
-  ): Promise<UseCaseResult<BuildApplicationOverviewViewData>> {
+    input: BuildApplicationHistoryViewInput,
+  ): Promise<UseCaseResult<BuildApplicationHistoryViewData>> {
     if (!input.applicationId) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message: "Cannot build application overview without an applicationId",
+        message:
+          "Cannot build application history view without an applicationId",
       };
     }
 
     try {
-      const application = await input.applicationPort.getApplication(
+      const history = await input.applicationPort.getApplicationHistory(
         input.applicationId,
         input.accessToken,
       );
 
       return {
         status: "SUCCESS",
-        data: { application },
+        data: {
+          history,
+        },
       };
     } catch (error) {
       return {

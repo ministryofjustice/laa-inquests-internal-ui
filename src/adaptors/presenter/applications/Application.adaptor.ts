@@ -9,6 +9,7 @@ import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/Claims
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
+import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
@@ -50,6 +51,8 @@ export class ApplicationAdaptor {
 
   private readonly buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase;
 
+  private readonly buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase;
+
   private readonly buildCertificateViewUseCase: BuildCertificateViewUseCase;
 
   constructor(
@@ -60,12 +63,15 @@ export class ApplicationAdaptor {
     ),
     claimsAdaptor?: ClaimsPort,
     buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(),
+    buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase = new BuildApplicationHistoryViewUseCase(),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
     this.claimsAdaptor = claimsAdaptor;
     this.buildApplicationOverviewViewUseCase =
       buildApplicationOverviewViewUseCase;
     this.buildApplicationClaimsViewUseCase = buildApplicationClaimsViewUseCase;
+    this.buildApplicationHistoryViewUseCase =
+      buildApplicationHistoryViewUseCase;
     this.buildCertificateViewUseCase = buildCertificateViewUseCase;
   }
 
@@ -100,10 +106,6 @@ export class ApplicationAdaptor {
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
       getCorrespondenceDisplay(application, clientHomeAddressDisplay);
 
-    const { historyRows, hasHistory } = formatHistoryRows(
-      overviewViewResult.data.history,
-    );
-
     const isPending =
       !application.overallDecision ||
       application.overallDecision.toUpperCase() === "PENDING";
@@ -117,6 +119,9 @@ export class ApplicationAdaptor {
       overviewViewResult.data.application.proceeding.substantiveCostLimitation,
     );
 
+    const { historyRows, hasHistory, historyError } =
+      await this.#buildHistoryView(req, applicationId);
+
     res.render("application/application-overview", {
       application,
       proceeding,
@@ -127,6 +132,7 @@ export class ApplicationAdaptor {
       claims,
       historyRows,
       hasHistory,
+      historyError,
       backUrl: "/",
     });
   }
@@ -180,6 +186,43 @@ export class ApplicationAdaptor {
         mapClaimRow(claim, applicationId),
       ),
     };
+  }
+
+  async #buildHistoryView(
+    req: Request,
+    applicationId: string,
+  ): Promise<{
+    historyRows: Array<Array<{ text?: string; html?: string }>>;
+    hasHistory: boolean;
+    historyError: boolean;
+  }> {
+    const { viewApplicationAdaptor, buildApplicationHistoryViewUseCase } =
+      this;
+
+    const historyViewResult =
+      await buildApplicationHistoryViewUseCase.execute({
+        applicationId,
+        applicationPort: viewApplicationAdaptor,
+        accessToken: req.session.user?.accessToken,
+      });
+
+    if (historyViewResult.status !== "SUCCESS") {
+      logger.logError(
+        "GET Application history",
+        `Failed to build history view for application ${applicationId}`,
+        historyViewResult.status === "TECHNICAL_FAILURE"
+          ? (historyViewResult.cause ?? historyViewResult.message)
+          : undefined,
+        req,
+      );
+      return { historyRows: [], hasHistory: false, historyError: true };
+    }
+
+    const { historyRows, hasHistory } = formatHistoryRows(
+      historyViewResult.data.history,
+    );
+
+    return { historyRows, hasHistory, historyError: false };
   }
 
   async serveCoronersLetterDocument(

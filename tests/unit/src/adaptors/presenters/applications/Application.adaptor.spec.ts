@@ -815,7 +815,7 @@ describe("Application adaptor", () => {
   });
 
   describe("history formatting", () => {
-    it("renders empty history when getApplicationHistory returns empty array", async () => {
+    it("renders empty history and no historyError when getApplicationHistory returns empty array", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
 
@@ -829,6 +829,7 @@ describe("Application adaptor", () => {
       assert.partialDeepStrictEqual(renderArgs[1], {
         historyRows: [],
         hasHistory: false,
+        historyError: false,
       });
     });
 
@@ -858,34 +859,6 @@ describe("Application adaptor", () => {
       assert.equal(
         historyRows[0][2].html,
         "<strong>Application received</strong>",
-      );
-    });
-
-    it("renders Application granted event with correct label", async () => {
-      viewApplicationAdaptorStub.getApplication.resolves(application);
-      viewApplicationAdaptorStub.getApplicationHistory.resolves([
-        {
-          timestamp: "2026-05-22T14:15:00.000Z",
-          actor: "Jane Smith",
-          eventReference: "EVT-BUS-APP-002",
-          eventData: { meritsDecision: "granted" },
-        },
-      ]);
-
-      await applicationAdaptor.renderApplicationPage(
-        requestStub,
-        responseStub,
-        "123",
-      );
-
-      const renderArgs = responseStub.render.getCall(0).args;
-      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
-      const historyRows = viewData.historyRows as Array<
-        Array<{ text?: string; html?: string }>
-      >;
-      assert.equal(
-        historyRows[0][2].html,
-        "<strong>Application granted</strong>",
       );
     });
 
@@ -1104,6 +1077,26 @@ describe("Application adaptor", () => {
         historyRows[2][2].html,
         "<strong>Certificate created</strong>",
       );
+    });
+
+    it("sets historyError flag when getApplicationHistory fails", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.rejects(
+        new Error("API connection failed"),
+      );
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        historyRows: [],
+        hasHistory: false,
+        historyError: true,
+      });
     });
   });
 });

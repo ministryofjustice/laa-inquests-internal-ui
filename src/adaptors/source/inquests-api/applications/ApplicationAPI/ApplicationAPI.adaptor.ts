@@ -193,18 +193,14 @@ export class ApplicationAPIAdaptor {
     applicationId: string,
     accessToken: string | undefined,
   ): Promise<HistoryEventList> {
-    try {
-      const { data }: AxiosResponse<HistoryEventList> = await getInquestsApi({
-        http: this.http,
-        baseUrl: this.baseUrl,
-        path: `/applications/${applicationId}/history`,
-        accessToken,
-      });
+    const { data }: AxiosResponse<HistoryEventList> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/history`,
+      accessToken,
+    });
 
-      return data.map((event) => HistoryEventSchema.parse(event));
-    } catch (error) {
-      return [];
-    }
+    return data.map((event) => HistoryEventSchema.parse(event));
   }
 }
 
