@@ -303,11 +303,11 @@ const claimDetail = {
   substantiveCostLimitation: 10000,
   claimEvidence: [
     {
-      claimEvidenceId: "1",
+      claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
     },
     {
-      claimEvidenceId: "2",
+      claimEvidenceId: "test_evidence_2",
       fileName: "claim-evidence-2.pdf",
     },
   ],
@@ -420,7 +420,8 @@ export const applicationHandlers = [
       const disposition = url.searchParams.get("disposition");
 
       if (
-        (params.claimEvidenceId === "1" || params.claimEvidenceId === "2") &&
+        (params.claimEvidenceId === "test_evidence_1" ||
+          params.claimEvidenceId === "test_evidence_2") &&
         (disposition === "inline" || disposition === "attachment")
       ) {
         const fileName = `claim-evidence-${params.claimEvidenceId}.pdf`;

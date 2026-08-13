@@ -51,7 +51,7 @@ const expectedClaimDetail: ClaimDetail = {
   statusId: "SUBMITTED",
   claimEvidence: [
     {
-      claimEvidenceId: "1",
+      claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
     },
   ],

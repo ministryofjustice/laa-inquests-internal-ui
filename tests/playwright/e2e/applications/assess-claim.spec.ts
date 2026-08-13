@@ -104,25 +104,25 @@ test.describe("Assess claim page", () => {
       pageForm.getByRole("link", { name: /View claim-evidence-1.pdf/ }),
     ).toHaveAttribute(
       "href",
-      `${assessClaimPage}/evidence/1?disposition=inline`,
+      `${assessClaimPage}/evidence/test_evidence_1?disposition=inline`,
     );
     await expect(
       pageForm.getByRole("link", { name: /Download claim-evidence-1.pdf/ }),
     ).toHaveAttribute(
       "href",
-      `${assessClaimPage}/evidence/1?disposition=attachment`,
+      `${assessClaimPage}/evidence/test_evidence_1?disposition=attachment`,
     );
     await expect(
       pageForm.getByRole("link", { name: /View claim-evidence-2.pdf/ }),
     ).toHaveAttribute(
       "href",
-      `${assessClaimPage}/evidence/2?disposition=inline`,
+      `${assessClaimPage}/evidence/test_evidence_2?disposition=inline`,
     );
     await expect(
       pageForm.getByRole("link", { name: /Download claim-evidence-2.pdf/ }),
     ).toHaveAttribute(
       "href",
-      `${assessClaimPage}/evidence/2?disposition=attachment`,
+      `${assessClaimPage}/evidence/test_evidence_2?disposition=attachment`,
     );
 
     await expect(
@@ -198,8 +198,9 @@ test.describe("Assess claim page", () => {
       (response) =>
         response
           .url()
-          .endsWith(`${assessClaimPage}/evidence/1?disposition=inline`) &&
-        response.request().method() === "GET",
+          .endsWith(
+            `${assessClaimPage}/evidence/test_evidence_1?disposition=inline`,
+          ) && response.request().method() === "GET",
     );
 
     await page.getByRole("link", { name: /View claim-evidence-1.pdf/ }).click();
@@ -224,8 +225,9 @@ test.describe("Assess claim page", () => {
       (response) =>
         response
           .url()
-          .endsWith(`${assessClaimPage}/evidence/1?disposition=attachment`) &&
-        response.request().method() === "GET",
+          .endsWith(
+            `${assessClaimPage}/evidence/test_evidence_1?disposition=attachment`,
+          ) && response.request().method() === "GET",
     );
 
     await page
