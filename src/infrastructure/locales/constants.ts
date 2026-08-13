@@ -59,6 +59,13 @@ export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];
 
 export const PLACEHOLDER_VALUE = "-";
 
+export const DISPOSITION = {
+  INLINE: "inline",
+  ATTACHMENT: "attachment",
+} as const;
+
+export type Disposition = (typeof DISPOSITION)[keyof typeof DISPOSITION];
+
 export enum HISTORY_EVENT_REFERENCE {
   EVT_BUS_APP_001 = "EVT-BUS-APP-001",
   EVT_BUS_APP_002 = "EVT-BUS-APP-002",

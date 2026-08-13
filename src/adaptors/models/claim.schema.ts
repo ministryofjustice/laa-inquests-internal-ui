@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const ClaimEvidenceSchema = z.object({
+  claimEvidenceId: z.string(),
   fileName: z.string(),
 });
 

@@ -9,6 +9,7 @@ import {
 } from "#src/adaptors/models/claim.schema.js";
 import { getInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
+import type { Disposition } from "#src/infrastructure/locales/constants.js";
 
 export class ClaimsAPIAdaptor implements ClaimsPort {
   constructor(
@@ -45,5 +46,45 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     });
 
     return ClaimDetailSchema.parse(data);
+  }
+
+  async getClaimEvidence(
+    claimEvidenceId: string,
+    disposition: Disposition,
+    accessToken: string | undefined,
+  ): Promise<{
+    data: Buffer;
+    contentType: string;
+    contentDisposition: string;
+  }> {
+    const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/claims/${claimEvidenceId}`,
+      accessToken,
+      axiosConfig: {
+        params: { disposition },
+        responseType: "arraybuffer",
+      },
+    });
+
+    const { headers, data } = response;
+    const {
+      "content-type": contentType,
+      "content-disposition": contentDisposition,
+    } = headers;
+
+    const contentTypeString =
+      typeof contentType === "string"
+        ? contentType
+        : "application/octet-stream";
+    const contentDispositionString =
+      typeof contentDisposition === "string" ? contentDisposition : disposition;
+
+    return {
+      data: Buffer.from(data),
+      contentType: contentTypeString,
+      contentDisposition: contentDispositionString,
+    };
   }
 }
