@@ -883,6 +883,68 @@ describe("Application adaptor", () => {
       );
     });
 
+    it("formats refused application with refusal reason and justification", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: {
+            meritsDecision: "Refused",
+            refusalReason: "Insufficient evidence",
+            refusalJustification: "No supporting documents provided",
+          },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application Refused<br /> Insufficient evidence <br /> No supporting documents provided</strong>",
+      );
+    });
+
+    it("formats refused application without refusal reason or justification", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: {
+            meritsDecision: "Refused",
+          },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application Refused<br />  <br /> </strong>",
+      );
+    });
+
     it("formats multiple history events in correct order", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([
