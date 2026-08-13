@@ -13,7 +13,7 @@ jobs:
       contents: read # This is required for actions/checkout
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
       - name: Deploy to staging
         uses: ./.github/actions/deploy
         with:
@@ -45,7 +45,7 @@ jobs:
     if: always()
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
       - name: Send Slack Notification
         uses: ./.github/actions/notify
         with:
@@ -62,7 +62,7 @@ jobs:
       contents: read # This is required for actions/checkout
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
       - name: Deploy to production
         uses: ./.github/actions/deploy
         with:
@@ -95,7 +95,7 @@ jobs:
     if: always()
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
       - name: Send Slack Notification
         uses: ./.github/actions/notify
         with:
