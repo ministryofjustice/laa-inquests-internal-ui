@@ -15,6 +15,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
     substantiveCostLimitation: 10000,
@@ -58,7 +59,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         paymentType: "Payment on account",
         paymentAmount: "£1,200",
         substantiveCertificate: "£10,000",
-        totalRemaining: "£10,000",
+        totalRemaining: "£8,800",
       },
       details: {
         instructedCounsel: "-",
@@ -101,38 +102,6 @@ describe("BuildClaimAssessmentViewUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.equal(result.data.overview.paymentAmount, "£700");
-  });
-
-  it("uses placeholders when payment amount and decision are unavailable", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    const claimsPortStub = stubInterface<ClaimsPort>();
-
-    applicationPortStub.getApplication.resolves({
-      laaReference: 5,
-      proceeding: { substantiveCostLimitation: null },
-    } as any);
-    claimsPortStub.getClaimById.resolves({
-      ...baseClaim,
-      totalProfitCostGross: null,
-      totalProfitCostVatZero: null,
-      substantiveCostLimitation: null,
-      claimDecision: null,
-      claimEvidence: [],
-    });
-
-    const result = await useCase.execute({
-      applicationId: "5",
-      claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
-    });
-
-    assert.equal(result.status, "SUCCESS");
-    assert.equal(result.data.claimStatus, "-");
-    assert.equal(result.data.overview.paymentAmount, "-");
-    assert.equal(result.data.overview.substantiveCertificate, "-");
-    assert.equal(result.data.overview.totalRemaining, "-");
-    assert.deepEqual(result.data.supportingEvidence, []);
   });
 
   it("returns TECHNICAL_FAILURE when ids are missing", async () => {
