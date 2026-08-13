@@ -31,9 +31,11 @@
   "dependencies": {
     "@azure/msal-node": "^5.4.1",
     "@ministryofjustice/frontend": "^9.0.0",
+    "@redis/client": "^6.2.1",
     "axios": "^1.18.1",
     "body-parser": "^2.3.0",
     "compression": "^1.8.1",
+    "connect-redis": "^10.0.0",
     "cookie-parser": "~1.4.6",
     "csrf-sync": "^4.2.1",
     "debug": "~4.4.3",
