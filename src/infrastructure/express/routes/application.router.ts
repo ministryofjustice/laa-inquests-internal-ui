@@ -88,6 +88,29 @@ function createApplicationRouter(
     },
   );
 
+  applicationRouter.get(
+    "/:applicationId/claims/:claimId/evidence/:claimEvidenceId",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      const {
+        params: { claimEvidenceId },
+        query: { disposition },
+      } = req;
+      const claimEvidenceIdParam = claimEvidenceId as string;
+      const dispositionParam = disposition as string;
+
+      try {
+        await claimAssessmentAdaptor.serveClaimEvidence(
+          req,
+          res,
+          claimEvidenceIdParam,
+          dispositionParam,
+        );
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return applicationRouter;
 }
 

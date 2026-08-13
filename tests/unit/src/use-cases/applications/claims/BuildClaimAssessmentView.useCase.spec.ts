@@ -20,6 +20,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     substantiveCostLimitation: 10000,
     claimEvidence: [
       {
+        claimEvidenceId: "test_evidence_1",
         fileName: "claim-evidence-1.pdf",
       },
     ],
@@ -68,8 +69,10 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
-          viewHref: "#",
-          downloadHref: "#",
+          viewHref:
+            "/applications/5/claims/10/evidence/test_evidence_1?disposition=inline",
+          downloadHref:
+            "/applications/5/claims/10/evidence/test_evidence_1?disposition=attachment",
         },
       ],
     });

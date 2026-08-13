@@ -99,4 +99,101 @@ describe("ClaimAssessmentAdaptor", () => {
       claimStatus: "Reject",
     });
   });
+
+  describe("serveClaimEvidence", () => {
+    it("fetches inline evidence and sends the buffer with forwarded headers", async () => {
+      const mockBuffer = Buffer.from("fake evidence data");
+      claimsPortStub.getClaimEvidence.resolves({
+        data: mockBuffer,
+        contentType: "application/pdf",
+        contentDisposition: 'inline; filename="claim-evidence-1.pdf"',
+      });
+
+      await adaptor.serveClaimEvidence(
+        requestStub,
+        responseStub,
+        "1",
+        "inline",
+      );
+
+      assert.equal(claimsPortStub.getClaimEvidence.callCount, 1);
+      assert.deepStrictEqual(claimsPortStub.getClaimEvidence.getCall(0).args, [
+        "1",
+        "inline",
+        "test-access-token",
+      ]);
+      assert.equal(responseStub.setHeader.callCount, 2);
+      assert.deepStrictEqual(responseStub.setHeader.getCall(0).args, [
+        "Content-Type",
+        "application/pdf",
+      ]);
+      assert.deepStrictEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        'inline; filename="claim-evidence-1.pdf"',
+      ]);
+      assert.equal(responseStub.send.callCount, 1);
+      assert.deepStrictEqual(responseStub.send.getCall(0).args, [mockBuffer]);
+    });
+
+    it("passes the attachment disposition through to the port", async () => {
+      claimsPortStub.getClaimEvidence.resolves({
+        data: Buffer.from("data"),
+        contentType: "application/pdf",
+        contentDisposition: 'attachment; filename="claim-evidence-1.pdf"',
+      });
+
+      await adaptor.serveClaimEvidence(
+        requestStub,
+        responseStub,
+        "1",
+        "attachment",
+      );
+
+      assert.deepStrictEqual(claimsPortStub.getClaimEvidence.getCall(0).args, [
+        "1",
+        "attachment",
+        "test-access-token",
+      ]);
+    });
+
+    it("renders a 400 error page for an invalid disposition", async () => {
+      responseStub.status.returns(responseStub);
+
+      await adaptor.serveClaimEvidence(requestStub, responseStub, "1", "bogus");
+
+      assert.equal(claimsPortStub.getClaimEvidence.callCount, 0);
+      assert.deepStrictEqual(responseStub.status.getCall(0).args, [400]);
+      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+        "application/error",
+        {
+          status: "Invalid request",
+          error: "Unable to retrieve evidence. Please try again later",
+        },
+      ]);
+      assert.equal(responseStub.send.callCount, 0);
+    });
+
+    it("renders a 500 error page when the port call fails", async () => {
+      responseStub.status.returns(responseStub);
+      claimsPortStub.getClaimEvidence.rejects(new Error("API error"));
+
+      await adaptor.serveClaimEvidence(
+        requestStub,
+        responseStub,
+        "1",
+        "inline",
+      );
+
+      assert.equal(claimsPortStub.getClaimEvidence.callCount, 1);
+      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
+      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+        "application/error",
+        {
+          status: "Unable to retrieve evidence",
+          error: "Unable to retrieve evidence. Please try again later",
+        },
+      ]);
+      assert.equal(responseStub.send.callCount, 0);
+    });
+  });
 });

@@ -303,9 +303,11 @@ const claimDetail = {
   substantiveCostLimitation: 10000,
   claimEvidence: [
     {
+      claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
     },
     {
+      claimEvidenceId: "test_evidence_2",
       fileName: "claim-evidence-2.pdf",
     },
   ],
@@ -408,6 +410,32 @@ export const applicationHandlers = [
         return new HttpResponse(null, { status: 404 });
       }
       return HttpResponse.json(certificate);
+    },
+  ),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/claims/:claimEvidenceId`,
+    ({ params, request }) => {
+      const url = new URL(request.url);
+      const disposition = url.searchParams.get("disposition");
+
+      if (
+        (params.claimEvidenceId === "test_evidence_1" ||
+          params.claimEvidenceId === "test_evidence_2") &&
+        (disposition === "inline" || disposition === "attachment")
+      ) {
+        const fileName = `claim-evidence-${params.claimEvidenceId}.pdf`;
+        const fakeEvidenceBuffer = Buffer.from("%PDF-1.4 mock evidence");
+        return new HttpResponse(fakeEvidenceBuffer, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `${disposition}; filename="${fileName}"`,
+          },
+        });
+      }
+
+      return new HttpResponse(null, { status: 404 });
     },
   ),
 

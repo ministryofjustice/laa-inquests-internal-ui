@@ -51,6 +51,7 @@ const expectedClaimDetail: ClaimDetail = {
   statusId: "SUBMITTED",
   claimEvidence: [
     {
+      claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
     },
   ],
@@ -183,5 +184,89 @@ describe("Test Claims API Adaptor", () => {
     }
 
     assert.instanceOf(thrown, Error);
+  });
+
+  it("calls axios with the claim evidence endpoint and disposition query param", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: Buffer.from("evidence"),
+      headers: {
+        "content-type": "application/pdf",
+        "content-disposition": 'inline; filename="claim-evidence-1.pdf"',
+      },
+    });
+
+    await adaptor.getClaimEvidence("1", "inline", "access-token-123");
+
+    assert.isTrue(axiosGetStub.calledOnce);
+    const [url, config] = axiosGetStub.getCall(0).args;
+    assert.equal(url, `${baseUrl}/claims/1`);
+    assert.deepEqual(config?.params, { disposition: "inline" });
+    assert.equal(config?.responseType, "arraybuffer");
+  });
+
+  it("returns the evidence buffer with content headers", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: Buffer.from("evidence"),
+      headers: {
+        "content-type": "application/pdf",
+        "content-disposition": 'attachment; filename="claim-evidence-1.pdf"',
+      },
+    });
+
+    const result = await adaptor.getClaimEvidence(
+      "1",
+      "attachment",
+      "access-token-123",
+    );
+
+    assert.instanceOf(result.data, Buffer);
+    assert.equal(result.data.toString(), "evidence");
+    assert.equal(result.contentType, "application/pdf");
+    assert.equal(
+      result.contentDisposition,
+      'attachment; filename="claim-evidence-1.pdf"',
+    );
+  });
+
+  it("falls back to defaults when evidence content headers are missing", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: Buffer.from("evidence"),
+      headers: {},
+    });
+
+    const result = await adaptor.getClaimEvidence(
+      "1",
+      "inline",
+      "access-token-123",
+    );
+
+    assert.equal(result.contentType, "application/octet-stream");
+    assert.equal(result.contentDisposition, "inline");
+  });
+
+  it("propagates errors from axios when fetching evidence", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.rejects(new Error("network error"));
+
+    let thrown: unknown;
+    try {
+      await adaptor.getClaimEvidence("1", "inline", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, Error);
+    assert.equal((thrown as Error).message, "network error");
   });
 });

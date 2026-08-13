@@ -102,10 +102,28 @@ test.describe("Assess claim page", () => {
     ).toBeVisible();
     await expect(
       pageForm.getByRole("link", { name: /View claim-evidence-1.pdf/ }),
-    ).toBeVisible();
+    ).toHaveAttribute(
+      "href",
+      `${assessClaimPage}/evidence/test_evidence_1?disposition=inline`,
+    );
     await expect(
       pageForm.getByRole("link", { name: /Download claim-evidence-1.pdf/ }),
-    ).toBeVisible();
+    ).toHaveAttribute(
+      "href",
+      `${assessClaimPage}/evidence/test_evidence_1?disposition=attachment`,
+    );
+    await expect(
+      pageForm.getByRole("link", { name: /View claim-evidence-2.pdf/ }),
+    ).toHaveAttribute(
+      "href",
+      `${assessClaimPage}/evidence/test_evidence_2?disposition=inline`,
+    );
+    await expect(
+      pageForm.getByRole("link", { name: /Download claim-evidence-2.pdf/ }),
+    ).toHaveAttribute(
+      "href",
+      `${assessClaimPage}/evidence/test_evidence_2?disposition=attachment`,
+    );
 
     await expect(
       pageForm.getByRole("radio", { name: "Pay in full" }),
@@ -169,5 +187,77 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByText("Payment amount")).toBeVisible();
     await expect(pageForm.getByText("£800")).toBeVisible();
     await expect(pageForm.getByText("£1,200")).toHaveCount(0);
+  });
+
+  test("clicking view returns an inline evidence response", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const evidenceResponsePromise = page.waitForResponse(
+      (response) =>
+        response
+          .url()
+          .endsWith(
+            `${assessClaimPage}/evidence/test_evidence_1?disposition=inline`,
+          ) && response.request().method() === "GET",
+    );
+
+    await page.getByRole("link", { name: /View claim-evidence-1.pdf/ }).click();
+
+    const evidenceResponse = await evidenceResponsePromise;
+
+    expect(evidenceResponse.status()).toBe(200);
+    expect(evidenceResponse.headers()["content-type"]).toContain(
+      "application/pdf",
+    );
+    expect(evidenceResponse.headers()["content-disposition"]).toContain(
+      "inline",
+    );
+  });
+
+  test("clicking download returns an attachment evidence response", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const evidenceResponsePromise = page.waitForResponse(
+      (response) =>
+        response
+          .url()
+          .endsWith(
+            `${assessClaimPage}/evidence/test_evidence_1?disposition=attachment`,
+          ) && response.request().method() === "GET",
+    );
+
+    await page
+      .getByRole("link", { name: /Download claim-evidence-1.pdf/ })
+      .click();
+
+    const evidenceResponse = await evidenceResponsePromise;
+
+    expect(evidenceResponse.status()).toBe(200);
+    expect(evidenceResponse.headers()["content-type"]).toContain(
+      "application/pdf",
+    );
+    expect(evidenceResponse.headers()["content-disposition"]).toContain(
+      "attachment",
+    );
+  });
+
+  test("assess claim page has no accessibility violations", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Assess a claim and make a decision",
+      }),
+    ).toBeVisible();
+
+    await checkAccessibility();
   });
 });
