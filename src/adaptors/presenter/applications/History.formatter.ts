@@ -26,7 +26,12 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => "Application received",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002]: (eventData) => {
       const decision = getEscapedString(eventData?.meritsDecision);
-      return `Application ${decision}`;
+      let html = `Application ${decision}`;
+      if (decision === "Refused") {
+        html += `<br /> ${getEscapedString(eventData?.refusalReason)} <br /> ${getEscapedString(eventData?.refusalJustification)}`;
+      }
+
+      return html;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: () => "Certificate created",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: () =>
