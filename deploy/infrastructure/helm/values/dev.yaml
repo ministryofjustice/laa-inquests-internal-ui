@@ -90,6 +90,8 @@ env:
   AWS_SECRETS_AUTH_CLIENT_ID: ""
   AWS_SECRETS_AUTH_CLIENT_SECRET: ""
   AWS_SECRETS_AUTH_DIRECTORY_URL: ""
+  AWS_SECRETS_REDIS_HOST_NAME: ""
+  AWS_SECRETS_REDIS_AUTH_TOKEN: ""
   AUTH_REDIRECT_URL: ""
   SERVICE_NAME: "Express TypeScript Template"
   SERVICE_PHASE: "Beta"
@@ -108,7 +110,7 @@ env:
 
 autoscaling:
   enabled: false
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80

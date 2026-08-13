@@ -71,6 +71,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.AWS_SECRETS_AUTH_DIRECTORY_URL }}
                   key: AUTH_DIRECTORY_URL
+            - name: REDIS_HOST_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_REDIS_HOST_NAME }}
+                  key: "primary_endpoint_address"
+            - name: REDIS_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_REDIS_AUTH_TOKEN }}
+                  key: "auth_token"
             - name: AUTH_POST_LOGOUT_URI
               value: "{{ .Values.env.AUTH_POST_LOGOUT_URI }}"
             - name: AUTH_REDIRECT_URI
