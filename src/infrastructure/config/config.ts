@@ -27,6 +27,13 @@ if (
   throw new Error("REDIS_HOST_NAME must be defined in environment variables.");
 }
 
+if (
+  process.env.NODE_ENV !== "test" &&
+  (process.env.REDIS_AUTH_TOKEN == null || process.env.REDIS_AUTH_TOKEN === "")
+) {
+  throw new Error("REDIS_AUTH_TOKEN must be defined in environment variables.");
+}
+
 const missingAuthVars = [
   "AUTH_DIRECTORY_URL",
   "AUTH_CLIENT_ID",
@@ -80,7 +87,7 @@ const config: Config = {
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
   REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",
-  REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN,
+  REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN ?? "",
   session: {
     secret: process.env.SESSION_SECRET,
     name: process.env.SESSION_NAME,

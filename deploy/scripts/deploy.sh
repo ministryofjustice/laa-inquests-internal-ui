@@ -68,6 +68,8 @@ deploy_main() {
                           --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
+                          --set env.AWS_SECRETS_REDIS_HOST_NAME="inquests-internal-ui-$ENVIRONMENT-redis-ec-cluster" \
+                          --set env.AWS_SECRETS_REDIS_AUTH_TOKEN="inquests-internal-ui-$ENVIRONMENT-redis-ec-cluster" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
