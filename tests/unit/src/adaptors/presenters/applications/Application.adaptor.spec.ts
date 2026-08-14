@@ -722,7 +722,7 @@ describe("Application adaptor", () => {
           timestamp: "2026-05-23T09:00:00.000Z",
           actor: "System",
           eventReference: "EVT-BUS-APP-003",
-          eventData: { laa_reference: "1" },
+          eventData: { laaReference: "1" },
         },
       ]);
 
@@ -964,7 +964,7 @@ describe("Application adaptor", () => {
           timestamp: "2026-05-23T12:00:00.000Z",
           actor: "System",
           eventReference: "EVT-BUS-APP-003",
-          eventData: { laa_reference: "1" },
+          eventData: { laaReference: "1" },
         },
       ]);
 
