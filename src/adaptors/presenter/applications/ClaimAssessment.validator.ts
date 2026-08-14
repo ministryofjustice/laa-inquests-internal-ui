@@ -9,6 +9,8 @@ import {
   REJECTION_REASON_MAX_CHARACTER_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 
+const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;
+
 export class ClaimAssessmentValidator extends FormValidator {
   validateAssessClaimForm(
     form: AssessClaimForm,
@@ -24,7 +26,7 @@ export class ClaimAssessmentValidator extends FormValidator {
       return errors;
     }
 
-    if (assessClaim === CLAIM_DECISION_STATUSES.REJECT) {
+    if (assessClaim === REJECT_DECISION) {
       if (!rejectionReason.trim()) {
         errors.rejectionReason = {
           text: en.pages.claimAssessment.radio.validationErrors.reasonNotEmpty,

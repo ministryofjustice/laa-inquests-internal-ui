@@ -19,6 +19,8 @@ import type {
   TypedRequest,
 } from "#src/infrastructure/express/api.types.js";
 
+const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;
+
 export class ClaimAssessmentAdaptor {
   constructor(
     private readonly applicationPort: ApplicationPort,
@@ -89,7 +91,7 @@ export class ClaimAssessmentAdaptor {
       return;
     }
 
-    if (assessClaim === CLAIM_DECISION_STATUSES.REJECT) {
+    if (assessClaim === REJECT_DECISION) {
       const rejectResult = await this.rejectClaimUseCase.execute({
         applicationId,
         claimId,
