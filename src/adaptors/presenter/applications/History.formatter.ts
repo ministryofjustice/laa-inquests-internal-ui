@@ -28,7 +28,10 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       const decision = getEscapedString(eventData?.meritsDecision);
       let html = `Application ${decision}`;
       if (decision === "Refused") {
-        html += `<br /> ${getEscapedString(eventData?.refusalReason)} <br /> ${getEscapedString(eventData?.refusalJustification)}`;
+        const formattedRefusalReason = formatRefusalReason(
+          getEscapedString(eventData?.refusalReason),
+        );
+        html += `<br /> ${formattedRefusalReason} <br /> ${getEscapedString(eventData?.refusalJustification)}`;
       }
 
       return html;
@@ -72,6 +75,13 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
 
 function getEscapedString(value: unknown): string {
   return typeof value === "string" ? escapeHtml(value) : "";
+}
+
+function formatRefusalReason(refusalReason: string): string {
+  return refusalReason
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/^./v, (char) => char.toUpperCase());
 }
 
 function formatHistoryEventUpdate(
