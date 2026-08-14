@@ -74,12 +74,12 @@ spec:
             - name: REDIS_HOST_NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.env.AWS_SECRETS_REDIS_HOST_NAME }}
+                  name: {{ .Values.env.AWS_SECRETS_REDIS_SECRET }}
                   key: "primary_endpoint_address"
             - name: REDIS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.env.AWS_SECRETS_REDIS_AUTH_TOKEN }}
+                  name: {{ .Values.env.AWS_SECRETS_REDIS_SECRET}}
                   key: "auth_token"
             - name: AUTH_POST_LOGOUT_URI
               value: "{{ .Values.env.AUTH_POST_LOGOUT_URI }}"
