@@ -4,7 +4,7 @@
 
 # this is set as 2 prior to launch, we should increase this when the service is launched
 # and we are ready for live users, staging replicaCount should match production
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: nginx
@@ -80,6 +80,7 @@ env:
   AWS_SECRETS_AUTH_DIRECTORY_URL: ""
   AUTH_POST_LOGOUT_URI: ""
   AUTH_REDIRECT_URI: ""
+  AWS_SECRETS_REDIS_SECRET: ""
   SERVICE_NAME: "Express TypeScript Template"
   SERVICE_PHASE: "Beta"
   DEPARTMENT_NAME: "Legal Aid Agency"

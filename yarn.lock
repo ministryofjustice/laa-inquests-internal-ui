@@ -1045,6 +1045,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@redis/client@npm:^6.2.1":
+  version: 6.2.1
+  resolution: "@redis/client@npm:6.2.1"
+  dependencies:
+    cluster-key-slot: "npm:1.1.2"
+  peerDependencies:
+    "@node-rs/xxhash": ^1.1.0
+    "@opentelemetry/api": ">=1 <2"
+  peerDependenciesMeta:
+    "@node-rs/xxhash":
+      optional: true
+    "@opentelemetry/api":
+      optional: true
+  checksum: 10c0/fe1f784343778e04f31637ec13484318cdcb19c3565b64e4a501bdfe4e0a8012fad41fc88604fba29d2d1f8425c470bb98691d2105d8502ae6570daab7b6925a
+  languageName: node
+  linkType: hard
+
 "@rtsao/scc@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
@@ -2335,6 +2352,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cluster-key-slot@npm:1.1.2":
+  version: 1.1.2
+  resolution: "cluster-key-slot@npm:1.1.2"
+  checksum: 10c0/d7d39ca28a8786e9e801eeb8c770e3c3236a566625d7299a47bb71113fb2298ce1039596acb82590e598c52dbc9b1f088c8f587803e697cb58e1867a95ff94d3
+  languageName: node
+  linkType: hard
+
 "color-convert@npm:^2.0.1":
   version: 2.0.1
   resolution: "color-convert@npm:2.0.1"
@@ -2440,6 +2464,16 @@ __metadata:
   version: 0.6.1
   resolution: "connect-livereload@npm:0.6.1"
   checksum: 10c0/703b36996ed6ff928744dd35881d624574dcd7c56e8e5a800fa6125e7892daa80f400a48d74a004ca514c666e9e94cdf5043648059181f3579dd51e3e2c19b36
+  languageName: node
+  linkType: hard
+
+"connect-redis@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "connect-redis@npm:10.0.0"
+  peerDependencies:
+    express-session: ">=1"
+    redis: ">=5"
+  checksum: 10c0/effe2806fb6a2f0a1b8902728203dd2214fa1510e42cad7652927524582be162a95d4353adde8c7dbe4a015cc88766cd94fa2b43548b8fdca4e1e7b01baf48c5
   languageName: node
   linkType: hard
 
@@ -4738,6 +4772,7 @@ __metadata:
     "@eslint/js": "npm:^10.0.1"
     "@ministryofjustice/frontend": "npm:^9.0.0"
     "@playwright/test": "npm:^1.61.1"
+    "@redis/client": "npm:^6.2.1"
     "@types/chai": "npm:^5.2.3"
     "@types/compression": "npm:^1.7.5"
     "@types/connect-livereload": "npm:^0.6.3"
@@ -4765,6 +4800,7 @@ __metadata:
     compression: "npm:^1.8.1"
     concurrently: "npm:^10.0.3"
     connect-livereload: "npm:^0.6.1"
+    connect-redis: "npm:^10.0.0"
     cookie-parser: "npm:~1.4.6"
     cross-env: "npm:^10.1.0"
     csrf-sync: "npm:^4.2.1"

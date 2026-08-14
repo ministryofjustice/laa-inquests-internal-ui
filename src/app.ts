@@ -22,10 +22,15 @@ import { setupLocaleData } from "./infrastructure/express/middleware/nunjucks/se
 import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setupNunjucks.js";
 import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsrf.js";
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
+import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
+const TEMPORARY_REDIRECT = 307;
+const HEALTH_ENDPOINTS = ["/health", "/status"];
+
+const requiresHttps = config.app.environment === "production";
 
 const nonceMiddleware = (
   _: Request,
@@ -61,7 +66,36 @@ app.use(
 );
 
 app.disable("x-powered-by");
-app.use(session(config.session));
+
+app.use((req: Request, res: Response, next: NextFunction): void => {
+  if (HEALTH_ENDPOINTS.includes(req.path)) {
+    next();
+    return;
+  }
+
+  if (requiresHttps && !req.secure) {
+    const host = req.get("host");
+
+    if (host !== undefined && host !== "") {
+      res.redirect(TEMPORARY_REDIRECT, `https://${host}${req.originalUrl}`);
+      return;
+    }
+  }
+
+  next();
+});
+
+app.use(
+  session({
+    ...config.session,
+    store: createSessionStore(),
+    proxy: requiresHttps,
+    cookie: {
+      ...config.session.cookie,
+      secure: requiresHttps,
+    },
+  }),
+);
 
 app.use(setupRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {

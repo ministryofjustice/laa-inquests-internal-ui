@@ -6,6 +6,7 @@ const DEFAULT_RATE_LIMIT_MAX = 100;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
 const DEFAULT_PORT = 3000;
+const useRedis = process.env.USE_REDIS !== "false";
 
 // Validate required env vars
 /* eslint-disable eqeqeq -- need looser assertion against null */
@@ -18,6 +19,22 @@ if (
   throw new Error(
     "SESSION_SECRET and SESSION_NAME must be defined in environment variables.",
   );
+}
+
+if (
+  useRedis &&
+  process.env.NODE_ENV !== "test" &&
+  (process.env.REDIS_HOST_NAME == null || process.env.REDIS_HOST_NAME === "")
+) {
+  throw new Error("REDIS_HOST_NAME must be defined in environment variables.");
+}
+
+if (
+  useRedis &&
+  process.env.NODE_ENV === "production" &&
+  (process.env.REDIS_AUTH_TOKEN == null || process.env.REDIS_AUTH_TOKEN === "")
+) {
+  throw new Error("REDIS_AUTH_TOKEN must be defined in environment variables.");
 }
 
 const missingAuthVars = [
@@ -72,6 +89,9 @@ const config: Config = {
   SERVICE_NAME: process.env.SERVICE_NAME,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
+  USE_REDIS: useRedis,
+  REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",
+  REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN ?? "",
   session: {
     secret: process.env.SESSION_SECRET,
     name: process.env.SESSION_NAME,
