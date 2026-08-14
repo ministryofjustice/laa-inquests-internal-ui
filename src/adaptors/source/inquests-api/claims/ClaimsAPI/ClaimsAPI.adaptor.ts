@@ -7,7 +7,10 @@ import {
   ClaimDetailSchema,
   ClaimSummariesSchema,
 } from "#src/adaptors/models/claim.schema.js";
-import { getInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+import {
+  getInquestsApi,
+  patchInquestsApi,
+} from "#src/adaptors/source/inquests-api/utils.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 
@@ -86,5 +89,20 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       contentType: contentTypeString,
       contentDisposition: contentDispositionString,
     };
+  }
+
+  async rejectClaim(
+    applicationId: string,
+    claimId: string,
+    justification: string,
+    accessToken: string | undefined,
+  ): Promise<void> {
+    await patchInquestsApi<undefined, { justification: string }>({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/claims/${claimId}/reject`,
+      body: { justification },
+      accessToken,
+    });
   }
 }

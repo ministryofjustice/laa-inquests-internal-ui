@@ -130,8 +130,14 @@
         "label": "What is the claim decision?",
         "payInFull": "Pay in full",
         "reject": "Reject",
-        "validationError": "Select the claim decision"
-      }
+        "validationError": "Select the claim decision",
+        "validationErrors": {
+          "reasonNotEmpty": "Enter a reason for rejecting the claim",
+          "reasonTooLong": "Rejection reason must be 500 characters or less"
+        }
+      },
+      "reasonLabel": "What is the reason you are rejecting this claim?",
+      "reasonHint": "This information will be shared with the provider and added to the application history."
     },
     "decision": {
       "success": {

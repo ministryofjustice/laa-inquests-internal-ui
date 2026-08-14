@@ -1,4 +1,8 @@
 import { expect, test } from "../../fixtures/index.js";
+import { validateCSRFToken } from "../../utils/govuk-validators.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const claimAssessmentLocale = en.pages.claimAssessment;
 
 const applicationId = "5";
 const claimId = "10";
@@ -258,6 +262,164 @@ test.describe("Assess claim page", () => {
         name: "Assess a claim and make a decision",
       }),
     ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
+  test("reveals the rejection reason field when Reject is selected", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    const rejectionReasonInput = form.getByLabel(
+      claimAssessmentLocale.reasonLabel,
+    );
+    await expect(rejectionReasonInput).toBeHidden();
+
+    await form.getByRole("radio", { name: "Reject" }).check();
+
+    await expect(rejectionReasonInput).toBeVisible();
+    await expect(
+      form.getByText(claimAssessmentLocale.reasonHint),
+    ).toBeVisible();
+    await expect(form.locator(".govuk-character-count__status")).toHaveText(
+      "You have 500 characters remaining",
+    );
+
+    await validateCSRFToken(form);
+  });
+
+  test("shows a validation error when no claim decision is selected", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(assessClaimPage);
+
+    const errorSummary = page.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(
+      errorSummary.getByRole("link", {
+        name: claimAssessmentLocale.radio.validationError,
+      }),
+    ).toHaveAttribute("href", "#assess-claim");
+
+    await expect(
+      form.locator(".govuk-error-message", {
+        hasText: claimAssessmentLocale.radio.validationError,
+      }),
+    ).toBeVisible();
+  });
+
+  test("shows a validation error when Reject is selected without a reason", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Reject" }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(assessClaimPage);
+
+    const errorSummary = page.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(
+      errorSummary.getByRole("link", {
+        name: claimAssessmentLocale.radio.validationErrors.reasonNotEmpty,
+      }),
+    ).toHaveAttribute("href", "#rejection-reason");
+
+    await expect(
+      form.locator(".govuk-error-message", {
+        hasText: claimAssessmentLocale.radio.validationErrors.reasonNotEmpty,
+      }),
+    ).toBeVisible();
+  });
+
+  test("shows a validation error when the rejection reason exceeds 500 characters", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Reject" }).check();
+    const rejectionReasonInput = form.getByLabel(
+      claimAssessmentLocale.reasonLabel,
+    );
+    await rejectionReasonInput.fill("a".repeat(540));
+
+    await expect(form.locator(".govuk-character-count__status")).toHaveText(
+      "You have 40 characters too many",
+    );
+
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(assessClaimPage);
+
+    const errorSummary = page.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(
+      errorSummary.getByRole("link", {
+        name: claimAssessmentLocale.radio.validationErrors.reasonTooLong,
+      }),
+    ).toHaveAttribute("href", "#rejection-reason");
+
+    await expect(
+      form.locator(".govuk-error-message", {
+        hasText: claimAssessmentLocale.radio.validationErrors.reasonTooLong,
+      }),
+    ).toBeVisible();
+  });
+
+  test("redirects to the application overview when Pay in full is selected", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Pay in full" }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(applicationOverviewPage);
+  });
+
+  test("redirects to the application overview when Reject is selected with a valid reason", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Reject" }).check();
+    await form
+      .getByLabel(claimAssessmentLocale.reasonLabel)
+      .fill("Not enough supporting evidence provided");
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(applicationOverviewPage);
+  });
+
+  test("assess claim page validation errors have no accessibility violations", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(assessClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Reject" }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page.locator(".govuk-error-summary")).toBeVisible();
 
     await checkAccessibility();
   });

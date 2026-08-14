@@ -7,9 +7,11 @@ import type {
 } from "#src/adaptors/models/claim.types.js";
 
 const axiosGetStub = sinon.stub();
+const axiosPatchStub = sinon.stub();
 
 afterEach(() => {
   axiosGetStub.reset();
+  axiosPatchStub.reset();
 });
 
 const expectedClaims: ClaimSummary[] = [
@@ -265,6 +267,60 @@ describe("Test Claims API Adaptor", () => {
     let thrown: unknown;
     try {
       await adaptor.getClaimEvidence("1", "inline", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, Error);
+    assert.equal((thrown as Error).message, "network error");
+  });
+
+  it("calls axios with the reject endpoint, justification body and token", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosPatchStub.resolves({ data: undefined });
+
+    await adaptor.rejectClaim(
+      "123",
+      "10",
+      "Not enough supporting evidence provided",
+      "access-token-123",
+    );
+
+    assert.isTrue(axiosPatchStub.calledOnce);
+    const [url, body, config] = axiosPatchStub.getCall(0).args;
+    assert.equal(url, `${baseUrl}/applications/123/claims/10/reject`);
+    assert.deepEqual(body, {
+      justification: "Not enough supporting evidence provided",
+    });
+    assert.equal(config?.headers?.Authorization, "Bearer access-token-123");
+  });
+
+  it("throws when rejecting a claim without an access token", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    let thrown: unknown;
+    try {
+      await adaptor.rejectClaim("123", "10", "reason", undefined);
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, Error);
+    assert.isFalse(axiosPatchStub.called);
+  });
+
+  it("propagates errors from axios when rejecting a claim", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosPatchStub.rejects(new Error("network error"));
+
+    let thrown: unknown;
+    try {
+      await adaptor.rejectClaim("123", "10", "reason", "access-token-123");
     } catch (error) {
       thrown = error;
     }

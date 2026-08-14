@@ -17,6 +17,7 @@ import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import config from "#src/infrastructure/config/config.js";
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
+import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
 import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
 import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
@@ -26,6 +27,8 @@ import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/Refu
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
+import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
@@ -85,6 +88,9 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   viewApplicationAdaptor,
   claimsAdaptor,
   buildClaimAssessmentViewUseCase,
+  new ClaimAssessmentValidator(),
+  new ProcessClaimAssessmentUseCase(),
+  new RejectClaimUseCase(),
 );
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,

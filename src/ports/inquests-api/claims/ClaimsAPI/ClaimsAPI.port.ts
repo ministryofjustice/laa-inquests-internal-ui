@@ -24,4 +24,10 @@ export interface ClaimsPort {
     contentType: string;
     contentDisposition: string;
   }>;
+  rejectClaim: (
+    applicationId: string,
+    claimId: string,
+    justification: string,
+    accessToken: string | undefined,
+  ) => Promise<void>;
 }
