@@ -33,7 +33,10 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
 
       return html;
     },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: () => "Certificate created",
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: (eventData) => {
+      const certificateLink = getEscapedString(eventData?.certificateLink);
+      return `Certificate created <br /> <a href=${certificateLink}>View certificate</a>`;
+    },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: () =>
       "Interested parties updated",
 

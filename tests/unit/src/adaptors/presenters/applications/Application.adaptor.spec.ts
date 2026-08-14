@@ -739,7 +739,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Certificate created</strong>",
+        "<strong>Certificate created <br /> <a href=>View certificate</a></strong>",
       );
     });
 
@@ -990,7 +990,7 @@ describe("Application adaptor", () => {
       );
       assert.equal(
         historyRows[2][2].html,
-        "<strong>Certificate created</strong>",
+        "<strong>Certificate created <br /> <a href=>View certificate</a></strong>",
       );
     });
 
