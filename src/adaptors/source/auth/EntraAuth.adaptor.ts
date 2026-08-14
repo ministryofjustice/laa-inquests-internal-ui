@@ -20,7 +20,7 @@ export class EntraAuthAdaptor implements AuthPort {
   ): Promise<AuthTokenResult> {
     const request: AuthorizationCodeRequest = { code, scopes, redirectUri };
     const result = await this.msalClient.acquireTokenByCode(request);
-
+    console.log("MSAL acquireTokenByCode result:", result);
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- MSAL can return null at runtime despite the type signature
     if (result === null) {
       throw new Error("MSAL returned null token result");

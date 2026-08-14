@@ -10,3 +10,7 @@ export interface TypedRequest<T, V> extends Express.Request {
 export interface IdParams {
   applicationId: string;
 }
+
+export interface ClaimIdParams extends IdParams {
+  claimId: string;
+}

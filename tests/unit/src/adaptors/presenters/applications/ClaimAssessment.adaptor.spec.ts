@@ -6,6 +6,10 @@ import { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/Cla
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
+import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
+import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import type { AssessClaimForm } from "#src/adaptors/presenter/models/form.types.js";
+import type { ClaimIdParams, TypedRequest } from "#src/infrastructure/express/api.types.js";
 
 describe("ClaimAssessmentAdaptor", () => {
   let adaptor: ClaimAssessmentAdaptor;
@@ -14,6 +18,8 @@ describe("ClaimAssessmentAdaptor", () => {
   let applicationPortStub: StubbedInstance<ApplicationPort>;
   let claimsPortStub: StubbedInstance<ClaimsPort>;
   let buildClaimAssessmentViewUseCaseStub: StubbedInstance<BuildClaimAssessmentViewUseCase>;
+  let validatorStub: StubbedInstance<ClaimAssessmentValidator>;
+  let processClaimAssessmentUseCaseStub: StubbedInstance<ProcessClaimAssessmentUseCase>;
 
   beforeEach(() => {
     requestStub = stubInterface<Request>();
@@ -22,6 +28,9 @@ describe("ClaimAssessmentAdaptor", () => {
     claimsPortStub = stubInterface<ClaimsPort>();
     buildClaimAssessmentViewUseCaseStub =
       stubInterface<BuildClaimAssessmentViewUseCase>();
+    validatorStub = stubInterface<ClaimAssessmentValidator>();
+    processClaimAssessmentUseCaseStub =
+      stubInterface<ProcessClaimAssessmentUseCase>();
 
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
@@ -60,6 +69,8 @@ describe("ClaimAssessmentAdaptor", () => {
       applicationPortStub,
       claimsPortStub,
       buildClaimAssessmentViewUseCaseStub,
+      validatorStub,
+      processClaimAssessmentUseCaseStub,
     );
   });
 
@@ -97,6 +108,66 @@ describe("ClaimAssessmentAdaptor", () => {
       applicationId: "123",
       claimId: "10",
       claimStatus: "Reject",
+    });
+  });
+
+  describe("processClaimAssessmentForm", () => {
+    function buildPostRequest(
+      assessClaim: string,
+      rejectionReason: string,
+    ): TypedRequest<AssessClaimForm, ClaimIdParams> {
+      return {
+        ...requestStub,
+        body: {
+          assessClaim,
+          "rejection-reason": rejectionReason,
+        },
+        params: {
+          applicationId: "123",
+          claimId: "10",
+        },
+      } as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>;
+    }
+
+    it("redirects to the application overview when validation passes", async () => {
+      processClaimAssessmentUseCaseStub.execute.returns({
+        status: "SUCCESS",
+        data: { assessClaim: "pay in full", rejectionReason: "" },
+      });
+
+      await adaptor.processClaimAssessmentForm(
+        buildPostRequest("pay in full", ""),
+        responseStub,
+      );
+
+      assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
+        "/applications/123/overview",
+      ]);
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("re-renders the claim assessment page with errors when validation fails", async () => {
+      const validationErrors = {
+        rejectionReason: { text: "Enter a reason for rejecting the claim" },
+      };
+      processClaimAssessmentUseCaseStub.execute.returns({
+        status: "VALIDATION_FAILED",
+        validationErrors,
+        data: { assessClaim: "reject", rejectionReason: "" },
+      });
+
+      await adaptor.processClaimAssessmentForm(
+        buildPostRequest("reject", ""),
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(buildClaimAssessmentViewUseCaseStub.execute.callCount, 1);
+      assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
+        assessClaim: "reject",
+        rejectionReason: "",
+        errorSummaries: validationErrors,
+      });
     });
   });
 

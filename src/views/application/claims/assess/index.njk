@@ -2,6 +2,7 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
@@ -10,7 +11,8 @@
   {{ govukErrorSummary({
     titleText: t('common.errorSummaryTitle'),
     errorList: [
-      { text: errorSummaries.assessClaim.text, href: '#assess-claim' } if errorSummaries.assessClaim
+      { text: errorSummaries.assessClaim.text, href: '#assess-claim' } if errorSummaries.assessClaim,
+      { text: errorSummaries.rejectionReason.text, href: '#rejection-reason' } if errorSummaries.rejectionReason
     ]
   }) }}
 {% endif %}
@@ -168,7 +170,23 @@
       },
       {
         value: 'reject',
-        text: t('pages.claimAssessment.radio.reject')
+        text: t('pages.claimAssessment.radio.reject'),
+        conditional: {
+          html: govukCharacterCount({
+            name: "rejection-reason",
+            id: "rejection-reason",
+            maxlength: 500,
+            value: rejectionReason,
+            label: {
+              text: t('pages.claimAssessment.reasonLabel'),
+              classes: "govuk-!-font-weight-bold"
+            },
+            hint: {
+              text: t('pages.claimAssessment.reasonHint')
+            },
+            errorMessage: errorSummaries.rejectionReason
+          })
+        }
       }
     ]
   }) }}
