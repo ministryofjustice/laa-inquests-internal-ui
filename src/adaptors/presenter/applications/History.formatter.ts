@@ -28,7 +28,7 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       const decision = getEscapedString(eventData?.meritsDecision);
       let html = `Application ${decision}`;
       if (decision === "Refused") {
-        const formattedRefusalReason = formatRefusalReason(
+        const formattedRefusalReason = formatEnum(
           getEscapedString(eventData?.refusalReason),
         );
         html += `<br /> ${formattedRefusalReason} <br /> ${getEscapedString(eventData?.refusalJustification)}`;
@@ -44,11 +44,11 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       "Interested parties updated",
 
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
-      const claimType = getEscapedString(eventData?.claimType);
+      const claimType = formatEnum(getEscapedString(eventData?.claimType));
       return `${claimType} claim received`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
-      const claimType = getEscapedString(eventData?.claimType);
+      const claimType = formatEnum(getEscapedString(eventData?.claimType));
       const decision = getEscapedString(eventData?.claimDecision);
       return `${claimType} claim ${decision}`;
     },
@@ -80,8 +80,8 @@ function getEscapedString(value: unknown): string {
   return typeof value === "string" ? escapeHtml(value) : "";
 }
 
-function formatRefusalReason(refusalReason: string): string {
-  return refusalReason
+function formatEnum(enumValue: string): string {
+  return enumValue
     .replaceAll("_", " ")
     .toLowerCase()
     .replace(/^./v, (char) => char.toUpperCase());
