@@ -28,6 +28,7 @@ import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
@@ -89,6 +90,7 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   buildClaimAssessmentViewUseCase,
   new ClaimAssessmentValidator(),
   new ProcessClaimAssessmentUseCase(),
+  new RejectClaimUseCase(),
 );
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,

@@ -462,6 +462,11 @@ export const applicationHandlers = [
     },
   ),
 
+  http.patch(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId/reject`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/reports/applications/backlog`,
     () => {

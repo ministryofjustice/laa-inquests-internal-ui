@@ -13,7 +13,7 @@ describe("ProcessClaimAssessmentUseCase", () => {
     };
 
     const result = useCase.execute({
-      assessClaim: "reject",
+      assessClaim: "Reject",
       rejectionReason: "",
       validate: () => errors,
     });
@@ -21,21 +21,21 @@ describe("ProcessClaimAssessmentUseCase", () => {
     assert.equal(result.status, "VALIDATION_FAILED");
     assert.deepEqual(result.validationErrors, errors);
     assert.deepEqual(result.data, {
-      assessClaim: "reject",
+      assessClaim: "Reject",
       rejectionReason: "",
     });
   });
 
   it("returns SUCCESS with the posted form data", () => {
     const result = useCase.execute({
-      assessClaim: "reject",
+      assessClaim: "Reject",
       rejectionReason: "Not enough supporting evidence provided",
       validate: () => ({}),
     });
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, {
-      assessClaim: "reject",
+      assessClaim: "Reject",
       rejectionReason: "Not enough supporting evidence provided",
     });
   });

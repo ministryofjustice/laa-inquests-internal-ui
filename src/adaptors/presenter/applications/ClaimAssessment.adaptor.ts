@@ -3,8 +3,12 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
-import { DISPOSITION } from "#src/infrastructure/locales/constants.js";
+import {
+  CLAIM_DECISION_STATUSES,
+  DISPOSITION,
+} from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import type {
   AssessClaimForm,
@@ -22,6 +26,7 @@ export class ClaimAssessmentAdaptor {
     private readonly buildClaimAssessmentViewUseCase: BuildClaimAssessmentViewUseCase = new BuildClaimAssessmentViewUseCase(),
     private readonly validator: ClaimAssessmentValidator = new ClaimAssessmentValidator(),
     private readonly processClaimAssessmentUseCase: ProcessClaimAssessmentUseCase = new ProcessClaimAssessmentUseCase(),
+    private readonly rejectClaimUseCase: RejectClaimUseCase = new RejectClaimUseCase(),
   ) {}
 
   async renderClaimAssessmentPage(
@@ -82,6 +87,20 @@ export class ClaimAssessmentAdaptor {
         rejectionReason,
       );
       return;
+    }
+
+    if (assessClaim === CLAIM_DECISION_STATUSES.REJECT) {
+      const rejectResult = await this.rejectClaimUseCase.execute({
+        applicationId,
+        claimId,
+        justification: rejectionReason,
+        claimsPort: this.claimsPort,
+        accessToken: req.session.user?.accessToken,
+      });
+
+      if (rejectResult.status === "TECHNICAL_FAILURE") {
+        throw new Error("Unable to reject claim");
+      }
     }
 
     res.redirect(`/applications/${applicationId}/overview`);

@@ -283,9 +283,9 @@ test.describe("Assess claim page", () => {
     await expect(
       form.getByText(claimAssessmentLocale.reasonHint),
     ).toBeVisible();
-    await expect(
-      form.locator(".govuk-character-count__status"),
-    ).toHaveText("You have 500 characters remaining");
+    await expect(form.locator(".govuk-character-count__status")).toHaveText(
+      "You have 500 characters remaining",
+    );
 
     await validateCSRFToken(form);
   });
@@ -355,9 +355,9 @@ test.describe("Assess claim page", () => {
     );
     await rejectionReasonInput.fill("a".repeat(540));
 
-    await expect(
-      form.locator(".govuk-character-count__status"),
-    ).toHaveText("You have 40 characters too many");
+    await expect(form.locator(".govuk-character-count__status")).toHaveText(
+      "You have 40 characters too many",
+    );
 
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");

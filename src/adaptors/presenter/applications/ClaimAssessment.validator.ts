@@ -4,7 +4,10 @@ import type {
 } from "#src/adaptors/presenter/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
-import { REJECTION_REASON_MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CLAIM_DECISION_STATUSES,
+  REJECTION_REASON_MAX_CHARACTER_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 
 export class ClaimAssessmentValidator extends FormValidator {
   validateAssessClaimForm(
@@ -21,7 +24,7 @@ export class ClaimAssessmentValidator extends FormValidator {
       return errors;
     }
 
-    if (assessClaim === "reject") {
+    if (assessClaim === CLAIM_DECISION_STATUSES.REJECT) {
       if (!rejectionReason.trim()) {
         errors.rejectionReason = {
           text: en.pages.claimAssessment.radio.validationErrors.reasonNotEmpty,

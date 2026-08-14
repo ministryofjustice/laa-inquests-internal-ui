@@ -8,8 +8,12 @@ import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/Claims
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import type { AssessClaimForm } from "#src/adaptors/presenter/models/form.types.js";
-import type { ClaimIdParams, TypedRequest } from "#src/infrastructure/express/api.types.js";
+import type {
+  ClaimIdParams,
+  TypedRequest,
+} from "#src/infrastructure/express/api.types.js";
 
 describe("ClaimAssessmentAdaptor", () => {
   let adaptor: ClaimAssessmentAdaptor;
@@ -20,6 +24,7 @@ describe("ClaimAssessmentAdaptor", () => {
   let buildClaimAssessmentViewUseCaseStub: StubbedInstance<BuildClaimAssessmentViewUseCase>;
   let validatorStub: StubbedInstance<ClaimAssessmentValidator>;
   let processClaimAssessmentUseCaseStub: StubbedInstance<ProcessClaimAssessmentUseCase>;
+  let rejectClaimUseCaseStub: StubbedInstance<RejectClaimUseCase>;
 
   beforeEach(() => {
     requestStub = stubInterface<Request>();
@@ -31,6 +36,7 @@ describe("ClaimAssessmentAdaptor", () => {
     validatorStub = stubInterface<ClaimAssessmentValidator>();
     processClaimAssessmentUseCaseStub =
       stubInterface<ProcessClaimAssessmentUseCase>();
+    rejectClaimUseCaseStub = stubInterface<RejectClaimUseCase>();
 
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
@@ -71,6 +77,7 @@ describe("ClaimAssessmentAdaptor", () => {
       buildClaimAssessmentViewUseCaseStub,
       validatorStub,
       processClaimAssessmentUseCaseStub,
+      rejectClaimUseCaseStub,
     );
   });
 
@@ -132,11 +139,11 @@ describe("ClaimAssessmentAdaptor", () => {
     it("redirects to the application overview when validation passes", async () => {
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
-        data: { assessClaim: "pay in full", rejectionReason: "" },
+        data: { assessClaim: "Pay in full", rejectionReason: "" },
       });
 
       await adaptor.processClaimAssessmentForm(
-        buildPostRequest("pay in full", ""),
+        buildPostRequest("Pay in full", ""),
         responseStub,
       );
 
@@ -144,6 +151,65 @@ describe("ClaimAssessmentAdaptor", () => {
         "/applications/123/overview",
       ]);
       assert.equal(responseStub.render.callCount, 0);
+      assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);
+    });
+
+    it("rejects the claim then redirects when Reject is selected with a valid reason", async () => {
+      processClaimAssessmentUseCaseStub.execute.returns({
+        status: "SUCCESS",
+        data: {
+          assessClaim: "Reject",
+          rejectionReason: "Not enough supporting evidence provided",
+        },
+      });
+      rejectClaimUseCaseStub.execute.resolves({
+        status: "SUCCESS",
+        data: undefined,
+      });
+
+      await adaptor.processClaimAssessmentForm(
+        buildPostRequest("Reject", "Not enough supporting evidence provided"),
+        responseStub,
+      );
+
+      assert.equal(rejectClaimUseCaseStub.execute.callCount, 1);
+      assert.deepStrictEqual(
+        rejectClaimUseCaseStub.execute.getCall(0).args[0],
+        {
+          applicationId: "123",
+          claimId: "10",
+          justification: "Not enough supporting evidence provided",
+          claimsPort: claimsPortStub,
+          accessToken: "test-access-token",
+        },
+      );
+      assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
+        "/applications/123/overview",
+      ]);
+    });
+
+    it("throws when rejecting the claim fails upstream", async () => {
+      processClaimAssessmentUseCaseStub.execute.returns({
+        status: "SUCCESS",
+        data: {
+          assessClaim: "Reject",
+          rejectionReason: "Not enough supporting evidence provided",
+        },
+      });
+      rejectClaimUseCaseStub.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: "UPSTREAM_REJECTED",
+      });
+
+      await assert.rejects(
+        adaptor.processClaimAssessmentForm(
+          buildPostRequest("Reject", "Not enough supporting evidence provided"),
+          responseStub,
+        ),
+        /Unable to reject claim/,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 0);
     });
 
     it("re-renders the claim assessment page with errors when validation fails", async () => {
@@ -153,18 +219,19 @@ describe("ClaimAssessmentAdaptor", () => {
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "VALIDATION_FAILED",
         validationErrors,
-        data: { assessClaim: "reject", rejectionReason: "" },
+        data: { assessClaim: "Reject", rejectionReason: "" },
       });
 
       await adaptor.processClaimAssessmentForm(
-        buildPostRequest("reject", ""),
+        buildPostRequest("Reject", ""),
         responseStub,
       );
 
       assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);
       assert.equal(buildClaimAssessmentViewUseCaseStub.execute.callCount, 1);
       assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-        assessClaim: "reject",
+        assessClaim: "Reject",
         rejectionReason: "",
         errorSummaries: validationErrors,
       });

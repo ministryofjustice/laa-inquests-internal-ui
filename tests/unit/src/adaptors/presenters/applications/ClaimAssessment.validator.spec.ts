@@ -23,7 +23,7 @@ describe("ClaimAssessmentValidator", () => {
 
     it("does not validate the rejection reason when Pay in full is selected", () => {
       const form: AssessClaimForm = {
-        assessClaim: "pay in full",
+        assessClaim: "Pay in full",
         "rejection-reason": "",
       };
 
@@ -34,7 +34,7 @@ describe("ClaimAssessmentValidator", () => {
 
     it("adds a reasonNotEmpty error when Reject is selected without a reason", () => {
       const form: AssessClaimForm = {
-        assessClaim: "reject",
+        assessClaim: "Reject",
         "rejection-reason": "",
       };
 
@@ -47,7 +47,7 @@ describe("ClaimAssessmentValidator", () => {
 
     it("adds a reasonNotEmpty error when the reason is only whitespace", () => {
       const form: AssessClaimForm = {
-        assessClaim: "reject",
+        assessClaim: "Reject",
         "rejection-reason": "   ",
       };
 
@@ -60,7 +60,7 @@ describe("ClaimAssessmentValidator", () => {
 
     it("adds a reasonTooLong error when the reason exceeds 500 characters", () => {
       const form: AssessClaimForm = {
-        assessClaim: "reject",
+        assessClaim: "Reject",
         "rejection-reason": "a".repeat(501),
       };
 
@@ -73,7 +73,7 @@ describe("ClaimAssessmentValidator", () => {
 
     it("does not add an error when Reject is selected with a valid reason", () => {
       const form: AssessClaimForm = {
-        assessClaim: "reject",
+        assessClaim: "Reject",
         "rejection-reason": "Not enough supporting evidence provided",
       };
 
