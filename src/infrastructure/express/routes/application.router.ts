@@ -108,6 +108,26 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
+    "/:applicationId/claims/:claimId/rejected",
+    (req: Request, res: Response, next: NextFunction): void => {
+      const {
+        params: { applicationId },
+      } = req;
+      const applicationIdParam = applicationId as string;
+
+      try {
+        claimAssessmentAdaptor.renderClaimRejectionSuccessPage(
+          req,
+          res,
+          applicationIdParam,
+        );
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
+  applicationRouter.get(
     "/:applicationId/claims/:claimId/evidence/:claimEvidenceId",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {

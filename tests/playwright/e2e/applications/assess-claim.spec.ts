@@ -3,10 +3,12 @@ import { validateCSRFToken } from "../../utils/govuk-validators.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const claimAssessmentLocale = en.pages.claimAssessment;
+const rejectedSuccessLocale = en.pages.claimAssessment.rejectedSuccess;
 
 const applicationId = "5";
 const claimId = "10";
 const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
+const rejectedSuccessPage = `/applications/${applicationId}/claims/${claimId}/rejected`;
 const applicationOverviewPage = `/applications/${applicationId}/overview`;
 const claimWithoutEvidenceId = "11";
 const assessClaimNoEvidencePage = `/applications/${applicationId}/claims/${claimWithoutEvidenceId}`;
@@ -392,7 +394,7 @@ test.describe("Assess claim page", () => {
     await expect(page).toHaveURL(applicationOverviewPage);
   });
 
-  test("redirects to the application overview when Reject is selected with a valid reason", async ({
+  test("shows the rejection success page when Reject is selected with a valid reason", async ({
     page,
   }) => {
     await page.goto(assessClaimPage);
@@ -405,7 +407,61 @@ test.describe("Assess claim page", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page).toHaveURL(applicationOverviewPage);
+    await expect(page).toHaveURL(rejectedSuccessPage);
+
+    await expect(
+      page.locator(".govuk-panel__title", {
+        hasText: rejectedSuccessLocale.panel,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: rejectedSuccessLocale.whatHappensNext,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(rejectedSuccessLocale.whatHappensNextBody),
+    ).toBeVisible();
+    await expect(
+      page.locator(".govuk-warning-text", {
+        hasText: rejectedSuccessLocale.warning,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: rejectedSuccessLocale.assessNewClaimButton,
+      }),
+    ).toBeVisible();
+  });
+
+  test("Assess a new claim button returns to the application overview claims tab", async ({
+    page,
+  }) => {
+    await page.goto(rejectedSuccessPage);
+
+    await page
+      .getByRole("button", { name: rejectedSuccessLocale.assessNewClaimButton })
+      .click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(`${applicationOverviewPage}#claims`);
+    await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
+  });
+
+  test("rejection success page has no accessibility violations", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(rejectedSuccessPage);
+
+    await expect(
+      page.locator(".govuk-panel__title", {
+        hasText: rejectedSuccessLocale.panel,
+      }),
+    ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("assess claim page validation errors have no accessibility violations", async ({

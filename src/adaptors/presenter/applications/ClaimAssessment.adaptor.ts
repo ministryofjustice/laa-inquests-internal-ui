@@ -103,9 +103,22 @@ export class ClaimAssessmentAdaptor {
       if (rejectResult.status === "TECHNICAL_FAILURE") {
         throw new Error("Unable to reject claim");
       }
+
+      res.redirect(`/applications/${applicationId}/claims/${claimId}/rejected`);
+      return;
     }
 
     res.redirect(`/applications/${applicationId}/overview`);
+  }
+
+  renderClaimRejectionSuccessPage(
+    _req: Request,
+    res: Response,
+    applicationId: string,
+  ): void {
+    res.render("application/claims/rejected/index", {
+      applicationId,
+    });
   }
 
   async serveClaimEvidence(

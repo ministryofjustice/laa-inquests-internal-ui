@@ -154,7 +154,7 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);
     });
 
-    it("rejects the claim then redirects when Reject is selected with a valid reason", async () => {
+    it("rejects the claim then redirects to the rejection success page when Reject is selected with a valid reason", async () => {
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: {
@@ -184,7 +184,7 @@ describe("ClaimAssessmentAdaptor", () => {
         },
       );
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/overview",
+        "/applications/123/claims/10/rejected",
       ]);
     });
 
@@ -234,6 +234,21 @@ describe("ClaimAssessmentAdaptor", () => {
         assessClaim: "Reject",
         rejectionReason: "",
         errorSummaries: validationErrors,
+      });
+    });
+  });
+
+  describe("renderClaimRejectionSuccessPage", () => {
+    it("renders the rejection success view with the application id", () => {
+      adaptor.renderClaimRejectionSuccessPage(requestStub, responseStub, "123");
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(
+        responseStub.render.getCall(0).args[0],
+        "application/claims/rejected/index",
+      );
+      assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
+        applicationId: "123",
       });
     });
   });
