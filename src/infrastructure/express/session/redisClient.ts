@@ -3,10 +3,13 @@ import config from "#src/infrastructure/config/config.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export const createRedisClient = (): RedisClientType => {
-  const encodedRedisAuthToken = encodeURIComponent(config.REDIS_AUTH_TOKEN);
+  const url =
+    config.REDIS_AUTH_TOKEN === ""
+      ? `redis://${config.REDIS_HOST_NAME}:6379`
+      : `rediss://:${encodeURIComponent(config.REDIS_AUTH_TOKEN)}@${config.REDIS_HOST_NAME}:6379`;
 
   const client: RedisClientType = createClient({
-    url: `rediss://:${encodedRedisAuthToken}@${config.REDIS_HOST_NAME}:6379`,
+    url,
   });
   //
   client.on("error", (err: unknown) => {

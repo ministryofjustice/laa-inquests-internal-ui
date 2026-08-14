@@ -6,7 +6,7 @@ import { createRedisClient } from "#src/infrastructure/express/session/redisClie
 
 // Returns undefined in test so express-session falls back to its in-memory store.
 export const createSessionStore = (): Store | undefined => {
-  if (config.app.environment === "test") {
+  if (config.app.environment === "test" || !config.USE_REDIS) {
     return undefined;
   }
 
