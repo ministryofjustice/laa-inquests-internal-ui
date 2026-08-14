@@ -76,7 +76,7 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
   if (requiresHttps && !req.secure) {
     const host = req.get("host");
 
-    if (host != null && host !== "") {
+    if (host !== undefined && host !== "") {
       res.redirect(TEMPORARY_REDIRECT, `https://${host}${req.originalUrl}`);
       return;
     }
