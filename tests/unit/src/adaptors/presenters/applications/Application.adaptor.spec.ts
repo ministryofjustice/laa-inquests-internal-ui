@@ -892,8 +892,8 @@ describe("Application adaptor", () => {
           eventReference: "EVT-BUS-APP-002",
           eventData: {
             meritsDecision: "Refused",
-            refusalReason: "Insufficient evidence",
-            refusalJustification: "No supporting documents provided",
+            refusalReason: "NOT_IN_SCOPE",
+            refusalJustification: "Test refusal justification",
           },
         },
       ]);
@@ -911,7 +911,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Application Refused<br /> Insufficient evidence <br /> No supporting documents provided</strong>",
+        "<strong>Application Refused<br /> Not in scope <br /> Test refusal justification</strong>",
       );
     });
 
