@@ -59,7 +59,7 @@ runs:
         kube-namespace: ${{ inputs.kube-namespace }}
 
     - name: Set up AWS credentials for ECR and Kubernetes
-      uses: aws-actions/configure-aws-credentials@v6.0.0
+      uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
       with:
         role-to-assume: ${{ inputs.ecr-role-to-assume }}
         aws-region: ${{ inputs.ecr-region }}
@@ -69,8 +69,10 @@ runs:
 
     - name: Deploy infrastructure to dev
       shell: bash
+      env:
+        APP_ENVIRONMENT: ${{ inputs.app-environment }}
       run: |
-        if [ ${{ inputs.app-environment }} == 'dev' ]
+        if [ "$APP_ENVIRONMENT" == "dev" ]
         then
           echo "DEPLOYING"
           kubectl apply --record=false -f ./deploy/infrastructure/grafana/
@@ -86,25 +88,37 @@ runs:
 
     - name: Set environment variables
       shell: bash
+      env:
+        AUTH_CLIENT_ID: ${{ inputs.auth_client_id || '' }}
+        AUTH_CLIENT_SECRET: ${{ inputs.auth_client_secret || '' }}
+        AUTH_DIRECTORY_URL: ${{ inputs.auth_directory_url || '' }}
+        AUTH_POST_LOGOUT_URI: ${{ inputs.auth_post_logout_uri || '' }}
+        AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
+        RATE_LIMIT_MAX: ${{ inputs.ratelimit_max || '100' }}
+        RATE_WINDOW_MS: ${{ inputs.ratewindow_ms || '900000' }}
+        INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
+        SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
+        SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
+        SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
       run: |
-        echo "NODE_ENV=production" >> $GITHUB_ENV
-        echo "RATE_LIMIT_MAX=${{ inputs.ratelimit_max || '100' }}" >> $GITHUB_ENV
-        echo "RATE_WINDOW_MS=${{ inputs.ratewindow_ms || '900000' }}" >> $GITHUB_ENV
-        echo "SERVICE_NAME=${{ inputs.service_name || 'Inquests' }}" >> $GITHUB_ENV
-
-        echo "INQUESTS_API_URL=${{ inputs.inquests_api_url || '' }}" >> $GITHUB_ENV
-        echo "SESSION_NAME=${{ inputs.session_name || 'sessionId' }}" >> $GITHUB_ENV
-        echo "SESSION_SECRET=${{ inputs.session_secret || 'default-session-secret' }}" >> $GITHUB_ENV
-        echo "AUTH_CLIENT_ID=${{ inputs.auth_client_id || '' }}" >> $GITHUB_ENV
-        echo "AUTH_CLIENT_SECRET=${{ inputs.auth_client_secret || '' }}" >> $GITHUB_ENV
-        echo "AUTH_DIRECTORY_URL=${{ inputs.auth_directory_url || '' }}" >> $GITHUB_ENV
-        echo "AUTH_POST_LOGOUT_URI=${{ inputs.auth_post_logout_uri || '' }}" >> $GITHUB_ENV
-        echo "AUTH_REDIRECT_URI=${{ inputs.auth_redirect_uri || '' }}" >> $GITHUB_ENV
+        echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID" >> "$GITHUB_ENV"
+        echo "AUTH_CLIENT_SECRET=$AUTH_CLIENT_SECRET" >> "$GITHUB_ENV"
+        echo "AUTH_DIRECTORY_URL=$AUTH_DIRECTORY_URL" >> "$GITHUB_ENV"
+        echo "AUTH_POST_LOGOUT_URI=$AUTH_POST_LOGOUT_URI" >> "$GITHUB_ENV"
+        echo "AUTH_REDIRECT_URI=$AUTH_REDIRECT_URI" >> "$GITHUB_ENV"
+        echo "NODE_ENV=production" >> "$GITHUB_ENV"
+        echo "RATE_LIMIT_MAX=$RATE_LIMIT_MAX" >> "$GITHUB_ENV"
+        echo "RATE_WINDOW_MS=$RATE_WINDOW_MS" >> "$GITHUB_ENV"
+        echo "INQUESTS_API_URL=$INQUESTS_API_URL" >> "$GITHUB_ENV"
+        echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
+        echo "SESSION_NAME=$SESSION_NAME" >> "$GITHUB_ENV"
+        echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"
 
     - name: Deploy using Helm
       shell: bash
-      run: ./deploy/scripts/deploy.sh ${{ inputs.app-environment }}
+      run: ./deploy/scripts/deploy.sh "$APP_ENVIRONMENT"
       env:
+        APP_ENVIRONMENT: ${{ inputs.app-environment }}
         REGISTRY: ${{ inputs.ecr-registry_url }}
         REPOSITORY: ${{ inputs.ecr-repository }}
         IMAGE_TAG: ${{ github.sha }}

@@ -33,3 +33,6 @@ coverage/
 
 # Temporary external repo mirror for learn-from-external skill
 .external-mirror/
+
+semgrep-results.sarif
+
