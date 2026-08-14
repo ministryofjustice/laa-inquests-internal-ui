@@ -28,6 +28,7 @@ import crypto from "node:crypto";
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
 const TEMPORARY_REDIRECT = 307;
+const HEALTH_ENDPOINTS = ["/health", "/status"];
 
 const requiresHttps = config.app.environment === "production";
 
@@ -67,6 +68,11 @@ app.use(
 app.disable("x-powered-by");
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
+  if (HEALTH_ENDPOINTS.includes(req.path)) {
+    next();
+    return;
+  }
+
   if (requiresHttps && !req.secure) {
     const host = req.get("host");
 
