@@ -25,39 +25,39 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
   {
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => "Application received",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002]: (eventData) => {
-      const decision = getEscapedString(eventData?.meritsDecision);
+      const decision = escapeHtmlValue(eventData?.meritsDecision);
       let html = `Application ${decision}`;
       if (decision === "Refused") {
         const formattedRefusalReason = formatEnum(
-          getEscapedString(eventData?.refusalReason),
+          escapeHtmlValue(eventData?.refusalReason),
         );
-        html += `<br /> ${formattedRefusalReason} <br /> ${getEscapedString(eventData?.refusalJustification)}`;
+        html += `<br /> ${formattedRefusalReason} <br /> ${escapeHtmlValue(eventData?.refusalJustification)}`;
       }
 
       return html;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: (eventData) => {
-      const laaReference = getEscapedString(eventData?.laaReference);
+      const laaReference = escapeHtmlValue(eventData?.laaReference);
       return `Certificate created <br /> <a href="/applications/${laaReference}/certificate">View certificate</a>`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: () =>
       "Interested parties updated",
 
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
-      const claimType = formatEnum(getEscapedString(eventData?.claimType));
+      const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
       return `${claimType} claim received`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
-      const claimType = formatEnum(getEscapedString(eventData?.claimType));
-      const decision = getEscapedString(eventData?.claimDecision);
+      const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
+      const decision = escapeHtmlValue(eventData?.claimDecision);
       return `${claimType} claim ${decision}`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData) => {
-      const claimReference = getEscapedString(eventData?.claimReference);
+      const claimReference = escapeHtmlValue(eventData?.claimReference);
       return `POA claim ${claimReference} auto-approved`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_004]: (eventData) => {
-      const claimReference = getEscapedString(eventData?.claimReference);
+      const claimReference = escapeHtmlValue(eventData?.claimReference);
       return `POA claim ${claimReference} auto-rejected`;
     },
 
@@ -76,8 +76,16 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       "Claim approved email sent",
   };
 
-function getEscapedString(value: unknown): string {
-  return typeof value === "string" ? escapeHtml(value) : "";
+function escapeHtmlValue(value: unknown): string {
+  if (typeof value === "string") {
+    return escapeHtml(value);
+  }
+
+  if (typeof value === "number") {
+    return escapeHtml(String(value));
+  }
+
+  return "";
 }
 
 function formatEnum(enumValue: string): string {
@@ -104,7 +112,7 @@ function formatHistoryEventUpdate(
 export function formatHistoryRows(
   history: HistoryEvent[],
 ): Array<Array<{ text?: string; html?: string }>> {
-  const historyRows = history.map((event) => {
+  return history.map((event) => {
     const timestamp = formatDateTime(event.timestamp);
     const actor = escapeHtml(event.actor);
     const update = formatHistoryEventUpdate(
@@ -114,6 +122,4 @@ export function formatHistoryRows(
 
     return [{ text: timestamp }, { text: actor }, { html: update }];
   });
-
-  return historyRows;
 }
