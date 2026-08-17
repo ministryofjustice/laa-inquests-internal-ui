@@ -139,7 +139,7 @@
       "reasonLabel": "What is the reason you are rejecting this claim?",
       "reasonHint": "This information will be shared with the provider and added to the application history.",
       "rejectedSuccess": {
-        "panel": "Final bill claim has been assessed and rejected",
+        "panel": "Payment on account claim has been assessed and rejected",
         "whatHappensNext": "What happens next",
         "whatHappensNextBody": "Your decision, and the reason for rejection, has been saved in the application history. The provider will be informed.",
         "warning": "If you have downloaded any files, you must delete these at the end of the day to comply with GDPR.",
