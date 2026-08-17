@@ -2,6 +2,7 @@ import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { http, HttpResponse } from "msw";
 import {
   GRANTED_DECISION,
+  HISTORY_EVENT_REFERENCE,
   PENDING_DECISION,
   REFUSED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
@@ -336,6 +337,24 @@ const claimDetailVatZeroOnly = {
   totalProfitCostVatZero: "800.00",
 };
 
+/**
+ * Application history events returned by GET /applications/:id/history.
+ */
+const applicationHistory = [
+  {
+    timestamp: "2026-05-18T15:49:07.455255",
+    actor: "System",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001,
+    eventData: null,
+  },
+  {
+    timestamp: "2026-05-19T09:00:00.000000",
+    actor: "Jane Smith",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002,
+    eventData: { meritsDecision: "granted" },
+  },
+];
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -416,6 +435,10 @@ export const applicationHandlers = [
       return HttpResponse.json(certificate);
     },
   ),
+
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/history`, () => {
+    return HttpResponse.json(applicationHistory);
+  }),
 
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/claims/:claimEvidenceId`,
