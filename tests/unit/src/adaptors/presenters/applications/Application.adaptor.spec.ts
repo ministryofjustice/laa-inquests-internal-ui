@@ -915,7 +915,7 @@ describe("Application adaptor", () => {
       );
     });
 
-    it("formats refused application without refusal reason or justification", async () => {
+    it("cannot format refused application without refusal reason or justification", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([
         {
