@@ -2,6 +2,7 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/tabs/macro.njk" import govukTabs %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
@@ -274,6 +275,10 @@
         {% elif historyRows.length === 0 %}
             <p class="govuk-body">{{ t('pages.applicationOverview.history.noHistory') }}</p>
         {% else %}
+            {{ govukWarningText({
+                text: "Search this page using Ctrl+F",
+                iconFallbackText: "Warning"
+            }) }}
             {{ govukTable({
                 caption: t('pages.applicationOverview.history.tableCaption'),
                 captionClasses: "govuk-visually-hidden",
