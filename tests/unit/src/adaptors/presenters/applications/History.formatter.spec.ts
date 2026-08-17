@@ -39,7 +39,7 @@ describe("HistoryFormatter", () => {
       );
     });
 
-    it("defaults to empty string when value is not a string or number", () => {
+    it("throws an error when value is not a string or number", () => {
       const [row] = formatHistoryRows([
         {
           timestamp: "2026-08-17T08:35:24.110277Z",
@@ -52,7 +52,54 @@ describe("HistoryFormatter", () => {
       ]);
 
       expect(row?.[2]?.html).to.equal(
-        "<strong>POA claim  auto-approved</strong>",
+        "<strong>This update cannot be displayed due to an error.</strong>",
+      );
+    });
+
+    it("Displays an error when value eventData can't be formatted", () => {
+      const [row] = formatHistoryRows([
+        {
+          timestamp: "2026-08-17T08:35:24.110277Z",
+          actor: "Caseworker",
+          eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003,
+          eventData: {
+            claimReference: null,
+          },
+        },
+      ]);
+
+      expect(row?.[0]?.text).to.contain("17 Aug 2026");
+      expect(row?.[1]?.text).to.equal("Caseworker");
+      expect(row?.[2]?.html).to.equal(
+        "<strong>This update cannot be displayed due to an error.</strong>",
+      );
+    });
+
+    it("Still displays other events when an event cannot be formatted", () => {
+      const [row1, row2] = formatHistoryRows([
+        {
+          timestamp: "2026-08-17T08:35:24.110277Z",
+          actor: "Caseworker",
+          eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003,
+          eventData: {
+            claimReference: null,
+          },
+        },
+        {
+          timestamp: "2026-08-17T08:35:24.110277Z",
+          actor: "Caseworker",
+          eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003,
+          eventData: {
+            claimReference: "ABC123",
+          },
+        },
+      ]);
+
+      expect(row1?.[2]?.html).to.equal(
+        "<strong>This update cannot be displayed due to an error.</strong>",
+      );
+      expect(row2?.[2]?.html).to.equal(
+        "<strong>POA claim ABC123 auto-approved</strong>",
       );
     });
   });

@@ -915,7 +915,7 @@ describe("Application adaptor", () => {
       );
     });
 
-    it("formats refused application without refusal reason or justification", async () => {
+    it("cannot format refused application without refusal reason or justification", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([
         {
@@ -941,7 +941,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Application Refused<br />  <br /> </strong>",
+        "<strong>This update cannot be displayed due to an error.</strong>",
       );
     });
 
