@@ -941,7 +941,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Application Refused<br />  <br /> </strong>",
+        "<strong>This update cannot be displayed due to an error.</strong>",
       );
     });
 

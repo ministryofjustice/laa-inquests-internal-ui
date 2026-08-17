@@ -31,7 +31,10 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
         const formattedRefusalReason = formatEnum(
           escapeHtmlValue(eventData?.refusalReason),
         );
-        html += `<br /> ${formattedRefusalReason} <br /> ${escapeHtmlValue(eventData?.refusalJustification)}`;
+        const formattedRefusalJustification = escapeHtmlValue(
+          eventData?.refusalJustification,
+        );
+        html += `<br /> ${formattedRefusalReason} <br /> ${formattedRefusalJustification}`;
       }
 
       return html;
@@ -85,7 +88,7 @@ function escapeHtmlValue(value: unknown): string {
     return escapeHtml(String(value));
   }
 
-  return "";
+  throw new Error(`Couldn't format history event eventData`);
 }
 
 function formatEnum(enumValue: string): string {
@@ -102,11 +105,19 @@ function formatHistoryEventUpdate(
   // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Dynamic property access requires bracket notation
   const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
 
-  const historyEventHeading = formatter
-    ? formatter(eventData)
-    : escapeHtml(eventReference);
+  try {
+    const historyEventHeading = formatter
+      ? formatter(eventData)
+      : escapeHtml(eventReference);
 
-  return `<strong>${historyEventHeading}</strong>`;
+    return `<strong>${historyEventHeading}</strong>`;
+  } catch (error) {
+    console.error(
+      `Error formatting history event for reference ${eventReference}:`,
+      error,
+    );
+    return `<strong>This update cannot be displayed due to an error.</strong>`;
+  }
 }
 
 export function formatHistoryRows(
