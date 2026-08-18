@@ -82,6 +82,7 @@ export class CertificateAdaptor {
         data.dateCurrentLevelOfServiceEffective,
       ),
       costLimitation: formatCurrency(data.costLimitation),
+      costLimitationEffectiveDate: formatDate(data.costLimitationEffectiveDate),
       certificateType: mapCertificateTypeForDisplay(data.certificateType),
       categoryOfLaw: mapCategoryOfLawForDisplay(data.categoryOfLaw),
       levelOfService: mapLevelOfServiceForDisplay(data.levelOfService),
