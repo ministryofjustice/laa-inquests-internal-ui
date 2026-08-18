@@ -25,9 +25,9 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
   {
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => "Application received",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002]: (eventData) => {
-      const decision = escapeHtmlValue(eventData?.meritsDecision);
+      const decision = escapeHtmlValue(eventData?.meritsDecision).toLowerCase();
       let html = `Application ${decision}`;
-      if (decision === "Refused") {
+      if (decision === "refused") {
         const formattedRefusalReason = formatEnum(
           escapeHtmlValue(eventData?.refusalReason),
         );
@@ -52,7 +52,9 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
-      const decision = escapeHtmlValue(eventData?.claimDecision);
+      const decision = formatEnum(
+        escapeHtmlValue(eventData?.claimDecision),
+      ).toLowerCase();
       return `${claimType} claim ${decision}`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData) => {

@@ -911,7 +911,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Application Refused<br /> Not in scope <br /> Test refusal justification</strong>",
+        "<strong>Application refused<br /> Not in scope <br /> Test refusal justification</strong>",
       );
     });
 
@@ -942,6 +942,38 @@ describe("Application adaptor", () => {
       assert.equal(
         historyRows[0][2].html,
         "<strong>This update cannot be displayed due to an error.</strong>",
+      );
+    });
+
+    it("formats claim decision with claimDecision substitution", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-CLM-002",
+          eventData: {
+            claimType: "FINAL_BILL",
+            claimDecision: "REJECTED",
+            decisionJustification: "Test justification",
+          },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Final bill claim rejected</strong>",
       );
     });
 
