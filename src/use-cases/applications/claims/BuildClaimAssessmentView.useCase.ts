@@ -2,6 +2,7 @@ import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
   CLAIM_TYPES,
+  DISPOSITION,
   PLACEHOLDER_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
@@ -85,7 +86,7 @@ export class BuildClaimAssessmentViewUseCase {
             paymentType: mapClaimType(claim.claimTypeId),
             paymentAmount: formatAmount(getPaymentAmountRaw(claim)),
             substantiveCertificate: formatAmount(substantiveCostLimitation),
-            totalRemaining: formatAmount(substantiveCostLimitation),
+            totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
           },
           details: {
             instructedCounsel: PLACEHOLDER_VALUE,
@@ -93,7 +94,11 @@ export class BuildClaimAssessmentViewUseCase {
             outcomeOfInquest: PLACEHOLDER_VALUE,
             alternateFundingProgressed: PLACEHOLDER_VALUE,
           },
-          supportingEvidence: mapSupportingEvidence(claim),
+          supportingEvidence: mapSupportingEvidence(
+            claim,
+            input.applicationId,
+            input.claimId,
+          ),
         },
       };
     } catch (error) {
@@ -155,14 +160,18 @@ function getPaymentAmountRaw(claim: ClaimDetail): string | null {
 
 function mapSupportingEvidence(
   claim: ClaimDetail,
+  applicationId: string,
+  claimId: string,
 ): ClaimAssessmentEvidenceRow[] {
   if (claim.claimEvidence === undefined || claim.claimEvidence.length === 0) {
     return [];
   }
 
+  const basePath = `/applications/${applicationId}/claims/${claimId}/evidence`;
+
   return claim.claimEvidence.map((evidence) => ({
     fileName: evidence.fileName,
-    viewHref: "#",
-    downloadHref: "#",
+    viewHref: `${basePath}/${evidence.claimEvidenceId}?disposition=${DISPOSITION.INLINE}`,
+    downloadHref: `${basePath}/${evidence.claimEvidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
   }));
 }

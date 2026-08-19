@@ -84,7 +84,19 @@ yarn start
 
 ### Initialize pre-commit hooks
 
-Run `npx husky init`
+Husky hooks are installed via the existing `prepare` script during `yarn install` or `yarn prepare`.
+
+Install secret-scanning prerequisites:
+
+```shell
+brew install prek gitleaks
+```
+
+Then install prek hooks:
+
+```shell
+prek install
+```
 
 ##### Node Version Manager
 

@@ -1,0 +1,6 @@
+repos:
+  - repo: https://github.com/ministryofjustice/devsecops-hooks
+    # Pinned commit SHA from devsecops-hooks v2.0.2
+    rev: 53d252e406bae2bbbd0c0f3205b72870a02c9b3f
+    hooks:
+      - id: baseline

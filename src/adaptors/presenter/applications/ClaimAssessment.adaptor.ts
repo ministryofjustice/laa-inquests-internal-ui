@@ -2,12 +2,33 @@ import type { Request, Response } from "express";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
+import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
+import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
+import {
+  CLAIM_DECISION_STATUSES,
+  DISPOSITION,
+} from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import type {
+  AssessClaimForm,
+  AssessClaimFormErrors,
+} from "#src/adaptors/presenter/models/form.types.js";
+import type {
+  ClaimIdParams,
+  TypedRequest,
+} from "#src/infrastructure/express/api.types.js";
+
+const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;
 
 export class ClaimAssessmentAdaptor {
   constructor(
     private readonly applicationPort: ApplicationPort,
     private readonly claimsPort: ClaimsPort,
     private readonly buildClaimAssessmentViewUseCase: BuildClaimAssessmentViewUseCase = new BuildClaimAssessmentViewUseCase(),
+    private readonly validator: ClaimAssessmentValidator = new ClaimAssessmentValidator(),
+    private readonly processClaimAssessmentUseCase: ProcessClaimAssessmentUseCase = new ProcessClaimAssessmentUseCase(),
+    private readonly rejectClaimUseCase: RejectClaimUseCase = new RejectClaimUseCase(),
   ) {}
 
   async renderClaimAssessmentPage(
@@ -15,6 +36,9 @@ export class ClaimAssessmentAdaptor {
     res: Response,
     applicationId: string,
     claimId: string,
+    errorSummaries?: Partial<AssessClaimFormErrors>,
+    assessClaim?: string,
+    rejectionReason?: string,
   ): Promise<void> {
     const claimAssessmentViewResult =
       await this.buildClaimAssessmentViewUseCase.execute({
@@ -33,6 +57,115 @@ export class ClaimAssessmentAdaptor {
       backUrl: `/applications/${applicationId}/overview`,
       applicationId,
       ...claimAssessmentViewResult.data,
+      assessClaim,
+      rejectionReason,
+      ...(errorSummaries && { errorSummaries }),
     });
+  }
+
+  async processClaimAssessmentForm(
+    req: TypedRequest<AssessClaimForm, ClaimIdParams>,
+    res: Response,
+  ): Promise<void> {
+    const {
+      body: { assessClaim, "rejection-reason": rejectionReason },
+      params: { applicationId, claimId },
+    } = req;
+
+    const result = this.processClaimAssessmentUseCase.execute({
+      assessClaim,
+      rejectionReason,
+      validate: (form) => this.validator.validateAssessClaimForm(form),
+    });
+
+    if (result.status === "VALIDATION_FAILED") {
+      await this.renderClaimAssessmentPage(
+        req as unknown as Request,
+        res,
+        applicationId,
+        claimId,
+        result.validationErrors,
+        assessClaim,
+        rejectionReason,
+      );
+      return;
+    }
+
+    if (assessClaim === REJECT_DECISION) {
+      const rejectResult = await this.rejectClaimUseCase.execute({
+        applicationId,
+        claimId,
+        justification: rejectionReason,
+        claimsPort: this.claimsPort,
+        accessToken: req.session.user?.accessToken,
+      });
+
+      if (rejectResult.status === "TECHNICAL_FAILURE") {
+        throw new Error("Unable to reject claim");
+      }
+
+      res.redirect(`/applications/${applicationId}/claims/${claimId}/rejected`);
+      return;
+    }
+
+    res.redirect(`/applications/${applicationId}/overview`);
+  }
+
+  renderClaimRejectionSuccessPage(
+    _req: Request,
+    res: Response,
+    applicationId: string,
+  ): void {
+    res.render("application/claims/rejected/index", {
+      applicationId,
+    });
+  }
+
+  async serveClaimEvidence(
+    req: Request,
+    res: Response,
+    claimEvidenceId: string,
+    disposition: string,
+  ): Promise<void> {
+    if (
+      disposition === DISPOSITION.INLINE ||
+      disposition === DISPOSITION.ATTACHMENT
+    ) {
+      logger.logInfo(
+        "GET Claim Evidence",
+        `Claim evidence ${claimEvidenceId} requested.`,
+        req,
+      );
+
+      try {
+        const { data, contentType, contentDisposition } =
+          await this.claimsPort.getClaimEvidence(
+            claimEvidenceId,
+            disposition,
+            req.session.user?.accessToken,
+          );
+
+        res.setHeader("Content-Type", contentType);
+        res.setHeader("Content-Disposition", contentDisposition);
+        res.send(data);
+      } catch (error) {
+        logger.logError(
+          "GET Claim Evidence",
+          `Failed to retrieve claim evidence ${claimEvidenceId}`,
+          error,
+          req,
+        );
+
+        res.status(500).render("application/error", {
+          status: "Unable to retrieve evidence",
+          error: "Unable to retrieve evidence. Please try again later",
+        });
+      }
+    } else {
+      res.status(400).render("application/error", {
+        status: "Invalid request",
+        error: "Unable to retrieve evidence. Please try again later",
+      });
+    }
   }
 }

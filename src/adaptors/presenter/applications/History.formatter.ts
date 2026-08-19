@@ -25,28 +25,44 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
   {
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => "Application received",
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002]: (eventData) => {
-      const decision = getEscapedString(eventData?.meritsDecision);
-      return `Application ${decision}`;
+      const decision = escapeHtmlValue(eventData?.meritsDecision).toLowerCase();
+      let html = `Application ${decision}`;
+      if (decision === "refused") {
+        const formattedRefusalReason = formatEnum(
+          escapeHtmlValue(eventData?.refusalReason),
+        );
+        const formattedRefusalJustification = escapeHtmlValue(
+          eventData?.refusalJustification,
+        );
+        html += `<br /> ${formattedRefusalReason} <br /> ${formattedRefusalJustification}`;
+      }
+
+      return html;
     },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: () => "Certificate created",
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: (eventData) => {
+      const laaReference = escapeHtmlValue(eventData?.laaReference);
+      return `Certificate created <br /> <a href="/applications/${laaReference}/certificate">View certificate</a>`;
+    },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: () =>
       "Interested parties updated",
 
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
-      const claimType = getEscapedString(eventData?.claimType);
+      const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
       return `${claimType} claim received`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
-      const claimType = getEscapedString(eventData?.claimType);
-      const decision = getEscapedString(eventData?.claimDecision);
+      const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
+      const decision = formatEnum(
+        escapeHtmlValue(eventData?.claimDecision),
+      ).toLowerCase();
       return `${claimType} claim ${decision}`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData) => {
-      const claimReference = getEscapedString(eventData?.claimReference);
+      const claimReference = escapeHtmlValue(eventData?.claimReference);
       return `POA claim ${claimReference} auto-approved`;
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_004]: (eventData) => {
-      const claimReference = getEscapedString(eventData?.claimReference);
+      const claimReference = escapeHtmlValue(eventData?.claimReference);
       return `POA claim ${claimReference} auto-rejected`;
     },
 
@@ -65,8 +81,23 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       "Claim approved email sent",
   };
 
-function getEscapedString(value: unknown): string {
-  return typeof value === "string" ? escapeHtml(value) : "";
+function escapeHtmlValue(value: unknown): string {
+  if (typeof value === "string") {
+    return escapeHtml(value);
+  }
+
+  if (typeof value === "number") {
+    return escapeHtml(String(value));
+  }
+
+  throw new Error(`Couldn't format history event eventData`);
+}
+
+function formatEnum(enumValue: string): string {
+  return enumValue
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/^./v, (char) => char.toUpperCase());
 }
 
 function formatHistoryEventUpdate(
@@ -76,17 +107,25 @@ function formatHistoryEventUpdate(
   // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Dynamic property access requires bracket notation
   const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
 
-  const historyEventHeading = formatter
-    ? formatter(eventData)
-    : escapeHtml(eventReference);
+  try {
+    const historyEventHeading = formatter
+      ? formatter(eventData)
+      : escapeHtml(eventReference);
 
-  return `<strong>${historyEventHeading}</strong>`;
+    return `<strong>${historyEventHeading}</strong>`;
+  } catch (error) {
+    console.error(
+      `Error formatting history event for reference ${eventReference}:`,
+      error,
+    );
+    return `<strong>This update cannot be displayed due to an error.</strong>`;
+  }
 }
 
 export function formatHistoryRows(
   history: HistoryEvent[],
 ): Array<Array<{ text?: string; html?: string }>> {
-  const historyRows = history.map((event) => {
+  return history.map((event) => {
     const timestamp = formatDateTime(event.timestamp);
     const actor = escapeHtml(event.actor);
     const update = formatHistoryEventUpdate(
@@ -96,6 +135,4 @@ export function formatHistoryRows(
 
     return [{ text: timestamp }, { text: actor }, { html: update }];
   });
-
-  return historyRows;
 }

@@ -52,6 +52,9 @@ export interface Config {
   SERVICE_NAME: string | undefined;
   SERVICE_PHASE: string | undefined;
   SERVICE_URL: string | undefined;
+  USE_REDIS: boolean;
+  REDIS_HOST_NAME: string;
+  REDIS_AUTH_TOKEN: string;
   app: AppConfig;
   csrf: CsrfConfig;
   session: SessionConfig;

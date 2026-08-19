@@ -1,5 +1,6 @@
 export const MAX_CHARACTER_LENGTH = 100;
 export const JUSTIFICATION_MAX_CHARACTER_LENGTH = 1500;
+export const REJECTION_REASON_MAX_CHARACTER_LENGTH = 500;
 export const EMPTY_ARR_LENGTH = 0;
 
 export const GRANTED_DECISION = "GRANTED";
@@ -58,6 +59,13 @@ export enum CLAIM_DECISION_STATUSES {
 export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];
 
 export const PLACEHOLDER_VALUE = "-";
+
+export const DISPOSITION = {
+  INLINE: "inline",
+  ATTACHMENT: "attachment",
+} as const;
+
+export type Disposition = (typeof DISPOSITION)[keyof typeof DISPOSITION];
 
 export enum HISTORY_EVENT_REFERENCE {
   EVT_BUS_APP_001 = "EVT-BUS-APP-001",

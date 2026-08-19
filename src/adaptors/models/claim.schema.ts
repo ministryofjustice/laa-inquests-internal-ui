@@ -1,13 +1,19 @@
 import { z } from "zod";
 
 const ClaimEvidenceSchema = z.object({
+  claimEvidenceId: z.string(),
   fileName: z.string(),
+});
+
+const ClaimDecisionReasonSchema = z.object({
+  reasonCode: z.string(),
+  justification: z.string(),
 });
 
 const ClaimDecisionSchema = z.object({
   claimDecisionId: z.number(),
   decision: z.string(),
-  decisionReasons: z.array(z.string()).optional().default([]),
+  decisionReasons: z.array(ClaimDecisionReasonSchema).optional().default([]),
 });
 
 const BaseClaimSchema = z.object({
@@ -17,6 +23,7 @@ const BaseClaimSchema = z.object({
   totalProfitCostNet: z.string().optional().nullable(),
   totalProfitCostGross: z.string().optional().nullable(),
   totalProfitCostVatZero: z.string().optional().nullable(),
+  totalFundsRemainingAfterClaim: z.string(),
   poaTypeId: z.string().optional().nullable(),
   statusId: z.string().optional().nullable(),
   claimDecisionStatus: z.string().optional().nullable(),

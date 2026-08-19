@@ -2,6 +2,7 @@ import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { http, HttpResponse } from "msw";
 import {
   GRANTED_DECISION,
+  HISTORY_EVENT_REFERENCE,
   PENDING_DECISION,
   REFUSED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
@@ -261,6 +262,7 @@ const toBeAssessedClaims = [
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
     claimDecisionStatus: null,
@@ -272,6 +274,7 @@ const toBeAssessedClaims = [
     totalProfitCostNet: null,
     totalProfitCostGross: null,
     totalProfitCostVatZero: "800.00",
+    totalFundsRemainingAfterClaim: "9200.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
     claimDecisionStatus: null,
@@ -286,6 +289,7 @@ const assessedClaims = [
     totalProfitCostNet: "1600.00",
     totalProfitCostGross: "2000.00",
     totalProfitCostVatZero: null,
+    totalFundsRemainingAfterClaim: "8000.00",
     poaTypeId: "PROFIT_COST",
     statusId: "PAY_IN_FULL",
     claimDecisionStatus: "PAY_IN_FULL",
@@ -299,13 +303,16 @@ const claimDetail = {
   totalProfitCostNet: "1000.00",
   totalProfitCostGross: "1200.00",
   totalProfitCostVatZero: null,
+  totalFundsRemainingAfterClaim: "8800.00",
   poaTypeId: "PROFIT_COST",
   substantiveCostLimitation: 10000,
   claimEvidence: [
     {
+      claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
     },
     {
+      claimEvidenceId: "test_evidence_2",
       fileName: "claim-evidence-2.pdf",
     },
   ],
@@ -329,6 +336,24 @@ const claimDetailVatZeroOnly = {
   totalProfitCostGross: null,
   totalProfitCostVatZero: "800.00",
 };
+
+/**
+ * Application history events returned by GET /applications/:id/history.
+ */
+const applicationHistory = [
+  {
+    timestamp: "2026-05-18T15:49:07.455255",
+    actor: "System",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001,
+    eventData: null,
+  },
+  {
+    timestamp: "2026-05-19T09:00:00.000000",
+    actor: "Jane Smith",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002,
+    eventData: { meritsDecision: "granted" },
+  },
+];
 
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
@@ -411,6 +436,36 @@ export const applicationHandlers = [
     },
   ),
 
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/history`, () => {
+    return HttpResponse.json(applicationHistory);
+  }),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/claims/:claimEvidenceId`,
+    ({ params, request }) => {
+      const url = new URL(request.url);
+      const disposition = url.searchParams.get("disposition");
+
+      if (
+        (params.claimEvidenceId === "test_evidence_1" ||
+          params.claimEvidenceId === "test_evidence_2") &&
+        (disposition === "inline" || disposition === "attachment")
+      ) {
+        const fileName = `claim-evidence-${params.claimEvidenceId}.pdf`;
+        const fakeEvidenceBuffer = Buffer.from("%PDF-1.4 mock evidence");
+        return new HttpResponse(fakeEvidenceBuffer, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `${disposition}; filename="${fileName}"`,
+          },
+        });
+      }
+
+      return new HttpResponse(null, { status: 404 });
+    },
+  ),
+
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId`,
     ({ params }) => {
@@ -428,6 +483,11 @@ export const applicationHandlers = [
 
       return new HttpResponse(null, { status: 404 });
     },
+  ),
+
+  http.patch(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId/reject`,
+    () => new HttpResponse(null, { status: 204 }),
   ),
 
   http.get(

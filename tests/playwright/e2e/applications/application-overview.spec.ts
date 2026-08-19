@@ -261,3 +261,41 @@ test.describe("People tab", () => {
     );
   });
 });
+
+test.describe("History tab", () => {
+  test("should have the searching guidance warning text", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "History" }).click();
+
+    const historyPanel = page.locator("#history");
+    await expect(historyPanel.locator(".govuk-warning-text")).toContainText(
+      "Search this page using Ctrl+F",
+    );
+
+    await checkAccessibility();
+  });
+
+  test("should have a history table with the correct columns", async ({
+    page,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "History" }).click();
+
+    const historyTable = page.locator("#history table");
+    await expect(historyTable).toBeVisible();
+    await expect(
+      historyTable.getByRole("columnheader", { name: "Date and time" }),
+    ).toBeVisible();
+    await expect(
+      historyTable.getByRole("columnheader", { name: "Who" }),
+    ).toBeVisible();
+    await expect(
+      historyTable.getByRole("columnheader", { name: "Update" }),
+    ).toBeVisible();
+  });
+});

@@ -2,6 +2,7 @@ import type {
   ClaimDetail,
   ClaimSummary,
 } from "#src/adaptors/models/claim.types.js";
+import type { Disposition } from "#src/infrastructure/locales/constants.js";
 
 export interface ClaimsPort {
   getClaims: (
@@ -14,4 +15,19 @@ export interface ClaimsPort {
     claimId: string,
     accessToken: string | undefined,
   ) => Promise<ClaimDetail>;
+  getClaimEvidence: (
+    claimEvidenceId: string,
+    disposition: Disposition,
+    accessToken: string | undefined,
+  ) => Promise<{
+    data: Buffer;
+    contentType: string;
+    contentDisposition: string;
+  }>;
+  rejectClaim: (
+    applicationId: string,
+    claimId: string,
+    justification: string,
+    accessToken: string | undefined,
+  ) => Promise<void>;
 }

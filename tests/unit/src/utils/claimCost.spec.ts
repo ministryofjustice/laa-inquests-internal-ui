@@ -10,6 +10,7 @@ function buildClaim(overrides: Partial<ClaimSummary> = {}): ClaimSummary {
     totalProfitCostNet: null,
     totalProfitCostGross: null,
     totalProfitCostVatZero: null,
+    totalFundsRemainingAfterClaim: "0.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
     claimDecisionStatus: null,

@@ -479,6 +479,7 @@ describe("Application adaptor", () => {
       totalProfitCostNet: "1000.00",
       totalProfitCostGross: "1200.00",
       totalProfitCostVatZero: null,
+      totalFundsRemainingAfterClaim: "8800.00",
       poaTypeId: "PROFIT_COST",
       statusId: "SUBMITTED",
       claimDecisionStatus: null,
@@ -491,6 +492,7 @@ describe("Application adaptor", () => {
       totalProfitCostNet: "1600.00",
       totalProfitCostGross: "2000.00",
       totalProfitCostVatZero: null,
+      totalFundsRemainingAfterClaim: "8000.00",
       poaTypeId: "PROFIT_COST",
       statusId: "PAY_IN_FULL",
       claimDecisionStatus: "PAY_IN_FULL",
@@ -720,7 +722,7 @@ describe("Application adaptor", () => {
           timestamp: "2026-05-23T09:00:00.000Z",
           actor: "System",
           eventReference: "EVT-BUS-APP-003",
-          eventData: null,
+          eventData: { laaReference: "1" },
         },
       ]);
 
@@ -737,7 +739,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Certificate created</strong>",
+        '<strong>Certificate created <br /> <a href="/applications/1/certificate">View certificate</a></strong>',
       );
     });
 
@@ -881,6 +883,100 @@ describe("Application adaptor", () => {
       );
     });
 
+    it("formats refused application with refusal reason and justification", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: {
+            meritsDecision: "Refused",
+            refusalReason: "NOT_IN_SCOPE",
+            refusalJustification: "Test refusal justification",
+          },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Application refused<br /> Not in scope <br /> Test refusal justification</strong>",
+      );
+    });
+
+    it("cannot format refused application without refusal reason or justification", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-APP-002",
+          eventData: {
+            meritsDecision: "Refused",
+          },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>This update cannot be displayed due to an error.</strong>",
+      );
+    });
+
+    it("formats claim decision with claimDecision substitution", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      viewApplicationAdaptorStub.getApplicationHistory.resolves([
+        {
+          timestamp: "2026-05-28T08:00:00.000Z",
+          actor: "Jane Smith",
+          eventReference: "EVT-BUS-CLM-002",
+          eventData: {
+            claimType: "FINAL_BILL",
+            claimDecision: "REJECTED",
+            decisionJustification: "Test justification",
+          },
+        },
+      ]);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+      const historyRows = viewData.historyRows as Array<
+        Array<{ text?: string; html?: string }>
+      >;
+      assert.equal(
+        historyRows[0][2].html,
+        "<strong>Final bill claim rejected</strong>",
+      );
+    });
+
     it("formats multiple history events in correct order", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([
@@ -900,7 +996,7 @@ describe("Application adaptor", () => {
           timestamp: "2026-05-23T12:00:00.000Z",
           actor: "System",
           eventReference: "EVT-BUS-APP-003",
-          eventData: null,
+          eventData: { laaReference: "1" },
         },
       ]);
 
@@ -926,7 +1022,7 @@ describe("Application adaptor", () => {
       );
       assert.equal(
         historyRows[2][2].html,
-        "<strong>Certificate created</strong>",
+        '<strong>Certificate created <br /> <a href="/applications/1/certificate">View certificate</a></strong>',
       );
     });
 

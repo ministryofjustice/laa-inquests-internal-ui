@@ -15,22 +15,29 @@ runs:
   steps:
     - name: Notify deployment status
       shell: bash
+      env:
+        PIPELINE_STATUS: ${{ inputs.pipeline_status }}
+        JOB_STATUS: ${{ job.status }}
+        APP_ENVIRONMENT: ${{ inputs.app-environment }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slack_webhook_url }}
       run: |
-        if [[ "${{ inputs.pipeline_status }}" =~ "skipped"|"failure" ]] || [[ ${{ job.status }} == "failure" ]]; then
+        if [[ "$PIPELINE_STATUS" =~ "skipped"|"failure" ]] || [[ "$JOB_STATUS" == "failure" ]]; then
           pipelineStatus="failed"
         else
           pipelineStatus="success"
         fi
 
-        environment=$(echo "${{ inputs.app-environment }}" | tr '[:lower:]' '[:upper:]')
+        environment=$(echo "$APP_ENVIRONMENT" | tr '[:lower:]' '[:upper:]')
 
         coreMessage="Inquests Internal UI Deployment to $environment has"
 
         if [ "$pipelineStatus" = "failed" ]; then
-          runUrl=https://github.com/ministryofjustice/laa-inquests-internal-ui/actions/runs/${{ github.run_id }}
+          runUrl=https://github.com/ministryofjustice/laa-inquests-internal-ui/actions/runs/$GITHUB_RUN_ID
           message=":exclamation: $coreMessage Failed! :exclamation: \n $runUrl"
         elif [ "$environment" = "STAGING" ] || [ "$environment" = "PRODUCTION" ]; then
-          releaseUrl=https://github.com/ministryofjustice/laa-inquests-internal-ui/releases/tag/${{ github.ref_name }}
+          releaseUrl=https://github.com/ministryofjustice/laa-inquests-internal-ui/releases/tag/$GITHUB_REF_NAME
           message=":white_check_mark: $coreMessage Succeeded! :white_check_mark: \n $releaseUrl"
         else
           echo "Deployment to $environment succeeded - skipping Slack notification."
@@ -43,4 +50,4 @@ runs:
 
         curl -X POST -H 'Content-type: application/json' \
           --data "$postBody" \
-          --url ${{ inputs.slack_webhook_url }}
+          --url "$SLACK_WEBHOOK_URL"
