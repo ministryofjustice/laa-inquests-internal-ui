@@ -77,6 +77,7 @@ export class CertificateAdaptor {
         .join("<br>"),
       dateCreated: formatDate(data.dateCreated),
       effectiveDate: formatDate(data.effectiveDate),
+      endDate: formatDate(data.endDate),
       dateWorkCanCommence: formatDate(data.dateWorkCanCommence),
       dateCurrentLevelOfServiceEffective: formatDate(
         data.dateCurrentLevelOfServiceEffective,
