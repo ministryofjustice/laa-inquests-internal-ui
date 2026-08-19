@@ -28,7 +28,9 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     claimDecision: {
       claimDecisionId: 88,
       decision: "REJECT",
-      decisionReasons: [],
+      decisionReasons: [
+        { reasonCode: "MANUAL_REJECTION", justification: "reject" },
+      ],
     },
   };
 

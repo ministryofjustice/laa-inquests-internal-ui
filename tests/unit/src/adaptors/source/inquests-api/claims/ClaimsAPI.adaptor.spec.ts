@@ -63,7 +63,9 @@ const expectedClaimDetail: ClaimDetail = {
   claimDecision: {
     claimDecisionId: 99,
     decision: "REJECT",
-    decisionReasons: [],
+    decisionReasons: [
+      { reasonCode: "MANUAL_REJECTION", justification: "reject" },
+    ],
   },
 };
 

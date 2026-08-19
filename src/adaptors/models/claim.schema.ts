@@ -5,10 +5,15 @@ const ClaimEvidenceSchema = z.object({
   fileName: z.string(),
 });
 
+const ClaimDecisionReasonSchema = z.object({
+  reasonCode: z.string(),
+  justification: z.string(),
+});
+
 const ClaimDecisionSchema = z.object({
   claimDecisionId: z.number(),
   decision: z.string(),
-  decisionReasons: z.array(z.string()).optional().default([]),
+  decisionReasons: z.array(ClaimDecisionReasonSchema).optional().default([]),
 });
 
 const BaseClaimSchema = z.object({
