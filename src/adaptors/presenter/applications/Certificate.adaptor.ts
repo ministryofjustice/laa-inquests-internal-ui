@@ -77,11 +77,13 @@ export class CertificateAdaptor {
         .join("<br>"),
       dateCreated: formatDate(data.dateCreated),
       effectiveDate: formatDate(data.effectiveDate),
+      endDate: formatDate(data.endDate),
       dateWorkCanCommence: formatDate(data.dateWorkCanCommence),
       dateCurrentLevelOfServiceEffective: formatDate(
         data.dateCurrentLevelOfServiceEffective,
       ),
       costLimitation: formatCurrency(data.costLimitation),
+      costLimitationEffectiveDate: formatDate(data.costLimitationEffectiveDate),
       certificateType: mapCertificateTypeForDisplay(data.certificateType),
       categoryOfLaw: mapCategoryOfLawForDisplay(data.categoryOfLaw),
       levelOfService: mapLevelOfServiceForDisplay(data.levelOfService),
