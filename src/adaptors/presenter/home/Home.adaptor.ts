@@ -9,6 +9,7 @@ interface HomeApplicationRow {
   reference: string;
   referenceUrl?: string;
   createdDate: string;
+  createdDateISO: string;
   status: string;
   decision: string;
 }
@@ -16,6 +17,7 @@ interface HomeApplicationRow {
 interface TableCell {
   text?: string;
   href?: string;
+  attributes?: Record<string, string>;
 }
 
 export class HomeAdaptor {
@@ -50,7 +52,10 @@ export class HomeAdaptor {
         .map(mapApplicationForHomeRow)
         .map((application): TableCell[] => [
           { text: application.reference, href: application.referenceUrl },
-          { text: application.createdDate },
+          {
+            text: application.createdDate,
+            attributes: { "data-sort-value": application.createdDateISO },
+          },
           { text: application.status },
           { text: application.decision },
         ]),
@@ -65,6 +70,7 @@ function mapApplicationForHomeRow(
     reference: String(application.laaReference),
     referenceUrl: `/applications/${application.laaReference}/overview`,
     createdDate: formatDateTime(application.createdAt),
+    createdDateISO: application.createdAt,
     status: formatDisplayValue(application.status),
     decision: formatDisplayValue(application.overallDecision),
   };
