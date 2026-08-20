@@ -55,7 +55,12 @@ describe("Home adaptor", () => {
             text: "456",
             href: "/applications/456/overview",
           },
-          { text: "21 May 2026 08:46" },
+          {
+            text: "21 May 2026 08:46",
+            attributes: {
+              "data-sort-value": "2026-05-21T08:46:36.793278",
+            },
+          },
           { text: "Live" },
           { text: "Granted" },
         ],
@@ -64,7 +69,12 @@ describe("Home adaptor", () => {
             text: "123",
             href: "/applications/123/overview",
           },
-          { text: "20 May 2026 08:46" },
+          {
+            text: "20 May 2026 08:46",
+            attributes: {
+              "data-sort-value": "2026-05-20T08:46:36.793278",
+            },
+          },
           { text: "Live" },
           { text: "Pending" },
         ],
@@ -73,7 +83,12 @@ describe("Home adaptor", () => {
             text: "null",
             href: "/applications/null/overview",
           },
-          { text: "bad-date" },
+          {
+            text: "bad-date",
+            attributes: {
+              "data-sort-value": "bad-date",
+            },
+          },
           { text: "-" },
           { text: "Assessment Complete" },
         ],
