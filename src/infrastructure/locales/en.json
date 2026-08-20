@@ -162,7 +162,7 @@
         "refusalReasonTitle": "Refusal reason",
         "justificationTitle": "Justification",
         "certificateStartDateTitle": "Date granted",
-        "submitButton": "Submit declaration"
+        "submitButton": "Submit decision"
       },
       "justification": {
         "header": "Make a decision",
