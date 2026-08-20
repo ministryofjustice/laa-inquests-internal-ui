@@ -79,6 +79,8 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       "Claim submission confirmation sent",
     [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_002]: () =>
       "Claim approved email sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_003]: () =>
+      "Claim rejected email sent",
   };
 
 function escapeHtmlValue(value: unknown): string {
