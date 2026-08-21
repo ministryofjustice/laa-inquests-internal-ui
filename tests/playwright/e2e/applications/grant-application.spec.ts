@@ -17,9 +17,11 @@ const overviewLocale = en.pages.applicationOverview;
 
 const applicationId = "2";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
+const makeADecisionFromCheckAnswersPage = `${makeADecisionPage}?from=check-your-answers`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const successPage = `/applications/${applicationId}/decision/success`;
 const certificateStartDatePage = `/applications/${applicationId}/decision/certificate-start-date`;
+const certificateStartDateFromCheckAnswersPage = `${certificateStartDatePage}?from=check-your-answers`;
 const checkYourAnswersPage = `/applications/${applicationId}/decision/confirmation`;
 const certificateUrl = `/applications/${applicationId}/certificate`;
 
@@ -177,7 +179,7 @@ test.describe.serial("Grant application journey", () => {
     ).toBeVisible();
     await expect(
       meritsAssessmentRow.getByRole("link", { name: /change/i }),
-    ).toHaveAttribute("href", makeADecisionPage);
+    ).toHaveAttribute("href", makeADecisionFromCheckAnswersPage);
 
     const startDateRow = summaryCard.locator(".govuk-summary-list__row", {
       has: sharedPage.getByText(confirmationLocale.certificateStartDateTitle, {
@@ -187,7 +189,7 @@ test.describe.serial("Grant application journey", () => {
     await expect(startDateRow.getByText(formattedStartDate)).toBeVisible();
     await expect(
       startDateRow.getByRole("link", { name: /change/i }),
-    ).toHaveAttribute("href", certificateStartDatePage);
+    ).toHaveAttribute("href", certificateStartDateFromCheckAnswersPage);
 
     await validateSubmitButton(form, confirmationLocale.submitButton);
   });
@@ -204,10 +206,60 @@ test.describe.serial("Grant application journey", () => {
     await startDateRow.getByRole("link", { name: /change/i }).click();
     await sharedPage.waitForLoadState("domcontentloaded");
 
-    await expect(sharedPage).toHaveURL(certificateStartDatePage);
+    await expect(sharedPage).toHaveURL(
+      certificateStartDateFromCheckAnswersPage,
+    );
+  });
+
+  test("caseworker uses back from certificate start date and returns to Check your answers", async () => {
+    await sharedPage.getByRole("link", { name: "Back", exact: true }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+  });
+
+  test("caseworker clicks Change on merits assessment and returns to Check your answers on continue", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = form.locator(".govuk-summary-card");
+
+    const meritsAssessmentRow = summaryCard.locator(
+      ".govuk-summary-list__row",
+      {
+        has: sharedPage.getByText(confirmationLocale.meritsAssessmentTitle, {
+          exact: true,
+        }),
+      },
+    );
+    await meritsAssessmentRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(makeADecisionFromCheckAnswersPage);
+
+    const decisionForm = sharedPage.getByTestId("make-a-decision");
+    await decisionForm
+      .getByRole("radio", { name: meritsLocale.radio.grantLabel })
+      .check();
+    await continueToNextPage(decisionForm, sharedPage);
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
   });
 
   test("caseworker sees pre-populated data on the certificate start date page", async () => {
+    const confirmationForm = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = confirmationForm.locator(".govuk-summary-card");
+
+    const startDateRow = summaryCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText(confirmationLocale.certificateStartDateTitle, {
+        exact: true,
+      }),
+    });
+    await startDateRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(
+      certificateStartDateFromCheckAnswersPage,
+    );
+
     const form = sharedPage.getByTestId("certificate-start-date");
 
     // Verify "Another date" option is still selected
@@ -267,7 +319,9 @@ test.describe.serial("Grant application journey", () => {
     await startDateRow.getByRole("link", { name: /change/i }).click();
     await sharedPage.waitForLoadState("domcontentloaded");
 
-    await expect(sharedPage).toHaveURL(certificateStartDatePage);
+    await expect(sharedPage).toHaveURL(
+      certificateStartDateFromCheckAnswersPage,
+    );
 
     const dateForm = sharedPage.getByTestId("certificate-start-date");
     await expect(dateForm.getByRole("radio", { name: "Today" })).toBeChecked();

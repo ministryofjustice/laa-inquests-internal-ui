@@ -98,6 +98,43 @@ describe("ApplicationDecisionAdaptor", () => {
         overallDecision: "REFUSED",
       });
     });
+
+    it("captures check-your-answers origin and sets check-your-answers back link", async () => {
+      (requestStub as unknown as Request).query = {
+        from: "check-your-answers",
+      };
+      viewApplicationSourceStub.getApplication.resolves({
+        overallDecision: "PENDING",
+        proceeding: mockProceeding,
+      } as any);
+      sessionHelperStub.getSessionData.onFirstCall().returns(null);
+      sessionHelperStub.getSessionData.onSecondCall().returns({
+        returnToCheckYourAnswers: "true",
+      });
+
+      await adaptor.renderApplicationDecisionForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 3);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "true" },
+      ]);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.deepEqual(renderArgs[1], {
+        backUrl: `/applications/${applicationId}/decision/confirmation`,
+        applicationId,
+        proceeding: {
+          certificateType: "Substantive",
+          meritsDecision: "Pending",
+        },
+        overallDecision: undefined,
+      });
+    });
   });
 
   describe("processApplicationDecisionForm", () => {
@@ -158,6 +195,95 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("redirects to the certificate start date page when granted", () => {
       requestStub.body = { "overall-decision": GRANTED_DECISION };
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/certificate-start-date`,
+      );
+    });
+
+    it("redirects back to check-your-answers when returning from check-your-answers and refusal details are present", () => {
+      requestStub.body = { "overall-decision": "REFUSED" };
+      sessionHelperStub.getSessionData.returns({
+        returnToCheckYourAnswers: "true",
+        refusalReason: "not-in-scope",
+        justification: "existing justification",
+      });
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/confirmation`,
+      );
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 2);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(1).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "" },
+      ]);
+    });
+
+    it("redirects to the justification page when returning from check-your-answers and refusal details are missing", () => {
+      requestStub.body = { "overall-decision": "REFUSED" };
+      sessionHelperStub.getSessionData.returns({
+        returnToCheckYourAnswers: "true",
+      });
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/justification`,
+      );
+    });
+
+    it("redirects back to check-your-answers when returning from check-your-answers and granted start date is present", () => {
+      requestStub.body = { "overall-decision": GRANTED_DECISION };
+      sessionHelperStub.getSessionData.returns({
+        returnToCheckYourAnswers: "true",
+        certificateStartDateDay: "1",
+        certificateStartDateMonth: "1",
+        certificateStartDateYear: "2020",
+      });
+
+      adaptor.processApplicationDecisionForm(
+        requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        `/applications/${applicationId}/decision/confirmation`,
+      );
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 2);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(1).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "" },
+      ]);
+    });
+
+    it("redirects to certificate start date when returning from check-your-answers and granted start date is missing", () => {
+      requestStub.body = { "overall-decision": GRANTED_DECISION };
+      sessionHelperStub.getSessionData.returns({
+        returnToCheckYourAnswers: "true",
+      });
 
       adaptor.processApplicationDecisionForm(
         requestStub as TypedRequest<ApplicationDecisionForm, IdParams>,
@@ -265,6 +391,32 @@ describe("ApplicationDecisionAdaptor", () => {
         errorSummaries,
       });
     });
+
+    it("captures check-your-answers origin and sets check-your-answers back link", () => {
+      (requestStub as unknown as Request).query = {
+        from: "check-your-answers",
+      };
+      sessionHelperStub.getSessionData.returns({
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+
+      adaptor.renderJustificationForm(requestStub as Request, responseStub);
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "true" },
+      ]);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision/confirmation`,
+        laaReference: applicationId,
+        refusalReason: "not-in-scope",
+        justification: "some justification",
+      });
+    });
   });
 
   describe("processJustificationForm", () => {
@@ -319,6 +471,24 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/confirmation`,
       );
+    });
+
+    it("clears return-to-check-your-answers flag when returning from check-your-answers and submission is valid", () => {
+      sessionHelperStub.getSessionData.returns({
+        returnToCheckYourAnswers: "true",
+      });
+
+      adaptor.processJustificationForm(
+        requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 2);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(1).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "" },
+      ]);
     });
 
     it("saves session data even when there are validation errors", () => {
@@ -462,6 +632,38 @@ describe("ApplicationDecisionAdaptor", () => {
         month: undefined,
         year: undefined,
         errorSummaries,
+      });
+    });
+
+    it("captures check-your-answers origin and sets check-your-answers back link", () => {
+      (requestStub as unknown as Request).query = {
+        from: "check-your-answers",
+      };
+      sessionHelperStub.getSessionData.onFirstCall().returns(null);
+      sessionHelperStub.getSessionData.onSecondCall().returns({
+        returnToCheckYourAnswers: "true",
+        overallDecision: GRANTED_DECISION,
+      });
+
+      adaptor.renderCertificateStartDateForm(
+        requestStub as Request,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "true" },
+      ]);
+
+      assert.deepEqual(responseStub.render.getCall(0).args[1], {
+        backUrl: `/applications/${applicationId}/decision/confirmation`,
+        applicationId,
+        startDateOption: undefined,
+        day: undefined,
+        month: undefined,
+        year: undefined,
       });
     });
   });
@@ -627,6 +829,27 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${applicationId}/decision/confirmation`,
       );
+    });
+
+    it("clears return-to-check-your-answers flag when returning from check-your-answers and submission is valid", () => {
+      sessionHelperStub.getSessionData.returns({
+        returnToCheckYourAnswers: "true",
+      });
+
+      adaptor.processCertificateStartDateForm(
+        requestStub as unknown as TypedRequest<
+          CertificateStartDateForm,
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.equal(sessionHelperStub.storeSessionData.callCount, 2);
+      assert.deepEqual(sessionHelperStub.storeSessionData.getCall(1).args, [
+        requestStub,
+        "decision",
+        { returnToCheckYourAnswers: "" },
+      ]);
     });
 
     it("re-renders with a validation error when no date is entered", () => {
