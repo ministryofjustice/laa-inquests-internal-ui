@@ -1,22 +1,5 @@
 version: v1.5.0
 ignore:
-  "SNYK-JS-BRACEEXPANSION-17706650":
-    - "*":
-        reason:
-          "Temp ignore as bundled with npm. Resolved when npm releases version
-          with brace-expansion@5.0.7."
-  "SNYK-JS-UNDICI-17372658":
-    - "*":
-        reason: "Temp ignore not using vulnerable feature."
-  "SNYK-JS-UNDICI-17372758":
-    - "*":
-        reason: "Temp ignore not using vulnerable feature."
-  "SNYK-JS-TAR-17909152":
-    - "*":
-        reason: "Bundled within npm@11.17.0"
-  "SNYK-JS-TAR-17909068":
-    - "*":
-        reason: "Bundled within npm@11.17.0"
   "SNYK-JS-BRACEEXPANSION-18313044":
     - "*":
         reason:
