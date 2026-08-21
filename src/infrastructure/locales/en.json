@@ -94,7 +94,8 @@
         },
         "notificationBanner": {
           "title": "Success",
-          "body": "The listed interested parties have been changed"
+          "header": "The listed interested parties have been changed",
+          "body": "A new certificate is being generated. The provider and client will be sent the updated version."
         }
       },
       "claims": {

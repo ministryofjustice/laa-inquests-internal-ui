@@ -52,4 +52,21 @@ export class SessionHelper {
 
     this.storeSessionData(req, namespace, stringifiedData);
   }
+
+  setFlash(req: Request, key: string, message: string): void {
+    req.session[`flash:${key}`] = message;
+  }
+
+  consumeFlash(req: Request, key: string): string | null {
+    const { session } = req;
+    const flashKey = `flash:${key}`;
+    const { [flashKey]: message } = session;
+
+    if (typeof message === "string") {
+      session[flashKey] = undefined;
+      return message;
+    }
+
+    return null;
+  }
 }
