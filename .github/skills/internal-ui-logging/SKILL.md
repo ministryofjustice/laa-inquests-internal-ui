@@ -69,7 +69,7 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 ## Extra context
 
 laa_reference: <applicationid>
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
 
 ## Examples
 
