@@ -3,6 +3,7 @@ import {
   TECHNICAL_FAILURE_REASONS,
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface RefuseDecisionInput {
   applicationId: string;
@@ -15,6 +16,7 @@ interface RefuseDecisionInput {
 export class RefuseDecisionUseCase {
   async execute(input: RefuseDecisionInput): Promise<UseCaseResult> {
     if (!input.applicationId) {
+      // COPILOT TODO: Should be logging here
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
@@ -30,11 +32,22 @@ export class RefuseDecisionUseCase {
         input.justification,
       );
 
+      logger.logInfo({
+        functionName: "refuse_decision_use_case",
+        message: "Decision refused",
+        extraContext: {
+          event: "application_decision_refused",
+          laa_reference: input.applicationId,
+          refusal_reason: input.refusalReason,
+        },
+      });
+
       return {
         status: "SUCCESS",
         data: undefined,
       };
     } catch (error) {
+      // COPILOT TODO: Should be logging here
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,

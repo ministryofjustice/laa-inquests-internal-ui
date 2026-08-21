@@ -131,11 +131,16 @@ export class ClaimAssessmentAdaptor {
       disposition === DISPOSITION.INLINE ||
       disposition === DISPOSITION.ATTACHMENT
     ) {
-      logger.logInfo(
-        "GET Claim Evidence",
-        `Claim evidence ${claimEvidenceId} requested.`,
-        req,
-      );
+      logger.logInfo({
+        functionName: "serve_claim_evidence",
+        message: "Claim evidence requested",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_requested",
+          claim_evidence_id: claimEvidenceId,
+          disposition,
+        },
+      });
 
       try {
         const { data, contentType, contentDisposition } =
@@ -149,12 +154,17 @@ export class ClaimAssessmentAdaptor {
         res.setHeader("Content-Disposition", contentDisposition);
         res.send(data);
       } catch (error) {
-        logger.logError(
-          "GET Claim Evidence",
-          `Failed to retrieve claim evidence ${claimEvidenceId}`,
-          error,
-          req,
-        );
+        logger.logError({
+          functionName: "serve_claim_evidence",
+          message: "Failed to retrieve claim evidence",
+          err: error,
+          request: req,
+          extraContext: {
+            event: "claim_evidence_retrieval_failed",
+            claim_evidence_id: claimEvidenceId,
+            disposition,
+          },
+        });
 
         res.status(500).render("application/error", {
           status: "Unable to retrieve evidence",

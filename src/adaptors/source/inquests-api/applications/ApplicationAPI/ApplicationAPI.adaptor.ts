@@ -20,6 +20,7 @@ import {
   patchInquestsApi,
   getInquestsApi,
 } from "#src/adaptors/source/inquests-api/utils.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -89,12 +90,23 @@ export class ApplicationAPIAdaptor {
       justification,
     };
 
+    const startedAt = Date.now();
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/refuse-decision`,
       body: payload,
       accessToken,
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Refuse decision submitted upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/refuse-decision",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
   }
 
@@ -109,12 +121,23 @@ export class ApplicationAPIAdaptor {
       certificateStartDate,
     };
 
+    const startedAt = Date.now();
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/grant-decision`,
       body: payload,
       accessToken,
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Grant decision submitted upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/grant-decision",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
   }
 

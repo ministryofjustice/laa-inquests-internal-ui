@@ -163,10 +163,14 @@ export function getCorrespondenceDisplay(
     application.client.correspondenceAddressSource === "USE_SPECIFIED_ADDRESS"
   ) {
     if (!application.client.correspondenceAddress) {
-      logger.logInfo(
-        "Application overview address mapping",
-        `Expected specified correspondence address was missing for LAA reference ${application.laaReference}`,
-      );
+      logger.logWarn({
+        functionName: "get_correspondence_display",
+        message: "Specified correspondence address missing",
+        extraContext: {
+          event: "correspondence_address_missing",
+          laa_reference: application.laaReference,
+        },
+      });
 
       return {
         clientCorrespondenceAddressDisplay: "Not provided",
@@ -182,10 +186,16 @@ export function getCorrespondenceDisplay(
     };
   }
 
-  logger.logInfo(
-    "Application overview address mapping",
-    `Unknown correspondenceAddressSource '${application.client.correspondenceAddressSource}' for LAA reference ${application.laaReference}`,
-  );
+  logger.logWarn({
+    functionName: "get_correspondence_display",
+    message: "Unknown correspondence address source",
+    extraContext: {
+      event: "correspondence_address_source_unknown",
+      laa_reference: application.laaReference,
+      correspondence_address_source:
+        application.client.correspondenceAddressSource,
+    },
+  });
 
   return {
     clientCorrespondenceAddressDisplay: application.client.correspondenceAddress

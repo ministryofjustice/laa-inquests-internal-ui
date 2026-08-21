@@ -3,6 +3,7 @@ import {
   TECHNICAL_FAILURE_REASONS,
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface RejectClaimInput {
   applicationId: string;
@@ -15,6 +16,7 @@ interface RejectClaimInput {
 export class RejectClaimUseCase {
   async execute(input: RejectClaimInput): Promise<UseCaseResult> {
     if (!input.applicationId || !input.claimId) {
+      // COPILOT TODO: Should be logging here
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
@@ -30,11 +32,22 @@ export class RejectClaimUseCase {
         input.accessToken,
       );
 
+      logger.logInfo({
+        functionName: "reject_claim_use_case",
+        message: "Claim rejected",
+        extraContext: {
+          event: "claim_rejected",
+          laa_reference: input.applicationId,
+          claim_reference: input.claimId,
+        },
+      });
+
       return {
         status: "SUCCESS",
         data: undefined,
       };
     } catch (error) {
+      // COPILOT TODO: Should be logging here
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,

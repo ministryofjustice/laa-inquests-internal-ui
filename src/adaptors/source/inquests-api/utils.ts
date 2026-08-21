@@ -17,6 +17,7 @@ interface GetInquestApiParams {
   axiosConfig?: AxiosRequestConfig;
 }
 
+// COPILOT TODO: Should be logging in each of these functions
 export async function patchInquestsApi<TResponse, TBody>(
   params: PatchInquestsApiParams<TBody>,
 ): Promise<AxiosResponse<TResponse>> {

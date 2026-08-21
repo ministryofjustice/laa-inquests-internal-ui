@@ -13,6 +13,7 @@ import {
 } from "#src/adaptors/source/inquests-api/utils.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class ClaimsAPIAdaptor implements ClaimsPort {
   constructor(
@@ -97,12 +98,24 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     justification: string,
     accessToken: string | undefined,
   ): Promise<void> {
+    const startedAt = Date.now();
     await patchInquestsApi<undefined, { justification: string }>({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/claims/${claimId}/reject`,
       body: { justification },
       accessToken,
+    });
+    logger.logInfo({
+      functionName: "claims_api_adaptor",
+      message: "Claim rejection submitted upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/claims/:id/reject",
+        laa_reference: applicationId,
+        claim_reference: claimId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
   }
 }

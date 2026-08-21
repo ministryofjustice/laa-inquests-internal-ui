@@ -13,7 +13,14 @@ export const createRedisClient = (): RedisClientType => {
   });
   //
   client.on("error", (err: unknown) => {
-    logger.logError("createRedisClient", "Redis client error", err);
+    logger.logError({
+      functionName: "create_redis_client",
+      message: "Redis client error",
+      err,
+      extraContext: {
+        event: "redis_client_error",
+      },
+    });
   });
 
   return client;

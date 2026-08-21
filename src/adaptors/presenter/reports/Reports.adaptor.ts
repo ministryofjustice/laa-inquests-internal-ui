@@ -13,11 +13,14 @@ export class ReportsAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
-    logger.logInfo(
-      "GET Applications Backlog Report",
-      "Applications backlog report requested.",
-      req,
-    );
+    logger.logInfo({
+      functionName: "download_applications_backlog_report",
+      message: "Applications backlog report requested",
+      request: req,
+      extraContext: {
+        event: "applications_backlog_report_requested",
+      },
+    });
 
     try {
       const { data, contentType } =
@@ -32,12 +35,15 @@ export class ReportsAdaptor {
       );
       res.send(data);
     } catch (error) {
-      logger.logError(
-        "GET Applications Backlog Report",
-        "Failed to retrieve applications backlog report",
-        error,
-        req,
-      );
+      logger.logError({
+        functionName: "download_applications_backlog_report",
+        message: "Failed to retrieve applications backlog report",
+        err: error,
+        request: req,
+        extraContext: {
+          event: "applications_backlog_report_failed",
+        },
+      });
 
       res.status(500).render("application/error", {
         status: "Unable to retrieve report",
@@ -47,11 +53,14 @@ export class ReportsAdaptor {
   }
 
   async downloadClaimsBacklog(req: Request, res: Response): Promise<void> {
-    logger.logInfo(
-      "GET Claims Backlog Report",
-      "Claims backlog report requested.",
-      req,
-    );
+    logger.logInfo({
+      functionName: "download_claims_backlog_report",
+      message: "Claims backlog report requested",
+      request: req,
+      extraContext: {
+        event: "claims_backlog_report_requested",
+      },
+    });
 
     try {
       const { data, contentType } =
@@ -66,12 +75,15 @@ export class ReportsAdaptor {
       );
       res.send(data);
     } catch (error) {
-      logger.logError(
-        "GET Claims Backlog Report",
-        "Failed to retrieve claims backlog report",
-        error,
-        req,
-      );
+      logger.logError({
+        functionName: "download_claims_backlog_report",
+        message: "Failed to retrieve claims backlog report",
+        err: error,
+        request: req,
+        extraContext: {
+          event: "claims_backlog_report_failed",
+        },
+      });
 
       res.status(500).render("application/error", {
         status: "Unable to retrieve report",
