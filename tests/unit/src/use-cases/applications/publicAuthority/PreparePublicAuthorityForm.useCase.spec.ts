@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { PreparePublicBodyFormUseCase } from "#src/use-cases/applications/publicBodies/PreparePublicBodyForm.useCase.js";
+import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/publicAuthority/PreparePublicAuthorityForm.useCase.js";
 
 const allPublicBodies = [
   {
@@ -13,8 +13,8 @@ const allPublicBodies = [
   },
 ];
 
-describe("PreparePublicBodyFormUseCase", () => {
-  const useCase = new PreparePublicBodyFormUseCase();
+describe("PreparePublicAuthorityFormUseCase", () => {
+  const useCase = new PreparePublicAuthorityFormUseCase();
 
   it("builds items from all public bodies and preselects the ones currently on the application", () => {
     const result = useCase.execute({

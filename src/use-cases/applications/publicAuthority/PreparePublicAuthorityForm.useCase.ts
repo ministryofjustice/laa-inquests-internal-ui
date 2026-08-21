@@ -1,20 +1,20 @@
 import type { PublicBody } from "#src/adaptors/models/application.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
-interface PreparePublicBodyFormInput {
+interface PreparePublicAuthorityFormInput {
   allPublicBodies: PublicBody[];
   currentPublicBodyIds: string[];
 }
 
-interface PreparePublicBodyFormData {
+interface PreparePublicAuthorityFormData {
   items: Array<{ value: string; text: string }>;
   selectedPublicBodyIds: string[];
 }
 
-export class PreparePublicBodyFormUseCase {
+export class PreparePublicAuthorityFormUseCase {
   execute(
-    input: PreparePublicBodyFormInput,
-  ): UseCaseResult<PreparePublicBodyFormData> {
+    input: PreparePublicAuthorityFormInput,
+  ): UseCaseResult<PreparePublicAuthorityFormData> {
     const items = input.allPublicBodies.map((publicBody) => ({
       value: publicBody.publicBodyId,
       text: publicBody.publicBodyDescription,
