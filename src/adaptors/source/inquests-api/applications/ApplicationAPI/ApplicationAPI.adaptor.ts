@@ -4,6 +4,7 @@ import type {
   ApplicationSummary,
   Certificate,
   HistoryEvent,
+  PublicBody,
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
@@ -11,6 +12,7 @@ import {
   ApplicationSummarySchema,
   CertificateSchema,
   HistoryEventSchema,
+  PublicBodySchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
@@ -201,6 +203,35 @@ export class ApplicationAPIAdaptor {
     });
 
     return data.map((event) => HistoryEventSchema.parse(event));
+  }
+
+  async getPublicBodies(
+    accessToken: string | undefined,
+  ): Promise<PublicBody[]> {
+    const { data }: AxiosResponse<PublicBody[]> = await getInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: "/public-bodies",
+      accessToken,
+    });
+
+    return data.map((publicBody) => PublicBodySchema.parse(publicBody));
+  }
+
+  async updatePublicBodies(
+    applicationId: string,
+    accessToken: string | undefined,
+    publicBodyIds: string[],
+  ): Promise<void> {
+    const payload: { publicBodyIds: string[] } = { publicBodyIds };
+
+    await patchInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/public-bodies`,
+      body: payload,
+      accessToken,
+    });
   }
 }
 
