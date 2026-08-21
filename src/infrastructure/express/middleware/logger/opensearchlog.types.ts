@@ -1,14 +1,13 @@
-export type LogLevel = "debug" | "info" | "warning" | "error";
+export type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
 
 export interface OpenSearchLog {
   timestamp: string;
-  level: string;
-  serviceName: string;
+  level: LogLevel;
+  service: string;
   environment: string;
-  correlationId?: string | undefined;
+  request_id: string;
+  correlation_id: string;
+  function_name: string;
   message: string;
-  context: {
-    userId?: string | undefined;
-    functionName: string;
-  };
+  [key: string]: unknown;
 }

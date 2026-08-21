@@ -87,6 +87,7 @@ const config: Config = {
       DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
   ),
   SERVICE_NAME: process.env.SERVICE_NAME,
+  LOG_LEVEL: process.env.LOG_LEVEL,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
   USE_REDIS: useRedis,

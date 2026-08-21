@@ -40,6 +40,16 @@ export class ClaimAssessmentAdaptor {
     assessClaim?: string,
     rejectionReason?: string,
   ): Promise<void> {
+    logger.logInfo({
+      functionName: "render_claim_assessment_page",
+      message: "Claim assessment page requested",
+      request: req,
+      extraContext: {
+        event: "claim_assessment_page_requested",
+        laa_reference: applicationId,
+        claim_reference: claimId,
+      },
+    });
     const claimAssessmentViewResult =
       await this.buildClaimAssessmentViewUseCase.execute({
         applicationId,
@@ -71,6 +81,18 @@ export class ClaimAssessmentAdaptor {
       body: { assessClaim, "rejection-reason": rejectionReason },
       params: { applicationId, claimId },
     } = req;
+    logger.logInfo({
+      functionName: "process_claim_assessment_form",
+      message: "Claim assessment form submitted",
+      request: req as unknown as Request,
+      extraContext: {
+        event: "claim_assessment_form_submitted",
+        laa_reference: applicationId,
+        claim_reference: claimId,
+        has_rejection_reason:
+          typeof rejectionReason === "string" && rejectionReason.trim() !== "",
+      },
+    });
 
     const result = this.processClaimAssessmentUseCase.execute({
       assessClaim,
@@ -116,6 +138,14 @@ export class ClaimAssessmentAdaptor {
     res: Response,
     applicationId: string,
   ): void {
+    logger.logInfo({
+      functionName: "render_claim_rejection_success_page",
+      message: "Claim rejection success page requested",
+      extraContext: {
+        event: "claim_rejection_success_requested",
+        laa_reference: applicationId,
+      },
+    });
     res.render("application/claims/rejected/index", {
       applicationId,
     });
@@ -131,11 +161,16 @@ export class ClaimAssessmentAdaptor {
       disposition === DISPOSITION.INLINE ||
       disposition === DISPOSITION.ATTACHMENT
     ) {
-      logger.logInfo(
-        "GET Claim Evidence",
-        `Claim evidence ${claimEvidenceId} requested.`,
-        req,
-      );
+      logger.logInfo({
+        functionName: "serve_claim_evidence",
+        message: "Claim evidence requested",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_requested",
+          claim_evidence_id: claimEvidenceId,
+          disposition,
+        },
+      });
 
       try {
         const { data, contentType, contentDisposition } =
@@ -149,12 +184,17 @@ export class ClaimAssessmentAdaptor {
         res.setHeader("Content-Disposition", contentDisposition);
         res.send(data);
       } catch (error) {
-        logger.logError(
-          "GET Claim Evidence",
-          `Failed to retrieve claim evidence ${claimEvidenceId}`,
-          error,
-          req,
-        );
+        logger.logError({
+          functionName: "serve_claim_evidence",
+          message: "Failed to retrieve claim evidence",
+          err: error,
+          request: req,
+          extraContext: {
+            event: "claim_evidence_retrieval_failed",
+            claim_evidence_id: claimEvidenceId,
+            disposition,
+          },
+        });
 
         res.status(500).render("application/error", {
           status: "Unable to retrieve evidence",
