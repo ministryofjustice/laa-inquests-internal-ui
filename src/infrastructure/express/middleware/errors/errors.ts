@@ -1,6 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
-import {HTTP_INTERNAL_SERVER_ERROR, HTTP_NOT_FOUND} from "#src/infrastructure/express/constants.js";
+import {
+  HTTP_INTERNAL_SERVER_ERROR,
+  HTTP_NOT_FOUND,
+} from "#src/infrastructure/express/constants.js";
 
 const getRequestRoutePath = (req: Request): string => {
   const route = req.route as { path?: unknown } | undefined;

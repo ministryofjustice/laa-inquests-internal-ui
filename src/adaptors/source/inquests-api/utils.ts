@@ -1,4 +1,5 @@
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface PatchInquestsApiParams<TBody> {
   http: AxiosInstance;
@@ -17,13 +18,20 @@ interface GetInquestApiParams {
   axiosConfig?: AxiosRequestConfig;
 }
 
-// COPILOT TODO: Should be logging in each of these functions
 export async function patchInquestsApi<TResponse, TBody>(
   params: PatchInquestsApiParams<TBody>,
 ): Promise<AxiosResponse<TResponse>> {
   const { http, baseUrl, path, body, accessToken, axiosConfig = {} } = params;
 
   if (typeof accessToken !== "string" || accessToken === "") {
+    logger.logError({
+      functionName: "patch_inquests_api",
+      message: "Missing access token for Inquests API request",
+      extraContext: {
+        event: "outbound_api_missing_access_token",
+        route: path,
+      },
+    });
     throw new Error("Missing access token for Inquests API request");
   }
 
@@ -32,10 +40,24 @@ export async function patchInquestsApi<TResponse, TBody>(
     ? (axiosHeaders as Record<string, string>)
     : {};
 
-  return await http.patch<TResponse>(`${baseUrl}${path}`, body, {
-    ...restConfig,
-    headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
-  });
+  try {
+    return await http.patch<TResponse>(`${baseUrl}${path}`, body, {
+      ...restConfig,
+      headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
+    });
+  } catch (error) {
+    logger.logError({
+      functionName: "patch_inquests_api",
+      message: "PATCH request to Inquests API failed",
+      err: error,
+      extraContext: {
+        event: "outbound_api_request_failed",
+        method: "PATCH",
+        route: path,
+      },
+    });
+    throw error;
+  }
 }
 
 export async function getInquestsApi<TResponse>(
@@ -43,6 +65,14 @@ export async function getInquestsApi<TResponse>(
 ): Promise<AxiosResponse<TResponse>> {
   const { http, baseUrl, path, accessToken, axiosConfig = {} } = params;
   if (typeof accessToken !== "string" || accessToken === "") {
+    logger.logError({
+      functionName: "get_inquests_api",
+      message: "Missing access token for Inquests API request",
+      extraContext: {
+        event: "outbound_api_missing_access_token",
+        route: path,
+      },
+    });
     throw new Error("Missing access token for Inquests API request");
   }
 
@@ -51,8 +81,22 @@ export async function getInquestsApi<TResponse>(
     ? (axiosHeaders as Record<string, string>)
     : {};
 
-  return await http.get<TResponse>(`${baseUrl}${path}`, {
-    ...restConfig,
-    headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
-  });
+  try {
+    return await http.get<TResponse>(`${baseUrl}${path}`, {
+      ...restConfig,
+      headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
+    });
+  } catch (error) {
+    logger.logError({
+      functionName: "get_inquests_api",
+      message: "GET request to Inquests API failed",
+      err: error,
+      extraContext: {
+        event: "outbound_api_request_failed",
+        method: "GET",
+        route: path,
+      },
+    });
+    throw error;
+  }
 }

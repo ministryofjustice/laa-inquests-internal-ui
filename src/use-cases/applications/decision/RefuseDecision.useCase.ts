@@ -16,7 +16,16 @@ interface RefuseDecisionInput {
 export class RefuseDecisionUseCase {
   async execute(input: RefuseDecisionInput): Promise<UseCaseResult> {
     if (!input.applicationId) {
-      // COPILOT TODO: Should be logging here
+      logger.logWarn({
+        functionName: "refuse_decision_use_case",
+        message: "Refuse decision request is invalid",
+        extraContext: {
+          event: "refuse_decision_invalid_input",
+          laa_reference: input.applicationId,
+          refusal_reason: input.refusalReason,
+          reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
@@ -47,7 +56,17 @@ export class RefuseDecisionUseCase {
         data: undefined,
       };
     } catch (error) {
-      // COPILOT TODO: Should be logging here
+      logger.logError({
+        functionName: "refuse_decision_use_case",
+        message: "Refuse decision failed",
+        err: error,
+        extraContext: {
+          event: "refuse_decision_upstream_failed",
+          laa_reference: input.applicationId,
+          refusal_reason: input.refusalReason,
+          reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,

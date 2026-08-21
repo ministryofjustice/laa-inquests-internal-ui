@@ -15,7 +15,16 @@ interface GrantDecisionInput {
 export class GrantDecisionUseCase {
   async execute(input: GrantDecisionInput): Promise<UseCaseResult> {
     if (input.applicationId === "" || input.certificateStartDate === "") {
-      // COPILOT TODO: Should be logging here
+      logger.logWarn({
+        functionName: "grant_decision_use_case",
+        message: "Grant decision request is invalid",
+        extraContext: {
+          event: "grant_decision_invalid_input",
+          laa_reference: input.applicationId,
+          certificate_start_date: input.certificateStartDate,
+          reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
@@ -44,7 +53,16 @@ export class GrantDecisionUseCase {
         data: undefined,
       };
     } catch (error) {
-      // COPILOT TODO: Should be logging here
+      logger.logError({
+        functionName: "grant_decision_use_case",
+        message: "Grant decision failed",
+        err: error,
+        extraContext: {
+          event: "grant_decision_upstream_failed",
+          laa_reference: input.applicationId,
+          certificate_start_date: input.certificateStartDate,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
