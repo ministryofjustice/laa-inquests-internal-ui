@@ -42,7 +42,7 @@ jobs:
     environment: staging
     needs: deploy-staging
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ !cancelled() }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -92,7 +92,7 @@ jobs:
     environment: production
     needs: deploy-production
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ !cancelled() }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
