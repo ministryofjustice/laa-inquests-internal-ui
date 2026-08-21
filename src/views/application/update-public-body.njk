@@ -1,0 +1,66 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = t("pages.applicationOverview.publicBodies.title") %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/applications/" ~ applicationId ~ "/overview"
+  }) }}
+  {% if errorSummaries.noPublicBodySelected %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: [
+        {
+          text: errorSummaries.noPublicBodySelected.text,
+          href: '#publicBodyOption'
+        }
+      ]
+    })
+  }}
+  {% endif %}
+
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+         <form data-testid="update-public-body-form" action="/applications/{{ applicationId }}/public-bodies" method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+            {{ govukCheckboxes({
+            name: "publicBodyOption",
+            fieldset: {
+                legend: {
+                   text: pageHeading,
+                    isPageHeading: true,
+                    classes: "govuk-fieldset__legend--l"
+                }
+            },
+            hint: {
+                text: t("pages.applicationOverview.publicBodies.search.hint")
+            },
+            errorMessage: errorSummaries.noPublicBodySelected,
+            values: selectedPublicBodyIds if selectedPublicBodyIds else [],
+            items: publicBodyOptions
+            }) }}
+
+            {{
+              govukButton({
+                text: "Continue"
+              })
+            }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+
+{% endblock %}
