@@ -3,7 +3,7 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = t("pages.applicationOverview.publicBodies.title") %}
+{% set pageHeading = t("pages.applicationOverview.publicAuthority.title") %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -43,7 +43,7 @@
                 }
             },
             hint: {
-                text: t("pages.applicationOverview.publicBodies.search.hint")
+                text: t("pages.applicationOverview.publicAuthority.search.hint")
             },
             errorMessage: errorSummaries.noPublicBodySelected,
             values: selectedPublicBodyIds if selectedPublicBodyIds else [],
