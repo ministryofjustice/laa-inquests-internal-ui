@@ -55,7 +55,7 @@ export const ProceedingSchema = z.object({
   meritsDecision: z.string(),
 });
 
-const PublicBodySchema = z.object({
+export const PublicBodySchema = z.object({
   publicBodyId: z.string(),
   publicBodyDescription: z.string(),
 });
