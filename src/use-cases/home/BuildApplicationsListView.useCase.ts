@@ -4,6 +4,7 @@ import {
   TECHNICAL_FAILURE_REASONS,
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface BuildApplicationsListViewInput {
   applicationPort: ApplicationPort;
@@ -28,6 +29,14 @@ export class BuildApplicationsListViewUseCase {
         data: { applications },
       };
     } catch (error) {
+      logger.logError({
+        functionName: "build_applications_list_view_use_case",
+        message: "Failed to build applications list view",
+        err: error,
+        extraContext: {
+          event: "applications_list_retrieval_failed",
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,

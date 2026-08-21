@@ -1,7 +1,6 @@
 import type { Request, Response, Router } from "express";
 import type { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import type { IdParams, TypedRequest } from "../api.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import type {
   ApplicationDecisionForm,
   JustificationForm,
@@ -73,15 +72,6 @@ export function createApplicationDecisionRouter(
   applicationDecisionRouter.post(
     "/:applicationId/decision/confirmation",
     async (req: Request, res: Response): Promise<void> => {
-      logger.logInfo({
-        functionName: "application_decision_route",
-        message: "Decision confirmation submitted",
-        request: req,
-        extraContext: {
-          event: "decision_confirmation_submitted",
-          laa_reference: req.params.applicationId,
-        },
-      });
       await applicationDecisionAdaptor.processConfirmationForm(req, res);
     },
   );

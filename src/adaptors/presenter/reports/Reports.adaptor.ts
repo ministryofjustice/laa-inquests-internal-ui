@@ -6,6 +6,14 @@ export class ReportsAdaptor {
   constructor(private readonly reportsPort: ReportsPort) {}
 
   renderReportsPage(req: Request, res: Response): void {
+    logger.logInfo({
+      functionName: "render_reports_page",
+      message: "Reports page requested",
+      request: req,
+      extraContext: {
+        event: "reports_page_requested",
+      },
+    });
     res.render("reports/index");
   }
 

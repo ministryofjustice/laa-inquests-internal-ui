@@ -7,7 +7,6 @@ import type {
   TypedRequest,
 } from "#src/infrastructure/express/api.types.js";
 import type { AssessClaimForm } from "#src/adaptors/presenter/models/form.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 function createApplicationRouter(
   applicationRouter: Router,
@@ -98,16 +97,6 @@ function createApplicationRouter(
     "/:applicationId/claims/:claimId",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        logger.logInfo({
-          functionName: "application_route",
-          message: "Claim assessment submitted",
-          request: req,
-          extraContext: {
-            event: "claim_assessment_submitted",
-            laa_reference: req.params.applicationId,
-            claim_reference: req.params.claimId,
-          },
-        });
         await claimAssessmentAdaptor.processClaimAssessmentForm(
           req as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>,
           res,

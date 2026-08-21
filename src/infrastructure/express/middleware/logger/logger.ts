@@ -78,8 +78,12 @@ export function shouldLog(
 }
 
 function extractContext(request: Request | undefined): LogContext {
-  const requestIdHeader = request?.headers["x-request-id"];
-  const correlationIdHeader = request?.headers["x-correlation-id"];
+  const requestHeaders = (
+    request as
+      { headers?: Record<string, string | string[] | undefined> } | undefined
+  )?.headers;
+  const requestIdHeader = requestHeaders?.["x-request-id"];
+  const correlationIdHeader = requestHeaders?.["x-correlation-id"];
   const requestId = headerValueToString(requestIdHeader) ?? randomUUID();
   const correlationId = headerValueToString(correlationIdHeader) ?? requestId;
 

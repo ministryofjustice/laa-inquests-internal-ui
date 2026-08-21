@@ -6,6 +6,7 @@ import {
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { getClaimCost } from "#src/utils/claimCost.js";
 import { PAYABLE_CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface BuildApplicationClaimsViewInput {
   applicationId: string;
@@ -27,6 +28,14 @@ export class BuildApplicationClaimsViewUseCase {
     input: BuildApplicationClaimsViewInput,
   ): Promise<UseCaseResult<BuildApplicationClaimsViewData>> {
     if (!input.applicationId) {
+      logger.logWarn({
+        functionName: "build_application_claims_view_use_case",
+        message: "Application claims view request is invalid",
+        extraContext: {
+          event: "application_claims_view_invalid_input",
+          laa_reference: input.applicationId,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
@@ -71,6 +80,15 @@ export class BuildApplicationClaimsViewUseCase {
         },
       };
     } catch (error) {
+      logger.logError({
+        functionName: "build_application_claims_view_use_case",
+        message: "Failed to build application claims view",
+        err: error,
+        extraContext: {
+          event: "application_claims_view_retrieval_failed",
+          laa_reference: input.applicationId,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,

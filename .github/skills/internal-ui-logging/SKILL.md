@@ -66,22 +66,10 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 - Include only minimal identifiers and operational metadata in `extraContext`.
 - Keep event names `snake_case` and outcome-focused.
 
-## Minimal error middleware snippet
+## Extra context
 
-```typescript
-logger.logError({
-  functionName: "server_error_middleware",
-  message: "Internal Server Error",
-  err,
-  request: req,
-  extraContext: {
-    event: "http_request_failed",
-    route: getRequestRoutePath(req),
-    method: req.method,
-    status_code: 500,
-  },
-});
-```
+laa_reference: <applicationid>
+        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
 
 ## Examples
 
