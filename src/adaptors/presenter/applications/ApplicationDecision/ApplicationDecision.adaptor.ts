@@ -14,6 +14,7 @@ import type {
   CertificateStartDateFormErrors,
 } from "./models/form.types.js";
 import type { ApplicationDecisionValidator } from "./ApplicationDecision.validator.js";
+import { ApplicationDecisionNavigationHelper } from "./ApplicationDecisionNavigation.helper.js";
 import {
   type DecisionSessionData,
   PrepareDecisionFormUseCase,
@@ -45,6 +46,7 @@ export class ApplicationDecisionAdaptor {
   private readonly prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   private readonly refuseDecisionUseCase: RefuseDecisionUseCase;
   private readonly grantDecisionUseCase: GrantDecisionUseCase;
+  private readonly navigationHelper: ApplicationDecisionNavigationHelper;
 
   constructor(
     private readonly viewApplicationAdaptor: ApplicationPort,
@@ -69,6 +71,9 @@ export class ApplicationDecisionAdaptor {
       useCases.refuseDecisionUseCase ?? new RefuseDecisionUseCase();
     this.grantDecisionUseCase =
       useCases.grantDecisionUseCase ?? new GrantDecisionUseCase();
+    this.navigationHelper = new ApplicationDecisionNavigationHelper(
+      this.sessionHelper,
+    );
   }
 
   async renderApplicationDecisionForm(
@@ -77,7 +82,13 @@ export class ApplicationDecisionAdaptor {
     errorSummaries?: Partial<ApplicationDecisionFormErrors>,
   ): Promise<void> {
     const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/overview`;
+
+    this.navigationHelper.prepareDecisionFormEntry(req, applicationId);
+
+    const backUrl = this.navigationHelper.resolveDecisionBackUrl(
+      req,
+      applicationId,
+    );
 
     const data = await this.viewApplicationAdaptor.getApplication(
       applicationId,
@@ -105,6 +116,7 @@ export class ApplicationDecisionAdaptor {
       prepareDecisionFormResult.data;
 
     this.sessionHelper.storeSessionData(req, "decision", proceeding);
+    this.navigationHelper.storeApplicationContext(req, applicationId);
 
     res.render("application/decision/index", {
       backUrl,
@@ -150,14 +162,13 @@ export class ApplicationDecisionAdaptor {
       return;
     }
 
-    if (decisionToPersist === GRANTED_DECISION) {
-      res.redirect(
-        `/applications/${applicationId}/decision/certificate-start-date`,
-      );
-      return;
-    }
+    const redirectPath = this.navigationHelper.resolvePostDecisionSelectionPath(
+      req as unknown as Request,
+      applicationId,
+      decisionToPersist,
+    );
 
-    res.redirect(`/applications/${applicationId}/decision/justification`);
+    res.redirect(redirectPath);
   }
 
   renderJustificationForm(
@@ -166,7 +177,13 @@ export class ApplicationDecisionAdaptor {
     errorSummaries?: Partial<JustificationFormErrors>,
   ): void {
     const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/decision`;
+    this.navigationHelper.prepareDecisionFormEntry(req, applicationId);
+
+    const backUrl = this.navigationHelper.resolveSecondaryDecisionBackUrl(
+      req,
+      applicationId,
+      `/applications/${applicationId}/decision`,
+    );
     const sessionData = this.sessionHelper.getSessionData(req, "decision");
     res.render("application/decision/justification/index", {
       backUrl,
@@ -219,6 +236,10 @@ export class ApplicationDecisionAdaptor {
       return;
     }
 
+    this.navigationHelper.clearReturnToCheckYourAnswersFlagIfSet(
+      req as unknown as Request,
+    );
+
     res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }
 
@@ -228,7 +249,13 @@ export class ApplicationDecisionAdaptor {
     errorSummaries?: Partial<CertificateStartDateFormErrors>,
   ): void {
     const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/decision`;
+    this.navigationHelper.prepareDecisionFormEntry(req, applicationId);
+
+    const backUrl = this.navigationHelper.resolveSecondaryDecisionBackUrl(
+      req,
+      applicationId,
+      `/applications/${applicationId}/decision`,
+    );
     const sessionData = this.sessionHelper.getSessionData(
       req,
       "decision",
@@ -295,6 +322,10 @@ export class ApplicationDecisionAdaptor {
       );
       return;
     }
+
+    this.navigationHelper.clearReturnToCheckYourAnswersFlagIfSet(
+      req as unknown as Request,
+    );
 
     res.redirect(`/applications/${applicationId}/decision/confirmation`);
   }

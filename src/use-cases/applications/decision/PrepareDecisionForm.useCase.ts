@@ -3,9 +3,11 @@ import { toTitleCase } from "#src/utils/formatter.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
 export interface DecisionSessionData {
+  applicationId?: string;
   certificateType?: string;
   meritsDecision?: string;
   overallDecision?: string;
+  returnToCheckYourAnswers?: string;
   refusalReason?: string;
   justification?: string;
   certificateStartDateOption?: string;
