@@ -28,7 +28,7 @@ export class ConfirmPublicAuthorityUpdateUseCase {
     }
 
     try {
-      await input.applicationPort.updatePublicBodies(
+      await input.applicationPort.updateApplicationPublicBodies(
         input.applicationId,
         input.accessToken,
         input.selectedPublicAuthorityIds,

@@ -8,8 +8,8 @@ import type {
 import type {
   PublicAuthorityFormData,
   PublicAuthorityError,
+  PublicAuthorityValidator,
 } from "./PublicAuthority.validator.js";
-import type { PublicAuthorityValidator } from "./PublicAuthority.validator.js";
 import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/publicAuthority/PreparePublicAuthorityForm.useCase.js";
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";

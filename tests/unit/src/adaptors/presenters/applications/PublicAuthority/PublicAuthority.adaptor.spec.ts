@@ -329,23 +329,29 @@ describe("PublicAuthorityAdaptor", () => {
   });
 
   describe("processConfirmation", () => {
-    it("calls updatePublicBodies with the session selection and redirects to overview", async () => {
+    it("calls updateApplicationPublicBodies with the session selection and redirects to overview", async () => {
       sessionHelperStub.getSessionData.returns({
         selectedPublicAuthorityIds: JSON.stringify([
           "Cabinet Office",
           "Department for Transport",
         ]),
       });
-      applicationPortStub.updatePublicBodies.resolves();
+      applicationPortStub.updateApplicationPublicBodies.resolves();
 
       await adaptor.processConfirmation(requestStub as Request, responseStub);
 
-      assert.equal(applicationPortStub.updatePublicBodies.callCount, 1);
-      assert.deepEqual(applicationPortStub.updatePublicBodies.getCall(0).args, [
-        applicationId,
-        "access-token-123",
-        ["Cabinet Office", "Department for Transport"],
-      ]);
+      assert.equal(
+        applicationPortStub.updateApplicationPublicBodies.callCount,
+        1,
+      );
+      assert.deepEqual(
+        applicationPortStub.updateApplicationPublicBodies.getCall(0).args,
+        [
+          applicationId,
+          "access-token-123",
+          ["Cabinet Office", "Department for Transport"],
+        ],
+      );
 
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
@@ -358,7 +364,7 @@ describe("PublicAuthorityAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         selectedPublicAuthorityIds: JSON.stringify(["Cabinet Office"]),
       });
-      applicationPortStub.updatePublicBodies.resolves();
+      applicationPortStub.updateApplicationPublicBodies.resolves();
 
       await adaptor.processConfirmation(requestStub as Request, responseStub);
 
@@ -380,7 +386,7 @@ describe("PublicAuthorityAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         selectedPublicAuthorityIds: JSON.stringify(["Cabinet Office"]),
       });
-      applicationPortStub.updatePublicBodies.rejects(
+      applicationPortStub.updateApplicationPublicBodies.rejects(
         new Error("Upstream error"),
       );
 
@@ -392,7 +398,7 @@ describe("PublicAuthorityAdaptor", () => {
 
     it("throws when session has no selected public authorities", async () => {
       sessionHelperStub.getSessionData.returns(null);
-      applicationPortStub.updatePublicBodies.resolves();
+      applicationPortStub.updateApplicationPublicBodies.resolves();
 
       await assert.rejects(
         () => adaptor.processConfirmation(requestStub as Request, responseStub),

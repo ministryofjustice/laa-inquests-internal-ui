@@ -218,7 +218,7 @@ export class ApplicationAPIAdaptor {
     return data.map((publicBody) => PublicBodySchema.parse(publicBody));
   }
 
-  async updatePublicBodies(
+  async updateApplicationPublicBodies(
     applicationId: string,
     accessToken: string | undefined,
     publicBodyIds: string[],

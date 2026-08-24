@@ -39,7 +39,7 @@ export interface ApplicationPort {
     accessToken: string | undefined,
   ) => Promise<HistoryEvent[]>;
   getPublicBodies: (accessToken: string | undefined) => Promise<PublicBody[]>;
-  updatePublicBodies: (
+  updateApplicationPublicBodies: (
     applicationId: string,
     accessToken: string | undefined,
     publicBodyIds: string[],

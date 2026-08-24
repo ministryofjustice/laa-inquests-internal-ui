@@ -527,14 +527,14 @@ describe("getPublicBodies", () => {
   });
 });
 
-describe("updatePublicBodies", () => {
+describe("updateApplicationPublicBodies", () => {
   it("calls the update endpoint with the selected public body ids", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     axiosPatchStub.resolves({});
 
-    await adaptor.updatePublicBodies("123", "access-token-123", [
+    await adaptor.updateApplicationPublicBodies("123", "access-token-123", [
       "Cabinet Office",
       "Department for Transport",
     ]);

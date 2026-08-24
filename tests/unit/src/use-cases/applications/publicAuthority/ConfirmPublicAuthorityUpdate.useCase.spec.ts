@@ -8,7 +8,7 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
 
   it("returns SUCCESS after updating public authorities with valid inputs", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.updatePublicBodies.resolves();
+    applicationPortStub.updateApplicationPublicBodies.resolves();
 
     const result = await useCase.execute({
       applicationId: "123",
@@ -21,12 +21,18 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     });
 
     assert.equal(result.status, "SUCCESS");
-    assert.equal(applicationPortStub.updatePublicBodies.callCount, 1);
-    assert.deepEqual(applicationPortStub.updatePublicBodies.getCall(0).args, [
-      "123",
-      "access-token-123",
-      ["Cabinet Office", "Department for Transport"],
-    ]);
+    assert.equal(
+      applicationPortStub.updateApplicationPublicBodies.callCount,
+      1,
+    );
+    assert.deepEqual(
+      applicationPortStub.updateApplicationPublicBodies.getCall(0).args,
+      [
+        "123",
+        "access-token-123",
+        ["Cabinet Office", "Department for Transport"],
+      ],
+    );
   });
 
   it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when applicationId is empty", async () => {
@@ -63,10 +69,10 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     );
   });
 
-  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when updatePublicBodies throws an error", async () => {
+  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when updateApplicationPublicBodies throws an error", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const error = new Error("Upstream error");
-    applicationPortStub.updatePublicBodies.rejects(error);
+    applicationPortStub.updateApplicationPublicBodies.rejects(error);
 
     const result = await useCase.execute({
       applicationId: "123",
