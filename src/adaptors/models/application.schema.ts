@@ -93,7 +93,8 @@ export const ApplicationSchema = z.object({
 export const ApplicationSummarySchema = z.object({
   laaReference: z
     .union([z.number(), z.string()])
-    .transform((val) => String(val)),
+    .transform((val) => String(val))
+    .nullable(),
   createdAt: z.string(),
   status: z.string().nullable(),
   overallDecision: z.string().nullable(),

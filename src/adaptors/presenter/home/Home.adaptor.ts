@@ -67,8 +67,8 @@ function mapApplicationForHomeRow(
   application: ApplicationSummary,
 ): HomeApplicationRow {
   return {
-    reference: application.laaReference,
-    referenceUrl: `/applications/${application.laaReference}/overview`,
+    reference: application.laaReference ?? "null",
+    referenceUrl: `/applications/${application.laaReference ?? "null"}/overview`,
     createdDate: formatDateTime(application.createdAt),
     createdDateISO: application.createdAt,
     status: formatDisplayValue(application.status),

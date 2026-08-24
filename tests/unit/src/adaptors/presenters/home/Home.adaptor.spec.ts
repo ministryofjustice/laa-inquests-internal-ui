@@ -24,7 +24,7 @@ describe("Home adaptor", () => {
   it("renders home page with table rows from all applications", async () => {
     applicationPortStub.getAllApplications.resolves([
       {
-        laaReference: 123,
+        laaReference: "123",
         createdAt: "2026-05-20T08:46:36.793278",
         status: "Live",
         overallDecision: "PENDING",
