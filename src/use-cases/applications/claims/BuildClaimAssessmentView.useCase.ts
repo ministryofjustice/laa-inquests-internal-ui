@@ -79,7 +79,7 @@ export class BuildClaimAssessmentViewUseCase {
       return {
         status: "SUCCESS",
         data: {
-          laaReference: String(application.laaReference),
+          laaReference: application.laaReference,
           claimId: String(claim.claimId),
           claimStatus: mapClaimDecision(claim.claimDecision?.decision),
           overview: {

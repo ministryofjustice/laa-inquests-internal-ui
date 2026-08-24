@@ -6,7 +6,7 @@ import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.t
 
 describe("BuildCertificateViewUseCase", () => {
   const certificateDetails = {
-    laaReference: 1,
+    laaReference: "1",
     dateCreated: "2026-05-19",
     clientName: "John Doe",
     clientAddress: {
