@@ -12,7 +12,14 @@ export const createSessionStore = (): Store | undefined => {
 
   const client = createRedisClient();
   client.connect().catch((err: unknown) => {
-    logger.logError("createSessionStore", "Failed to connect to Redis", err);
+    logger.logError({
+      functionName: "create_session_store",
+      message: "Failed to connect to Redis",
+      err,
+      extraContext: {
+        event: "redis_connect_failed",
+      },
+    });
   });
 
   return new RedisStore({ client, prefix: "inquests:sess:" });

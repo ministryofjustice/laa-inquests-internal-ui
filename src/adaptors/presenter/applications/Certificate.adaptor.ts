@@ -26,11 +26,15 @@ export class CertificateAdaptor {
     res: Response,
     applicationId: string,
   ): Promise<void> {
-    logger.logInfo(
-      "GET Certificate Page",
-      `Certificate details for application ${applicationId} requested.`,
-      req,
-    );
+    logger.logInfo({
+      functionName: "render_certificate_page",
+      message: "Certificate details requested",
+      request: req,
+      extraContext: {
+        event: "certificate_page_requested",
+        laa_reference: applicationId,
+      },
+    });
 
     const certificateViewResult =
       await this.buildCertificateViewUseCase.execute({
@@ -39,14 +43,20 @@ export class CertificateAdaptor {
       });
 
     if (certificateViewResult.status !== "SUCCESS") {
-      logger.logError(
-        "GET Certificate Page",
-        `Failed to build certificate view for application ${applicationId}`,
-        certificateViewResult.status === "TECHNICAL_FAILURE"
-          ? (certificateViewResult.cause ?? certificateViewResult.message)
-          : undefined,
-        req,
-      );
+      logger.logError({
+        functionName: "render_certificate_page",
+        message: "Failed to build certificate view",
+        err:
+          certificateViewResult.status === "TECHNICAL_FAILURE"
+            ? (certificateViewResult.cause ?? certificateViewResult.message)
+            : undefined,
+        request: req,
+        extraContext: {
+          event: "certificate_page_failed",
+          laa_reference: applicationId,
+          result_status: certificateViewResult.status,
+        },
+      });
 
       if (
         certificateViewResult.status === "TECHNICAL_FAILURE" &&

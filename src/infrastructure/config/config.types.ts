@@ -50,6 +50,7 @@ export interface Config {
   RATE_LIMIT_MAX: number | string;
   RATE_WINDOW_MS: number;
   SERVICE_NAME: string | undefined;
+  LOG_LEVEL: string | undefined;
   SERVICE_PHASE: string | undefined;
   SERVICE_URL: string | undefined;
   USE_REDIS: boolean;
