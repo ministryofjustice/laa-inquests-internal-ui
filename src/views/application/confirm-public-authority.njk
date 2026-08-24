@@ -1,0 +1,36 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageContent %}
+<form data-testid="confirm-public-authorities" method="post" action="/applications/{{ applicationId }}/public-authorities/confirm">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+  <h1 class="govuk-heading-l">{{ t('pages.applicationOverview.publicAuthority.confirm.title') }}</h1>
+  {{ govukWarningText({
+      text: t('pages.applicationOverview.publicAuthority.confirm.warning'),
+      iconFallbackText: t('pages.home.developerBanner.title')
+    }) }}
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.applicationOverview.publicAuthority.confirm.cardTitle')
+      },
+      actions: {
+        items: [
+          {
+            href: "/applications/" + applicationId + "/public-authorities?from=confirm",
+            text: t('common.change'),
+            visuallyHiddenText: t('pages.applicationOverview.publicAuthority.confirm.cardTitle')
+          }
+        ]
+      }
+    },
+    rows: publicAuthorityRows
+  }) }}
+  {{ govukButton({
+    text: t('pages.applicationOverview.publicAuthority.confirm.submitButton')
+  }) }}
+</form>
+{% endblock pageContent %}
+
+

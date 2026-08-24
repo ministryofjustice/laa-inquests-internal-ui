@@ -89,7 +89,8 @@
         },
         "confirm": {
           "title": "Check your answers",
-          "cardTitle": "Public authorities",
+          "warning": "Making changes to the listed public authority will reissue the certificate to the provider and client.",
+          "cardTitle": "Public authority",
           "submitButton": "Finish making changes"
         },
         "notificationBanner": {

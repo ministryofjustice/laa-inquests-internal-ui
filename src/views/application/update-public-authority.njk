@@ -13,13 +13,13 @@
     text: "Back",
     href: backHref or "/applications/" ~ applicationId ~ "/overview"
   }) }}
-  {% if errorSummaries.noPublicBodySelected %}
+  {% if errorSummaries.noPublicAuthoritySelected %}
     {{ govukErrorSummary({
       titleText: "There is a problem",
       errorList: [
         {
-          text: errorSummaries.noPublicBodySelected.text,
-          href: '#publicBodyOption'
+          text: errorSummaries.noPublicAuthoritySelected.text,
+          href: '#publicAuthorityOption'
         }
       ]
     })
@@ -30,11 +30,11 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
 
-         <form data-testid="update-public-body-form" action="/applications/{{ applicationId }}/public-bodies" method="POST">
+         <form data-testid="update-public-authority-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
             {{ govukCheckboxes({
-            name: "publicBodyOption",
+            name: "publicAuthorityOption",
             fieldset: {
                 legend: {
                    text: pageHeading,
@@ -45,9 +45,9 @@
             hint: {
                 text: t("pages.applicationOverview.publicAuthority.search.hint")
             },
-            errorMessage: errorSummaries.noPublicBodySelected,
-            values: selectedPublicBodyIds if selectedPublicBodyIds else [],
-            items: publicBodyOptions
+            errorMessage: errorSummaries.noPublicAuthoritySelected,
+            values: selectedPublicAuthorityIds if selectedPublicAuthorityIds else [],
+            items: publicAuthorityOptions
             }) }}
 
             {{
