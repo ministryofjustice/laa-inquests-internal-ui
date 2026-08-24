@@ -544,7 +544,7 @@ describe("updateApplicationPublicBodies", () => {
       axiosPatchStub,
       `${baseUrl}/applications/123/public-bodies`,
       {
-        publicBodyIds: ["Cabinet Office", "Department for Transport"],
+        publicBodies: ["Cabinet Office", "Department for Transport"],
       },
     );
   });

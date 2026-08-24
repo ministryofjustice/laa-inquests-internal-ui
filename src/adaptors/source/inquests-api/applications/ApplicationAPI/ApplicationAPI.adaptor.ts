@@ -223,7 +223,9 @@ export class ApplicationAPIAdaptor {
     accessToken: string | undefined,
     publicBodyIds: string[],
   ): Promise<void> {
-    const payload: { publicBodyIds: string[] } = { publicBodyIds };
+    const payload: { publicBodies: string[] } = {
+      publicBodies: publicBodyIds,
+    };
 
     await patchInquestsApi({
       http: this.http,
