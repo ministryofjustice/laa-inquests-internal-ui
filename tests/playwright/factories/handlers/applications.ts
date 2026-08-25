@@ -338,7 +338,7 @@ const claimDetailVatZeroOnly = {
 };
 
 /**
- * Public bodies reference data returned by GET /public-bodies.
+ * Public bodies reference data returned by GET /applications/public-bodies.
  */
 const publicBodies = [
   {
@@ -384,6 +384,10 @@ const applicationHistory = [
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
+  }),
+
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/public-bodies`, () => {
+    return HttpResponse.json(publicBodies);
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
@@ -580,10 +584,6 @@ export const applicationHandlers = [
       return HttpResponse.json(assessed ? assessedClaims : toBeAssessedClaims);
     },
   ),
-
-  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/public-bodies`, () => {
-    return HttpResponse.json(publicBodies);
-  }),
 
   http.patch(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/public-bodies`,
