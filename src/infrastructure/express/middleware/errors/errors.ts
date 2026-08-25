@@ -15,7 +15,11 @@ const handleServerErrors = (
   _: NextFunction,
 ): void => {
   logger.logError("Server Error Middleware", "Internal Server Error", err, req);
-  res.render("main/error", { status: 500, message: "Internal Server Error" });
+  res.status(500);
+  res.render("main/error", {
+    status: 500,
+    message: "Internal Server Error",
+  });
 };
 
 export { handleRouteNotFound, handleServerErrors };

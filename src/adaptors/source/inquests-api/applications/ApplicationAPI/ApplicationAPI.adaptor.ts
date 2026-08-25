@@ -211,7 +211,7 @@ export class ApplicationAPIAdaptor {
     const { data }: AxiosResponse<PublicBody[]> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: "/public-bodies",
+      path: "/applications/public-bodies",
       accessToken,
     });
 

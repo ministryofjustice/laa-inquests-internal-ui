@@ -522,7 +522,10 @@ describe("getPublicBodies", () => {
 
     const publicBodies = await adaptor.getPublicBodies("access-token-123");
 
-    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/public-bodies`);
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/public-bodies`,
+    );
     assert.deepEqual(publicBodies, expectedPublicBodies);
   });
 });
