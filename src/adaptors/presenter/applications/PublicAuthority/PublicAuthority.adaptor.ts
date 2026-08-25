@@ -78,7 +78,7 @@ export class PublicAuthorityAdaptor {
     });
 
     if (prepareResult.status !== "SUCCESS") {
-      throw new Error("Unable to prepare public authority form");
+      throw new Error("Unable to prepare public authorities form");
     }
 
     const selectedPublicAuthorityIds = this.#resolveSelectedIds(
@@ -88,7 +88,7 @@ export class PublicAuthorityAdaptor {
       currentPublicBodyIds,
     );
 
-    res.render("application/update-public-authority", {
+    res.render("application/update-public-authorities", {
       applicationId,
       publicAuthorityOptions: prepareResult.data.items,
       selectedPublicAuthorityIds,
@@ -165,7 +165,7 @@ export class PublicAuthorityAdaptor {
     );
 
     if (prepareResult.status !== "SUCCESS") {
-      throw new Error("Unable to prepare public authority confirmation view");
+      throw new Error("Unable to prepare public authorities confirmation view");
     }
 
     const publicAuthorityRows =
@@ -174,7 +174,7 @@ export class PublicAuthorityAdaptor {
         value: { text: "" },
       }));
 
-    res.render("application/confirm-public-authority", {
+    res.render("application/confirm-public-authorities", {
       applicationId,
       backUrl,
       publicAuthorityRows,

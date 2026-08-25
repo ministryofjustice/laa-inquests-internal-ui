@@ -76,7 +76,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.equal(responseStub.render.callCount, 1);
       assert.equal(
         responseStub.render.getCall(0).args[0],
-        "application/update-public-authority",
+        "application/update-public-authorities",
       );
     });
 
@@ -281,7 +281,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.equal(responseStub.render.callCount, 1);
       assert.equal(
         responseStub.render.getCall(0).args[0],
-        "application/confirm-public-authority",
+        "application/confirm-public-authorities",
       );
     });
 

@@ -67,7 +67,7 @@ test.describe.serial("Update public authorities journey", () => {
       backUrl: `/applications/${applicationId}/overview`,
     });
 
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
     await validateCSRFToken(form);
 
     // Hint text is visible
@@ -90,7 +90,7 @@ test.describe.serial("Update public authorities journey", () => {
   });
 
   test("shows validation error when no public authority is selected", async () => {
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
 
     // Uncheck the preselected checkbox
     const dftCheckbox = form.getByRole("checkbox", {
@@ -116,7 +116,7 @@ test.describe.serial("Update public authorities journey", () => {
   });
 
   test("selects public authorities and continues to confirmation page", async () => {
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
 
     // Select multiple public authorities
     await form
@@ -179,7 +179,7 @@ test.describe.serial("Update public authorities journey", () => {
 
     await expect(sharedPage).toHaveURL(`${selectionPage}?from=confirm`);
 
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
 
     // All three previously selected should still be checked
     await expect(
@@ -202,7 +202,7 @@ test.describe.serial("Update public authorities journey", () => {
   });
 
   test("continues back to confirmation page after Back navigation", async () => {
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(confirmPage);
@@ -216,7 +216,7 @@ test.describe.serial("Update public authorities journey", () => {
 
     await expect(sharedPage).toHaveURL(`${selectionPage}?from=confirm`);
 
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
 
     // Previously selected authorities should still be checked
     await expect(
@@ -231,7 +231,7 @@ test.describe.serial("Update public authorities journey", () => {
   });
 
   test("continues to confirmation page after Change link navigation", async () => {
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(confirmPage);
@@ -272,7 +272,7 @@ test.describe.serial("Update public authorities journey", () => {
     await sharedPage.goto(selectionPage);
 
     // The current selection from the application is preselected
-    const form = sharedPage.getByTestId("update-public-authority-form");
+    const form = sharedPage.getByTestId("update-public-authorities-form");
 
     // Just continue without changing anything
     await continueToNextPage(form, sharedPage);
@@ -294,7 +294,7 @@ test.describe("Update public authorities — fresh entry resets session", () => 
   }) => {
     // Start a journey, select some authorities, go to confirm
     await page.goto(selectionPage);
-    const form = page.getByTestId("update-public-authority-form");
+    const form = page.getByTestId("update-public-authorities-form");
     await form.getByRole("checkbox", { name: "Cabinet Office" }).check();
     await continueToNextPage(form, page);
     await expect(page).toHaveURL(confirmPage);
@@ -302,7 +302,7 @@ test.describe("Update public authorities — fresh entry resets session", () => 
     // Now navigate fresh to the selection page (not via Back — no ?from=confirm)
     await page.goto(selectionPage);
 
-    const freshForm = page.getByTestId("update-public-authority-form");
+    const freshForm = page.getByTestId("update-public-authorities-form");
 
     // Only the original application public body should be checked (session was reset)
     await expect(

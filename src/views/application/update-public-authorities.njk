@@ -21,7 +21,7 @@
   }}
   {% endif %}
 
-  <form data-testid="update-public-authority-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
+  <form data-testid="update-public-authorities-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
     <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
     {{ govukCheckboxes({
