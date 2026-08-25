@@ -43,9 +43,19 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       const laaReference = escapeHtmlValue(eventData?.laaReference);
       return `Certificate created <br /> <a href="/applications/${laaReference}/certificate">View certificate</a>`;
     },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: () =>
-      "Interested parties updated",
-
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: (eventData) => {
+      const oldPublicBodies = escapeHtmlValue(
+        Array.isArray(eventData?.oldPublicBodies)
+          ? eventData.oldPublicBodies.join(", ")
+          : eventData?.oldPublicBodies,
+      );
+      const newPublicBodies = escapeHtmlValue(
+        Array.isArray(eventData?.newPublicBodies)
+          ? eventData.newPublicBodies.join(", ")
+          : eventData?.newPublicBodies,
+      );
+      return `Interested parties updated from ${oldPublicBodies} to ${newPublicBodies}`;
+    },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
       return `${claimType} claim received`;
