@@ -137,12 +137,12 @@ export class PublicAuthorityAdaptor {
       ),
     });
 
-    res.redirect(`/applications/${applicationId}/public-authority/confirm`);
+    res.redirect(`/applications/${applicationId}/public-authorities/confirm`);
   }
 
   async renderConfirmationPage(req: Request, res: Response): Promise<void> {
     const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/public-authority?from=confirm`;
+    const backUrl = `/applications/${applicationId}/public-authorities?from=confirm`;
 
     const sessionData = this.sessionHelper.getSessionData(
       req,

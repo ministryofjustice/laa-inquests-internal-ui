@@ -1,18 +1,13 @@
-{% extends "base.njk" %}
+{% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = t("pages.applicationOverview.publicAuthority.title") %}
 {% set pageTitle = pageHeading %}
+{% set backUrl = backHref or "/applications/" ~ applicationId ~ "/overview" %}
 
-{% block content %}
+{% block pageContent %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/applications/" ~ applicationId ~ "/overview"
-  }) }}
   {% if errorSummaries.noPublicAuthoritySelected %}
     {{ govukErrorSummary({
       titleText: "There is a problem",
@@ -26,41 +21,31 @@
   }}
   {% endif %}
 
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
+  <form data-testid="update-public-authority-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
-         <form data-testid="update-public-authority-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+    {{ govukCheckboxes({
+    name: "publicAuthorityOption",
+    fieldset: {
+        legend: {
+           text: pageHeading,
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--l"
+        }
+    },
+    hint: {
+        text: t("pages.applicationOverview.publicAuthority.search.hint")
+    },
+    errorMessage: errorSummaries.noPublicAuthoritySelected,
+    values: selectedPublicAuthorityIds if selectedPublicAuthorityIds else [],
+    items: publicAuthorityOptions
+    }) }}
 
-            {{ govukCheckboxes({
-            name: "publicAuthorityOption",
-            fieldset: {
-                legend: {
-                   text: pageHeading,
-                    isPageHeading: true,
-                    classes: "govuk-fieldset__legend--l"
-                }
-            },
-            hint: {
-                text: t("pages.applicationOverview.publicAuthority.search.hint")
-            },
-            errorMessage: errorSummaries.noPublicAuthoritySelected,
-            values: selectedPublicAuthorityIds if selectedPublicAuthorityIds else [],
-            items: publicAuthorityOptions
-            }) }}
-
-            {{
-              govukButton({
-                text: "Continue"
-              })
-            }}
-        </form>
-      </div>
-    </div>
-  </main>
-</div>
-
-
+    {{
+      govukButton({
+        text: "Continue"
+      })
+    }}
+  </form>
 
 {% endblock %}

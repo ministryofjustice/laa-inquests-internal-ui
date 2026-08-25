@@ -87,6 +87,7 @@ const buildCertificateViewUseCase = new BuildCertificateViewUseCase(
 );
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
+  new SessionHelper(),
   buildApplicationOverviewViewUseCase,
   claimsAdaptor,
   buildApplicationClaimsViewUseCase,

@@ -204,7 +204,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/public-authority/confirm`,
+        `/applications/${applicationId}/public-authorities/confirm`,
       );
     });
 
@@ -303,7 +303,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.equal(renderArgs.applicationId, applicationId);
       assert.equal(
         renderArgs.backUrl,
-        `/applications/${applicationId}/public-authority?from=confirm`,
+        `/applications/${applicationId}/public-authorities?from=confirm`,
       );
       assert.deepEqual(renderArgs.publicAuthorityRows, [
         { key: { text: "Cabinet Office" }, value: { text: "" } },

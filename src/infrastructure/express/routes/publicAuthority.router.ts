@@ -8,14 +8,14 @@ export function createPublicAuthorityRouter(
   publicAuthorityAdaptor: PublicAuthorityAdaptor,
 ): Router {
   publicAuthorityRouter.get(
-    "/:applicationId/public-authority",
+    "/:applicationId/public-authorities",
     async (req: Request, res: Response): Promise<void> => {
       await publicAuthorityAdaptor.renderSelectionForm(req, res);
     },
   );
 
   publicAuthorityRouter.post(
-    "/:applicationId/public-authority",
+    "/:applicationId/public-authorities",
     async (req: Request, res: Response): Promise<void> => {
       await publicAuthorityAdaptor.processSelectionForm(
         req as unknown as TypedRequest<PublicAuthorityFormData, IdParams>,
@@ -25,14 +25,14 @@ export function createPublicAuthorityRouter(
   );
 
   publicAuthorityRouter.get(
-    "/:applicationId/public-authority/confirm",
+    "/:applicationId/public-authorities/confirm",
     async (req: Request, res: Response): Promise<void> => {
       await publicAuthorityAdaptor.renderConfirmationPage(req, res);
     },
   );
 
   publicAuthorityRouter.post(
-    "/:applicationId/public-authority/confirm",
+    "/:applicationId/public-authorities/confirm",
     async (req: Request, res: Response): Promise<void> => {
       await publicAuthorityAdaptor.processConfirmation(req, res);
     },
