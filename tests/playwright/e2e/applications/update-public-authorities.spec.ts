@@ -37,10 +37,31 @@ test.describe.serial("Update public authorities journey", () => {
     await sharedContext.close();
   });
 
-  // AC1 — Selection page renders with current public authorities preselected
-  test("renders the public authority selection page with current selections preselected", async () => {
-    await sharedPage.goto(selectionPage);
+  test("navigates to selection page from overview People tab Change link", async () => {
+    await sharedPage.goto(overviewPage);
 
+    await sharedPage.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = sharedPage.locator("#people");
+    const interestedPartiesCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({
+        has: sharedPage.locator(".govuk-summary-card__title", {
+          hasText: "Interested parties",
+        }),
+      });
+
+    const changeLink = interestedPartiesCard.getByRole("link", {
+      name: "Change",
+    });
+    await expect(changeLink).toBeVisible();
+    await changeLink.click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(selectionPage);
+  });
+
+  test("renders the public authority selection page with current selections preselected", async () => {
     await validateGovPage(sharedPage, {
       headerText: publicAuthorityLocale.title,
       backUrl: `/applications/${applicationId}/overview`,
@@ -68,7 +89,6 @@ test.describe.serial("Update public authorities journey", () => {
     await expect(cabinetOffice).not.toBeChecked();
   });
 
-  // AC6 — Validation error when no public authority is selected
   test("shows validation error when no public authority is selected", async () => {
     const form = sharedPage.getByTestId("update-public-authority-form");
 
@@ -95,7 +115,6 @@ test.describe.serial("Update public authorities journey", () => {
     ).toBeVisible();
   });
 
-  // AC2 — Select public authorities and continue to confirm page
   test("selects public authorities and continues to confirmation page", async () => {
     const form = sharedPage.getByTestId("update-public-authority-form");
 
@@ -111,7 +130,6 @@ test.describe.serial("Update public authorities journey", () => {
     await expect(sharedPage).toHaveURL(confirmPage);
   });
 
-  // AC7 — Confirm page displays selected public authorities
   test("renders the confirmation page with selected public authorities", async () => {
     const heading = sharedPage.getByRole("heading", {
       level: 1,
@@ -145,7 +163,6 @@ test.describe.serial("Update public authorities journey", () => {
     );
   });
 
-  // AC7 — Confirm page has CSRF token
   test("confirmation page form contains CSRF token", async () => {
     const form = sharedPage.getByTestId("confirm-public-authorities");
     await validateCSRFToken(form);
@@ -184,7 +201,6 @@ test.describe.serial("Update public authorities journey", () => {
     ).not.toBeChecked();
   });
 
-  // Continue back to confirm page after verifying session preservation
   test("continues back to confirmation page after Back navigation", async () => {
     const form = sharedPage.getByTestId("update-public-authority-form");
     await continueToNextPage(form, sharedPage);
@@ -192,7 +208,35 @@ test.describe.serial("Update public authorities journey", () => {
     await expect(sharedPage).toHaveURL(confirmPage);
   });
 
-  // AC7/AC8 — Submit confirmation and redirect to overview
+  test("clicking Change link on confirm page navigates to selection page with session preserved", async () => {
+    const summaryCard = sharedPage.locator(".govuk-summary-card");
+    const changeLink = summaryCard.getByRole("link", { name: /change/i });
+    await changeLink.click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(`${selectionPage}?from=confirm`);
+
+    const form = sharedPage.getByTestId("update-public-authority-form");
+
+    // Previously selected authorities should still be checked
+    await expect(
+      form.getByRole("checkbox", { name: "Department for Transport" }),
+    ).toBeChecked();
+    await expect(
+      form.getByRole("checkbox", { name: "Cabinet Office" }),
+    ).toBeChecked();
+    await expect(
+      form.getByRole("checkbox", { name: "Home Office" }),
+    ).toBeChecked();
+  });
+
+  test("continues to confirmation page after Change link navigation", async () => {
+    const form = sharedPage.getByTestId("update-public-authority-form");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(confirmPage);
+  });
+
   test("submitting confirmation redirects to the application overview", async () => {
     const form = sharedPage.getByTestId("confirm-public-authorities");
     await continueToNextPage(form, sharedPage);
@@ -200,7 +244,6 @@ test.describe.serial("Update public authorities journey", () => {
     await expect(sharedPage).toHaveURL(overviewPage);
   });
 
-  // AC9 — Success notification banner shown on overview after update
   test("displays a success notification banner on the overview page after update", async () => {
     const notificationBanner = sharedPage.locator(
       ".govuk-notification-banner--success",
@@ -214,7 +257,6 @@ test.describe.serial("Update public authorities journey", () => {
     ).toBeVisible();
   });
 
-  // AC9 — Notification banner is one-time only (flash)
   test("notification banner is not shown on subsequent overview page loads", async () => {
     await sharedPage.reload();
     await sharedPage.waitForLoadState("domcontentloaded");
@@ -225,7 +267,6 @@ test.describe.serial("Update public authorities journey", () => {
     await expect(notificationBanner).not.toBeVisible();
   });
 
-  // AC8 — No API call when no changes are made (unchanged selection submitted)
   test("submitting unchanged selection still completes the journey without error", async () => {
     // Navigate fresh to the selection page
     await sharedPage.goto(selectionPage);

@@ -213,6 +213,14 @@
             card: {
                 title: {
                     text: "Interested parties"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/applications/" ~ application.laaReference ~ "/public-authorities",
+                      text: "Change"
+                    }
+                  ]
                 }
             },
             rows: publicBodyRows
