@@ -185,9 +185,15 @@ describe("CertificateAdaptor", () => {
 
       assert.equal(logInfoStub.callCount, 1);
       assert.deepStrictEqual(logInfoStub.getCall(0).args, [
-        "GET Certificate Page",
-        `Certificate details for application ${application.laaReference} requested.`,
-        requestStub,
+        {
+          functionName: "render_certificate_page",
+          message: "Certificate details requested",
+          request: requestStub,
+          extraContext: {
+            event: "certificate_page_requested",
+            laa_reference: application.laaReference.toString(),
+          },
+        },
       ]);
     });
 
@@ -289,10 +295,17 @@ describe("CertificateAdaptor", () => {
 
       assert.equal(logErrorStub.callCount, 1);
       assert.deepStrictEqual(logErrorStub.getCall(0).args, [
-        "GET Certificate Page",
-        `Failed to build certificate view for application ${application.laaReference}`,
-        "Unable to build certificate view",
-        requestStub,
+        {
+          functionName: "render_certificate_page",
+          message: "Failed to build certificate view",
+          err: "Unable to build certificate view",
+          request: requestStub,
+          extraContext: {
+            event: "certificate_page_failed",
+            laa_reference: application.laaReference.toString(),
+            result_status: "TECHNICAL_FAILURE",
+          },
+        },
       ]);
     });
   });

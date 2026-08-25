@@ -61,11 +61,15 @@ export class ApplicationAdaptor {
     const { viewApplicationAdaptor, buildApplicationOverviewViewUseCase } =
       this;
 
-    logger.logInfo(
-      "GET Application by ID",
-      `Application with ID: ${applicationId} has been accessed.`,
-      req,
-    );
+    logger.logInfo({
+      functionName: "render_application_page",
+      message: "Application overview requested",
+      request: req,
+      extraContext: {
+        event: "application_overview_requested",
+        laa_reference: applicationId,
+      },
+    });
 
     const overviewViewResult =
       await buildApplicationOverviewViewUseCase.execute({
@@ -131,12 +135,15 @@ export class ApplicationAdaptor {
     const { claimsAdaptor, buildApplicationClaimsViewUseCase } = this;
 
     if (!claimsAdaptor) {
-      logger.logError(
-        "GET Application claims",
-        `No claims adaptor configured for application ${applicationId}`,
-        undefined,
-        req,
-      );
+      logger.logError({
+        functionName: "build_claims_view",
+        message: "No claims adaptor configured",
+        request: req,
+        extraContext: {
+          event: "claims_adaptor_missing",
+          laa_reference: applicationId,
+        },
+      });
       return { unavailable: true };
     }
 
@@ -148,14 +155,20 @@ export class ApplicationAdaptor {
     });
 
     if (claimsViewResult.status !== "SUCCESS") {
-      logger.logError(
-        "GET Application claims",
-        `Failed to build claims view for application ${applicationId}`,
-        claimsViewResult.status === "TECHNICAL_FAILURE"
-          ? (claimsViewResult.cause ?? claimsViewResult.message)
-          : undefined,
-        req,
-      );
+      logger.logError({
+        functionName: "build_claims_view",
+        message: "Failed to build claims view",
+        err:
+          claimsViewResult.status === "TECHNICAL_FAILURE"
+            ? (claimsViewResult.cause ?? claimsViewResult.message)
+            : undefined,
+        request: req,
+        extraContext: {
+          event: "claims_view_build_failed",
+          laa_reference: applicationId,
+          result_status: claimsViewResult.status,
+        },
+      });
       return { unavailable: true };
     }
 
@@ -190,14 +203,20 @@ export class ApplicationAdaptor {
     });
 
     if (historyViewResult.status !== "SUCCESS") {
-      logger.logError(
-        "GET Application history",
-        `Failed to build history view for application ${applicationId}`,
-        historyViewResult.status === "TECHNICAL_FAILURE"
-          ? (historyViewResult.cause ?? historyViewResult.message)
-          : undefined,
-        req,
-      );
+      logger.logError({
+        functionName: "build_history_view",
+        message: "Failed to build history view",
+        err:
+          historyViewResult.status === "TECHNICAL_FAILURE"
+            ? (historyViewResult.cause ?? historyViewResult.message)
+            : undefined,
+        request: req,
+        extraContext: {
+          event: "history_view_build_failed",
+          laa_reference: applicationId,
+          result_status: historyViewResult.status,
+        },
+      });
       return { historyRows: [], historyError: true };
     }
 
@@ -213,11 +232,15 @@ export class ApplicationAdaptor {
   ): Promise<void> {
     const { viewApplicationAdaptor } = this;
 
-    logger.logInfo(
-      "GET Coroner's Letter Document",
-      `Coroner's letter for application ${applicationId} requested.`,
-      req,
-    );
+    logger.logInfo({
+      functionName: "serve_coroners_letter_document",
+      message: "Coroner letter requested",
+      request: req,
+      extraContext: {
+        event: "coroners_letter_requested",
+        laa_reference: applicationId,
+      },
+    });
 
     try {
       const { data, contentType } =
@@ -230,12 +253,16 @@ export class ApplicationAdaptor {
       res.setHeader("Content-Disposition", "inline");
       res.send(data);
     } catch (error) {
-      logger.logError(
-        "GET Coroner's Letter Document",
-        `Failed to retrieve coroner's letter for application ${applicationId}`,
-        error,
-        req,
-      );
+      logger.logError({
+        functionName: "serve_coroners_letter_document",
+        message: "Failed to retrieve coroner letter",
+        err: error,
+        request: req,
+        extraContext: {
+          event: "coroners_letter_retrieval_failed",
+          laa_reference: applicationId,
+        },
+      });
 
       res.status(500).render("application/error", {
         status: "Unable to retrieve document",

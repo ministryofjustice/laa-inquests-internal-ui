@@ -22,6 +22,7 @@ import {
   patchInquestsApi,
   getInquestsApi,
 } from "#src/adaptors/source/inquests-api/utils.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -32,6 +33,7 @@ export class ApplicationAPIAdaptor {
   async getAllApplications(
     accessToken: string | undefined,
   ): Promise<ApplicationSummary[]> {
+    const startedAt = Date.now();
     const {
       data,
     }: AxiosResponse<
@@ -47,6 +49,15 @@ export class ApplicationAPIAdaptor {
       path: "/applications/",
       accessToken,
     });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Applications list retrieved upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications",
+        duration_ms: Date.now() - startedAt,
+      },
+    });
     return data
       .map((application) => ({
         laaReference: application.laa_reference,
@@ -61,11 +72,22 @@ export class ApplicationAPIAdaptor {
     applicationId: string,
     accessToken: string | undefined,
   ): Promise<Application> {
+    const startedAt = Date.now();
     const { data }: AxiosResponse<Application> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}`,
       accessToken,
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Application retrieved upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
     const application = ApplicationSchema.parse(data);
 
@@ -91,12 +113,23 @@ export class ApplicationAPIAdaptor {
       justification,
     };
 
+    const startedAt = Date.now();
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/refuse-decision`,
       body: payload,
       accessToken,
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Refuse decision submitted upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/refuse-decision",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
   }
 
@@ -111,6 +144,7 @@ export class ApplicationAPIAdaptor {
       certificateStartDate,
     };
 
+    const startedAt = Date.now();
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
@@ -118,18 +152,39 @@ export class ApplicationAPIAdaptor {
       body: payload,
       accessToken,
     });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Grant decision submitted upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/grant-decision",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
+    });
   }
 
   async getCoronersLetterDocument(
     applicationId: string,
     accessToken: string | undefined,
   ): Promise<{ data: Buffer; contentType: string }> {
+    const startedAt = Date.now();
     const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/coroners-letter`,
       accessToken,
       axiosConfig: { responseType: "arraybuffer" },
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Coroner letter document retrieved upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/coroners-letter",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
 
     const { headers, data } = response;
@@ -150,11 +205,22 @@ export class ApplicationAPIAdaptor {
     accessToken: string | undefined,
   ): Promise<OutboundAdapterResult<Certificate>> {
     try {
+      const startedAt = Date.now();
       const { data }: AxiosResponse<Certificate> = await getInquestsApi({
         http: this.http,
         baseUrl: this.baseUrl,
         path: `/applications/${applicationId}/certificate`,
         accessToken,
+      });
+      logger.logInfo({
+        functionName: "application_api_adaptor",
+        message: "Certificate details retrieved upstream",
+        extraContext: {
+          event: "outbound_api_call",
+          route: "/applications/:id/certificate",
+          laa_reference: applicationId,
+          duration_ms: Date.now() - startedAt,
+        },
       });
 
       const certificate = CertificateSchema.parse(data);
@@ -195,11 +261,22 @@ export class ApplicationAPIAdaptor {
     applicationId: string,
     accessToken: string | undefined,
   ): Promise<HistoryEvent[]> {
+    const startedAt = Date.now();
     const { data }: AxiosResponse<HistoryEvent[]> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
       path: `/applications/${applicationId}/history`,
       accessToken,
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "Application history retrieved upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/history",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
 
     return data.map((event) => HistoryEventSchema.parse(event));

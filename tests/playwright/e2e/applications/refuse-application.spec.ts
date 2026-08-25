@@ -18,8 +18,10 @@ const overviewLocale = en.pages.applicationOverview;
 
 const applicationId = "3";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
+const makeADecisionFromCheckAnswersPage = `${makeADecisionPage}?from=check-your-answers`;
 const overviewPage = `/applications/${applicationId}/overview`;
 const justificationPage = `/applications/${applicationId}/decision/justification`;
+const justificationFromCheckAnswersPage = `${justificationPage}?from=check-your-answers`;
 const confirmationPage = `/applications/${applicationId}/decision/confirmation`;
 const successPage = `/applications/${applicationId}/decision/success`;
 const justificationText = "Test note";
@@ -228,7 +230,7 @@ test.describe.serial("Refuse application journey", () => {
     ).toBeVisible();
     await expect(
       meritsAssessmentRow.getByRole("link", { name: /change/i }),
-    ).toHaveAttribute("href", makeADecisionPage);
+    ).toHaveAttribute("href", makeADecisionFromCheckAnswersPage);
 
     await expect(
       summaryCard.getByText(confirmationLocale.refusalReasonTitle, {
@@ -260,10 +262,56 @@ test.describe.serial("Refuse application journey", () => {
     await refusalReasonRow.getByRole("link", { name: /change/i }).click();
     await sharedPage.waitForLoadState("domcontentloaded");
 
-    await expect(sharedPage).toHaveURL(justificationPage);
+    await expect(sharedPage).toHaveURL(justificationFromCheckAnswersPage);
+  });
+
+  test("caseworker uses back from justification page and returns to Check your answers", async () => {
+    await sharedPage.getByRole("link", { name: "Back", exact: true }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(confirmationPage);
+  });
+
+  test("caseworker clicks Change on merits assessment and returns to Check your answers on continue", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = form.locator(".govuk-summary-card");
+
+    const meritsAssessmentRow = summaryCard.locator(
+      ".govuk-summary-list__row",
+      {
+        has: sharedPage.getByText(confirmationLocale.meritsAssessmentTitle, {
+          exact: true,
+        }),
+      },
+    );
+    await meritsAssessmentRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(makeADecisionFromCheckAnswersPage);
+
+    const decisionForm = sharedPage.getByTestId("make-a-decision");
+    await decisionForm
+      .getByRole("radio", { name: meritsLocale.radio.refuseLabel })
+      .check();
+    await continueToNextPage(decisionForm, sharedPage);
+
+    await expect(sharedPage).toHaveURL(confirmationPage);
   });
 
   test("caseworker sees pre-populated data on the justification page", async () => {
+    const confirmationForm = sharedPage.getByTestId("check-your-answers");
+    const summaryCard = confirmationForm.locator(".govuk-summary-card");
+
+    const refusalReasonRow = summaryCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText(confirmationLocale.refusalReasonTitle, {
+        exact: true,
+      }),
+    });
+    await refusalReasonRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(justificationFromCheckAnswersPage);
+
     const form = sharedPage.getByTestId("select-reason-for-refusal");
 
     await expect(

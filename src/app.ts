@@ -24,6 +24,7 @@ import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsr
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -31,6 +32,15 @@ const TEMPORARY_REDIRECT = 307;
 const HEALTH_ENDPOINTS = ["/health", "/status"];
 
 const requiresHttps = config.app.environment === "production";
+
+const getRequestRoutePath = (req: Request): string => {
+  const route = req.route as { path?: unknown } | undefined;
+  if (route !== undefined && typeof route.path === "string") {
+    return route.path;
+  }
+
+  return req.path;
+};
 
 const nonceMiddleware = (
   _: Request,
@@ -53,6 +63,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use((req: Request, res: Response, next: NextFunction): void => {
+  const startedAt = Date.now();
+  res.on("finish", () => {
+    logger.logInfo({
+      functionName: "app",
+      message: "Request completed",
+      request: req,
+      extraContext: {
+        event: "http_request_completed",
+        route: getRequestRoutePath(req),
+        method: req.method,
+        status_code: res.statusCode,
+        duration_ms: Date.now() - startedAt,
+      },
+    });
+  });
+
+  next();
+});
 
 app.use(
   compression({
