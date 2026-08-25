@@ -751,7 +751,10 @@ describe("Application adaptor", () => {
           timestamp: "2026-05-24T16:45:00.000Z",
           actor: "John Doe",
           eventReference: "EVT-BUS-APP-004",
-          eventData: null,
+          eventData: {
+            oldPublicBodies: ["Cabinet Office"],
+            newPublicBodies: ["Cabinet Office", "Ministry of Justice"],
+          },
         },
       ]);
 
@@ -768,7 +771,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Interested parties updated</strong>",
+        "<strong>Interested parties updated from Cabinet Office to Cabinet Office, Ministry of Justice</strong>",
       );
     });
 
