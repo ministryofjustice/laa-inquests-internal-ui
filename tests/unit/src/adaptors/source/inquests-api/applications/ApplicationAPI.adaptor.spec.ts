@@ -497,3 +497,58 @@ describe("Test submitGrantDecision", () => {
     );
   });
 });
+
+describe("getPublicBodies", () => {
+  it("calls the public bodies reference data endpoint and returns parsed data", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const expectedPublicBodies = [
+      {
+        publicBodyId: "Attorney General's Office",
+        publicBodyDescription: "Attorney General's Office",
+      },
+      {
+        publicBodyId: "Cabinet Office",
+        publicBodyDescription: "Cabinet Office",
+      },
+      {
+        publicBodyId: "Department for Transport",
+        publicBodyDescription: "Department for Transport",
+      },
+    ];
+
+    axiosGetStub.resolves({ data: expectedPublicBodies });
+
+    const publicBodies = await adaptor.getPublicBodies("access-token-123");
+
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/public-bodies`,
+    );
+    assert.deepEqual(publicBodies, expectedPublicBodies);
+  });
+});
+
+describe("updateApplicationPublicBodies", () => {
+  it("calls the update endpoint with the selected public body ids", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPatchStub.resolves({});
+
+    await adaptor.updateApplicationPublicBodies("123", "access-token-123", [
+      "Cabinet Office",
+      "Department for Transport",
+    ]);
+
+    sinon.assert.calledOnce(axiosPatchStub);
+    sinon.assert.calledWith(
+      axiosPatchStub,
+      `${baseUrl}/applications/123/public-bodies`,
+      {
+        publicBodies: ["Cabinet Office", "Department for Transport"],
+      },
+    );
+  });
+});

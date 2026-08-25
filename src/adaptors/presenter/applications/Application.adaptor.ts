@@ -20,11 +20,14 @@ import {
   mapApplication,
   mapProceeding,
 } from "#src/adaptors/presenter/applications/Application.formatter.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 
 export class ApplicationAdaptor {
   viewApplicationAdaptor: ApplicationPort;
 
   private readonly claimsAdaptor?: ClaimsPort;
+
+  private readonly sessionHelper?: SessionHelper;
 
   private readonly buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase;
 
@@ -34,12 +37,14 @@ export class ApplicationAdaptor {
 
   constructor(
     viewApplicationAdaptor: ApplicationPort,
+    sessionHelper?: SessionHelper,
     buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(),
     claimsAdaptor?: ClaimsPort,
     buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(),
     buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase = new BuildApplicationHistoryViewUseCase(),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
+    this.sessionHelper = sessionHelper;
     this.claimsAdaptor = claimsAdaptor;
     this.buildApplicationOverviewViewUseCase =
       buildApplicationOverviewViewUseCase;
@@ -101,6 +106,11 @@ export class ApplicationAdaptor {
       applicationId,
     );
 
+    const flashMessage = this.sessionHelper?.consumeFlash(
+      req,
+      "publicAuthority",
+    );
+
     res.render("application/application-overview", {
       application,
       proceeding,
@@ -112,6 +122,8 @@ export class ApplicationAdaptor {
       historyRows,
       historyError,
       backUrl: "/",
+      ...(flashMessage !== null &&
+        flashMessage !== undefined && { successFlash: flashMessage }),
     });
   }
 

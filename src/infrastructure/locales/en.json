@@ -79,6 +79,26 @@
         "pageTitle": "Unable to retrieve document – {SERVICE_NAME} – GOV.UK",
         "message": "Unable to retrieve document. Please try again later"
       },
+      "publicAuthority": {
+        "title": "Who are the listed public authorities on this application?",
+        "search": {
+          "hint": "Select to add or remove public authorities"
+        },
+        "validationError": {
+          "notEmpty": "Select at least one public authority"
+        },
+        "confirm": {
+          "title": "Check your answers",
+          "warning": "Making changes to the listed public authority will reissue the certificate to the provider and client.",
+          "cardTitle": "Public authority",
+          "submitButton": "Finish making changes"
+        },
+        "notificationBanner": {
+          "title": "Success",
+          "header": "The listed interested parties have been changed",
+          "body": "A new certificate is being generated. The provider and client will be sent the updated version."
+        }
+      },
       "claims": {
         "tabLabel": "Claims",
         "noClaims": "There are no claims associated with this application yet.",

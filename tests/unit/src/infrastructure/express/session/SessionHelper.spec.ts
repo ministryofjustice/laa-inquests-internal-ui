@@ -96,4 +96,45 @@ describe("Session Helpers", () => {
       });
     });
   });
+
+  describe("setFlash()", () => {
+    it("stores a flash message under the namespaced key", () => {
+      const req = createMockRequest();
+
+      sessionHelper.setFlash(req, "publicAuthority", "Changes saved");
+
+      expect(req.session["flash:publicAuthority"]).to.equal("Changes saved");
+    });
+  });
+
+  describe("consumeFlash()", () => {
+    it("returns the flash message and removes it from the session", () => {
+      const req = createMockRequest({
+        "flash:publicAuthority": "Changes saved",
+      });
+
+      const result = sessionHelper.consumeFlash(req, "publicAuthority");
+
+      expect(result).to.equal("Changes saved");
+      expect(req.session["flash:publicAuthority"]).to.be.undefined;
+    });
+
+    it("returns null when no flash message exists for the key", () => {
+      const req = createMockRequest();
+
+      const result = sessionHelper.consumeFlash(req, "nonexistent");
+
+      expect(result).to.be.null;
+    });
+
+    it("returns null when the flash key holds a non-string value", () => {
+      const req = createMockRequest({
+        "flash:badValue": { unexpected: "object" },
+      });
+
+      const result = sessionHelper.consumeFlash(req, "badValue");
+
+      expect(result).to.be.null;
+    });
+  });
 });

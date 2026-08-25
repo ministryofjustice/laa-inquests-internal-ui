@@ -338,6 +338,32 @@ const claimDetailVatZeroOnly = {
 };
 
 /**
+ * Public bodies reference data returned by GET /applications/public-bodies.
+ */
+const publicBodies = [
+  {
+    publicBodyId: "Attorney General's Office",
+    publicBodyDescription: "Attorney General's Office",
+  },
+  {
+    publicBodyId: "Cabinet Office",
+    publicBodyDescription: "Cabinet Office",
+  },
+  {
+    publicBodyId: "Department for Transport",
+    publicBodyDescription: "Department for Transport",
+  },
+  {
+    publicBodyId: "Home Office",
+    publicBodyDescription: "Home Office",
+  },
+  {
+    publicBodyId: "Ministry of Defence",
+    publicBodyDescription: "Ministry of Defence",
+  },
+];
+
+/**
  * Application history events returned by GET /applications/:id/history.
  */
 const applicationHistory = [
@@ -358,6 +384,10 @@ const applicationHistory = [
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
+  }),
+
+  http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/public-bodies`, () => {
+    return HttpResponse.json(publicBodies);
   }),
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
@@ -552,6 +582,20 @@ export const applicationHandlers = [
 
       // Default (e.g. id 5): both lists populated.
       return HttpResponse.json(assessed ? assessedClaims : toBeAssessedClaims);
+    },
+  ),
+
+  http.patch(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/public-bodies`,
+    ({ params }) => {
+      const matchingSummary = applicationSummaries.find(
+        (applicationSummary) =>
+          applicationSummary.laa_reference === Number(params.id),
+      );
+      if (!matchingSummary) {
+        return new HttpResponse(null, { status: 404 });
+      }
+      return new HttpResponse(null, { status: 204 });
     },
   ),
 ];

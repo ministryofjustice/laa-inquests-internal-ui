@@ -3,6 +3,7 @@ import type {
   ApplicationSummary,
   Certificate,
   HistoryEvent,
+  PublicBody,
 } from "#src/adaptors/models/application.types.js";
 import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 
@@ -37,4 +38,10 @@ export interface ApplicationPort {
     applicationId: string,
     accessToken: string | undefined,
   ) => Promise<HistoryEvent[]>;
+  getPublicBodies: (accessToken: string | undefined) => Promise<PublicBody[]>;
+  updateApplicationPublicBodies: (
+    applicationId: string,
+    accessToken: string | undefined,
+    publicBodyIds: string[],
+  ) => Promise<void>;
 }

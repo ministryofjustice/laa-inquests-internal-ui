@@ -170,6 +170,7 @@ describe("Application adaptor", () => {
     applicationAdaptor = new ApplicationAdaptor(
       viewApplicationAdaptorStub,
       undefined,
+      undefined,
       claimsAdaptorStub,
       buildApplicationClaimsViewUseCaseStub,
     );

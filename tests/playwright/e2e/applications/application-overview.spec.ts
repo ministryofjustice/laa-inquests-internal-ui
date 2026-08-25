@@ -237,6 +237,15 @@ test.describe("People tab", () => {
           hasText: "Interested parties",
         }),
       });
+    const changeLink = interestedPartiesCard.getByRole("link", {
+      name: "Change",
+    });
+
+    await expect(changeLink).toBeVisible();
+    await expect(changeLink).toHaveAttribute(
+      "href",
+      `/applications/${applicationId}/public-authorities`,
+    );
     await expect(interestedPartiesCard).toBeVisible();
     await expect(interestedPartiesCard.locator("dt").first()).toBeVisible();
   });
