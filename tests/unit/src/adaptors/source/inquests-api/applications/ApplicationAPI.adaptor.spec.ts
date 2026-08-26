@@ -16,10 +16,12 @@ const LIVE_STATUS = "LIVE";
 
 const axiosGetStub = sinon.stub();
 const axiosPatchStub = sinon.stub();
+const axiosPostStub = sinon.stub();
 
 afterEach(() => {
   axiosGetStub.reset();
   axiosPatchStub.reset();
+  axiosPostStub.reset();
 });
 
 const expectedApplication: Application = {
@@ -550,5 +552,44 @@ describe("updateApplicationPublicBodies", () => {
         publicBodies: ["Cabinet Office", "Department for Transport"],
       },
     );
+  });
+});
+
+describe("addHistoryNote", () => {
+  it("calls the history note endpoint with the correct payload", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { post: axiosPostStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPostStub.resolves({});
+
+    await adaptor.addHistoryNote(
+      "123",
+      "access-token-123",
+      "This is a case note",
+    );
+
+    sinon.assert.calledOnce(axiosPostStub);
+    sinon.assert.calledWith(
+      axiosPostStub,
+      `${baseUrl}/applications/123/history/note`,
+      {
+        noteText: "This is a case note",
+      },
+    );
+  });
+
+  it("throws when the API request fails", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { post: axiosPostStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosPostStub.rejects(new Error("Network error"));
+
+    try {
+      await adaptor.addHistoryNote("123", "access-token-123", "A note");
+      assert.fail("Expected an error to be thrown");
+    } catch (error) {
+      assert.instanceOf(error, Error);
+      assert.equal((error as Error).message, "Network error");
+    }
   });
 });
