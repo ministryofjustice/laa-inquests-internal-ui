@@ -56,5 +56,65 @@ describe("PublicAuthorityValidator", () => {
         },
       });
     });
+
+    it("returns an error when the selection is unchanged from the current public bodies", () => {
+      const currentPublicBodyIds = [
+        "Cabinet Office",
+        "Department for Transport",
+      ];
+      const errors = validator.validatePublicAuthorityInput(
+        {
+          publicAuthorityOption: ["Cabinet Office", "Department for Transport"],
+        },
+        currentPublicBodyIds,
+      );
+
+      assert.deepInclude(errors, {
+        noChangeToPublicAuthorities: {
+          text: "You have not made any changes to the interested parties",
+        },
+      });
+    });
+
+    it("returns an error when the selection is unchanged regardless of order", () => {
+      const currentPublicBodyIds = [
+        "Department for Transport",
+        "Cabinet Office",
+      ];
+      const errors = validator.validatePublicAuthorityInput(
+        {
+          publicAuthorityOption: ["Cabinet Office", "Department for Transport"],
+        },
+        currentPublicBodyIds,
+      );
+
+      assert.deepInclude(errors, {
+        noChangeToPublicAuthorities: {
+          text: "You have not made any changes to the interested parties",
+        },
+      });
+    });
+
+    it("returns no errors when the selection differs from the current public bodies", () => {
+      const currentPublicBodyIds = ["Cabinet Office"];
+      const errors = validator.validatePublicAuthorityInput(
+        {
+          publicAuthorityOption: ["Cabinet Office", "Department for Transport"],
+        },
+        currentPublicBodyIds,
+      );
+
+      assert.deepEqual(errors, {});
+    });
+
+    it("returns no errors when a single selection differs from current public bodies", () => {
+      const currentPublicBodyIds = ["Cabinet Office"];
+      const errors = validator.validatePublicAuthorityInput(
+        { publicAuthorityOption: "Department for Transport" },
+        currentPublicBodyIds,
+      );
+
+      assert.deepEqual(errors, {});
+    });
   });
 });

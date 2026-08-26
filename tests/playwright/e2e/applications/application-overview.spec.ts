@@ -237,6 +237,49 @@ test.describe("People tab", () => {
           hasText: "Interested parties",
         }),
       });
+
+    await expect(interestedPartiesCard).toBeVisible();
+    await expect(interestedPartiesCard.locator("dt").first()).toBeVisible();
+  });
+
+  test("should not show Change link for interested parties when application is not granted", async ({
+    page,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const interestedPartiesCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Interested parties",
+        }),
+      });
+    const changeLink = interestedPartiesCard.getByRole("link", {
+      name: "Change",
+    });
+
+    await expect(changeLink).toBeHidden();
+  });
+
+  test("should show Change link for interested parties when application is granted", async ({
+    page,
+  }) => {
+    const grantedApplicationId = "5";
+    await page.goto(`/applications/${grantedApplicationId}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const interestedPartiesCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Interested parties",
+        }),
+      });
     const changeLink = interestedPartiesCard.getByRole("link", {
       name: "Change",
     });
@@ -244,10 +287,8 @@ test.describe("People tab", () => {
     await expect(changeLink).toBeVisible();
     await expect(changeLink).toHaveAttribute(
       "href",
-      `/applications/${applicationId}/public-authorities`,
+      `/applications/${grantedApplicationId}/public-authorities`,
     );
-    await expect(interestedPartiesCard).toBeVisible();
-    await expect(interestedPartiesCard.locator("dt").first()).toBeVisible();
   });
 
   test("should have a make assessment button", async ({ page }) => {

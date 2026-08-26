@@ -85,7 +85,8 @@
           "hint": "Select to add or remove public authorities"
         },
         "validationError": {
-          "notEmpty": "Select at least one public authority"
+          "notEmpty": "Select at least one public authority",
+          "noChange": "You have not made any changes to the interested parties"
         },
         "confirm": {
           "title": "Check your answers",

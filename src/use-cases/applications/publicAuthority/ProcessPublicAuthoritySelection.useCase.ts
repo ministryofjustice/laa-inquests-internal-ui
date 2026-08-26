@@ -7,6 +7,7 @@ import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js
 
 interface ProcessPublicAuthoritySelectionInput {
   publicAuthorityOption?: string | string[];
+  currentPublicBodyIds?: string[];
   validate: (form: PublicAuthorityForm) => Partial<PublicAuthorityFormErrors>;
 }
 

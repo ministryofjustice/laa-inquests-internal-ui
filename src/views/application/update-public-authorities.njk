@@ -19,6 +19,17 @@
       ]
     })
   }}
+  {% elif errorSummaries.noChangeToPublicAuthorities %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: [
+        {
+          text: errorSummaries.noChangeToPublicAuthorities.text,
+          href: '#publicAuthorityOption'
+        }
+      ]
+    })
+  }}
   {% endif %}
 
   <form data-testid="update-public-authorities-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
@@ -36,7 +47,7 @@
     hint: {
         text: t("pages.applicationOverview.publicAuthority.search.hint")
     },
-    errorMessage: errorSummaries.noPublicAuthoritySelected,
+    errorMessage: errorSummaries.noPublicAuthoritySelected or errorSummaries.noChangeToPublicAuthorities,
     values: selectedPublicAuthorityIds if selectedPublicAuthorityIds else [],
     items: publicAuthorityOptions
     }) }}
