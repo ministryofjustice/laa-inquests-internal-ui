@@ -105,9 +105,20 @@ export class PublicAuthorityAdaptor {
       params: { applicationId },
     } = req;
 
+    const application = await this.applicationPort.getApplication(
+      applicationId,
+      req.session.user?.accessToken,
+    );
+
+    const currentPublicBodyIds = application.publicBodies.map(
+      (body) => body.publicBodyId,
+    );
+
     const processResult = this.processPublicAuthoritySelectionUseCase.execute({
       publicAuthorityOption,
-      validate: (form) => this.validator.validatePublicAuthorityInput(form),
+      currentPublicBodyIds,
+      validate: (form) =>
+        this.validator.validatePublicAuthorityInput(form, currentPublicBodyIds),
     });
 
     if (processResult.status === "VALIDATION_FAILED") {

@@ -267,7 +267,7 @@ test.describe.serial("Update public authorities journey", () => {
     await expect(notificationBanner).not.toBeVisible();
   });
 
-  test("submitting unchanged selection still completes the journey without error", async () => {
+  test("submitting unchanged selection shows a no-change validation error", async () => {
     // Navigate fresh to the selection page
     await sharedPage.goto(selectionPage);
 
@@ -277,13 +277,51 @@ test.describe.serial("Update public authorities journey", () => {
     // Just continue without changing anything
     await continueToNextPage(form, sharedPage);
 
-    await expect(sharedPage).toHaveURL(confirmPage);
+    // Should stay on the selection page with an error
+    await expect(sharedPage).toHaveURL(selectionPage);
 
-    // Confirm
-    const confirmForm = sharedPage.getByTestId("confirm-public-authorities");
-    await continueToNextPage(confirmForm, sharedPage);
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      "You have not made any changes to the interested parties",
+    );
+  });
+
+  test("navigates to confirm page after changing selection following a no-change error", async () => {
+    const form = sharedPage.getByTestId("update-public-authorities-form");
+
+    // Make a change by adding a new public authority
+    await form.getByRole("checkbox", { name: "Cabinet Office" }).check();
+
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(confirmPage);
+  });
+
+  test("confirmation page shows the updated selection", async () => {
+    const summaryCard = sharedPage.locator(".govuk-summary-card");
+
+    await expect(
+      summaryCard.getByText("Department for Transport"),
+    ).toBeVisible();
+    await expect(summaryCard.getByText("Cabinet Office")).toBeVisible();
+  });
+
+  test("submitting confirmation after no-change error redirects to application overview", async () => {
+    const form = sharedPage.getByTestId("confirm-public-authorities");
+    await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(overviewPage);
+  });
+
+  test("displays success notification banner after confirming updated public authorities", async () => {
+    const notificationBanner = sharedPage.locator(
+      ".govuk-notification-banner--success",
+    );
+    await expect(notificationBanner).toBeVisible();
+    await expect(notificationBanner).toContainText(
+      notificationBannerLocale.header,
+    );
   });
 });
 

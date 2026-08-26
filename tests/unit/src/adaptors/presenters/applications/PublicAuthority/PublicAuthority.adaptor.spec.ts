@@ -180,6 +180,28 @@ describe("PublicAuthorityAdaptor", () => {
       renderSelectionFormSpy.restore();
     });
 
+    it("re-renders the selection form with no-change error when selection matches current public bodies", async () => {
+      requestStub.body = { publicAuthorityOption: "Cabinet Office" };
+
+      await adaptor.processSelectionForm(
+        requestStub as unknown as TypedRequest<
+          PublicAuthorityFormData,
+          IdParams
+        >,
+        responseStub,
+      );
+
+      assert.ok(renderSelectionFormSpy.calledOnce);
+      const errorSummaries = renderSelectionFormSpy.getCall(0).args[2];
+      assert.deepEqual(errorSummaries, {
+        noChangeToPublicAuthorities: {
+          text: en.pages.applicationOverview.publicAuthority.validationError
+            .noChange,
+        },
+      });
+      assert.equal(responseStub.redirect.callCount, 0);
+    });
+
     it("stores selected IDs in session and redirects to confirm page", async () => {
       requestStub.body = {
         publicAuthorityOption: ["Cabinet Office", "Department for Transport"],
@@ -209,7 +231,7 @@ describe("PublicAuthorityAdaptor", () => {
     });
 
     it("stores a single selected option in session", async () => {
-      requestStub.body = { publicAuthorityOption: "Cabinet Office" };
+      requestStub.body = { publicAuthorityOption: "Department for Transport" };
 
       await adaptor.processSelectionForm(
         requestStub as unknown as TypedRequest<
@@ -221,7 +243,7 @@ describe("PublicAuthorityAdaptor", () => {
 
       const storeArgs = sessionHelperStub.storeSessionData.getCall(0).args;
       assert.deepEqual(JSON.parse(storeArgs[2].selectedPublicAuthorityIds), [
-        "Cabinet Office",
+        "Department for Transport",
       ]);
     });
 

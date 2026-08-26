@@ -4,6 +4,7 @@ import { FormValidator } from "#src/utils/FormValidator.js";
 
 export interface PublicAuthorityError {
   noPublicAuthoritySelected?: { text: string };
+  noChangeToPublicAuthorities?: { text: string };
 }
 
 export interface PublicAuthorityFormData {
@@ -13,6 +14,7 @@ export interface PublicAuthorityFormData {
 export class PublicAuthorityValidator extends FormValidator {
   validatePublicAuthorityInput(
     formBody: Partial<PublicAuthorityFormData>,
+    currentPublicBodyIds: string[] = [],
   ): Partial<PublicAuthorityError> {
     const errorSummaries: Partial<PublicAuthorityError> = {};
 
@@ -30,8 +32,29 @@ export class PublicAuthorityValidator extends FormValidator {
         text: en.pages.applicationOverview.publicAuthority.validationError
           .notEmpty,
       };
+    } else if (this.#isUnchanged(selectedOptions, currentPublicBodyIds)) {
+      errorSummaries.noChangeToPublicAuthorities = {
+        text: en.pages.applicationOverview.publicAuthority.validationError
+          .noChange,
+      };
     }
 
     return errorSummaries;
+  }
+
+  #isUnchanged(
+    selectedOptions: string[],
+    currentPublicBodyIds: string[],
+  ): boolean {
+    if (selectedOptions.length !== currentPublicBodyIds.length) {
+      return false;
+    }
+
+    const sortedSelected = [...selectedOptions].sort();
+    const sortedCurrent = [...currentPublicBodyIds].sort();
+
+    return sortedSelected.every(
+      (option, index) => option === sortedCurrent[index],
+    );
   }
 }
