@@ -569,13 +569,9 @@ describe("addHistoryNote", () => {
     );
 
     sinon.assert.calledOnce(axiosPostStub);
-    sinon.assert.calledWith(
-      axiosPostStub,
-      `${baseUrl}/applications/123/history/note`,
-      {
-        noteText: "This is a case note",
-      },
-    );
+    sinon.assert.calledWith(axiosPostStub, `${baseUrl}/applications/123/note`, {
+      noteText: "This is a case note",
+    });
   });
 
   it("throws when the API request fails", async () => {

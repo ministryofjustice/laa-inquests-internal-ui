@@ -323,7 +323,7 @@ export class ApplicationAPIAdaptor {
     await postInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/history/note`,
+      path: `/applications/${applicationId}/note`,
       body: { noteText },
       accessToken,
     });
@@ -332,7 +332,7 @@ export class ApplicationAPIAdaptor {
       message: "History note submitted upstream",
       extraContext: {
         event: "outbound_api_call",
-        route: "/applications/:id/history/note",
+        route: "/applications/:id/note",
         laa_reference: applicationId,
         duration_ms: Date.now() - startedAt,
       },
