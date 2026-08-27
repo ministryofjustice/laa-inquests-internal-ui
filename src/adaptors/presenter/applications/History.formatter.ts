@@ -56,6 +56,10 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       );
       return `Interested parties updated from ${oldPublicBodies} to ${newPublicBodies}`;
     },
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_X_001]: (eventData) => {
+      const noteText = escapeHtmlValue(eventData?.noteText);
+      return `Caseworker note added</strong><br />${noteText}<strong>`;
+    },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
       return `${claimType} claim received`;

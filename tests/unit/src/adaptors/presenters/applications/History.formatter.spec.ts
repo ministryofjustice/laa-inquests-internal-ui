@@ -103,4 +103,39 @@ describe("HistoryFormatter", () => {
       );
     });
   });
+
+  describe("History note event formatting", () => {
+    it("formats a note event with the note text", () => {
+      const [row] = formatHistoryRows([
+        {
+          timestamp: "2026-08-27T10:00:00.000Z",
+          actor: "Caseworker",
+          eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
+          eventData: {
+            noteText: "This is a case note",
+          },
+        },
+      ]);
+
+      expect(row?.[2]?.html).to.equal(
+        "<strong>Caseworker note added</strong><br />This is a case note<strong></strong>",
+      );
+    });
+
+    it("escapes HTML in note text", () => {
+      const [row] = formatHistoryRows([
+        {
+          timestamp: "2026-08-27T10:00:00.000Z",
+          actor: "Caseworker",
+          eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
+          eventData: {
+            noteText: '<script>alert("xss")</script>',
+          },
+        },
+      ]);
+
+      expect(row?.[2]?.html).to.not.contain("<script>");
+      expect(row?.[2]?.html).to.contain("&lt;script&gt;");
+    });
+  });
 });
