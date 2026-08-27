@@ -15,6 +15,7 @@ import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/c
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 describe("Application adaptor", () => {
@@ -25,6 +26,7 @@ describe("Application adaptor", () => {
   let claimsAdaptorStub: StubbedInstance<ClaimsPort>;
   let buildCertificateViewUseCaseStub: StubbedInstance<BuildCertificateViewUseCase>;
   let buildApplicationClaimsViewUseCaseStub: StubbedInstance<BuildApplicationClaimsViewUseCase>;
+  let sessionHelperStub: StubbedInstance<SessionHelper>;
   let logInfoStub: sinon.SinonStub;
   let logErrorStub: sinon.SinonStub;
 
@@ -1057,11 +1059,12 @@ describe("Application adaptor", () => {
 
       beforeEach(() => {
         addHistoryNoteUseCaseStub = stubInterface<AddHistoryNoteUseCase>();
+        sessionHelperStub = stubInterface<SessionHelper>();
         viewApplicationAdaptorStub.getApplication.resolves(application);
         viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
         applicationAdaptor = new ApplicationAdaptor(
           viewApplicationAdaptorStub,
-          undefined,
+          sessionHelperStub,
           undefined,
           claimsAdaptorStub,
           buildApplicationClaimsViewUseCaseStub,
@@ -1135,7 +1138,7 @@ describe("Application adaptor", () => {
         assert.equal(viewData.noteText, "a".repeat(10005));
       });
 
-      it("re-renders with success banner and empty note when use case succeeds", async () => {
+      it("redirects and sets session flash when use case succeeds", async () => {
         requestStub.body = { "note-text": "This is a valid note" };
         addHistoryNoteUseCaseStub.execute.resolves({
           status: "SUCCESS",
@@ -1148,12 +1151,18 @@ describe("Application adaptor", () => {
           "123",
         );
 
-        assert.equal(responseStub.render.callCount, 1);
-        const renderArgs = responseStub.render.getCall(0).args;
-        const viewData = renderArgs[1] as unknown as Record<string, unknown>;
-        assert.equal(viewData.noteSuccessBanner, true);
-        assert.equal(viewData.noteText, undefined);
-        assert.equal(viewData.errorSummaries, undefined);
+        assert.equal(responseStub.redirect.callCount, 1);
+        assert.equal(
+          responseStub.redirect.getCall(0).args[0],
+          "/applications/123/overview",
+        );
+        assert.equal(sessionHelperStub.setFlash.callCount, 1);
+        assert.deepEqual(sessionHelperStub.setFlash.getCall(0).args, [
+          requestStub,
+          "history",
+          "note-added",
+        ]);
+        assert.equal(responseStub.render.callCount, 0);
       });
 
       it("re-renders with save error and retained text when use case fails", async () => {

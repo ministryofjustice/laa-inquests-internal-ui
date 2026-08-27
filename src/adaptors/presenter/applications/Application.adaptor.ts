@@ -141,6 +141,8 @@ export class ApplicationAdaptor {
       "publicAuthority",
     );
 
+    const noteFlash = this.sessionHelper?.consumeFlash(req, "history");
+
     res.render("application/application-overview", {
       application,
       proceeding,
@@ -152,8 +154,8 @@ export class ApplicationAdaptor {
       historyRows,
       historyError,
       backUrl: "/",
-      ...(flashMessage !== null &&
-        flashMessage !== undefined && { successFlash: flashMessage }),
+      ...(flashMessage && { successFlash: flashMessage }),
+      ...(noteFlash === "note-added" && { noteSuccessBanner: true }),
       ...noteState,
     });
   }
@@ -360,9 +362,8 @@ export class ApplicationAdaptor {
       return;
     }
 
-    await this.renderApplicationPage(req, res, applicationId, {
-      noteSuccessBanner: true,
-    });
+    this.sessionHelper?.setFlash(req, "history", "note-added");
+    res.redirect(`/applications/${applicationId}/overview`);
   }
 }
 
