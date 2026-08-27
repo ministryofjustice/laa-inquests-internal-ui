@@ -384,6 +384,17 @@
         ]
     }) }}
 
+    {% if noteSuccessBanner or errorSummaries %}
+        <script nonce="{{ cspNonce }}">
+            window.addEventListener('load', function () {
+                var historyTab = document.querySelector('a[href="#history"]');
+                if (historyTab) {
+                    historyTab.click();
+                }
+            });
+        </script>
+    {% endif %}
+
 </div>
 
 {% endblock %}
