@@ -35,6 +35,7 @@ import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectCla
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
+import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
@@ -43,6 +44,7 @@ import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/p
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
+import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -91,6 +93,9 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
   buildApplicationOverviewViewUseCase,
   claimsAdaptor,
   buildApplicationClaimsViewUseCase,
+  undefined,
+  new AddHistoryNoteUseCase(),
+  new AddHistoryNoteValidator(),
 );
 const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   viewApplicationAdaptor,
