@@ -150,6 +150,25 @@ function createApplicationRouter(
     },
   );
 
+  applicationRouter.post(
+    "/:applicationId/note",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      const {
+        params: { applicationId },
+      } = req;
+      const applicationIdParam: string = applicationId as string;
+      try {
+        await applicationDisplayAdaptor.submitHistoryNote(
+          req,
+          res,
+          applicationIdParam,
+        );
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return applicationRouter;
 }
 

@@ -13,6 +13,9 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
+import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 describe("Application adaptor", () => {
   let applicationAdaptor: ApplicationAdaptor;
@@ -472,7 +475,7 @@ describe("Application adaptor", () => {
     });
   });
 
-  describe("renderApplicationPage claims tab", () => {
+  describe("renderApplicationPage Claims tab", () => {
     const toBeAssessedClaim = {
       claimId: 10,
       claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -669,7 +672,7 @@ describe("Application adaptor", () => {
     });
   });
 
-  describe("history formatting", () => {
+  describe("History tab", () => {
     it("renders empty history and no historyError when getApplicationHistory returns empty array", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
@@ -1046,6 +1049,136 @@ describe("Application adaptor", () => {
       assert.partialDeepStrictEqual(renderArgs[1], {
         historyRows: [],
         historyError: true,
+      });
+    });
+
+    describe("submitHistoryNote", () => {
+      let addHistoryNoteUseCaseStub: StubbedInstance<AddHistoryNoteUseCase>;
+
+      beforeEach(() => {
+        addHistoryNoteUseCaseStub = stubInterface<AddHistoryNoteUseCase>();
+        viewApplicationAdaptorStub.getApplication.resolves(application);
+        viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
+        applicationAdaptor = new ApplicationAdaptor(
+          viewApplicationAdaptorStub,
+          undefined,
+          undefined,
+          claimsAdaptorStub,
+          buildApplicationClaimsViewUseCaseStub,
+          undefined,
+          addHistoryNoteUseCaseStub,
+          new AddHistoryNoteValidator(),
+        );
+      });
+
+      it("re-renders with validation error when note is empty", async () => {
+        requestStub.body = { "note-text": "" };
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(responseStub.render.callCount, 1);
+        const renderArgs = responseStub.render.getCall(0).args;
+        assert.equal(renderArgs[0], "application/application-overview");
+        const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+        assert.deepEqual(viewData.errorSummaries, [
+          {
+            text: en.pages.applicationOverview.history.validationErrors.empty,
+            href: "#note-text",
+          },
+        ]);
+        assert.equal(viewData.noteText, "");
+        assert.equal(addHistoryNoteUseCaseStub.execute.callCount, 0);
+      });
+
+      it("re-renders with validation error when note contains only whitespace", async () => {
+        requestStub.body = { "note-text": "   " };
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        const renderArgs = responseStub.render.getCall(0).args;
+        const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+        assert.deepEqual(viewData.errorSummaries, [
+          {
+            text: en.pages.applicationOverview.history.validationErrors.empty,
+            href: "#note-text",
+          },
+        ]);
+        assert.equal(viewData.noteText, "   ");
+      });
+
+      it("re-renders with validation error and excess count when note exceeds 10,000 characters", async () => {
+        requestStub.body = { "note-text": "a".repeat(10005) };
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        const renderArgs = responseStub.render.getCall(0).args;
+        const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+        assert.deepEqual(viewData.errorSummaries, [
+          {
+            text: en.pages.applicationOverview.history.validationErrors.tooLong,
+            href: "#note-text",
+          },
+        ]);
+        assert.equal(viewData.excessCount, 5);
+        assert.equal(viewData.noteText, "a".repeat(10005));
+      });
+
+      it("re-renders with success banner and empty note when use case succeeds", async () => {
+        requestStub.body = { "note-text": "This is a valid note" };
+        addHistoryNoteUseCaseStub.execute.resolves({
+          status: "SUCCESS",
+          data: undefined,
+        });
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(responseStub.render.callCount, 1);
+        const renderArgs = responseStub.render.getCall(0).args;
+        const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+        assert.equal(viewData.noteSuccessBanner, true);
+        assert.equal(viewData.noteText, undefined);
+        assert.equal(viewData.errorSummaries, undefined);
+      });
+
+      it("re-renders with save error and retained text when use case fails", async () => {
+        requestStub.body = { "note-text": "A valid note" };
+        addHistoryNoteUseCaseStub.execute.resolves({
+          status: "TECHNICAL_FAILURE",
+          reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+        });
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        const renderArgs = responseStub.render.getCall(0).args;
+        const viewData = renderArgs[1] as unknown as Record<string, unknown>;
+        assert.deepEqual(viewData.errorSummaries, [
+          {
+            text: en.pages.applicationOverview.history.validationErrors
+              .saveFailed,
+            href: "#note-text",
+          },
+        ]);
+        assert.equal(viewData.noteText, "A valid note");
       });
     });
   });

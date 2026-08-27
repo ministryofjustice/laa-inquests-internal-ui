@@ -329,6 +329,23 @@ test.describe("History tab", () => {
     await checkAccessibility();
   });
 
+  test("should prevent double submission of the note form", async ({
+    page,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "History" }).click();
+
+    const addNoteButton = page
+      .locator("#history")
+      .getByRole("button", { name: "Add to application history" });
+    await expect(addNoteButton).toBeVisible();
+    await expect(addNoteButton).toHaveAttribute(
+      "data-prevent-double-click",
+      "true",
+    );
+  });
+
   test("should have a history table with the correct columns", async ({
     page,
   }) => {

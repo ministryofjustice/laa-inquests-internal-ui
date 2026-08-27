@@ -6,6 +6,7 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
+import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { getClaimCost } from "#src/utils/claimCost.js";
@@ -21,6 +22,26 @@ import {
   mapProceeding,
 } from "#src/adaptors/presenter/applications/Application.formatter.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
+import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
+import type { AddHistoryNoteForm } from "#src/adaptors/presenter/models/form.types.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const {
+  pages: {
+    applicationOverview: {
+      history: {
+        validationErrors: { saveFailed: SAVE_FAILED_ERROR },
+      },
+    },
+  },
+} = en;
+
+interface NoteState {
+  errorSummaries?: Array<{ text: string; href: string }>;
+  noteText?: string;
+  excessCount?: number;
+  noteSuccessBanner?: boolean;
+}
 
 export class ApplicationAdaptor {
   viewApplicationAdaptor: ApplicationPort;
@@ -35,6 +56,10 @@ export class ApplicationAdaptor {
 
   private readonly buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase;
 
+  private readonly addHistoryNoteUseCase: AddHistoryNoteUseCase;
+
+  private readonly addHistoryNoteValidator: AddHistoryNoteValidator;
+
   constructor(
     viewApplicationAdaptor: ApplicationPort,
     sessionHelper?: SessionHelper,
@@ -42,6 +67,8 @@ export class ApplicationAdaptor {
     claimsAdaptor?: ClaimsPort,
     buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(),
     buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase = new BuildApplicationHistoryViewUseCase(),
+    addHistoryNoteUseCase: AddHistoryNoteUseCase = new AddHistoryNoteUseCase(),
+    addHistoryNoteValidator: AddHistoryNoteValidator = new AddHistoryNoteValidator(),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
     this.sessionHelper = sessionHelper;
@@ -51,12 +78,15 @@ export class ApplicationAdaptor {
     this.buildApplicationClaimsViewUseCase = buildApplicationClaimsViewUseCase;
     this.buildApplicationHistoryViewUseCase =
       buildApplicationHistoryViewUseCase;
+    this.addHistoryNoteUseCase = addHistoryNoteUseCase;
+    this.addHistoryNoteValidator = addHistoryNoteValidator;
   }
 
   async renderApplicationPage(
     req: Request,
     res: Response,
     applicationId: string,
+    noteState: NoteState = {},
   ): Promise<void> {
     const { viewApplicationAdaptor, buildApplicationOverviewViewUseCase } =
       this;
@@ -124,6 +154,7 @@ export class ApplicationAdaptor {
       backUrl: "/",
       ...(flashMessage !== null &&
         flashMessage !== undefined && { successFlash: flashMessage }),
+      ...noteState,
     });
   }
 
@@ -269,6 +300,69 @@ export class ApplicationAdaptor {
         error: "Unable to retrieve document. Please try again later",
       });
     }
+  }
+
+  async submitHistoryNote(
+    req: Request,
+    res: Response,
+    applicationId: string,
+  ): Promise<void> {
+    const form = req.body as AddHistoryNoteForm;
+
+    logger.logInfo({
+      functionName: "submit_history_note",
+      message: "History note submission requested",
+      request: req,
+      extraContext: {
+        event: "history_note_submission_requested",
+        laa_reference: applicationId,
+      },
+    });
+
+    const validationResult =
+      this.addHistoryNoteValidator.validateAddHistoryNoteForm(form);
+
+    if (Object.keys(validationResult.errors).length > 0) {
+      const errorSummaries = Object.values(validationResult.errors).map(
+        (error) => ({
+          text: error.text,
+          href: "#note-text",
+        }),
+      );
+
+      await this.renderApplicationPage(req, res, applicationId, {
+        errorSummaries,
+        noteText: form["note-text"],
+        excessCount: validationResult.excessCount,
+      });
+      return;
+    }
+
+    const { "note-text": noteText } = form;
+
+    const result = await this.addHistoryNoteUseCase.execute({
+      applicationId,
+      noteText,
+      applicationPort: this.viewApplicationAdaptor,
+      accessToken: req.session.user?.accessToken,
+    });
+
+    if (result.status !== "SUCCESS") {
+      await this.renderApplicationPage(req, res, applicationId, {
+        errorSummaries: [
+          {
+            text: SAVE_FAILED_ERROR,
+            href: "#note-text",
+          },
+        ],
+        noteText,
+      });
+      return;
+    }
+
+    await this.renderApplicationPage(req, res, applicationId, {
+      noteSuccessBanner: true,
+    });
   }
 }
 
