@@ -44,4 +44,9 @@ export interface ApplicationPort {
     accessToken: string | undefined,
     publicBodyIds: string[],
   ) => Promise<void>;
+  addHistoryNote: (
+    applicationId: string,
+    accessToken: string | undefined,
+    noteText: string,
+  ) => Promise<void>;
 }

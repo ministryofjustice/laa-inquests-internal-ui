@@ -21,6 +21,7 @@ import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterRes
 import {
   patchInquestsApi,
   getInquestsApi,
+  postInquestsApi,
 } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
@@ -310,6 +311,31 @@ export class ApplicationAPIAdaptor {
       path: `/applications/${applicationId}/public-bodies`,
       body: payload,
       accessToken,
+    });
+  }
+
+  async addHistoryNote(
+    applicationId: string,
+    accessToken: string | undefined,
+    noteText: string,
+  ): Promise<void> {
+    const startedAt = Date.now();
+    await postInquestsApi({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: `/applications/${applicationId}/note`,
+      body: { noteText },
+      accessToken,
+    });
+    logger.logInfo({
+      functionName: "application_api_adaptor",
+      message: "History note submitted upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        route: "/applications/:id/note",
+        laa_reference: applicationId,
+        duration_ms: Date.now() - startedAt,
+      },
     });
   }
 }

@@ -12,3 +12,16 @@ export interface AssessClaimFormErrors {
   assessClaim?: FormErrorMessage;
   rejectionReason?: FormErrorMessage;
 }
+
+export interface AddHistoryNoteForm {
+  "note-text": string;
+}
+
+export interface AddHistoryNoteFormErrors {
+  noteText?: FormErrorMessage;
+}
+
+export interface AddHistoryNoteValidationResult {
+  errors: Partial<AddHistoryNoteFormErrors>;
+  excessCount?: number;
+}
