@@ -379,6 +379,12 @@ const applicationHistory = [
     eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002,
     eventData: { meritsDecision: "granted" },
   },
+  {
+    timestamp: "2026-05-20T11:30:00.000000",
+    actor: "Caseworker",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
+    eventData: { noteText: "A".repeat(1000) },
+  },
 ];
 
 export const applicationHandlers = [
