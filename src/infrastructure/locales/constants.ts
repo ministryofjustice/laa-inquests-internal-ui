@@ -69,6 +69,8 @@ export const DISPOSITION = {
 export type Disposition = (typeof DISPOSITION)[keyof typeof DISPOSITION];
 
 export enum HISTORY_EVENT_REFERENCE {
+  EVT_BUS_X_001 = "EVT-BUS-X-001",
+
   EVT_BUS_APP_001 = "EVT-BUS-APP-001",
   EVT_BUS_APP_002 = "EVT-BUS-APP-002",
   EVT_BUS_APP_003 = "EVT-BUS-APP-003",

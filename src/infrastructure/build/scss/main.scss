@@ -1,2 +1,8 @@
 @use "@ministryofjustice/frontend/moj/all";
 @use "govuk-frontend/dist/govuk/index";
+
+#history .govuk-table {
+  table-layout: fixed;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}

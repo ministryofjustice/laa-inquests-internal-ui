@@ -365,4 +365,23 @@ test.describe("History tab", () => {
       historyTable.getByRole("columnheader", { name: "Update" }),
     ).toBeVisible();
   });
+
+  test("should display a long note without overflowing the page", async ({
+    page,
+  }) => {
+    await page.goto(`/applications/${applicationId}/overview`);
+
+    await page.getByRole("tab", { name: "History" }).click();
+
+    const historyPanel = page.locator("#history");
+    const noteCell = historyPanel.getByText("A".repeat(20), { exact: false });
+    await expect(noteCell).toBeVisible();
+
+    const panelBox = await historyPanel.boundingBox();
+    const cellBox = await noteCell.boundingBox();
+
+    expect(panelBox).not.toBeNull();
+    expect(cellBox).not.toBeNull();
+    expect(cellBox!.width).toBeLessThanOrEqual(panelBox!.width);
+  });
 });
