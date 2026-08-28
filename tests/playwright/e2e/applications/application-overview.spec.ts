@@ -329,23 +329,6 @@ test.describe("History tab", () => {
     await checkAccessibility();
   });
 
-  test("should prevent double submission of the note form", async ({
-    page,
-  }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
-
-    await page.getByRole("tab", { name: "History" }).click();
-
-    const addNoteButton = page
-      .locator("#history")
-      .getByRole("button", { name: "Add to application history" });
-    await expect(addNoteButton).toBeVisible();
-    await expect(addNoteButton).toHaveAttribute(
-      "data-prevent-double-click",
-      "true",
-    );
-  });
-
   test("should have a history table with the correct columns", async ({
     page,
   }) => {
@@ -383,5 +366,70 @@ test.describe("History tab", () => {
     expect(panelBox).not.toBeNull();
     expect(cellBox).not.toBeNull();
     expect(cellBox!.width).toBeLessThanOrEqual(panelBox!.width);
+  });
+
+  test.describe("Free note submission", () => {
+    test("should prevent double submission of the note form", async ({
+      page,
+    }) => {
+      await page.goto(`/applications/${applicationId}/overview`);
+
+      await page.getByRole("tab", { name: "History" }).click();
+
+      const addNoteButton = page
+        .locator("#history")
+        .getByRole("button", { name: "Add to application history" });
+      await expect(addNoteButton).toBeVisible();
+      await expect(addNoteButton).toHaveAttribute(
+        "data-prevent-double-click",
+        "true",
+      );
+    });
+
+    test("should successfully submit a plain text note", async ({ page }) => {
+      await page.goto(`/applications/${applicationId}/overview`);
+
+      await page.getByRole("tab", { name: "History" }).click();
+
+      const noteTextarea = page.locator("#note-text");
+      await noteTextarea.fill("This is a plain text case note");
+
+      const addNoteButton = page
+        .locator("#history")
+        .getByRole("button", { name: "Add to application history" });
+      await addNoteButton.click();
+
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(page.locator(".govuk-error-summary")).not.toBeVisible();
+
+      await expect(
+        page.locator(".govuk-notification-banner--success"),
+      ).toBeVisible();
+    });
+
+    test("should successfully submit a free note containing HTML without error", async ({
+      page,
+    }) => {
+      await page.goto(`/applications/${applicationId}/overview`);
+
+      await page.getByRole("tab", { name: "History" }).click();
+
+      const noteTextarea = page.locator("#note-text");
+      await noteTextarea.fill('<b>bold</b> & "quoted" <em>text</em>');
+
+      const addNoteButton = page
+        .locator("#history")
+        .getByRole("button", { name: "Add to application history" });
+      await addNoteButton.click();
+
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(page.locator(".govuk-error-summary")).not.toBeVisible();
+
+      await expect(
+        page.locator(".govuk-notification-banner--success"),
+      ).toBeVisible();
+    });
   });
 });

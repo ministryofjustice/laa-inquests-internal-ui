@@ -476,6 +476,11 @@ export const applicationHandlers = [
     return HttpResponse.json(applicationHistory);
   }),
 
+  http.post(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/note`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/claims/:claimEvidenceId`,
     ({ params, request }) => {

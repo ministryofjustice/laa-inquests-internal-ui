@@ -129,13 +129,15 @@ describe("HistoryFormatter", () => {
           actor: "Caseworker",
           eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
           eventData: {
-            noteText: '<script>alert("xss")</script>',
+            noteText: '<b>bold</b> & "quoted"',
           },
         },
       ]);
 
-      expect(row?.[2]?.html).to.not.contain("<script>");
-      expect(row?.[2]?.html).to.contain("&lt;script&gt;");
+      expect(row?.[2]?.html).to.not.contain("<b>");
+      expect(row?.[2]?.html).to.contain("&lt;b&gt;bold&lt;/b&gt;");
+      expect(row?.[2]?.html).to.contain("&amp;");
+      expect(row?.[2]?.html).to.contain("&quot;quoted&quot;");
     });
   });
 });
