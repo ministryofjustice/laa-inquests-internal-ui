@@ -18,7 +18,7 @@ describe("HistoryFormatter", () => {
       ]);
 
       expect(row?.[2]?.html).to.equal(
-        '<strong>Certificate created <br /> <a href="/applications/12345/certificate">View certificate</a></strong>',
+        '<strong>Certificate created</strong><br /><a href="/applications/12345/certificate">View certificate</a>',
       );
     });
 
@@ -118,7 +118,7 @@ describe("HistoryFormatter", () => {
       ]);
 
       expect(row?.[2]?.html).to.equal(
-        "<strong>Caseworker note added</strong><br />This is a case note<strong></strong>",
+        "<strong>Caseworker note added</strong><br />This is a case note",
       );
     });
 
