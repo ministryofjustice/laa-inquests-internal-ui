@@ -745,7 +745,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        '<strong>Certificate created <br /> <a href="/applications/1/certificate">View certificate</a></strong>',
+        '<strong>Certificate created</strong><br /><a href="/applications/1/certificate">View certificate</a>',
       );
     });
 
@@ -830,10 +830,7 @@ describe("Application adaptor", () => {
       const historyRows = viewData.historyRows as Array<
         Array<{ text?: string; html?: string }>
       >;
-      assert.equal(
-        historyRows[0][1].text,
-        "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
-      );
+      assert.equal(historyRows[0][1].text, "<script>alert('xss')</script>");
     });
 
     it("escapes HTML in unknown event reference fallback", async () => {
@@ -920,7 +917,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Application refused<br /> Not in scope <br /> Test refusal justification</strong>",
+        "<strong>Application refused</strong><br />Not in scope<br />Test refusal justification",
       );
     });
 
@@ -1031,7 +1028,7 @@ describe("Application adaptor", () => {
       );
       assert.equal(
         historyRows[2][2].html,
-        '<strong>Certificate created <br /> <a href="/applications/1/certificate">View certificate</a></strong>',
+        '<strong>Certificate created</strong><br /><a href="/applications/1/certificate">View certificate</a>',
       );
     });
 

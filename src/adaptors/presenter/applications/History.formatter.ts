@@ -5,11 +5,13 @@ import type { HistoryEvent } from "#src/adaptors/models/application.types.js";
 
 /**
  * Type definition for event formatter functions.
- * Event formatters take optional eventData and return a formatted description string.
+ * Event formatters take optional eventData and return a heading (always bold) and an
+ * optional detail (rendered below the heading, not bold).
  */
-export type EventFormatter = (
-  eventData?: Record<string, unknown> | null,
-) => string;
+export type EventFormatter = (eventData?: Record<string, unknown> | null) => {
+  heading: string;
+  detail?: string;
+};
 
 /**
  * Registry of history event formatters.
@@ -18,30 +20,39 @@ export type EventFormatter = (
  *
  * To add a new event formatter:
  * 1. Add the event reference from HISTORY_EVENT_REFERENCE as a key
- * 2. Return a static string for simple events
- * 3. For dynamic events, extract and format fields from eventData, then interpolate into the description
+ * 2. Return { heading } for simple events
+ * 3. For events that also require a body, extract and format fields from eventData, then return { heading, detail }
  */
 export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
   {
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => "Application received",
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_001]: () => ({
+      heading: "Application received",
+    }),
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_002]: (eventData) => {
       const decision = escapeHtmlValue(eventData?.meritsDecision).toLowerCase();
-      let html = `Application ${decision}`;
-      if (decision === "refused") {
-        const formattedRefusalReason = formatEnum(
-          escapeHtmlValue(eventData?.refusalReason),
-        );
-        const formattedRefusalJustification = escapeHtmlValue(
-          eventData?.refusalJustification,
-        );
-        html += `<br /> ${formattedRefusalReason} <br /> ${formattedRefusalJustification}`;
+      const heading = `Application ${decision}`;
+      if (decision !== "refused") {
+        return { heading };
       }
 
-      return html;
+      const formattedRefusalReason = formatEnum(
+        escapeHtmlValue(eventData?.refusalReason),
+      );
+      const formattedRefusalJustification = escapeHtmlValue(
+        eventData?.refusalJustification,
+      );
+
+      return {
+        heading,
+        detail: `${formattedRefusalReason}<br />${formattedRefusalJustification}`,
+      };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: (eventData) => {
       const laaReference = escapeHtmlValue(eventData?.laaReference);
-      return `Certificate created <br /> <a href="/applications/${laaReference}/certificate">View certificate</a>`;
+      return {
+        heading: "Certificate created",
+        detail: `<a href="/applications/${laaReference}/certificate">View certificate</a>`,
+      };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: (eventData) => {
       const oldPublicBodies = escapeHtmlValue(
@@ -54,47 +65,56 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
           ? eventData.newPublicBodies.join(", ")
           : eventData?.newPublicBodies,
       );
-      return `Interested parties updated from ${oldPublicBodies} to ${newPublicBodies}`;
+      return {
+        heading: `Interested parties updated from ${oldPublicBodies} to ${newPublicBodies}`,
+      };
     },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_X_001]: (eventData) => {
-      const noteText = escapeHtmlValue(eventData?.noteText);
-      return `Caseworker note added</strong><br />${noteText}<strong>`;
-    },
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_X_001]: (eventData) => ({
+      heading: "Caseworker note added",
+      detail: escapeHtmlValue(eventData?.noteText),
+    }),
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
-      return `${claimType} claim received`;
+      return { heading: `${claimType} claim received` };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
       const decision = formatEnum(
         escapeHtmlValue(eventData?.claimDecision),
       ).toLowerCase();
-      return `${claimType} claim ${decision}`;
+      return { heading: `${claimType} claim ${decision}` };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData) => {
       const claimReference = escapeHtmlValue(eventData?.claimReference);
-      return `POA claim ${claimReference} auto-approved`;
+      return { heading: `POA claim ${claimReference} auto-approved` };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_004]: (eventData) => {
       const claimReference = escapeHtmlValue(eventData?.claimReference);
-      return `POA claim ${claimReference} auto-rejected`;
+      return { heading: `POA claim ${claimReference} auto-rejected` };
     },
 
-    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_001]: () =>
-      "Application submission confirmation sent",
-    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_002]: () =>
-      "Application granted email sent",
-    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_003]: () =>
-      "Application granted letter sent",
-    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_004]: () =>
-      "Application refused email sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_001]: () => ({
+      heading: "Application submission confirmation sent",
+    }),
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_002]: () => ({
+      heading: "Application granted email sent",
+    }),
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_003]: () => ({
+      heading: "Application granted letter sent",
+    }),
+    [HISTORY_EVENT_REFERENCE.EVT_COM_APP_004]: () => ({
+      heading: "Application refused email sent",
+    }),
 
-    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_001]: () =>
-      "Claim submission confirmation sent",
-    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_002]: () =>
-      "Claim approved email sent",
-    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_003]: () =>
-      "Claim rejected email sent",
+    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_001]: () => ({
+      heading: "Claim submission confirmation sent",
+    }),
+    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_002]: () => ({
+      heading: "Claim approved email sent",
+    }),
+    [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_003]: () => ({
+      heading: "Claim rejected email sent",
+    }),
   };
 
 function escapeHtmlValue(value: unknown): string {
@@ -124,11 +144,11 @@ function formatHistoryEventUpdate(
   const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
 
   try {
-    const historyEventHeading = formatter
+    const { heading, detail } = formatter
       ? formatter(eventData)
-      : escapeHtml(eventReference);
+      : { heading: escapeHtml(eventReference) };
 
-    return `<strong>${historyEventHeading}</strong>`;
+    return `<strong>${heading}</strong>${detail ? `<br />${detail}` : ""}`;
   } catch (error) {
     console.error(
       `Error formatting history event for reference ${eventReference}:`,
@@ -143,12 +163,13 @@ export function formatHistoryRows(
 ): Array<Array<{ text?: string; html?: string }>> {
   return history.map((event) => {
     const timestamp = formatDateTime(event.timestamp);
-    const actor = escapeHtml(event.actor);
     const update = formatHistoryEventUpdate(
       event.eventReference,
       event.eventData,
     );
 
-    return [{ text: timestamp }, { text: actor }, { html: update }];
+    // event.actor is rendered via a "text:" table field, which nunjucks auto-escapes on render, so we don't need to escape it here.
+    // However, we do need to escape the update, which is rendered via an "html:" table field.
+    return [{ text: timestamp }, { text: event.actor }, { html: update }];
   });
 }
