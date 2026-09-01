@@ -152,6 +152,7 @@
       "supportingEvidence": {
         "heading": "Supporting evidence",
         "warning": "Some pieces of evidence cannot be viewed in browser and may need to be downloaded",
+        "costBreakdown": "Claim cost breakdown",
         "otherEvidence": "Other evidence",
         "view": "View",
         "download": "Download"

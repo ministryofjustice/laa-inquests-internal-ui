@@ -56,6 +56,10 @@ describe("ClaimAssessmentAdaptor", () => {
           outcomeOfInquest: "-",
           alternateFundingProgressed: "-",
         },
+        claimCostBreakdown: {
+          fileName: "claim-cost-breakdown.xlsx",
+          downloadHref: "#",
+        },
         supportingEvidence: [
           {
             fileName: "claim-evidence-1.pdf",
@@ -115,6 +119,10 @@ describe("ClaimAssessmentAdaptor", () => {
       applicationId: "123",
       claimId: "10",
       claimStatus: "Reject",
+      claimCostBreakdown: {
+        fileName: "claim-cost-breakdown.xlsx",
+        downloadHref: "#",
+      },
     });
   });
 

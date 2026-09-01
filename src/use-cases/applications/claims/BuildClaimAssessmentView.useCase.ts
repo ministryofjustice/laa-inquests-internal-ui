@@ -27,6 +27,11 @@ export interface ClaimAssessmentEvidenceRow {
   downloadHref: string;
 }
 
+export interface ClaimCostBreakdownRow {
+  fileName: string;
+  downloadHref: string;
+}
+
 export interface ClaimAssessmentViewData {
   laaReference: string;
   claimId: string;
@@ -43,6 +48,7 @@ export interface ClaimAssessmentViewData {
     outcomeOfInquest: string;
     alternateFundingProgressed: string;
   };
+  claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
 }
 
@@ -94,6 +100,11 @@ export class BuildClaimAssessmentViewUseCase {
             outcomeOfInquest: PLACEHOLDER_VALUE,
             alternateFundingProgressed: PLACEHOLDER_VALUE,
           },
+          claimCostBreakdown: mapClaimCostBreakdown(
+            claim,
+            input.applicationId,
+            input.claimId,
+          ),
           supportingEvidence: mapSupportingEvidence(
             claim,
             input.applicationId,
@@ -174,4 +185,23 @@ function mapSupportingEvidence(
     viewHref: `${basePath}/${evidence.claimEvidenceId}?disposition=${DISPOSITION.INLINE}`,
     downloadHref: `${basePath}/${evidence.claimEvidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
   }));
+}
+
+function mapClaimCostBreakdown(
+  claim: ClaimDetail,
+  applicationId: string,
+  claimId: string,
+): ClaimCostBreakdownRow | null {
+  const { claimCostTemplateFile: costTemplateFile } = claim;
+
+  if (!costTemplateFile) {
+    return null;
+  }
+
+  const basePath = `/applications/${applicationId}/claims/${claimId}/evidence`;
+
+  return {
+    fileName: costTemplateFile.claimCostTemplateFileName,
+    downloadHref: `${basePath}/${costTemplateFile.claimCostTemplateFileId}?disposition=${DISPOSITION.ATTACHMENT}`,
+  };
 }

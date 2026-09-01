@@ -14,6 +14,8 @@ const claimWithoutEvidenceId = "11";
 const assessClaimNoEvidencePage = `/applications/${applicationId}/claims/${claimWithoutEvidenceId}`;
 const claimVatZeroOnlyId = "12";
 const assessClaimVatZeroOnlyPage = `/applications/${applicationId}/claims/${claimVatZeroOnlyId}`;
+const claimFinalBillId = "13";
+const assessClaimFinalBillPage = `/applications/${applicationId}/claims/${claimFinalBillId}`;
 
 test.describe("Assess claim page", () => {
   test("opens a specific claim from the claims tab and shows that claim's data", async ({
@@ -250,6 +252,112 @@ test.describe("Assess claim page", () => {
     expect(evidenceResponse.headers()["content-disposition"]).toContain(
       "attachment",
     );
+  });
+
+  test("shows the claim cost breakdown card before other evidence for a final bill claim", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimFinalBillPage);
+
+    const pageForm = page.getByTestId("assess-claim");
+
+    await expect(pageForm.locator(".govuk-summary-card__title")).toHaveText([
+      "Overview of the claim",
+      "Details of the claim",
+      "Claim cost breakdown",
+      "Other evidence",
+    ]);
+
+    await expect(
+      pageForm.locator(".govuk-summary-list__key", {
+        hasText: "claim-cost-breakdown.xlsx",
+      }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByRole("link", {
+        name: /View claim-cost-breakdown.xlsx/,
+      }),
+    ).toHaveCount(0);
+    await expect(
+      pageForm.getByRole("link", {
+        name: /Download claim-cost-breakdown.xlsx/,
+      }),
+    ).toHaveAttribute(
+      "href",
+      `${assessClaimFinalBillPage}/evidence/test_cost_breakdown?disposition=attachment`,
+    );
+
+    const otherEvidenceCard = pageForm.locator(".govuk-summary-card", {
+      has: page.getByRole("heading", { level: 2, name: "Other evidence" }),
+    });
+    await expect(
+      otherEvidenceCard.locator(".govuk-summary-list__key", {
+        hasText: "claim-cost-breakdown.xlsx",
+      }),
+    ).toHaveCount(0);
+    await expect(
+      otherEvidenceCard.locator(".govuk-summary-list__key"),
+    ).toHaveText(["claim-evidence-1.pdf", "claim-evidence-2.pdf"]);
+  });
+
+  test("does not show the claim cost breakdown card for a payment on account claim", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const pageForm = page.getByTestId("assess-claim");
+
+    await expect(
+      pageForm.getByRole("heading", {
+        level: 2,
+        name: "Claim cost breakdown",
+      }),
+    ).toHaveCount(0);
+  });
+
+  test("clicking download returns the cost breakdown as an xlsx attachment", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimFinalBillPage);
+
+    const costBreakdownResponsePromise = page.waitForResponse(
+      (response) =>
+        response
+          .url()
+          .endsWith(
+            `${assessClaimFinalBillPage}/evidence/test_cost_breakdown?disposition=attachment`,
+          ) && response.request().method() === "GET",
+    );
+
+    await page
+      .getByRole("link", { name: /Download claim-cost-breakdown.xlsx/ })
+      .click();
+
+    const costBreakdownResponse = await costBreakdownResponsePromise;
+
+    expect(costBreakdownResponse.status()).toBe(200);
+    expect(costBreakdownResponse.headers()["content-type"]).toContain(
+      "spreadsheetml.sheet",
+    );
+    expect(costBreakdownResponse.headers()["content-disposition"]).toContain(
+      "attachment",
+    );
+  });
+
+  test("final bill claim page has no accessibility violations", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(assessClaimFinalBillPage);
+
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: "Claim cost breakdown",
+      }),
+    ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("assess claim page has no accessibility violations", async ({

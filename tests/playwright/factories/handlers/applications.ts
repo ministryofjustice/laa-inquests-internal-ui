@@ -337,6 +337,27 @@ const claimDetailVatZeroOnly = {
   totalProfitCostVatZero: "800.00",
 };
 
+const claimDetailFinalBill = {
+  ...claimDetail,
+  claimId: 13,
+  claimTypeId: "FINAL_BILL",
+  poaTypeId: null,
+  claimCostTemplateFile: {
+    claimCostTemplateFileId: "test_cost_breakdown",
+    claimCostTemplateFileName: "claim-cost-breakdown.xlsx",
+  },
+  claimEvidence: [
+    {
+      claimEvidenceId: "test_evidence_1",
+      fileName: "claim-evidence-1.pdf",
+    },
+    {
+      claimEvidenceId: "test_evidence_2",
+      fileName: "claim-evidence-2.pdf",
+    },
+  ],
+};
+
 /**
  * Public bodies reference data returned by GET /applications/public-bodies.
  */
@@ -503,6 +524,21 @@ export const applicationHandlers = [
         });
       }
 
+      if (
+        params.claimEvidenceId === "test_cost_breakdown" &&
+        (disposition === "inline" || disposition === "attachment")
+      ) {
+        const fakeCostBreakdownBuffer = Buffer.from("PK mock cost breakdown");
+        return new HttpResponse(fakeCostBreakdownBuffer, {
+          status: 200,
+          headers: {
+            "Content-Type":
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Content-Disposition": `${disposition}; filename="claim-cost-breakdown.xlsx"`,
+          },
+        });
+      }
+
       return new HttpResponse(null, { status: 404 });
     },
   ),
@@ -520,6 +556,10 @@ export const applicationHandlers = [
 
       if (params.id === "5" && params.claimId === "12") {
         return HttpResponse.json(claimDetailVatZeroOnly);
+      }
+
+      if (params.id === "5" && params.claimId === "13") {
+        return HttpResponse.json(claimDetailFinalBill);
       }
 
       return new HttpResponse(null, { status: 404 });

@@ -5,6 +5,11 @@ const ClaimEvidenceSchema = z.object({
   fileName: z.string(),
 });
 
+const ClaimCostTemplateFileSchema = z.object({
+  claimCostTemplateFileId: z.string(),
+  claimCostTemplateFileName: z.string(),
+});
+
 const ClaimDecisionReasonSchema = z.object({
   reasonCode: z.string(),
   justification: z.string(),
@@ -33,6 +38,7 @@ export const ClaimSummarySchema = BaseClaimSchema;
 
 export const ClaimDetailSchema = BaseClaimSchema.extend({
   substantiveCostLimitation: z.number().optional().nullable(),
+  claimCostTemplateFile: ClaimCostTemplateFileSchema.optional().nullable(),
   claimEvidence: z.array(ClaimEvidenceSchema).optional(),
   claimDecision: ClaimDecisionSchema.optional().nullable(),
 });
