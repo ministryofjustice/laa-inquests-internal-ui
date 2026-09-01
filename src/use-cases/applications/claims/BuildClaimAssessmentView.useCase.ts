@@ -1,7 +1,6 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
-  CLAIM_TYPES,
   DISPOSITION,
   PLACEHOLDER_VALUE,
 } from "#src/infrastructure/locales/constants.js";
@@ -12,6 +11,7 @@ import {
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
+import { mapClaimType } from "#src/utils/claimType.js";
 
 interface BuildClaimAssessmentViewInput {
   applicationId: string;
@@ -120,10 +120,6 @@ export class BuildClaimAssessmentViewUseCase {
       };
     }
   }
-}
-
-function mapClaimType(claimTypeId: string): string {
-  return (CLAIM_TYPES as Record<string, string>)[claimTypeId] ?? claimTypeId;
 }
 
 function mapClaimDecision(decision: string | undefined): string {

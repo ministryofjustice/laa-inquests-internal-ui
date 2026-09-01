@@ -16,6 +16,10 @@ const claimVatZeroOnlyId = "12";
 const assessClaimVatZeroOnlyPage = `/applications/${applicationId}/claims/${claimVatZeroOnlyId}`;
 const claimFinalBillId = "13";
 const assessClaimFinalBillPage = `/applications/${applicationId}/claims/${claimFinalBillId}`;
+const finalBillRejectedSuccessPage = `${assessClaimFinalBillPage}/rejected`;
+
+const rejectedPanelText = (claimType: string): string =>
+  rejectedSuccessLocale.panel.replace("{claimType}", claimType);
 
 test.describe("Assess claim page", () => {
   test("opens a specific claim from the claims tab and shows that claim's data", async ({
@@ -519,7 +523,7 @@ test.describe("Assess claim page", () => {
 
     await expect(
       page.locator(".govuk-panel__title", {
-        hasText: rejectedSuccessLocale.panel,
+        hasText: rejectedPanelText("Payment on account"),
       }),
     ).toBeVisible();
     await expect(
@@ -539,6 +543,28 @@ test.describe("Assess claim page", () => {
     await expect(
       page.getByRole("button", {
         name: rejectedSuccessLocale.assessNewClaimButton,
+      }),
+    ).toBeVisible();
+  });
+
+  test("shows the final bill claim type in the rejection success panel", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimFinalBillPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Reject" }).check();
+    await form
+      .getByLabel(claimAssessmentLocale.reasonLabel)
+      .fill("Not enough supporting evidence provided");
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(finalBillRejectedSuccessPage);
+
+    await expect(
+      page.locator(".govuk-panel__title", {
+        hasText: rejectedPanelText("Final bill"),
       }),
     ).toBeVisible();
   });
@@ -565,7 +591,7 @@ test.describe("Assess claim page", () => {
 
     await expect(
       page.locator(".govuk-panel__title", {
-        hasText: rejectedSuccessLocale.panel,
+        hasText: rejectedPanelText("Payment on account"),
       }),
     ).toBeVisible();
 
