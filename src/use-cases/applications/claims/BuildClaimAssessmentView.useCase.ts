@@ -1,7 +1,6 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
-  CLAIM_TYPES,
   DISPOSITION,
   PLACEHOLDER_VALUE,
 } from "#src/infrastructure/locales/constants.js";
@@ -12,6 +11,7 @@ import {
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
+import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimAssessmentViewInput {
   applicationId: string;
@@ -24,6 +24,11 @@ interface BuildClaimAssessmentViewInput {
 export interface ClaimAssessmentEvidenceRow {
   fileName: string;
   viewHref: string;
+  downloadHref: string;
+}
+
+export interface ClaimCostBreakdownRow {
+  fileName: string;
   downloadHref: string;
 }
 
@@ -43,6 +48,7 @@ export interface ClaimAssessmentViewData {
     outcomeOfInquest: string;
     alternateFundingProgressed: string;
   };
+  claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
 }
 
@@ -94,6 +100,11 @@ export class BuildClaimAssessmentViewUseCase {
             outcomeOfInquest: PLACEHOLDER_VALUE,
             alternateFundingProgressed: PLACEHOLDER_VALUE,
           },
+          claimCostBreakdown: mapClaimCostBreakdown(
+            claim,
+            input.applicationId,
+            input.claimId,
+          ),
           supportingEvidence: mapSupportingEvidence(
             claim,
             input.applicationId,
@@ -109,10 +120,6 @@ export class BuildClaimAssessmentViewUseCase {
       };
     }
   }
-}
-
-function mapClaimType(claimTypeId: string): string {
-  return (CLAIM_TYPES as Record<string, string>)[claimTypeId] ?? claimTypeId;
 }
 
 function mapClaimDecision(decision: string | undefined): string {
@@ -174,4 +181,23 @@ function mapSupportingEvidence(
     viewHref: `${basePath}/${evidence.claimEvidenceId}?disposition=${DISPOSITION.INLINE}`,
     downloadHref: `${basePath}/${evidence.claimEvidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
   }));
+}
+
+function mapClaimCostBreakdown(
+  claim: ClaimDetail,
+  applicationId: string,
+  claimId: string,
+): ClaimCostBreakdownRow | null {
+  const { claimCostTemplateFile: costTemplateFile } = claim;
+
+  if (!costTemplateFile) {
+    return null;
+  }
+
+  const basePath = `/applications/${applicationId}/claims/${claimId}/evidence`;
+
+  return {
+    fileName: costTemplateFile.claimCostTemplateFileName,
+    downloadHref: `${basePath}/${costTemplateFile.claimCostTemplateFileId}?disposition=${DISPOSITION.ATTACHMENT}`,
+  };
 }

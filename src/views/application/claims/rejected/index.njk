@@ -5,7 +5,7 @@
 
 {% block content %}
   {{ govukPanel({
-    titleText: t('pages.claimAssessment.rejectedSuccess.panel')
+    titleText: t('pages.claimAssessment.rejectedSuccess.panel', { claimType: claimType })
   }) }}
 
   <h2 class="govuk-heading-s govuk-!-padding-top-6">{{ t('pages.claimAssessment.rejectedSuccess.whatHappensNext') }}</h2>

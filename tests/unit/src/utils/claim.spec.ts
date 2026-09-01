@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
-import { getClaimCost } from "#src/utils/claimCost.js";
+import { getClaimCost } from "#src/utils/claim.js";
 
 function buildClaim(overrides: Partial<ClaimSummary> = {}): ClaimSummary {
   return {

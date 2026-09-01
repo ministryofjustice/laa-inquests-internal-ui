@@ -140,6 +140,32 @@
     iconFallbackText: t('common.warning')
   }) }}
 
+  {% if claimCostBreakdown %}
+    {{ govukSummaryList({
+        card: {
+          title: {
+            text: t('pages.claimAssessment.supportingEvidence.costBreakdown')
+          }
+        },
+        rows: [
+          {
+            key: {
+              text: claimCostBreakdown.fileName
+            },
+            actions: {
+              items: [
+                {
+                  href: claimCostBreakdown.downloadHref,
+                  text: t('pages.claimAssessment.supportingEvidence.download'),
+                  visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.download') + ' ' + claimCostBreakdown.fileName
+                }
+              ]
+            }
+          }
+        ]
+      }) }}
+  {% endif %}
+
   {% if supportingEvidenceRows.length %}
     {{ govukSummaryList({
         card: {

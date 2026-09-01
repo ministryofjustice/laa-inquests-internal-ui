@@ -40,6 +40,8 @@ export enum CATEGORIES_OF_LAW {
 
 export enum CLAIM_TYPES {
   PAYMENT_ON_ACCOUNT = "Payment on account",
+  FINAL_BILL = "Final bill",
+  NIL_BILL = "Nil bill",
 }
 
 export enum CLAIM_STATUSES {
