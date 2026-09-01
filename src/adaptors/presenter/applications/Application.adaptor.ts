@@ -9,11 +9,8 @@ import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
-import { getClaimCost } from "#src/utils/claimCost.js";
-import {
-  CLAIM_STATUSES,
-  CLAIM_TYPES,
-} from "#src/infrastructure/locales/constants.js";
+import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
+import { CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
 import { formatHistoryRows } from "#src/adaptors/presenter/applications/History.formatter.js";
 import {
   getHomeAddressDisplay,
@@ -392,10 +389,6 @@ function mapClaimRow(claim: ClaimSummary, applicationId: string): ClaimRow {
     claimType: mapClaimType(claim.claimTypeId),
     href: `/applications/${applicationId}/claims/${claim.claimId}`,
   };
-}
-
-function mapClaimType(claimTypeId: string): string {
-  return (CLAIM_TYPES as Record<string, string>)[claimTypeId] ?? claimTypeId;
 }
 
 function mapClaimStatus(status: string | null | undefined): string {

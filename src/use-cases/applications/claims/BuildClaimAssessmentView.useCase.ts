@@ -11,7 +11,7 @@ import {
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
-import { mapClaimType } from "#src/utils/claimType.js";
+import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimAssessmentViewInput {
   applicationId: string;

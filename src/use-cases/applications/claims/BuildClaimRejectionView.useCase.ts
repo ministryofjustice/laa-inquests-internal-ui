@@ -3,7 +3,7 @@ import {
   TECHNICAL_FAILURE_REASONS,
   type UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
-import { mapClaimType } from "#src/utils/claimType.js";
+import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimRejectionViewInput {
   applicationId: string;
