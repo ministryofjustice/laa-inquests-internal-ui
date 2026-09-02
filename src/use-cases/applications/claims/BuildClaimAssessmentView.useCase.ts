@@ -276,9 +276,7 @@ function mapFinalOrNilBillDetails(
           }
         : undefined,
     alternativeFundingDetails:
-      hasValue(claim.hasRecoveryCostsAwarded) ||
-      hasValue(claim.financialRecoveryPreviousPreCertificateCosts) ||
-      hasValue(claim.payingParty)
+      claim.hasAlternativeFunding === true
         ? {
             recoveryCostsMade: formatBoolean(claim.hasRecoveryCostsAwarded),
             previousPreCertificateCosts: formatAmount(

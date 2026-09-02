@@ -359,6 +359,7 @@ const finalBillClaimDetail = {
     },
   ],
   hasCounselBeenPaid: true,
+  hasAlternativeFunding: true,
   hasRecoveryCostsAwarded: false,
   financialRecoveryPreviousPreCertificateCosts: "250.00",
   financialRecoveryCost: null,

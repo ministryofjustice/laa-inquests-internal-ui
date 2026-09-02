@@ -200,6 +200,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         claimCostTemplateFileName: "final_bill_costs.xlsx",
       },
       hasCounselBeenPaid: true,
+      hasAlternativeFunding: true,
       hasRecoveryCostsAwarded: false,
       financialRecoveryPreviousPreCertificateCosts: "250.00",
       financialRecoveryCost: null,
@@ -240,7 +241,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       },
       inquestDetails: {
         outcome: "Accident or misadventure, Unlawful or lawful killing",
-        alternativeFundingPostInquest: "No",
+        alternativeFundingPostInquest: "Yes",
       },
       alternativeFundingDetails: {
         recoveryCostsMade: "No",
@@ -254,6 +255,37 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         previousPreCertificateCosts: "£250",
       },
     });
+  });
+
+  it("omits alternative funding details when the claim has no alternative funding", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: 5,
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...baseClaim,
+      claimTypeId: "FINAL_BILL",
+      hasAlternativeFunding: false,
+      hasRecoveryCostsAwarded: false,
+      financialRecoveryPreviousPreCertificateCosts: "250.00",
+      payingParty: "Ministry of Justice",
+    });
+
+    const result = await useCase.execute({
+      applicationId: "5",
+      claimId: "10",
+      applicationPort: applicationPortStub,
+      claimsPort: claimsPortStub,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(
+      result.data.finalOrNilBillDetails?.alternativeFundingDetails,
+      undefined,
+    );
   });
 
   it("returns TECHNICAL_FAILURE when ids are missing", async () => {
