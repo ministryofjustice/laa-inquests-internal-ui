@@ -7,7 +7,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
   const useCase = new BuildApplicationOverviewViewUseCase();
 
   const application = {
-    laaReference: 123,
+    laaReference: "123",
     createdAt: "2026-05-21T08:46:36.793278",
     updatedAt: "2026-05-21T08:46:36.793294",
     status: "Live",
