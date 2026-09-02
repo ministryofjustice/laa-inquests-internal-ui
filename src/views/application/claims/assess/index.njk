@@ -6,6 +6,8 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
+{% set pageTitle = t('pages.claimAssessment.heading') %}
+
 {% block pageContent %}
 {% if errorSummaries %}
   {{ govukErrorSummary({

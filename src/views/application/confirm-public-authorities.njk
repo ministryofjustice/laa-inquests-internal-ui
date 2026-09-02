@@ -3,6 +3,8 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
+{% set pageTitle = t('pages.applicationOverview.publicAuthority.confirm.title') %}
+
 {% block pageContent %}
 <form data-testid="confirm-public-authorities" method="post" action="/applications/{{ applicationId }}/public-authorities/confirm">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
