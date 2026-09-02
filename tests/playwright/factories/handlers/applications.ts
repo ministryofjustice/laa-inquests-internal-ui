@@ -519,14 +519,10 @@ export const applicationHandlers = [
 
       if (
         (params.claimEvidenceId === "test_evidence_1" ||
-          params.claimEvidenceId === "test_evidence_2" ||
-          params.claimEvidenceId === "3fa85f64-5717-4562-b3fc-2c963f66afa6") &&
+          params.claimEvidenceId === "test_evidence_2") &&
         (disposition === "inline" || disposition === "attachment")
       ) {
-        const fileName =
-          params.claimEvidenceId === "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-            ? "final_bill_costs.xlsx"
-            : `claim-evidence-${params.claimEvidenceId}.pdf`;
+        const fileName = `claim-evidence-${params.claimEvidenceId}.pdf`;
         const fakeEvidenceBuffer = Buffer.from("%PDF-1.4 mock evidence");
         return new HttpResponse(fakeEvidenceBuffer, {
           status: 200,
@@ -538,7 +534,7 @@ export const applicationHandlers = [
       }
 
       if (
-        params.claimEvidenceId === "test_cost_breakdown" &&
+        params.claimEvidenceId === "3fa85f64-5717-4562-b3fc-2c963f66afa6" &&
         (disposition === "inline" || disposition === "attachment")
       ) {
         const fakeCostBreakdownBuffer = Buffer.from("PK mock cost breakdown");

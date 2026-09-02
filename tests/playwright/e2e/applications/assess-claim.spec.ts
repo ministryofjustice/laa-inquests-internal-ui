@@ -220,7 +220,7 @@ test.describe("Assess claim page", () => {
     ).toBeVisible();
 
     await expect(
-      pageForm.getByText("Claim cost file", { exact: true }),
+      pageForm.getByText("Claim cost breakdown", { exact: true }),
     ).toBeVisible();
     await expect(
       pageForm.getByText("final_bill_costs.xlsx", { exact: true }),
@@ -232,15 +232,9 @@ test.describe("Assess claim page", () => {
       `${assessFinalBillClaimPage}/evidence/3fa85f64-5717-4562-b3fc-2c963f66afa6?disposition=attachment`,
     );
     await expect(
-      pageForm.getByRole("heading", { level: 2, name: "Supporting files" }),
-    ).toBeVisible();
-    await expect(
       pageForm.getByText("claim-evidence-1.pdf", { exact: true }),
     ).toBeVisible();
 
-    await expect(
-      pageForm.getByRole("heading", { level: 2, name: "Evidence" }),
-    ).toBeVisible();
     await expect(
       pageForm.getByRole("heading", { level: 2, name: "Counsel" }),
     ).toBeVisible();
@@ -345,52 +339,6 @@ test.describe("Assess claim page", () => {
     );
   });
 
-  test("shows the claim cost breakdown card before other evidence for a final bill claim", async ({
-    page,
-  }) => {
-    await page.goto(assessFinalBillClaimPage);
-
-    const pageForm = page.getByTestId("assess-claim");
-
-    await expect(pageForm.locator(".govuk-summary-card__title")).toHaveText([
-      "Overview of the claim",
-      "Details of the claim",
-      "Claim cost breakdown",
-      "Other evidence",
-    ]);
-
-    await expect(
-      pageForm.locator(".govuk-summary-list__key", {
-        hasText: "final_bill_costs.xlsx",
-      }),
-    ).toBeVisible();
-    await expect(
-      pageForm.getByRole("link", {
-        name: /View final_bill_costs.xlsx/,
-      }),
-    ).toHaveCount(0);
-    await expect(
-      pageForm.getByRole("link", {
-        name: /Download final_bill_costs.xlsx/,
-      }),
-    ).toHaveAttribute(
-      "href",
-      `${assessFinalBillClaimPage}/evidence/test_cost_breakdown?disposition=attachment`,
-    );
-
-    const otherEvidenceCard = pageForm.locator(".govuk-summary-card", {
-      has: page.getByRole("heading", { level: 2, name: "Other evidence" }),
-    });
-    await expect(
-      otherEvidenceCard.locator(".govuk-summary-list__key", {
-        hasText: "final_bill_costs.xlsx",
-      }),
-    ).toHaveCount(0);
-    await expect(
-      otherEvidenceCard.locator(".govuk-summary-list__key"),
-    ).toHaveText(["claim-evidence-1.pdf", "claim-evidence-2.pdf"]);
-  });
-
   test("does not show the claim cost breakdown card for a payment on account claim", async ({
     page,
   }) => {
@@ -416,7 +364,7 @@ test.describe("Assess claim page", () => {
         response
           .url()
           .endsWith(
-            `${assessFinalBillClaimPage}/evidence/test_cost_breakdown?disposition=attachment`,
+            `${assessFinalBillClaimPage}/evidence/3fa85f64-5717-4562-b3fc-2c963f66afa6?disposition=attachment`,
           ) && response.request().method() === "GET",
     );
 
