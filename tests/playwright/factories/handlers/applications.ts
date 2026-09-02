@@ -365,7 +365,7 @@ const finalBillClaimDetail = {
   financialRecoveryDamages: "500.00",
   financialRecoveryInterest: null,
   payingParty: "Ministry of Justice",
-}
+};
 
 /**
  * Public bodies reference data returned by GET /applications/public-bodies.
