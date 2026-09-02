@@ -39,7 +39,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     applicationPortStub.getApplication.resolves({
-      laaReference: 5,
+      laaReference: "5",
       proceeding: { substantiveCostLimitation: 9999 },
     } as any);
     claimsPortStub.getClaimById.resolves(baseClaim);
@@ -160,7 +160,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     applicationPortStub.getApplication.resolves({
-      laaReference: 5,
+      laaReference: "5",
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({

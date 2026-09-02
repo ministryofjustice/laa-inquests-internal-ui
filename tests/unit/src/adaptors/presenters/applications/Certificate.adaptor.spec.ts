@@ -17,7 +17,7 @@ describe("CertificateAdaptor", () => {
   let logErrorStub: sinon.SinonStub;
 
   const application = {
-    laaReference: 123,
+    laaReference: "123",
     createdAt: "2026-05-21T08:46:36.793278",
     updatedAt: "2026-05-21T08:46:36.793294",
     status: APPLICATION_STATUSES.LIVE,
@@ -88,7 +88,7 @@ describe("CertificateAdaptor", () => {
   };
 
   const certificateDetails = {
-    laaReference: 1,
+    laaReference: "1",
     dateCreated: "2026-05-19",
     clientName: "John Doe",
     clientAddress: {
