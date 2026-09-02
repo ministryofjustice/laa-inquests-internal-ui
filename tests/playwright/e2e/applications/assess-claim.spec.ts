@@ -14,6 +14,8 @@ const claimWithoutEvidenceId = "11";
 const assessClaimNoEvidencePage = `/applications/${applicationId}/claims/${claimWithoutEvidenceId}`;
 const claimVatZeroOnlyId = "12";
 const assessClaimVatZeroOnlyPage = `/applications/${applicationId}/claims/${claimVatZeroOnlyId}`;
+const finalBillClaimId = "13";
+const assessFinalBillClaimPage = `/applications/${applicationId}/claims/${finalBillClaimId}`;
 
 test.describe("Assess claim page", () => {
   test("opens a specific claim from the claims tab and shows that claim's data", async ({
@@ -79,11 +81,19 @@ test.describe("Assess claim page", () => {
     await expect(
       pageForm.getByText("Instructed counsel on the case"),
     ).toBeVisible();
+    await expect(pageForm.getByText("2", { exact: true })).toBeVisible();
     await expect(pageForm.getByText("Last working date")).toBeVisible();
+    await expect(
+      pageForm.getByText("10 August 2026", { exact: true }),
+    ).toBeVisible();
     await expect(pageForm.getByText("Outcome of inquest")).toBeVisible();
+    await expect(
+      pageForm.getByText("Unlawful or lawful killing", { exact: true }),
+    ).toBeVisible();
     await expect(
       pageForm.getByText("Has the matter progressed to alternate funding"),
     ).toBeVisible();
+    await expect(pageForm.getByText("No", { exact: true })).toBeVisible();
 
     await expect(
       page.getByRole("heading", { level: 3, name: "Supporting evidence" }),
@@ -194,6 +204,85 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByText("Payment amount")).toBeVisible();
     await expect(pageForm.getByText("£800")).toBeVisible();
     await expect(pageForm.getByText("£1,200")).toHaveCount(0);
+  });
+
+  test("shows final bill claim details when provided", async ({ page }) => {
+    await page.goto(assessFinalBillClaimPage);
+
+    const pageForm = page.getByTestId("assess-claim");
+
+    await expect(
+      pageForm.getByText("Final bill", { exact: true }),
+    ).toBeVisible();
+
+    await expect(
+      pageForm.getByText("Claim cost file", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("final_bill_costs.xlsx", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByRole("link", { name: /Download final_bill_costs.xlsx/ }),
+    ).toHaveAttribute(
+      "href",
+      `${assessFinalBillClaimPage}/evidence/3fa85f64-5717-4562-b3fc-2c963f66afa6?disposition=attachment`,
+    );
+    await expect(
+      pageForm.getByRole("heading", { level: 2, name: "Supporting files" }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("claim-evidence-1.pdf", { exact: true }),
+    ).toBeVisible();
+
+    await expect(
+      pageForm.getByRole("heading", { level: 2, name: "Evidence" }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByRole("heading", { level: 2, name: "Counsel" }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("Number of counsel instructed", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("Counsel has been paid", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("Last working date", { exact: true }),
+    ).toBeVisible();
+
+    await expect(
+      pageForm.getByRole("heading", { level: 3, name: "Other claim details" }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByRole("heading", { level: 2, name: "Inquest details" }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("Alternative funding post-inquest", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByRole("heading", {
+        level: 2,
+        name: "Alternative funding details",
+      }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("Recovery costs made", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByText("Paying party", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageForm.getByRole("heading", {
+        level: 2,
+        name: "Financial recovery costs",
+      }),
+    ).toBeVisible();
+    await expect(pageForm.getByText("Costs", { exact: true })).toBeVisible();
+    await expect(pageForm.getByText("Damages", { exact: true })).toBeVisible();
+    await expect(pageForm.getByText("Interest", { exact: true })).toBeVisible();
+    await expect(
+      pageForm.getByText("Previous pre-certificate costs", { exact: true }),
+    ).toHaveCount(2);
   });
 
   test("clicking view returns an inline evidence response", async ({

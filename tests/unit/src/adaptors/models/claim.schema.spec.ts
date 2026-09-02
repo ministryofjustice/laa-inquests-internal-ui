@@ -63,6 +63,15 @@ describe("ClaimDetailSchema", () => {
     assert.deepEqual(result.claimDecision?.decisionReasons, []);
   });
 
+  it("accepts a string number of instructed counsel", () => {
+    const result = ClaimDetailSchema.parse({
+      ...baseClaim,
+      numberOfCounselInstructed: "1",
+    });
+
+    assert.equal(result.numberOfCounselInstructed, "1");
+  });
+
   it("rejects a decision reason missing justification", () => {
     const claim = {
       ...baseClaim,

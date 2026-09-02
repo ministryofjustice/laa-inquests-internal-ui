@@ -306,6 +306,9 @@ const claimDetail = {
   totalFundsRemainingAfterClaim: "8800.00",
   poaTypeId: "PROFIT_COST",
   substantiveCostLimitation: 10000,
+  inquestOutcomes: ["UNLAWFUL_OR_LAWFUL_KILLING"],
+  hasAlternativeFunding: false,
+  numberOfCounselInstructed: 2,
   claimEvidence: [
     {
       claimEvidenceId: "test_evidence_1",
@@ -335,6 +338,23 @@ const claimDetailVatZeroOnly = {
   totalProfitCostNet: null,
   totalProfitCostGross: null,
   totalProfitCostVatZero: "800.00",
+};
+
+const finalBillClaimDetail = {
+  ...claimDetail,
+  claimId: 13,
+  claimTypeId: "FINAL_BILL",
+  claimCostTemplateFile: {
+    claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    claimCostTemplateFileName: "final_bill_costs.xlsx",
+  },
+  hasCounselBeenPaid: true,
+  hasRecoveryCostsAwarded: false,
+  financialRecoveryPreviousPreCertificateCosts: "250.00",
+  financialRecoveryCost: null,
+  financialRecoveryDamages: "500.00",
+  financialRecoveryInterest: null,
+  payingParty: "Ministry of Justice",
 };
 
 /**
@@ -489,10 +509,14 @@ export const applicationHandlers = [
 
       if (
         (params.claimEvidenceId === "test_evidence_1" ||
-          params.claimEvidenceId === "test_evidence_2") &&
+          params.claimEvidenceId === "test_evidence_2" ||
+          params.claimEvidenceId === "3fa85f64-5717-4562-b3fc-2c963f66afa6") &&
         (disposition === "inline" || disposition === "attachment")
       ) {
-        const fileName = `claim-evidence-${params.claimEvidenceId}.pdf`;
+        const fileName =
+          params.claimEvidenceId === "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+            ? "final_bill_costs.xlsx"
+            : `claim-evidence-${params.claimEvidenceId}.pdf`;
         const fakeEvidenceBuffer = Buffer.from("%PDF-1.4 mock evidence");
         return new HttpResponse(fakeEvidenceBuffer, {
           status: 200,
@@ -520,6 +544,10 @@ export const applicationHandlers = [
 
       if (params.id === "5" && params.claimId === "12") {
         return HttpResponse.json(claimDetailVatZeroOnly);
+      }
+
+      if (params.id === "5" && params.claimId === "13") {
+        return HttpResponse.json(finalBillClaimDetail);
       }
 
       return new HttpResponse(null, { status: 404 });

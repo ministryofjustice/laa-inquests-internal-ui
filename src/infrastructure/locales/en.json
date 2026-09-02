@@ -149,6 +149,33 @@
         "outcomeOfInquest": "Outcome of inquest",
         "alternateFunding": "Has the matter progressed to alternate funding?"
       },
+      "finalOrNilBill": {
+        "evidence": {
+          "heading": "Evidence",
+          "claimCostFile": "Claim cost file",
+          "supportingFiles": "Supporting files"
+        },
+        "counsel": {
+          "heading": "Counsel",
+          "numberInstructed": "Number of counsel instructed",
+          "hasBeenPaid": "Counsel has been paid",
+          "lastWorkingDate": "Last working date"
+        },
+        "otherDetails": {
+          "heading": "Other claim details",
+          "inquestDetails": "Inquest details",
+          "outcome": "Inquest outcome",
+          "alternativeFundingPostInquest": "Alternative funding post-inquest",
+          "alternativeFundingDetails": "Alternative funding details",
+          "recoveryCostsMade": "Recovery costs made",
+          "previousPreCertificateCosts": "Previous pre-certificate costs",
+          "payingParty": "Paying party",
+          "financialRecoveryCosts": "Financial recovery costs",
+          "costs": "Costs",
+          "damages": "Damages",
+          "interest": "Interest"
+        }
+      },
       "supportingEvidence": {
         "heading": "Supporting evidence",
         "warning": "Some pieces of evidence cannot be viewed in browser and may need to be downloaded",
