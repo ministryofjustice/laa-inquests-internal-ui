@@ -38,6 +38,7 @@ export const ClaimSummarySchema = BaseClaimSchema;
 
 export const ClaimDetailSchema = BaseClaimSchema.extend({
   substantiveCostLimitation: z.number().optional().nullable(),
+  claimCostTemplateFile: ClaimCostTemplateFileSchema.optional().nullable(),
   claimEvidence: z.array(ClaimEvidenceSchema).optional(),
   claimDecision: ClaimDecisionSchema.optional().nullable(),
   inquestOutcomes: z.array(z.string()).optional().nullable(),
@@ -46,7 +47,6 @@ export const ClaimDetailSchema = BaseClaimSchema.extend({
     .union([z.number(), z.string()])
     .optional()
     .nullable(),
-  claimCostTemplateFile: ClaimCostTemplateFileSchema.optional().nullable(),
   hasCounselBeenPaid: z.boolean().optional().nullable(),
   hasRecoveryCostsAwarded: z.boolean().optional().nullable(),
   financialRecoveryPreviousPreCertificateCosts: z

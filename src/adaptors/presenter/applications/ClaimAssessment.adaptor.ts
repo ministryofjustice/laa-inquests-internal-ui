@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
+import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
@@ -29,6 +30,7 @@ export class ClaimAssessmentAdaptor {
     private readonly validator: ClaimAssessmentValidator = new ClaimAssessmentValidator(),
     private readonly processClaimAssessmentUseCase: ProcessClaimAssessmentUseCase = new ProcessClaimAssessmentUseCase(),
     private readonly rejectClaimUseCase: RejectClaimUseCase = new RejectClaimUseCase(),
+    private readonly buildClaimRejectionViewUseCase: BuildClaimRejectionViewUseCase = new BuildClaimRejectionViewUseCase(),
   ) {}
 
   async renderClaimAssessmentPage(
@@ -133,21 +135,37 @@ export class ClaimAssessmentAdaptor {
     res.redirect(`/applications/${applicationId}/overview`);
   }
 
-  renderClaimRejectionSuccessPage(
-    _req: Request,
+  async renderClaimRejectionSuccessPage(
+    req: Request,
     res: Response,
     applicationId: string,
-  ): void {
+    claimId: string,
+  ): Promise<void> {
     logger.logInfo({
       functionName: "render_claim_rejection_success_page",
       message: "Claim rejection success page requested",
       extraContext: {
         event: "claim_rejection_success_requested",
         laa_reference: applicationId,
+        claim_reference: claimId,
       },
     });
+
+    const claimRejectionViewResult =
+      await this.buildClaimRejectionViewUseCase.execute({
+        applicationId,
+        claimId,
+        claimsPort: this.claimsPort,
+        accessToken: req.session.user?.accessToken,
+      });
+
+    if (claimRejectionViewResult.status !== "SUCCESS") {
+      throw new Error("Unable to build claim rejection view");
+    }
+
     res.render("application/claims/rejected/index", {
       applicationId,
+      claimType: claimRejectionViewResult.data.claimType,
     });
   }
 

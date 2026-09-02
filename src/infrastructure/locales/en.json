@@ -179,6 +179,7 @@
       "supportingEvidence": {
         "heading": "Supporting evidence",
         "warning": "Some pieces of evidence cannot be viewed in browser and may need to be downloaded",
+        "costBreakdown": "Claim cost breakdown",
         "otherEvidence": "Other evidence",
         "view": "View",
         "download": "Download"
@@ -196,7 +197,7 @@
       "reasonLabel": "What is the reason you are rejecting this claim?",
       "reasonHint": "This information will be shared with the provider and added to the application history.",
       "rejectedSuccess": {
-        "panel": "Payment on account claim has been assessed and rejected",
+        "panel": "{claimType} claim has been assessed and rejected",
         "whatHappensNext": "What happens next",
         "whatHappensNextBody": "Your decision, and the reason for rejection, has been saved in the application history. The provider will be informed.",
         "warning": "If you have downloaded any files, you must delete these at the end of the day to comply with GDPR.",

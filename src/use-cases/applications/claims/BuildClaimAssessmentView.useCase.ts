@@ -1,7 +1,6 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
-  CLAIM_TYPES,
   DISPOSITION,
   INQUEST_OUTCOMES,
   PLACEHOLDER_VALUE,
@@ -14,6 +13,7 @@ import {
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { formatCurrency } from "#src/utils/formatter.js";
+import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimAssessmentViewInput {
   applicationId: string;
@@ -30,7 +30,7 @@ export interface ClaimAssessmentEvidenceRow {
 }
 
 export interface ClaimAssessmentFinalOrNilBillDetails {
-  claimCostTemplateFile?: ClaimAssessmentEvidenceRow;
+  claimCostTemplateFile?: ClaimCostBreakdownRow;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
   counsel?: {
     numberInstructed: string;
@@ -54,6 +54,11 @@ export interface ClaimAssessmentFinalOrNilBillDetails {
   };
 }
 
+export interface ClaimCostBreakdownRow {
+  fileName: string;
+  downloadHref: string;
+}
+
 export interface ClaimAssessmentViewData {
   laaReference: string;
   claimId: string;
@@ -70,6 +75,7 @@ export interface ClaimAssessmentViewData {
     outcomeOfInquest: string;
     alternateFundingProgressed: string;
   };
+  claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
   finalOrNilBillDetails?: ClaimAssessmentFinalOrNilBillDetails;
 }
@@ -107,7 +113,7 @@ export class BuildClaimAssessmentViewUseCase {
       return {
         status: "SUCCESS",
         data: {
-          laaReference: String(application.laaReference),
+          laaReference: application.laaReference,
           claimId: String(claim.claimId),
           claimStatus: mapClaimDecision(claim.claimDecision?.decision),
           overview: {
@@ -126,6 +132,11 @@ export class BuildClaimAssessmentViewUseCase {
               claim.hasAlternativeFunding,
             ),
           },
+          claimCostBreakdown: mapClaimCostBreakdown(
+            claim,
+            input.applicationId,
+            input.claimId,
+          ),
           supportingEvidence: mapSupportingEvidence(
             claim,
             input.applicationId,
@@ -150,10 +161,6 @@ export class BuildClaimAssessmentViewUseCase {
       };
     }
   }
-}
-
-function mapClaimType(claimTypeId: string): string {
-  return (CLAIM_TYPES as Record<string, string>)[claimTypeId] ?? claimTypeId;
 }
 
 function isFinalOrNilBill(claimTypeId: string): boolean {
@@ -348,5 +355,24 @@ function mapEvidenceRow(
     fileName,
     viewHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.INLINE}`,
     downloadHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
+  };
+}
+
+function mapClaimCostBreakdown(
+  claim: ClaimDetail,
+  applicationId: string,
+  claimId: string,
+): ClaimCostBreakdownRow | null {
+  const { claimCostTemplateFile: costTemplateFile } = claim;
+
+  if (!costTemplateFile) {
+    return null;
+  }
+
+  const basePath = `/applications/${applicationId}/claims/${claimId}/evidence`;
+
+  return {
+    fileName: costTemplateFile.claimCostTemplateFileName,
+    downloadHref: `${basePath}/${costTemplateFile.claimCostTemplateFileId}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
 }

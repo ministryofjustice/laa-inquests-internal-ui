@@ -42,7 +42,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     applicationPortStub.getApplication.resolves({
-      laaReference: 5,
+      laaReference: "5",
       proceeding: { substantiveCostLimitation: 9999 },
     } as any);
     claimsPortStub.getClaimById.resolves(baseClaim);
@@ -73,6 +73,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
           "Accident or misadventure, Unlawful or lawful killing",
         alternateFundingProgressed: "No",
       },
+      claimCostBreakdown: null,
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
@@ -85,12 +86,85 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     });
   });
 
-  it("prefers vat zero amount over gross when both are present", async () => {
+  it("builds a claim cost breakdown row and excludes it from other evidence for a final bill claim", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     applicationPortStub.getApplication.resolves({
       laaReference: 5,
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...baseClaim,
+      claimId: 13,
+      claimTypeId: "FINAL_BILL",
+      poaTypeId: null,
+      claimCostTemplateFile: {
+        claimCostTemplateFileId: "test_cost_breakdown",
+        claimCostTemplateFileName: "final_bill_costs.xlsx",
+      },
+      claimEvidence: [
+        {
+          claimEvidenceId: "test_evidence_1",
+          fileName: "claim-evidence-1.pdf",
+        },
+      ],
+    });
+
+    const result = await useCase.execute({
+      applicationId: "5",
+      claimId: "13",
+      applicationPort: applicationPortStub,
+      claimsPort: claimsPortStub,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.deepEqual(result.data.claimCostBreakdown, {
+      fileName: "final_bill_costs.xlsx",
+      downloadHref:
+        "/applications/5/claims/13/evidence/test_cost_breakdown?disposition=attachment",
+    });
+    assert.deepEqual(result.data.supportingEvidence, [
+      {
+        fileName: "claim-evidence-1.pdf",
+        viewHref:
+          "/applications/5/claims/13/evidence/test_evidence_1?disposition=inline",
+        downloadHref:
+          "/applications/5/claims/13/evidence/test_evidence_1?disposition=attachment",
+      },
+    ]);
+  });
+
+  it("returns a null claim cost breakdown when the claim has no cost template file", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: 5,
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...baseClaim,
+      claimCostTemplateFile: null,
+    });
+
+    const result = await useCase.execute({
+      applicationId: "5",
+      claimId: "10",
+      applicationPort: applicationPortStub,
+      claimsPort: claimsPortStub,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(result.data.claimCostBreakdown, null);
+  });
+
+  it("prefers vat zero amount over gross when both are present", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: "5",
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({

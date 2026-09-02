@@ -10,7 +10,7 @@ describe("BuildApplicationsListViewUseCase", () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const applications = [
       {
-        laaReference: 1,
+        laaReference: "1",
         createdAt: "2026-05-18T15:49:07.455255",
         status: "Live",
         overallDecision: "PENDING",

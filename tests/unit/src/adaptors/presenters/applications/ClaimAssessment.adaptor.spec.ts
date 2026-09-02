@@ -6,6 +6,7 @@ import { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/Cla
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
+import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
@@ -25,6 +26,7 @@ describe("ClaimAssessmentAdaptor", () => {
   let validatorStub: StubbedInstance<ClaimAssessmentValidator>;
   let processClaimAssessmentUseCaseStub: StubbedInstance<ProcessClaimAssessmentUseCase>;
   let rejectClaimUseCaseStub: StubbedInstance<RejectClaimUseCase>;
+  let buildClaimRejectionViewUseCaseStub: StubbedInstance<BuildClaimRejectionViewUseCase>;
 
   beforeEach(() => {
     requestStub = stubInterface<Request>();
@@ -37,6 +39,13 @@ describe("ClaimAssessmentAdaptor", () => {
     processClaimAssessmentUseCaseStub =
       stubInterface<ProcessClaimAssessmentUseCase>();
     rejectClaimUseCaseStub = stubInterface<RejectClaimUseCase>();
+    buildClaimRejectionViewUseCaseStub =
+      stubInterface<BuildClaimRejectionViewUseCase>();
+
+    buildClaimRejectionViewUseCaseStub.execute.resolves({
+      status: "SUCCESS",
+      data: { claimType: "Payment on account" },
+    });
 
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
@@ -55,6 +64,10 @@ describe("ClaimAssessmentAdaptor", () => {
           lastWorkingDate: "-",
           outcomeOfInquest: "-",
           alternateFundingProgressed: "-",
+        },
+        claimCostBreakdown: {
+          fileName: "final_bill_costs.xlsx",
+          downloadHref: "#",
         },
         supportingEvidence: [
           {
@@ -78,6 +91,7 @@ describe("ClaimAssessmentAdaptor", () => {
       validatorStub,
       processClaimAssessmentUseCaseStub,
       rejectClaimUseCaseStub,
+      buildClaimRejectionViewUseCaseStub,
     );
   });
 
@@ -115,6 +129,10 @@ describe("ClaimAssessmentAdaptor", () => {
       applicationId: "123",
       claimId: "10",
       claimStatus: "Reject",
+      claimCostBreakdown: {
+        fileName: "final_bill_costs.xlsx",
+        downloadHref: "#",
+      },
     });
   });
 
@@ -239,8 +257,24 @@ describe("ClaimAssessmentAdaptor", () => {
   });
 
   describe("renderClaimRejectionSuccessPage", () => {
-    it("renders the rejection success view with the application id", () => {
-      adaptor.renderClaimRejectionSuccessPage(requestStub, responseStub, "123");
+    it("renders the rejection success view with the application id and claim type", async () => {
+      await adaptor.renderClaimRejectionSuccessPage(
+        requestStub,
+        responseStub,
+        "123",
+        "10",
+      );
+
+      assert.equal(buildClaimRejectionViewUseCaseStub.execute.callCount, 1);
+      assert.deepStrictEqual(
+        buildClaimRejectionViewUseCaseStub.execute.getCall(0).args[0],
+        {
+          applicationId: "123",
+          claimId: "10",
+          claimsPort: claimsPortStub,
+          accessToken: "test-access-token",
+        },
+      );
 
       assert.equal(responseStub.render.callCount, 1);
       assert.equal(
@@ -249,7 +283,27 @@ describe("ClaimAssessmentAdaptor", () => {
       );
       assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
         applicationId: "123",
+        claimType: "Payment on account",
       });
+    });
+
+    it("throws when the claim rejection view cannot be built", async () => {
+      buildClaimRejectionViewUseCaseStub.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: "UPSTREAM_REJECTED",
+      });
+
+      await assert.rejects(
+        adaptor.renderClaimRejectionSuccessPage(
+          requestStub,
+          responseStub,
+          "123",
+          "10",
+        ),
+        /Unable to build claim rejection view/,
+      );
+
+      assert.equal(responseStub.render.callCount, 0);
     });
   });
 

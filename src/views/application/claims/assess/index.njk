@@ -6,6 +6,8 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
+{% set pageTitle = t('pages.claimAssessment.heading') %}
+
 {% block pageContent %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
@@ -136,35 +138,6 @@
   {% endif %}
 
   {% if finalOrNilBillDetails %}
-    {% if finalOrNilBillDetails.claimCostTemplateFile or finalOrNilBillDetails.supportingEvidence.length %}
-      {% if finalOrNilBillDetails.claimCostTemplateFile %}
-        {{ govukSummaryList({
-          card: { title: { text: t('pages.claimAssessment.finalOrNilBill.evidence.heading') } },
-          rows: [
-            {
-              key: { text: t('pages.claimAssessment.finalOrNilBill.evidence.claimCostFile') },
-              value: { text: finalOrNilBillDetails.claimCostTemplateFile.fileName },
-              actions: {
-                items: [
-                  {
-                    href: finalOrNilBillDetails.claimCostTemplateFile.downloadHref,
-                    text: t('pages.claimAssessment.supportingEvidence.download'),
-                    visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.download') + ' ' + finalOrNilBillDetails.claimCostTemplateFile.fileName
-                  }
-                ]
-              }
-            }
-          ]
-        }) }}
-      {% endif %}
-      {% if finalOrNilBillDetails.supportingEvidence.length %}
-        {{ govukSummaryList({
-          card: { title: { text: t('pages.claimAssessment.finalOrNilBill.evidence.supportingFiles') } },
-          rows: supportingEvidenceRows
-        }) }}
-      {% endif %}
-    {% endif %}
-
     {% if finalOrNilBillDetails.counsel %}
       {{ govukSummaryList({ card: { title: { text: t('pages.claimAssessment.finalOrNilBill.counsel.heading') } }, rows: [
         { key: { text: t('pages.claimAssessment.finalOrNilBill.counsel.numberInstructed') }, value: { text: finalOrNilBillDetails.counsel.numberInstructed } },
@@ -199,13 +172,38 @@
     {% endif %}
   {% endif %}
 
-  {% if not finalOrNilBillDetails %}
   <h3 class="govuk-heading-m">{{ t('pages.claimAssessment.supportingEvidence.heading') }}</h3>
 
   {{ govukWarningText({
     text: t('pages.claimAssessment.supportingEvidence.warning'),
     iconFallbackText: t('common.warning')
   }) }}
+
+  {% if claimCostBreakdown %}
+    {{ govukSummaryList({
+        card: {
+          title: {
+            text: t('pages.claimAssessment.supportingEvidence.costBreakdown')
+          }
+        },
+        rows: [
+          {
+            key: {
+              text: claimCostBreakdown.fileName
+            },
+            actions: {
+              items: [
+                {
+                  href: claimCostBreakdown.downloadHref,
+                  text: t('pages.claimAssessment.supportingEvidence.download'),
+                  visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.download') + ' ' + claimCostBreakdown.fileName
+                }
+              ]
+            }
+          }
+        ]
+      }) }}
+  {% endif %}
 
   {% if supportingEvidenceRows.length %}
     {{ govukSummaryList({
@@ -216,7 +214,6 @@
         },
         rows: supportingEvidenceRows
       }) }}
-  {% endif %}
   {% endif %}
 
   {{ govukRadios({

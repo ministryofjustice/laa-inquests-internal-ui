@@ -348,6 +348,16 @@ const finalBillClaimDetail = {
     claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     claimCostTemplateFileName: "final_bill_costs.xlsx",
   },
+  claimEvidence: [
+    {
+      claimEvidenceId: "test_evidence_1",
+      fileName: "claim-evidence-1.pdf",
+    },
+    {
+      claimEvidenceId: "test_evidence_2",
+      fileName: "claim-evidence-2.pdf",
+    },
+  ],
   hasCounselBeenPaid: true,
   hasRecoveryCostsAwarded: false,
   financialRecoveryPreviousPreCertificateCosts: "250.00",
@@ -355,7 +365,7 @@ const finalBillClaimDetail = {
   financialRecoveryDamages: "500.00",
   financialRecoveryInterest: null,
   payingParty: "Ministry of Justice",
-};
+}
 
 /**
  * Public bodies reference data returned by GET /applications/public-bodies.
@@ -523,6 +533,21 @@ export const applicationHandlers = [
           headers: {
             "Content-Type": "application/pdf",
             "Content-Disposition": `${disposition}; filename="${fileName}"`,
+          },
+        });
+      }
+
+      if (
+        params.claimEvidenceId === "test_cost_breakdown" &&
+        (disposition === "inline" || disposition === "attachment")
+      ) {
+        const fakeCostBreakdownBuffer = Buffer.from("PK mock cost breakdown");
+        return new HttpResponse(fakeCostBreakdownBuffer, {
+          status: 200,
+          headers: {
+            "Content-Type":
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Content-Disposition": `${disposition}; filename="final_bill_costs.xlsx"`,
           },
         });
       }
