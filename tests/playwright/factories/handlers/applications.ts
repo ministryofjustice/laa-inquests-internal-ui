@@ -306,6 +306,9 @@ const claimDetail = {
   totalFundsRemainingAfterClaim: "8800.00",
   poaTypeId: "PROFIT_COST",
   substantiveCostLimitation: 10000,
+  inquestOutcomes: ["UNLAWFUL_OR_LAWFUL_KILLING"],
+  hasAlternativeFunding: false,
+  numberOfCounselInstructed: 2,
   claimEvidence: [
     {
       claimEvidenceId: "test_evidence_1",
@@ -337,14 +340,13 @@ const claimDetailVatZeroOnly = {
   totalProfitCostVatZero: "800.00",
 };
 
-const claimDetailFinalBill = {
+const finalBillClaimDetail = {
   ...claimDetail,
   claimId: 13,
   claimTypeId: "FINAL_BILL",
-  poaTypeId: null,
   claimCostTemplateFile: {
-    claimCostTemplateFileId: "test_cost_breakdown",
-    claimCostTemplateFileName: "claim-cost-breakdown.xlsx",
+    claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    claimCostTemplateFileName: "final_bill_costs.xlsx",
   },
   claimEvidence: [
     {
@@ -356,6 +358,14 @@ const claimDetailFinalBill = {
       fileName: "claim-evidence-2.pdf",
     },
   ],
+  hasCounselBeenPaid: true,
+  hasAlternativeFunding: true,
+  hasRecoveryCostsAwarded: false,
+  financialRecoveryPreviousPreCertificateCosts: "250.00",
+  financialRecoveryCost: null,
+  financialRecoveryDamages: "500.00",
+  financialRecoveryInterest: null,
+  payingParty: "Ministry of Justice",
 };
 
 /**
@@ -525,7 +535,7 @@ export const applicationHandlers = [
       }
 
       if (
-        params.claimEvidenceId === "test_cost_breakdown" &&
+        params.claimEvidenceId === "3fa85f64-5717-4562-b3fc-2c963f66afa6" &&
         (disposition === "inline" || disposition === "attachment")
       ) {
         const fakeCostBreakdownBuffer = Buffer.from("PK mock cost breakdown");
@@ -534,7 +544,7 @@ export const applicationHandlers = [
           headers: {
             "Content-Type":
               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "Content-Disposition": `${disposition}; filename="claim-cost-breakdown.xlsx"`,
+            "Content-Disposition": `${disposition}; filename="final_bill_costs.xlsx"`,
           },
         });
       }
@@ -559,7 +569,7 @@ export const applicationHandlers = [
       }
 
       if (params.id === "5" && params.claimId === "13") {
-        return HttpResponse.json(claimDetailFinalBill);
+        return HttpResponse.json(finalBillClaimDetail);
       }
 
       return new HttpResponse(null, { status: 404 });

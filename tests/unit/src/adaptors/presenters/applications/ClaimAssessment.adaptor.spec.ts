@@ -66,7 +66,7 @@ describe("ClaimAssessmentAdaptor", () => {
           alternateFundingProgressed: "-",
         },
         claimCostBreakdown: {
-          fileName: "claim-cost-breakdown.xlsx",
+          fileName: "final_bill_costs.xlsx",
           downloadHref: "#",
         },
         supportingEvidence: [
@@ -130,7 +130,7 @@ describe("ClaimAssessmentAdaptor", () => {
       claimId: "10",
       claimStatus: "Reject",
       claimCostBreakdown: {
-        fileName: "claim-cost-breakdown.xlsx",
+        fileName: "final_bill_costs.xlsx",
         downloadHref: "#",
       },
     });

@@ -19,6 +19,9 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
     substantiveCostLimitation: 10000,
+    inquestOutcomes: ["ACCIDENT_OR_MISADVENTURE", "UNLAWFUL_OR_LAWFUL_KILLING"],
+    hasAlternativeFunding: false,
+    numberOfCounselInstructed: 2,
     claimEvidence: [
       {
         claimEvidenceId: "test_evidence_1",
@@ -64,10 +67,11 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         totalRemaining: "£8,800",
       },
       details: {
-        instructedCounsel: "-",
-        lastWorkingDate: "-",
-        outcomeOfInquest: "-",
-        alternateFundingProgressed: "-",
+        instructedCounsel: "2",
+        lastWorkingDate: "11 August 2026",
+        outcomeOfInquest:
+          "Accident or misadventure, Unlawful or lawful killing",
+        alternateFundingProgressed: "No",
       },
       claimCostBreakdown: null,
       supportingEvidence: [
@@ -97,7 +101,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       poaTypeId: null,
       claimCostTemplateFile: {
         claimCostTemplateFileId: "test_cost_breakdown",
-        claimCostTemplateFileName: "claim-cost-breakdown.xlsx",
+        claimCostTemplateFileName: "final_bill_costs.xlsx",
       },
       claimEvidence: [
         {
@@ -116,7 +120,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data.claimCostBreakdown, {
-      fileName: "claim-cost-breakdown.xlsx",
+      fileName: "final_bill_costs.xlsx",
       downloadHref:
         "/applications/5/claims/13/evidence/test_cost_breakdown?disposition=attachment",
     });
@@ -178,6 +182,110 @@ describe("BuildClaimAssessmentViewUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.equal(result.data.overview.paymentAmount, "£700");
+  });
+
+  it("builds final bill details and uses placeholders for partial sections", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: 5,
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...baseClaim,
+      claimTypeId: "FINAL_BILL",
+      claimCostTemplateFile: {
+        claimCostTemplateFileId: "cost-template-file-id",
+        claimCostTemplateFileName: "final_bill_costs.xlsx",
+      },
+      hasCounselBeenPaid: true,
+      hasAlternativeFunding: true,
+      hasRecoveryCostsAwarded: false,
+      financialRecoveryPreviousPreCertificateCosts: "250.00",
+      financialRecoveryCost: null,
+      financialRecoveryDamages: "500.00",
+      financialRecoveryInterest: null,
+      payingParty: "Ministry of Justice",
+    });
+
+    const result = await useCase.execute({
+      applicationId: "5",
+      claimId: "10",
+      applicationPort: applicationPortStub,
+      claimsPort: claimsPortStub,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.deepEqual(result.data.finalOrNilBillDetails, {
+      claimCostTemplateFile: {
+        fileName: "final_bill_costs.xlsx",
+        viewHref:
+          "/applications/5/claims/10/evidence/cost-template-file-id?disposition=inline",
+        downloadHref:
+          "/applications/5/claims/10/evidence/cost-template-file-id?disposition=attachment",
+      },
+      supportingEvidence: [
+        {
+          fileName: "claim-evidence-1.pdf",
+          viewHref:
+            "/applications/5/claims/10/evidence/test_evidence_1?disposition=inline",
+          downloadHref:
+            "/applications/5/claims/10/evidence/test_evidence_1?disposition=attachment",
+        },
+      ],
+      counsel: {
+        numberInstructed: "2",
+        hasBeenPaid: "Yes",
+        lastWorkingDate: "11 August 2026",
+      },
+      inquestDetails: {
+        outcome: "Accident or misadventure, Unlawful or lawful killing",
+        alternativeFundingPostInquest: "Yes",
+      },
+      alternativeFundingDetails: {
+        recoveryCostsMade: "No",
+        previousPreCertificateCosts: "£250",
+        payingParty: "Ministry of Justice",
+      },
+      financialRecoveryCosts: {
+        costs: "-",
+        damages: "£500",
+        interest: "-",
+        previousPreCertificateCosts: "£250",
+      },
+    });
+  });
+
+  it("omits alternative funding details when the claim has no alternative funding", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: 5,
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...baseClaim,
+      claimTypeId: "FINAL_BILL",
+      hasAlternativeFunding: false,
+      hasRecoveryCostsAwarded: false,
+      financialRecoveryPreviousPreCertificateCosts: "250.00",
+      payingParty: "Ministry of Justice",
+    });
+
+    const result = await useCase.execute({
+      applicationId: "5",
+      claimId: "10",
+      applicationPort: applicationPortStub,
+      claimsPort: claimsPortStub,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(
+      result.data.finalOrNilBillDetails?.alternativeFundingDetails,
+      undefined,
+    );
   });
 
   it("returns TECHNICAL_FAILURE when ids are missing", async () => {

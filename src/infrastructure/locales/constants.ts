@@ -59,6 +59,19 @@ export enum CLAIM_DECISION_STATUSES {
   PENDING = "Pending",
 }
 
+export enum INQUEST_OUTCOMES {
+  ACCIDENT_OR_MISADVENTURE = "Accident or misadventure",
+  ALCOHOL_OR_DRUGS_RELATED = "Alcohol or drugs related",
+  INDUSTRIAL_DISEASE = "Industrial disease",
+  NARRATIVE_CONCLUSION = "Narrative conclusion",
+  NATURAL_CAUSES = "Natural causes",
+  OPEN_CONCLUSION = "Open conclusion",
+  ROAD_TRAFFIC_COLLISION = "Road traffic collision",
+  STILLBIRTH = "Stillbirth",
+  SUICIDE = "Suicide",
+  UNLAWFUL_OR_LAWFUL_KILLING = "Unlawful or lawful killing",
+}
+
 export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];
 
 export const PLACEHOLDER_VALUE = "-";

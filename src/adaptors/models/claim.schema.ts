@@ -41,6 +41,22 @@ export const ClaimDetailSchema = BaseClaimSchema.extend({
   claimCostTemplateFile: ClaimCostTemplateFileSchema.optional().nullable(),
   claimEvidence: z.array(ClaimEvidenceSchema).optional(),
   claimDecision: ClaimDecisionSchema.optional().nullable(),
+  inquestOutcomes: z.array(z.string()).optional().nullable(),
+  hasAlternativeFunding: z.boolean().optional().nullable(),
+  numberOfCounselInstructed: z
+    .union([z.number(), z.string()])
+    .optional()
+    .nullable(),
+  hasCounselBeenPaid: z.boolean().optional().nullable(),
+  hasRecoveryCostsAwarded: z.boolean().optional().nullable(),
+  financialRecoveryPreviousPreCertificateCosts: z
+    .string()
+    .optional()
+    .nullable(),
+  financialRecoveryCost: z.string().optional().nullable(),
+  financialRecoveryDamages: z.string().optional().nullable(),
+  financialRecoveryInterest: z.string().optional().nullable(),
+  payingParty: z.string().optional().nullable(),
 });
 
 export const ClaimSummariesSchema = z.array(ClaimSummarySchema);
