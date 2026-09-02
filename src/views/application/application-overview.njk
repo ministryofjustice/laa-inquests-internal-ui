@@ -11,6 +11,8 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 
+{% set pageTitle = "Application " + application.laaReference %}
+
 {% block pageContent %}
 
 <div class="govuk-width-container">

@@ -2,7 +2,7 @@
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 
-{% block pageTitle %}Inquests – GOV.UK{% endblock %}
+{% block pageTitle %}{{ (pageTitle + " – Inquests – GOV.UK") if pageTitle else "Inquests – GOV.UK" }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="/css/{{getAsset('main','css')}}">

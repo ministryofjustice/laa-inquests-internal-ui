@@ -4,6 +4,8 @@
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 
+{% set pageTitle = t('pages.decision.confirmation.header') %}
+
 {% block pageContent %}
 <form data-testid="check-your-answers" method="post" action="/applications/{{ applicationId }}/decision/confirmation">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />

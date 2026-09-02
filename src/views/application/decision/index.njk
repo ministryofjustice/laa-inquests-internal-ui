@@ -6,6 +6,8 @@
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 
+{% set pageTitle = t('pages.decision.merits.header') %}
+
 {% block pageContent %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
