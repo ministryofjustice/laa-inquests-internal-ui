@@ -71,7 +71,7 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_X_001]: (eventData) => ({
       heading: "Caseworker note added",
-      detail: escapeHtmlValue(eventData?.noteText),
+      detail: formatCaseworkerNote(eventData?.noteText),
     }),
     [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
@@ -127,6 +127,10 @@ function escapeHtmlValue(value: unknown): string {
   }
 
   throw new Error(`Couldn't format history event eventData`);
+}
+
+function formatCaseworkerNote(noteText: unknown): string {
+  return escapeHtmlValue(noteText).replaceAll(/\r\n|\r|\n/gv, "<br />");
 }
 
 function formatEnum(enumValue: string): string {
