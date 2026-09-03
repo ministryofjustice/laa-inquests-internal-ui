@@ -416,6 +416,15 @@ const applicationHistory = [
     eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
     eventData: { noteText: "A".repeat(1000) },
   },
+  {
+    timestamp: "2026-05-21T11:30:00.000000",
+    actor: "Caseworker",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
+    eventData: {
+      noteText:
+        "First line of a case note\nSecond line of a case note\nThird line of a case note",
+    },
+  },
 ];
 
 export const applicationHandlers = [

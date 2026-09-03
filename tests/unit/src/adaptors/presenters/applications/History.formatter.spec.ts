@@ -122,6 +122,23 @@ describe("HistoryFormatter", () => {
       );
     });
 
+    it("preserves line breaks in note text", () => {
+      const [row] = formatHistoryRows([
+        {
+          timestamp: "2026-08-27T10:00:00.000Z",
+          actor: "Caseworker",
+          eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
+          eventData: {
+            noteText: "First line\n\r\nSecond line\rThird line",
+          },
+        },
+      ]);
+
+      expect(row?.[2]?.html).to.equal(
+        "<strong>Caseworker note added</strong><br />First line<br /><br />Second line<br />Third line",
+      );
+    });
+
     it("escapes HTML in note text", () => {
       const [row] = formatHistoryRows([
         {
