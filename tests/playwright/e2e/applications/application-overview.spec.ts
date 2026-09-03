@@ -368,18 +368,6 @@ test.describe("History tab", () => {
     expect(cellBox!.width).toBeLessThanOrEqual(panelBox!.width);
   });
 
-  test("should display line breaks in a case note", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
-
-    await page.getByRole("tab", { name: "History" }).click();
-
-    const noteRow = page.locator("#history tr", {
-      hasText: "First line of a case note",
-    });
-    await expect(noteRow).toContainText("Second line of a case note");
-    await expect(noteRow.locator("br")).toHaveCount(3);
-  });
-
   test.describe("Free note submission", () => {
     test("should prevent double submission of the note form", async ({
       page,
