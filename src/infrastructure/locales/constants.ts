@@ -105,3 +105,6 @@ export enum HISTORY_EVENT_REFERENCE {
   EVT_COM_CLM_002 = "EVT-COM-CLM-002",
   EVT_COM_CLM_003 = "EVT-COM-CLM-003",
 }
+
+// Buffer before the Entra access-token expiry at which the session is treated as expired.
+export const SESSION_EXPIRY_BUFFER_MS = 60_000;

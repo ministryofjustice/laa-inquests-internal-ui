@@ -62,6 +62,28 @@ describe("createAuthRouter", () => {
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
+
+    it("applies a short session expiry when tokenExpirySeconds is provided", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = { cookie: {} } as never;
+      req.query = { tokenExpirySeconds: "120" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      const BUFFER_MS = 60_000;
+      const TOLERANCE_MS = 2_000;
+      const expectedMaxAge = 120_000 - BUFFER_MS;
+      const maxAge = (req.session.cookie as { maxAge?: number }).maxAge ?? 0;
+      assert.ok(
+        Math.abs(maxAge - expectedMaxAge) <= TOLERANCE_MS,
+        `expected maxAge ~${expectedMaxAge}, got ${maxAge}`,
+      );
+      assert.equal(res.redirect.firstCall.args[0], "/");
+    });
   });
 
   describe("when NODE_ENV is not test", () => {
