@@ -1,6 +1,9 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+
+const MILLISECONDS_IN_A_SECOND = 1000;
 
 export function createAuthRouter(
   authRouter: Router,
@@ -78,6 +81,16 @@ export function createAuthRouter(
         userName: "[MOJUSER] - [INTSILAS] Internal E2E",
         accessToken: "test-access-token",
       };
+
+      // Optional expiry to exercise session-expiry behaviour in E2E tests.
+      const tokenExpirySeconds = Number(req.query.tokenExpirySeconds);
+      if (!Number.isNaN(tokenExpirySeconds)) {
+        applySessionExpiry(
+          req.session,
+          new Date(Date.now() + tokenExpirySeconds * MILLISECONDS_IN_A_SECOND),
+        );
+      }
+
       res.redirect("/");
     });
   }

@@ -62,7 +62,17 @@ export class EntraAuthAdaptor implements AuthPort {
       userId: result.account?.homeAccountId ?? result.uniqueId,
       userName: result.account?.name ?? undefined,
       ...this.#getAccessTokenField(result),
+      ...this.#getExpiryField(result),
     };
+  }
+
+  #getExpiryField(
+    result: AuthenticationResult,
+  ): Pick<AuthTokenResult, "accessTokenExpiresOn"> | Record<string, never> {
+    if (result.expiresOn instanceof Date) {
+      return { accessTokenExpiresOn: result.expiresOn };
+    }
+    return {};
   }
 
   #getAccessTokenField(

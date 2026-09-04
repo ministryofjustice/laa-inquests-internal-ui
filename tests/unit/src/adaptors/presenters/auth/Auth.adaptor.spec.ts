@@ -60,12 +60,21 @@ describe("AuthAdaptor", () => {
   });
 
   describe("callback", () => {
+    const ONE_HOUR_MS = 3_600_000;
+    const BUFFER_MS = 60_000;
+    const TOLERANCE_MS = 2_000;
+
+    beforeEach(() => {
+      req.session.cookie = {} as any;
+    });
+
     it("stores userId, userName and accessToken in session and redirects to /", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
         userName: "Test User",
         accessToken: "access-token-xyz",
+        accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
       });
 
       await adaptor.callback(req, res);
@@ -85,6 +94,50 @@ describe("AuthAdaptor", () => {
       });
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
+    });
+
+    it("sets the session cookie maxAge to the token expiry minus the buffer", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userName: "Test User",
+        accessToken: "access-token-xyz",
+        accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+      });
+
+      await adaptor.callback(req, res);
+
+      const maxAge = req.session.cookie.maxAge ?? 0;
+      assert.ok(
+        Math.abs(maxAge - (ONE_HOUR_MS - BUFFER_MS)) <= TOLERANCE_MS,
+        `expected maxAge ~${ONE_HOUR_MS - BUFFER_MS}, got ${maxAge}`,
+      );
+    });
+
+    it("clamps the session cookie maxAge to zero when the token has already expired", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        accessToken: "access-token-xyz",
+        accessTokenExpiresOn: new Date(Date.now() - ONE_HOUR_MS),
+      });
+
+      await adaptor.callback(req, res);
+
+      assert.equal(req.session.cookie.maxAge, 0);
+    });
+
+    it("throws when the auth response has no access token expiry", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        accessToken: "access-token-xyz",
+      });
+
+      await assert.rejects(
+        () => adaptor.callback(req, res),
+        /access token expiry/i,
+      );
     });
 
     it("propagates error when auth port throws on callback", async () => {
