@@ -85,7 +85,7 @@ describe("logger output", () => {
     };
     const subject = new Logger("debug");
 
-    config.app.environment = "development";
+    config.app.environment = "test";
     subject.logInfo({
       functionName: "test-function",
       message: "this is a message",
