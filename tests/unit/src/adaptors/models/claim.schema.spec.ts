@@ -63,6 +63,25 @@ describe("ClaimDetailSchema", () => {
     assert.deepEqual(result.claimDecision?.decisionReasons, []);
   });
 
+  it("accepts a decision reason with null justification (e.g. auto-rejection)", () => {
+    const claim = {
+      ...baseClaim,
+      claimDecision: {
+        claimDecisionId: 6,
+        decision: "REJECT",
+        decisionReasons: [
+          { reasonCode: "AUTO_REJECTION", justification: null },
+        ],
+      },
+    };
+
+    const result = ClaimDetailSchema.parse(claim);
+
+    assert.deepEqual(result.claimDecision?.decisionReasons, [
+      { reasonCode: "AUTO_REJECTION", justification: null },
+    ]);
+  });
+
   it("accepts a string number of instructed counsel", () => {
     const result = ClaimDetailSchema.parse({
       ...baseClaim,
