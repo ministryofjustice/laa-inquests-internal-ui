@@ -12,7 +12,7 @@ const ClaimCostTemplateFileSchema = z.object({
 
 const ClaimDecisionReasonSchema = z.object({
   reasonCode: z.string(),
-  justification: z.string(),
+  justification: z.string().nullable(),
 });
 
 const ClaimDecisionSchema = z.object({
