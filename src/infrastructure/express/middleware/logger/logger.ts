@@ -256,10 +256,7 @@ function buildMessage({
     ...extraContext,
   };
 
-  if (
-    config.app.environment === "development" ||
-    config.app.environment === "test"
-  ) {
+  if (config.app.environment === "test") {
     return `[${new Date().toISOString()}] ${logLevel.toUpperCase()} ${functionName} ${context.correlationId} ${context.requestId} ${message}`;
   }
 
