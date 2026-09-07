@@ -4,10 +4,12 @@ import { ConfidentialClientApplication } from "@azure/msal-node";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
+import { createConfirmProfitCostsRouter } from "#src/infrastructure/express/routes/confirmProfitCosts.router.js";
 import { createPublicAuthorityRouter } from "#src/infrastructure/express/routes/publicAuthority.router.js";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
+import { ConfirmProfitCostsAdaptor } from "#src/adaptors/presenter/applications/ConfirmProfitCosts/ConfirmProfitCosts.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
 import { PublicAuthorityAdaptor } from "#src/adaptors/presenter/applications/PublicAuthority/PublicAuthority.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
@@ -108,6 +110,7 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,
 );
+const confirmProfitCostsAdaptor = new ConfirmProfitCostsAdaptor();
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
@@ -196,6 +199,7 @@ router.use("/applications", requireAuth, [
     claimAssessmentAdaptor,
     certificateDisplayAdaptor,
   ),
+  createConfirmProfitCostsRouter(express.Router(), confirmProfitCostsAdaptor),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
   createPublicAuthorityRouter(express.Router(), publicAuthorityAdaptor),
 ]);

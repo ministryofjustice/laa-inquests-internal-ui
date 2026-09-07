@@ -132,6 +132,9 @@ export class ClaimAssessmentAdaptor {
     }
 
     res.redirect(`/applications/${laaReference}/overview`);
+    res.redirect(
+      `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+    );
   }
 
   async renderClaimRejectionSuccessPage(
