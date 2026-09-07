@@ -7,7 +7,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface BuildApplicationOverviewViewInput {
-  applicationId: string;
+  laaReference: string;
   applicationPort: ApplicationPort;
   accessToken?: string;
 }
@@ -20,25 +20,25 @@ export class BuildApplicationOverviewViewUseCase {
   async execute(
     input: BuildApplicationOverviewViewInput,
   ): Promise<UseCaseResult<BuildApplicationOverviewViewData>> {
-    if (!input.applicationId) {
+    if (!input.laaReference) {
       logger.logWarn({
         functionName: "build_application_overview_view_use_case",
         message: "Application overview request is invalid",
         extraContext: {
           event: "application_overview_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message: "Cannot build application overview without an applicationId",
+        message: "Cannot build application overview without an laaReference",
       };
     }
 
     try {
       const application = await input.applicationPort.getApplication(
-        input.applicationId,
+        input.laaReference,
         input.accessToken,
       );
 
@@ -53,7 +53,7 @@ export class BuildApplicationOverviewViewUseCase {
         err: error,
         extraContext: {
           event: "application_overview_retrieval_failed",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {

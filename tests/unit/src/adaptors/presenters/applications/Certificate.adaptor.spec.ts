@@ -169,7 +169,7 @@ describe("CertificateAdaptor", () => {
         buildCertificateViewUseCaseStub.execute.getCall(0).args,
         [
           {
-            applicationId: application.laaReference.toString(),
+            laaReference: application.laaReference.toString(),
             accessToken: "test-access-token",
           },
         ],

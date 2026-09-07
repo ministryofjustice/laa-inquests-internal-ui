@@ -10,7 +10,7 @@ describe("RefuseDecisionUseCase", () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       applicationPort: applicationPortStub,
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
@@ -25,7 +25,7 @@ describe("RefuseDecisionUseCase", () => {
     applicationPortStub.submitRefuseDecision.resolves();
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
       applicationPort: applicationPortStub,
@@ -47,7 +47,7 @@ describe("RefuseDecisionUseCase", () => {
     applicationPortStub.submitRefuseDecision.rejects(new Error("boom"));
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",

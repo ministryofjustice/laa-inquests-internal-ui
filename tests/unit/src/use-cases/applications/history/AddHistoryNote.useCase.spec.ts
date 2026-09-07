@@ -6,11 +6,11 @@ import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHi
 describe("AddHistoryNoteUseCase", () => {
   const useCase = new AddHistoryNoteUseCase();
 
-  it("returns TECHNICAL_FAILURE when applicationId is missing", async () => {
+  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       noteText: "A note",
       applicationPort: applicationPortStub,
     });
@@ -24,7 +24,7 @@ describe("AddHistoryNoteUseCase", () => {
     applicationPortStub.addHistoryNote.resolves();
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       noteText: "This is a case note",
       applicationPort: applicationPortStub,
       accessToken: "access-token-123",
@@ -44,7 +44,7 @@ describe("AddHistoryNoteUseCase", () => {
     applicationPortStub.addHistoryNote.rejects(new Error("boom"));
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       noteText: "A note",
       applicationPort: applicationPortStub,
       accessToken: "access-token-123",

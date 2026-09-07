@@ -70,14 +70,14 @@ export class ApplicationAPIAdaptor {
   }
 
   async getApplication(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ): Promise<Application> {
     const startedAt = Date.now();
     const { data }: AxiosResponse<Application> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}`,
+      path: `/applications/${laaReference}`,
       accessToken,
     });
     logger.logInfo({
@@ -86,7 +86,7 @@ export class ApplicationAPIAdaptor {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         duration_ms: Date.now() - startedAt,
       },
     });
@@ -101,7 +101,7 @@ export class ApplicationAPIAdaptor {
   }
 
   async submitRefuseDecision(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     refusalReason: string,
     justification: string,
@@ -118,7 +118,7 @@ export class ApplicationAPIAdaptor {
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/refuse-decision`,
+      path: `/applications/${laaReference}/refuse-decision`,
       body: payload,
       accessToken,
     });
@@ -128,14 +128,14 @@ export class ApplicationAPIAdaptor {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/refuse-decision",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         duration_ms: Date.now() - startedAt,
       },
     });
   }
 
   async submitGrantDecision(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     certificateStartDate: string,
   ): Promise<void> {
@@ -149,7 +149,7 @@ export class ApplicationAPIAdaptor {
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/grant-decision`,
+      path: `/applications/${laaReference}/grant-decision`,
       body: payload,
       accessToken,
     });
@@ -159,21 +159,21 @@ export class ApplicationAPIAdaptor {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/grant-decision",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         duration_ms: Date.now() - startedAt,
       },
     });
   }
 
   async getCoronersLetterDocument(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ): Promise<{ data: Buffer; contentType: string }> {
     const startedAt = Date.now();
     const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/coroners-letter`,
+      path: `/applications/${laaReference}/coroners-letter`,
       accessToken,
       axiosConfig: { responseType: "arraybuffer" },
     });
@@ -183,7 +183,7 @@ export class ApplicationAPIAdaptor {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/coroners-letter",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         duration_ms: Date.now() - startedAt,
       },
     });
@@ -202,7 +202,7 @@ export class ApplicationAPIAdaptor {
   }
 
   async getCertificateDetails(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ): Promise<OutboundAdapterResult<Certificate>> {
     try {
@@ -210,7 +210,7 @@ export class ApplicationAPIAdaptor {
       const { data }: AxiosResponse<Certificate> = await getInquestsApi({
         http: this.http,
         baseUrl: this.baseUrl,
-        path: `/applications/${applicationId}/certificate`,
+        path: `/applications/${laaReference}/certificate`,
         accessToken,
       });
       logger.logInfo({
@@ -219,7 +219,7 @@ export class ApplicationAPIAdaptor {
         extraContext: {
           event: "outbound_api_call",
           route: "/applications/:id/certificate",
-          laa_reference: applicationId,
+          laa_reference: laaReference,
           duration_ms: Date.now() - startedAt,
         },
       });
@@ -244,7 +244,7 @@ export class ApplicationAPIAdaptor {
         return {
           status: "FAILURE",
           reason: OUTBOUND_ADAPTER_FAILURE_REASONS.RESOURCE_NOT_FOUND,
-          message: `Certificate not found for application ${applicationId}`,
+          message: `Certificate not found for application ${laaReference}`,
           cause: error,
         };
       }
@@ -252,21 +252,21 @@ export class ApplicationAPIAdaptor {
       return {
         status: "FAILURE",
         reason: OUTBOUND_ADAPTER_FAILURE_REASONS.UPSTREAM_REJECTED,
-        message: `Failed to retrieve certificate for application ${applicationId}`,
+        message: `Failed to retrieve certificate for application ${laaReference}`,
         cause: error,
       };
     }
   }
 
   async getApplicationHistory(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ): Promise<HistoryEvent[]> {
     const startedAt = Date.now();
     const { data }: AxiosResponse<HistoryEvent[]> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/history`,
+      path: `/applications/${laaReference}/history`,
       accessToken,
     });
     logger.logInfo({
@@ -275,7 +275,7 @@ export class ApplicationAPIAdaptor {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/history",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         duration_ms: Date.now() - startedAt,
       },
     });
@@ -297,7 +297,7 @@ export class ApplicationAPIAdaptor {
   }
 
   async updateApplicationPublicBodies(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     publicBodyIds: string[],
   ): Promise<void> {
@@ -308,14 +308,14 @@ export class ApplicationAPIAdaptor {
     await patchInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/public-bodies`,
+      path: `/applications/${laaReference}/public-bodies`,
       body: payload,
       accessToken,
     });
   }
 
   async addHistoryNote(
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     noteText: string,
   ): Promise<void> {
@@ -323,7 +323,7 @@ export class ApplicationAPIAdaptor {
     await postInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/note`,
+      path: `/applications/${laaReference}/note`,
       body: { noteText },
       accessToken,
     });
@@ -333,7 +333,7 @@ export class ApplicationAPIAdaptor {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/note",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         duration_ms: Date.now() - startedAt,
       },
     });

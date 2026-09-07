@@ -15,15 +15,15 @@ const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
 const overviewLocale = en.pages.applicationOverview;
 
-const applicationId = "INQ-YYY-002";
-const makeADecisionPage = `/applications/${applicationId}/decision`;
+const laaReference = "INQ-YYY-002";
+const makeADecisionPage = `/applications/${laaReference}/decision`;
 const makeADecisionFromCheckAnswersPage = `${makeADecisionPage}?from=check-your-answers`;
-const overviewPage = `/applications/${applicationId}/overview`;
-const successPage = `/applications/${applicationId}/decision/success`;
-const certificateStartDatePage = `/applications/${applicationId}/decision/certificate-start-date`;
+const overviewPage = `/applications/${laaReference}/overview`;
+const successPage = `/applications/${laaReference}/decision/success`;
+const certificateStartDatePage = `/applications/${laaReference}/decision/certificate-start-date`;
 const certificateStartDateFromCheckAnswersPage = `${certificateStartDatePage}?from=check-your-answers`;
-const checkYourAnswersPage = `/applications/${applicationId}/decision/confirmation`;
-const certificateUrl = `/applications/${applicationId}/certificate`;
+const checkYourAnswersPage = `/applications/${laaReference}/decision/confirmation`;
+const certificateUrl = `/applications/${laaReference}/certificate`;
 
 const startDate = { day: "1", month: "1", year: "2020" };
 const formattedStartDate = "01 January 2020";
@@ -342,7 +342,7 @@ test.describe.serial("Grant application journey", () => {
       sharedPage.getByText(successLocale.referenceLabel),
     ).toBeVisible();
     await expect(
-      sharedPage.getByText(applicationId, { exact: true }),
+      sharedPage.getByText(laaReference, { exact: true }),
     ).toBeVisible();
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.whatHappensNext }),

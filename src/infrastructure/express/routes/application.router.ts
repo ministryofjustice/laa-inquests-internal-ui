@@ -15,17 +15,17 @@ function createApplicationRouter(
   certificateDisplayAdaptor: CertificateAdaptor,
 ): Router {
   applicationRouter.get(
-    "/:applicationId/overview",
+    "/:laaReference/overview",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { applicationId },
+        params: { laaReference },
       } = req;
-      const applicationIdParam: string = applicationId as string;
+      const laaReferenceParam: string = laaReference as string;
       try {
         await applicationDisplayAdaptor.renderApplicationPage(
           req,
           res,
-          applicationIdParam,
+          laaReferenceParam,
         );
       } catch (err: unknown) {
         next(err);
@@ -34,17 +34,17 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:applicationId/coroners-letter",
+    "/:laaReference/coroners-letter",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { applicationId },
+        params: { laaReference },
       } = req;
-      const applicationIdParam: string = applicationId as string;
+      const laaReferenceParam: string = laaReference as string;
       try {
         await applicationDisplayAdaptor.serveCoronersLetterDocument(
           req,
           res,
-          applicationIdParam,
+          laaReferenceParam,
         );
       } catch (err: unknown) {
         next(err);
@@ -53,17 +53,17 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:applicationId/certificate",
+    "/:laaReference/certificate",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { applicationId },
+        params: { laaReference },
       } = req;
-      const applicationIdParam: string = applicationId as string;
+      const laaReferenceParam: string = laaReference as string;
       try {
         await certificateDisplayAdaptor.renderCertificatePage(
           req,
           res,
-          applicationIdParam,
+          laaReferenceParam,
         );
       } catch (err: unknown) {
         next(err);
@@ -72,19 +72,19 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:applicationId/claims/:claimId",
+    "/:laaReference/claims/:claimId",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { applicationId, claimId },
+        params: { laaReference, claimId },
       } = req;
-      const applicationIdParam = applicationId as string;
+      const laaReferenceParam = laaReference as string;
       const claimIdParam = claimId as string;
 
       try {
         await claimAssessmentAdaptor.renderClaimAssessmentPage(
           req,
           res,
-          applicationIdParam,
+          laaReferenceParam,
           claimIdParam,
         );
       } catch (err: unknown) {
@@ -94,7 +94,7 @@ function createApplicationRouter(
   );
 
   applicationRouter.post(
-    "/:applicationId/claims/:claimId",
+    "/:laaReference/claims/:claimId",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await claimAssessmentAdaptor.processClaimAssessmentForm(
@@ -108,19 +108,19 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:applicationId/claims/:claimId/rejected",
+    "/:laaReference/claims/:claimId/rejected",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { applicationId, claimId },
+        params: { laaReference, claimId },
       } = req;
-      const applicationIdParam = applicationId as string;
+      const laaReferenceParam = laaReference as string;
       const claimIdParam = claimId as string;
 
       try {
         await claimAssessmentAdaptor.renderClaimRejectionSuccessPage(
           req,
           res,
-          applicationIdParam,
+          laaReferenceParam,
           claimIdParam,
         );
       } catch (err: unknown) {
@@ -130,7 +130,7 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:applicationId/claims/:claimId/evidence/:claimEvidenceId",
+    "/:laaReference/claims/:claimId/evidence/:claimEvidenceId",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
         params: { claimEvidenceId },
@@ -153,17 +153,17 @@ function createApplicationRouter(
   );
 
   applicationRouter.post(
-    "/:applicationId/note",
+    "/:laaReference/note",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { applicationId },
+        params: { laaReference },
       } = req;
-      const applicationIdParam: string = applicationId as string;
+      const laaReferenceParam: string = laaReference as string;
       try {
         await applicationDisplayAdaptor.submitHistoryNote(
           req,
           res,
-          applicationIdParam,
+          laaReferenceParam,
         );
       } catch (err: unknown) {
         next(err);

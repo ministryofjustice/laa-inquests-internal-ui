@@ -36,7 +36,7 @@ export class ClaimAssessmentAdaptor {
   async renderClaimAssessmentPage(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
     claimId: string,
     errorSummaries?: Partial<AssessClaimFormErrors>,
     assessClaim?: string,
@@ -48,13 +48,13 @@ export class ClaimAssessmentAdaptor {
       request: req,
       extraContext: {
         event: "claim_assessment_page_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
       },
     });
     const claimAssessmentViewResult =
       await this.buildClaimAssessmentViewUseCase.execute({
-        applicationId,
+        laaReference,
         claimId,
         applicationPort: this.applicationPort,
         claimsPort: this.claimsPort,
@@ -66,8 +66,7 @@ export class ClaimAssessmentAdaptor {
     }
 
     res.render("application/claims/assess/index", {
-      backUrl: `/applications/${applicationId}/overview`,
-      applicationId,
+      backUrl: `/applications/${laaReference}/overview`,
       ...claimAssessmentViewResult.data,
       assessClaim,
       rejectionReason,
@@ -81,7 +80,7 @@ export class ClaimAssessmentAdaptor {
   ): Promise<void> {
     const {
       body: { assessClaim, "rejection-reason": rejectionReason },
-      params: { applicationId, claimId },
+      params: { laaReference, claimId },
     } = req;
     logger.logInfo({
       functionName: "process_claim_assessment_form",
@@ -89,7 +88,7 @@ export class ClaimAssessmentAdaptor {
       request: req as unknown as Request,
       extraContext: {
         event: "claim_assessment_form_submitted",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
         has_rejection_reason:
           typeof rejectionReason === "string" && rejectionReason.trim() !== "",
@@ -106,7 +105,7 @@ export class ClaimAssessmentAdaptor {
       await this.renderClaimAssessmentPage(
         req as unknown as Request,
         res,
-        applicationId,
+        laaReference,
         claimId,
         result.validationErrors,
         assessClaim,
@@ -117,7 +116,7 @@ export class ClaimAssessmentAdaptor {
 
     if (assessClaim === REJECT_DECISION) {
       const rejectResult = await this.rejectClaimUseCase.execute({
-        applicationId,
+        laaReference,
         claimId,
         justification: rejectionReason,
         claimsPort: this.claimsPort,
@@ -128,17 +127,17 @@ export class ClaimAssessmentAdaptor {
         throw new Error("Unable to reject claim");
       }
 
-      res.redirect(`/applications/${applicationId}/claims/${claimId}/rejected`);
+      res.redirect(`/applications/${laaReference}/claims/${claimId}/rejected`);
       return;
     }
 
-    res.redirect(`/applications/${applicationId}/overview`);
+    res.redirect(`/applications/${laaReference}/overview`);
   }
 
   async renderClaimRejectionSuccessPage(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
     claimId: string,
   ): Promise<void> {
     logger.logInfo({
@@ -146,14 +145,14 @@ export class ClaimAssessmentAdaptor {
       message: "Claim rejection success page requested",
       extraContext: {
         event: "claim_rejection_success_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
       },
     });
 
     const claimRejectionViewResult =
       await this.buildClaimRejectionViewUseCase.execute({
-        applicationId,
+        laaReference,
         claimId,
         claimsPort: this.claimsPort,
         accessToken: req.session.user?.accessToken,
@@ -164,7 +163,7 @@ export class ClaimAssessmentAdaptor {
     }
 
     res.render("application/claims/rejected/index", {
-      applicationId,
+      laaReference,
       claimType: claimRejectionViewResult.data.claimType,
     });
   }

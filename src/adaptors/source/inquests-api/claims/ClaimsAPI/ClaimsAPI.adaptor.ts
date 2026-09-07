@@ -22,7 +22,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
   ) {}
 
   async getClaims(
-    applicationId: string,
+    laaReference: string,
     assessed: boolean,
     accessToken: string | undefined,
   ): Promise<ClaimSummary[]> {
@@ -30,7 +30,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     const { data }: AxiosResponse<ClaimSummary[]> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/claims`,
+      path: `/applications/${laaReference}/claims`,
       accessToken,
       axiosConfig: { params: { assessed } },
     });
@@ -40,7 +40,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/claims",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         assessed,
         duration_ms: Date.now() - startedAt,
       },
@@ -50,7 +50,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
   }
 
   async getClaimById(
-    applicationId: string,
+    laaReference: string,
     claimId: string,
     accessToken: string | undefined,
   ): Promise<ClaimDetail> {
@@ -58,7 +58,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     const { data }: AxiosResponse<ClaimDetail> = await getInquestsApi({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/claims/${claimId}`,
+      path: `/applications/${laaReference}/claims/${claimId}`,
       accessToken,
     });
     logger.logInfo({
@@ -67,7 +67,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/claims/:id",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
         duration_ms: Date.now() - startedAt,
       },
@@ -129,7 +129,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
   }
 
   async rejectClaim(
-    applicationId: string,
+    laaReference: string,
     claimId: string,
     justification: string,
     accessToken: string | undefined,
@@ -138,7 +138,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     await patchInquestsApi<undefined, { justification: string }>({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${applicationId}/claims/${claimId}/reject`,
+      path: `/applications/${laaReference}/claims/${claimId}/reject`,
       body: { justification },
       accessToken,
     });
@@ -148,7 +148,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       extraContext: {
         event: "outbound_api_call",
         route: "/applications/:id/claims/:id/reject",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
         duration_ms: Date.now() - startedAt,
       },

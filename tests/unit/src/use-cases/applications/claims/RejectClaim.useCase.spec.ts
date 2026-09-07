@@ -10,7 +10,7 @@ describe("RejectClaimUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       claimId: "10",
       justification: "Not enough supporting evidence provided",
       claimsPort: claimsPortStub,
@@ -26,7 +26,7 @@ describe("RejectClaimUseCase", () => {
     claimsPortStub.rejectClaim.resolves();
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimId: "10",
       justification: "Not enough supporting evidence provided",
       claimsPort: claimsPortStub,
@@ -48,7 +48,7 @@ describe("RejectClaimUseCase", () => {
     claimsPortStub.rejectClaim.rejects(new Error("fail"));
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimId: "10",
       justification: "Not enough supporting evidence provided",
       claimsPort: claimsPortStub,

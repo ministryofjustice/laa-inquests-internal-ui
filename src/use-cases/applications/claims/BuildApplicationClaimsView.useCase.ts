@@ -9,7 +9,7 @@ import { PAYABLE_CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface BuildApplicationClaimsViewInput {
-  applicationId: string;
+  laaReference: string;
   claimsPort: ClaimsPort;
   substantiveCertificate: number;
   accessToken?: string;
@@ -27,35 +27,30 @@ export class BuildApplicationClaimsViewUseCase {
   async execute(
     input: BuildApplicationClaimsViewInput,
   ): Promise<UseCaseResult<BuildApplicationClaimsViewData>> {
-    if (!input.applicationId) {
+    if (!input.laaReference) {
       logger.logWarn({
         functionName: "build_application_claims_view_use_case",
         message: "Application claims view request is invalid",
         extraContext: {
           event: "application_claims_view_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message:
-          "Cannot build application claims view without an applicationId",
+        message: "Cannot build application claims view without an laaReference",
       };
     }
 
     try {
       const [toBeAssessedClaims, assessedClaims] = await Promise.all([
         input.claimsPort.getClaims(
-          input.applicationId,
+          input.laaReference,
           false,
           input.accessToken,
         ),
-        input.claimsPort.getClaims(
-          input.applicationId,
-          true,
-          input.accessToken,
-        ),
+        input.claimsPort.getClaims(input.laaReference, true, input.accessToken),
       ]);
 
       sortByDateDescending(toBeAssessedClaims);
@@ -86,7 +81,7 @@ export class BuildApplicationClaimsViewUseCase {
         err: error,
         extraContext: {
           event: "application_claims_view_retrieval_failed",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {

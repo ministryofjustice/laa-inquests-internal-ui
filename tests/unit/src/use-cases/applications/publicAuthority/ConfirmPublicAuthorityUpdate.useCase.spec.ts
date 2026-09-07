@@ -11,7 +11,7 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     applicationPortStub.updateApplicationPublicBodies.resolves();
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: [
         "Cabinet Office",
@@ -35,11 +35,11 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     );
   });
 
-  it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when applicationId is empty", async () => {
+  it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when laaReference is empty", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: ["Cabinet Office"],
     });
@@ -48,7 +48,7 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     assert.equal(result.reason, "INVALID_INPUT_STATE");
     assert.equal(
       result.message,
-      "Cannot update public authorities without applicationId or selected public authorities",
+      "Cannot update public authorities without laaReference or selected public authorities",
     );
   });
 
@@ -56,7 +56,7 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: [],
     });
@@ -65,7 +65,7 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     assert.equal(result.reason, "INVALID_INPUT_STATE");
     assert.equal(
       result.message,
-      "Cannot update public authorities without applicationId or selected public authorities",
+      "Cannot update public authorities without laaReference or selected public authorities",
     );
   });
 
@@ -75,7 +75,7 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     applicationPortStub.updateApplicationPublicBodies.rejects(error);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: ["Cabinet Office"],
       accessToken: "access-token-123",

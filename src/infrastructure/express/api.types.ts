@@ -8,7 +8,7 @@ export interface TypedRequest<T, V> extends Express.Request {
 }
 
 export interface IdParams {
-  applicationId: string;
+  laaReference: string;
 }
 
 export interface ClaimIdParams extends IdParams {

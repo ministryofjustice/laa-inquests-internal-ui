@@ -16,7 +16,7 @@ import { formatCurrency } from "#src/utils/formatter.js";
 import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimAssessmentViewInput {
-  applicationId: string;
+  laaReference: string;
   claimId: string;
   applicationPort: ApplicationPort;
   claimsPort: ClaimsPort;
@@ -84,23 +84,23 @@ export class BuildClaimAssessmentViewUseCase {
   async execute(
     input: BuildClaimAssessmentViewInput,
   ): Promise<UseCaseResult<ClaimAssessmentViewData>> {
-    if (!input.applicationId || !input.claimId) {
+    if (!input.laaReference || !input.claimId) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         message:
-          "Cannot build claim assessment view without applicationId and claimId",
+          "Cannot build claim assessment view without laaReference and claimId",
       };
     }
 
     try {
       const [application, claim] = await Promise.all([
         input.applicationPort.getApplication(
-          input.applicationId,
+          input.laaReference,
           input.accessToken,
         ),
         input.claimsPort.getClaimById(
-          input.applicationId,
+          input.laaReference,
           input.claimId,
           input.accessToken,
         ),
@@ -134,19 +134,19 @@ export class BuildClaimAssessmentViewUseCase {
           },
           claimCostBreakdown: mapClaimCostBreakdown(
             claim,
-            input.applicationId,
+            input.laaReference,
             input.claimId,
           ),
           supportingEvidence: mapSupportingEvidence(
             claim,
-            input.applicationId,
+            input.laaReference,
             input.claimId,
           ),
           ...(isFinalOrNilBill(claim.claimTypeId)
             ? {
                 finalOrNilBillDetails: mapFinalOrNilBillDetails(
                   claim,
-                  input.applicationId,
+                  input.laaReference,
                   input.claimId,
                 ),
               }
@@ -232,19 +232,19 @@ function hasValue(
 // eslint-disable-next-line complexity -- This maps the conditional final and nil bill view sections.
 function mapFinalOrNilBillDetails(
   claim: ClaimDetail,
-  applicationId: string,
+  laaReference: string,
   claimId: string,
 ): ClaimAssessmentFinalOrNilBillDetails {
   const supportingEvidence = mapSupportingEvidence(
     claim,
-    applicationId,
+    laaReference,
     claimId,
   );
   const claimCostTemplateFile = claim.claimCostTemplateFile
     ? mapEvidenceRow(
         claim.claimCostTemplateFile.claimCostTemplateFileName,
         claim.claimCostTemplateFile.claimCostTemplateFileId,
-        applicationId,
+        laaReference,
         claimId,
       )
     : undefined;
@@ -324,7 +324,7 @@ function getPaymentAmountRaw(claim: ClaimDetail): string | null {
 
 function mapSupportingEvidence(
   claim: ClaimDetail,
-  applicationId: string,
+  laaReference: string,
   claimId: string,
 ): ClaimAssessmentEvidenceRow[] {
   if (claim.claimEvidence === undefined || claim.claimEvidence.length === 0) {
@@ -335,7 +335,7 @@ function mapSupportingEvidence(
     mapEvidenceRow(
       evidence.fileName,
       evidence.claimEvidenceId,
-      applicationId,
+      laaReference,
       claimId,
     ),
   );
@@ -344,10 +344,10 @@ function mapSupportingEvidence(
 function mapEvidenceRow(
   fileName: string,
   evidenceId: string,
-  applicationId: string,
+  laaReference: string,
   claimId: string,
 ): ClaimAssessmentEvidenceRow {
-  const basePath = `/applications/${applicationId}/claims/${claimId}/evidence`;
+  const basePath = `/applications/${laaReference}/claims/${claimId}/evidence`;
 
   return {
     fileName,
@@ -358,7 +358,7 @@ function mapEvidenceRow(
 
 function mapClaimCostBreakdown(
   claim: ClaimDetail,
-  applicationId: string,
+  laaReference: string,
   claimId: string,
 ): ClaimCostBreakdownRow | null {
   const { claimCostTemplateFile: costTemplateFile } = claim;
@@ -367,7 +367,7 @@ function mapClaimCostBreakdown(
     return null;
   }
 
-  const basePath = `/applications/${applicationId}/claims/${claimId}/evidence`;
+  const basePath = `/applications/${laaReference}/claims/${claimId}/evidence`;
 
   return {
     fileName: costTemplateFile.claimCostTemplateFileName,

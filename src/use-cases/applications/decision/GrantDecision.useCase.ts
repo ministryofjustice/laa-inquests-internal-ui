@@ -6,7 +6,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface GrantDecisionInput {
-  applicationId: string;
+  laaReference: string;
   applicationPort: ApplicationPort;
   certificateStartDate: string;
   accessToken?: string;
@@ -14,13 +14,13 @@ interface GrantDecisionInput {
 
 export class GrantDecisionUseCase {
   async execute(input: GrantDecisionInput): Promise<UseCaseResult> {
-    if (input.applicationId === "" || input.certificateStartDate === "") {
+    if (input.laaReference === "" || input.certificateStartDate === "") {
       logger.logWarn({
         functionName: "grant_decision_use_case",
         message: "Grant decision request is invalid",
         extraContext: {
           event: "grant_decision_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           certificate_start_date: input.certificateStartDate,
           reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         },
@@ -29,13 +29,13 @@ export class GrantDecisionUseCase {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         message:
-          "Cannot grant a decision without applicationId or certificateStartDate",
+          "Cannot grant a decision without laaReference or certificateStartDate",
       };
     }
 
     try {
       await input.applicationPort.submitGrantDecision(
-        input.applicationId,
+        input.laaReference,
         input.accessToken,
         input.certificateStartDate,
       );
@@ -44,7 +44,7 @@ export class GrantDecisionUseCase {
         message: "Decision granted",
         extraContext: {
           event: "application_decision_granted",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           certificate_start_date: input.certificateStartDate,
         },
       });
@@ -59,7 +59,7 @@ export class GrantDecisionUseCase {
         err: error,
         extraContext: {
           event: "grant_decision_upstream_failed",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           certificate_start_date: input.certificateStartDate,
         },
       });

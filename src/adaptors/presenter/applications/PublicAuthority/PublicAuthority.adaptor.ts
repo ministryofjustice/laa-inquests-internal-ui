@@ -56,11 +56,11 @@ export class PublicAuthorityAdaptor {
     errorSummaries?: Partial<PublicAuthorityError>,
     submittedValues?: string[],
   ): Promise<void> {
-    const applicationId = req.params.applicationId as string;
+    const laaReference = req.params.laaReference as string;
     const fromConfirm = req.query.from === "confirm";
 
     const application = await this.applicationPort.getApplication(
-      applicationId,
+      laaReference,
       req.session.user?.accessToken,
     );
 
@@ -89,7 +89,7 @@ export class PublicAuthorityAdaptor {
     );
 
     res.render("application/update-public-authorities", {
-      applicationId,
+      laaReference,
       publicAuthorityOptions: prepareResult.data.items,
       selectedPublicAuthorityIds,
       ...(errorSummaries !== undefined && { errorSummaries }),
@@ -102,11 +102,11 @@ export class PublicAuthorityAdaptor {
   ): Promise<void> {
     const {
       body: { publicAuthorityOption },
-      params: { applicationId },
+      params: { laaReference },
     } = req;
 
     const application = await this.applicationPort.getApplication(
-      applicationId,
+      laaReference,
       req.session.user?.accessToken,
     );
 
@@ -148,12 +148,12 @@ export class PublicAuthorityAdaptor {
       ),
     });
 
-    res.redirect(`/applications/${applicationId}/public-authorities/confirm`);
+    res.redirect(`/applications/${laaReference}/public-authorities/confirm`);
   }
 
   async renderConfirmationPage(req: Request, res: Response): Promise<void> {
-    const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/public-authorities?from=confirm`;
+    const laaReference = req.params.laaReference as string;
+    const backUrl = `/applications/${laaReference}/public-authorities?from=confirm`;
 
     const sessionData = this.sessionHelper.getSessionData(
       req,
@@ -186,14 +186,14 @@ export class PublicAuthorityAdaptor {
       }));
 
     res.render("application/confirm-public-authorities", {
-      applicationId,
+      laaReference,
       backUrl,
       publicAuthorityRows,
     });
   }
 
   async processConfirmation(req: Request, res: Response): Promise<void> {
-    const applicationId = req.params.applicationId as string;
+    const laaReference = req.params.laaReference as string;
 
     const sessionData = this.sessionHelper.getSessionData(
       req,
@@ -206,7 +206,7 @@ export class PublicAuthorityAdaptor {
 
     const confirmResult =
       await this.confirmPublicAuthorityUpdateUseCase.execute({
-        applicationId,
+        laaReference,
         applicationPort: this.applicationPort,
         selectedPublicAuthorityIds,
         accessToken: req.session.user?.accessToken,
@@ -223,7 +223,7 @@ export class PublicAuthorityAdaptor {
       "publicAuthorityUpdated",
     );
 
-    res.redirect(`/applications/${applicationId}/overview`);
+    res.redirect(`/applications/${laaReference}/overview`);
   }
 
   #resolveSelectedIds(

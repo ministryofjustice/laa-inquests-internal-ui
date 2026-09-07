@@ -563,7 +563,7 @@ describe("Application adaptor", () => {
       assert.equal(buildApplicationClaimsViewUseCaseStub.execute.callCount, 1);
       const executeArgs =
         buildApplicationClaimsViewUseCaseStub.execute.getCall(0).args[0];
-      assert.equal(executeArgs.applicationId, "123");
+      assert.equal(executeArgs.laaReference, "123");
       assert.equal(executeArgs.substantiveCertificate, 10000);
     });
 
