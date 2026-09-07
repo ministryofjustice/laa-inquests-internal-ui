@@ -13,7 +13,7 @@ const publicAuthorityLocale = en.pages.applicationOverview.publicAuthority;
 const notificationBannerLocale = publicAuthorityLocale.notificationBanner;
 const confirmLocale = publicAuthorityLocale.confirm;
 
-const applicationId = "5";
+const applicationId = "INQ-YYY-005";
 const selectionPage = `/applications/${applicationId}/public-authorities`;
 const confirmPage = `/applications/${applicationId}/public-authorities/confirm`;
 const overviewPage = `/applications/${applicationId}/overview`;

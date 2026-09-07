@@ -267,7 +267,7 @@ test.describe("People tab", () => {
   test("should show Change link for interested parties when application is granted", async ({
     page,
   }) => {
-    const grantedApplicationId = "5";
+    const grantedApplicationId = "INQ-YYY-005";
     await page.goto(`/applications/${grantedApplicationId}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();

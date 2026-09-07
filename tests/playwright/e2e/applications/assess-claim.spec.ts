@@ -5,7 +5,7 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 const claimAssessmentLocale = en.pages.claimAssessment;
 const rejectedSuccessLocale = en.pages.claimAssessment.rejectedSuccess;
 
-const applicationId = "5";
+const applicationId = "INQ-YYY-005";
 const claimId = "10";
 const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
 const rejectedSuccessPage = `/applications/${applicationId}/claims/${claimId}/rejected`;

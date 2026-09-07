@@ -39,7 +39,7 @@ export class ApplicationAPIAdaptor {
       data,
     }: AxiosResponse<
       Array<{
-        laa_reference: number | null;
+        laa_reference: string | null;
         created_at: string;
         status: string | null;
         overall_decision: string | null;

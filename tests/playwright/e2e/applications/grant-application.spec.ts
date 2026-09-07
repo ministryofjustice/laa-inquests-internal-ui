@@ -15,7 +15,7 @@ const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
 const overviewLocale = en.pages.applicationOverview;
 
-const applicationId = "2";
+const applicationId = "INQ-YYY-002";
 const makeADecisionPage = `/applications/${applicationId}/decision`;
 const makeADecisionFromCheckAnswersPage = `${makeADecisionPage}?from=check-your-answers`;
 const overviewPage = `/applications/${applicationId}/overview`;
