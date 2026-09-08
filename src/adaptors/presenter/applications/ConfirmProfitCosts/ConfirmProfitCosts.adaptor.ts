@@ -96,22 +96,22 @@ export class ConfirmProfitCostsAdaptor {
     sessionData: Record<string, string> | null,
   ): { netTotal: string; grossTotal: string; zeroVatTotal: string } {
     return {
-      netTotal: this.#pickValue(
+      netTotal: this.#resolveFormOrSessionValue(
         formValues?.["net-total"],
         sessionData?.netTotal,
       ),
-      grossTotal: this.#pickValue(
+      grossTotal: this.#resolveFormOrSessionValue(
         formValues?.["gross-total"],
         sessionData?.grossTotal,
       ),
-      zeroVatTotal: this.#pickValue(
+      zeroVatTotal: this.#resolveFormOrSessionValue(
         formValues?.["zero-vat-total"],
         sessionData?.zeroVatTotal,
       ),
     };
   }
 
-  #pickValue(
+  #resolveFormOrSessionValue(
     formValue: string | undefined,
     sessionValue: string | undefined,
   ): string {
