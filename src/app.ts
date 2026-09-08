@@ -8,6 +8,7 @@ import indexRouter from "#src/infrastructure/express/routes/index.js";
 import livereload from "connect-livereload";
 import config from "#src/infrastructure/config/config.js";
 import {
+  handleApiAuthErrors,
   handleRouteNotFound,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
@@ -148,6 +149,7 @@ if (process.env.NODE_ENV === "production") {
 app.use("/", indexRouter);
 
 app.all("{*splat}", handleRouteNotFound);
+app.use(handleApiAuthErrors);
 app.use(handleServerErrors);
 
 if (process.env.NODE_ENV === "development") {

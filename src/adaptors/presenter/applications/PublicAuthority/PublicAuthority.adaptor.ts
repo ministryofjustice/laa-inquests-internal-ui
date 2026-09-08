@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type {
@@ -78,7 +79,10 @@ export class PublicAuthorityAdaptor {
     });
 
     if (prepareResult.status !== "SUCCESS") {
-      throw new Error("Unable to prepare public authorities form");
+      throwUseCaseFailure(
+        prepareResult,
+        "Unable to prepare public authorities form",
+      );
     }
 
     const selectedPublicAuthorityIds = this.#resolveSelectedIds(
@@ -139,7 +143,10 @@ export class PublicAuthorityAdaptor {
     }
 
     if (processResult.status !== "SUCCESS") {
-      throw new Error("Unable to process public authority selection");
+      throwUseCaseFailure(
+        processResult,
+        "Unable to process public authority selection",
+      );
     }
 
     this.sessionHelper.storeSessionData(req, SESSION_NAMESPACE, {
@@ -176,7 +183,10 @@ export class PublicAuthorityAdaptor {
     );
 
     if (prepareResult.status !== "SUCCESS") {
-      throw new Error("Unable to prepare public authorities confirmation view");
+      throwUseCaseFailure(
+        prepareResult,
+        "Unable to prepare public authorities confirmation view",
+      );
     }
 
     const publicAuthorityRows =
@@ -213,7 +223,7 @@ export class PublicAuthorityAdaptor {
       });
 
     if (confirmResult.status !== "SUCCESS") {
-      throw new Error("Unable to update public authorities");
+      throwUseCaseFailure(confirmResult, "Unable to update public authorities");
     }
 
     this.sessionHelper.clearSessionData(req, SESSION_NAMESPACE);

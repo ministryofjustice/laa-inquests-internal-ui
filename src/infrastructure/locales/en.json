@@ -56,7 +56,10 @@
       "downloadClaimsBacklogLink": "Download Claims Backlog"
     },
     "error": {
-      "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
+      "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
+      "pageNotFound": "Page not found",
+      "forbidden": "Forbidden",
+      "internalServerError": "Internal Server Error"
     },
     "applicationOverview": {
       "details": {
