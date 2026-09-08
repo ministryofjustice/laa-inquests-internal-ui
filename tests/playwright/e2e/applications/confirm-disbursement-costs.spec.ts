@@ -161,7 +161,7 @@ test.describe("Confirm the total disbursement costs page", () => {
 
     await expect(
       form.locator(".govuk-error-message", {
-        hasText: validationErrors.grossNotGreaterThanNet,
+        hasText: validationErrors.grossLessThanNet,
       }),
     ).toBeVisible();
   });
@@ -200,6 +200,23 @@ test.describe("Confirm the total disbursement costs page", () => {
     await submitForm(form, page);
 
     await expect(page).toHaveURL(assessClaimPage);
+  });
+
+  test("shows the VAT conflict error when net, gross and 0% VAT totals are all filled in", async ({
+    page,
+  }) => {
+    await page.goto(confirmDisbursementCostsPage);
+    const form = page.getByTestId("confirm-disbursement-costs");
+
+    await setTotals(form, { net: "300", gross: "360", zeroVat: "100" });
+    await submitForm(form, page);
+
+    await expect(page).toHaveURL(confirmDisbursementCostsPage);
+    await expect(
+      page
+        .locator(".govuk-error-summary")
+        .getByRole("link", { name: validationErrors.vatConflict }),
+    ).toHaveAttribute("href", "#net-total");
   });
 
   test("retains entered values when validation fails", async ({ page }) => {

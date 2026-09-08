@@ -38,7 +38,7 @@ describe("ConfirmDisbursementCostsValidator", () => {
     assert.deepStrictEqual(errors, {});
   });
 
-  it("returns no errors when 0% VAT, net and gross totals are all provided", () => {
+  it("returns a conflict error on all 3 fields when 0% VAT, net and gross totals are all provided", () => {
     const errors = validator.validateConfirmDisbursementCostsForm(
       buildForm({
         "net-total": "300",
@@ -47,7 +47,27 @@ describe("ConfirmDisbursementCostsValidator", () => {
       }),
     );
 
-    assert.deepStrictEqual(errors, {});
+    assert.deepStrictEqual(errors, {
+      netTotal: { text: validationErrors.vatConflict },
+      grossTotal: { text: validationErrors.vatConflict },
+      zeroVatTotal: { text: validationErrors.vatConflict },
+    });
+  });
+
+  it("returns a conflict error when the 0% VAT total is 0 alongside net and gross totals", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({
+        "net-total": "300",
+        "gross-total": "360",
+        "zero-vat-total": "0",
+      }),
+    );
+
+    assert.deepStrictEqual(errors, {
+      netTotal: { text: validationErrors.vatConflict },
+      grossTotal: { text: validationErrors.vatConflict },
+      zeroVatTotal: { text: validationErrors.vatConflict },
+    });
   });
 
   it("returns a field error when the net total is not a valid number", () => {
@@ -114,7 +134,7 @@ describe("ConfirmDisbursementCostsValidator", () => {
     );
 
     assert.deepStrictEqual(errors, {
-      grossTotal: { text: validationErrors.grossNotGreaterThanNet },
+      grossTotal: { text: validationErrors.grossLessThanNet },
     });
   });
 
@@ -127,7 +147,11 @@ describe("ConfirmDisbursementCostsValidator", () => {
       }),
     );
 
-    assert.deepStrictEqual(errors, {});
+    assert.deepStrictEqual(errors, {
+      netTotal: { text: validationErrors.vatConflict },
+      grossTotal: { text: validationErrors.vatConflict },
+      zeroVatTotal: { text: validationErrors.vatConflict },
+    });
   });
 
   it("allows a nil bill where the net and gross totals are both 0", () => {

@@ -240,7 +240,8 @@
           "totalRequired": "Enter the total of the claim to continue",
           "netMissing": "Enter the net total of the claim",
           "grossMissing": "Enter the gross total of the claim",
-          "grossNotGreaterThanNet": "Gross total must be more than the net disbursement costs"
+          "vatConflict": "You cannot submit a total disbursement cost claim with both 0% and 20% VAT",
+          "grossLessThanNet": "Gross total must be more than the net disbursement costs"
         }
       },
       "rejectedSuccess": {

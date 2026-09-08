@@ -124,6 +124,39 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 0);
   });
 
+  it("shows the VAT conflict message only once in errorList when all totals conflict", () => {
+    const requestWithBody: TypedRequest<
+      ConfirmDisbursementCostsForm,
+      ClaimIdParams
+    > = {
+      ...requestStub,
+      body: {
+        "net-total": "300",
+        "gross-total": "360",
+        "zero-vat-total": "100",
+      },
+      params: {
+        laaReference: "123",
+        claimId: "10",
+      },
+    };
+
+    adaptor.processConfirmDisbursementCostsForm(requestWithBody, responseStub);
+
+    const renderArgs = responseStub.render.getCall(0)
+      .args[1] as unknown as Record<string, unknown>;
+    assert.deepStrictEqual(renderArgs.errorSummaries, {
+      netTotal: { text: validationErrors.vatConflict },
+      grossTotal: { text: validationErrors.vatConflict },
+      zeroVatTotal: { text: validationErrors.vatConflict },
+    });
+    assert.deepStrictEqual(renderArgs.errorList, [
+      { text: validationErrors.vatConflict, href: "#net-total" },
+    ]);
+    assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
+    assert.equal(responseStub.redirect.callCount, 0);
+  });
+
   it("stores the validated totals in session and redirects to the claim assessment page when the form is valid", () => {
     const requestWithBody: TypedRequest<
       ConfirmDisbursementCostsForm,

@@ -77,7 +77,8 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
     return (
       this.#checkAllTotalsEmpty(emptiness) ??
       this.#checkMissingPair(emptiness) ??
-      this.#checkGrossNotGreaterThanNet(totals, emptiness) ??
+      this.#checkVatConflict(emptiness) ??
+      this.#checkgrossLessThanNet(totals, emptiness) ??
       {}
     );
   }
@@ -126,8 +127,30 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
         };
   }
 
+  #checkVatConflict(emptiness: {
+    isNetEmpty: boolean;
+    isGrossEmpty: boolean;
+    isZeroVatEmpty: boolean;
+  }): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
+    const { isNetEmpty, isGrossEmpty, isZeroVatEmpty } = emptiness;
+
+    if (isNetEmpty || isGrossEmpty || isZeroVatEmpty) {
+      return undefined;
+    }
+
+    const conflictError = {
+      text: en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
+        .vatConflict,
+    };
+    return {
+      netTotal: conflictError,
+      grossTotal: conflictError,
+      zeroVatTotal: conflictError,
+    };
+  }
+
   // Gross must exceed net only when the 0% VAT total is blank; a nil (0) gross is allowed.
-  #checkGrossNotGreaterThanNet(
+  #checkgrossLessThanNet(
     totals: DisbursementCostsTotals,
     emptiness: {
       isNetEmpty: boolean;
@@ -150,7 +173,7 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
       return {
         grossTotal: {
           text: en.pages.claimAssessment.confirmDisbursementCosts
-            .validationErrors.grossNotGreaterThanNet,
+            .validationErrors.grossLessThanNet,
         },
       };
     }
