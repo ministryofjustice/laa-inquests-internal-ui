@@ -122,7 +122,7 @@ test.describe.serial("Check your answers page", () => {
       }),
     });
     const profitNetRow = profitCostsCard.locator(".govuk-summary-list__row", {
-      has: sharedPage.getByText(checkYourAnswersLocale.netTotalTitle, {
+      has: sharedPage.getByText(checkYourAnswersLocale.profitNetTotalTitle, {
         exact: true,
       }),
     });
@@ -132,7 +132,7 @@ test.describe.serial("Check your answers page", () => {
     ).toHaveAttribute("href", confirmProfitCostsPage);
 
     const profitGrossRow = profitCostsCard.locator(".govuk-summary-list__row", {
-      has: sharedPage.getByText(checkYourAnswersLocale.grossTotalTitle, {
+      has: sharedPage.getByText(checkYourAnswersLocale.profitGrossTotalTitle, {
         exact: true,
       }),
     });
@@ -141,7 +141,7 @@ test.describe.serial("Check your answers page", () => {
     const profitZeroVatRow = profitCostsCard.locator(
       ".govuk-summary-list__row",
       {
-        has: sharedPage.getByText(checkYourAnswersLocale.zeroVatTotalTitle, {
+        has: sharedPage.getByText(checkYourAnswersLocale.profitZeroVatTitle, {
           exact: true,
         }),
       },
@@ -158,9 +158,12 @@ test.describe.serial("Check your answers page", () => {
     const disbursementNetRow = disbursementCostsCard.locator(
       ".govuk-summary-list__row",
       {
-        has: sharedPage.getByText(checkYourAnswersLocale.netTotalTitle, {
-          exact: true,
-        }),
+        has: sharedPage.getByText(
+          checkYourAnswersLocale.disbursementNetTotalTitle,
+          {
+            exact: true,
+          },
+        ),
       },
     );
     await expect(disbursementNetRow.getByText("£500")).toBeVisible();
@@ -171,9 +174,12 @@ test.describe.serial("Check your answers page", () => {
     const disbursementGrossRow = disbursementCostsCard.locator(
       ".govuk-summary-list__row",
       {
-        has: sharedPage.getByText(checkYourAnswersLocale.grossTotalTitle, {
-          exact: true,
-        }),
+        has: sharedPage.getByText(
+          checkYourAnswersLocale.disbursementGrossTotalTitle,
+          {
+            exact: true,
+          },
+        ),
       },
     );
     await expect(disbursementGrossRow.getByText("£600")).toBeVisible();

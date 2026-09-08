@@ -63,41 +63,7 @@
     rows: [
       {
         key: {
-          text: t('pages.claimAssessment.checkYourAnswers.netTotalTitle')
-        },
-        value: {
-          text: profitCosts.netTotal
-        },
-        actions: {
-          items: [
-            {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.netTotalTitle')
-            }
-          ]
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.checkYourAnswers.grossTotalTitle')
-        },
-        value: {
-          text: profitCosts.grossTotal
-        },
-        actions: {
-          items: [
-            {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.grossTotalTitle')
-            }
-          ]
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.checkYourAnswers.zeroVatTotalTitle')
+          text: t('pages.claimAssessment.checkYourAnswers.profitZeroVatTitle')
         },
         value: {
           text: profitCosts.zeroVatTotal
@@ -107,7 +73,41 @@
             {
               href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs",
               text: t('common.change'),
-              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.zeroVatTotalTitle')
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitZeroVatTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.profitNetTotalTitle')
+        },
+        value: {
+          text: profitCosts.netTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitNetTotalTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.profitGrossTotalTitle')
+        },
+        value: {
+          text: profitCosts.grossTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitGrossTotalTitle')
             }
           ]
         }
@@ -124,41 +124,7 @@
     rows: [
       {
         key: {
-          text: t('pages.claimAssessment.checkYourAnswers.netTotalTitle')
-        },
-        value: {
-          text: disbursementCosts.netTotal
-        },
-        actions: {
-          items: [
-            {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.netTotalTitle')
-            }
-          ]
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.checkYourAnswers.grossTotalTitle')
-        },
-        value: {
-          text: disbursementCosts.grossTotal
-        },
-        actions: {
-          items: [
-            {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs",
-              text: t('common.change'),
-              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.grossTotalTitle')
-            }
-          ]
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.checkYourAnswers.zeroVatTotalTitle')
+          text: t('pages.claimAssessment.checkYourAnswers.disbursementZeroVatTitle')
         },
         value: {
           text: disbursementCosts.zeroVatTotal
@@ -168,7 +134,41 @@
             {
               href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs",
               text: t('common.change'),
-              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.zeroVatTotalTitle')
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementZeroVatTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.disbursementNetTotalTitle')
+        },
+        value: {
+          text: disbursementCosts.netTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementNetTotalTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.disbursementGrossTotalTitle')
+        },
+        value: {
+          text: disbursementCosts.grossTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementGrossTotalTitle')
             }
           ]
         }

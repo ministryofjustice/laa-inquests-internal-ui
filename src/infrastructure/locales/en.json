@@ -251,9 +251,12 @@
         "claimDecisionsTitle": "Claim decisions",
         "profitCostsCardTitle": "Profit costs",
         "disbursementCostsCardTitle": "Disbursement costs",
-        "netTotalTitle": "Net total (20% VAT)",
-        "grossTotalTitle": "Gross total (20% VAT)",
-        "zeroVatTotalTitle": "Total (0% VAT)",
+        "profitZeroVatTitle": "Profit costs at 0% VAT",
+        "profitNetTotalTitle": "Net profit costs at 20% VAT",
+        "profitGrossTotalTitle": "Gross profit costs at 20% VAT",
+        "disbursementZeroVatTitle": "Disbursement costs at 0% VAT",
+        "disbursementNetTotalTitle": "Net disbursement costs at 20% VAT",
+        "disbursementGrossTotalTitle": "Gross disbursement costs at 20% VAT",
         "finishButton": "Finish assessing claim"
       },
       "rejectedSuccess": {
