@@ -109,4 +109,31 @@ export class FormValidator {
       (inputValue.length < minLength || inputValue.length > maxLength)
     );
   }
+
+  protected validateCurrencyInput(
+    inputValue: string | undefined,
+    errors: {
+      missing: string;
+      invalid: string;
+      negative: string;
+    },
+  ): string | undefined {
+    const trimmed = (inputValue ?? "").trim();
+
+    if (trimmed === "") {
+      return errors.missing;
+    }
+
+    const normalised = trimmed.replace(/,/gv, "");
+
+    if (!/^-?\d+(\.\d{1,2})?$/v.test(normalised)) {
+      return errors.invalid;
+    }
+
+    if (Number(normalised) < 0) {
+      return errors.negative;
+    }
+
+    return undefined;
+  }
 }

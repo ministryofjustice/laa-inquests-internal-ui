@@ -1,0 +1,83 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set pageTitle = t('pages.disbursementCosts.heading') %}
+
+{% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('common.errorSummaryTitle'),
+    errorList: [
+      { text: errorSummaries.disbursementCostVatZero.text, href: "#disbursement-cost-vat-zero" } if errorSummaries.disbursementCostVatZero,
+      { text: errorSummaries.disbursementCostNet.text, href: "#disbursement-cost-net" } if errorSummaries.disbursementCostNet,
+      { text: errorSummaries.disbursementCostGross.text, href: "#disbursement-cost-gross" } if errorSummaries.disbursementCostGross
+    ]
+  }) }}
+{% endif %}
+
+<form data-testid="disbursement-costs" method="post" action="/applications/{{ applicationId }}/claims/{{ claimId }}/disbursement-costs">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+  <h1 class="govuk-heading-l">{{ t('pages.disbursementCosts.heading') }}</h1>
+  <p class="govuk-body">{{ t('pages.disbursementCosts.intro') }}</p>
+
+  <h3 class="govuk-heading-s">{{ t('pages.disbursementCosts.vatZero.heading') }}</h3>
+  {{ govukInput({
+    id: "disbursement-cost-vat-zero",
+    name: "disbursement-cost-vat-zero",
+    value: vatZero,
+    classes: "govuk-input--width-10",
+    spellcheck: false,
+    inputmode: "decimal",
+    prefix: { text: "£" },
+    label: {
+      text: t('pages.disbursementCosts.vatZero.label'),
+      classes: "govuk-visually-hidden"
+    },
+    errorMessage: errorSummaries.disbursementCostVatZero
+  }) }}
+
+  <h2 class="govuk-heading-m">{{ t('pages.disbursementCosts.vat20.heading') }}</h2>
+  {{ govukInput({
+    id: "disbursement-cost-net",
+    name: "disbursement-cost-net",
+    value: net,
+    classes: "govuk-input--width-10",
+    spellcheck: false,
+    inputmode: "decimal",
+    prefix: { text: "£" },
+    label: {
+      text: t('pages.disbursementCosts.net.label'),
+      classes: "govuk-!-font-weight-bold"
+    },
+    hint: {
+      text: t('pages.disbursementCosts.net.hint')
+    },
+    errorMessage: errorSummaries.disbursementCostNet
+  }) }}
+
+  {{ govukInput({
+    id: "disbursement-cost-gross",
+    name: "disbursement-cost-gross",
+    value: gross,
+    classes: "govuk-input--width-10",
+    spellcheck: false,
+    inputmode: "decimal",
+    prefix: { text: "£" },
+    label: {
+      text: t('pages.disbursementCosts.gross.label'),
+      classes: "govuk-!-font-weight-bold"
+    },
+    hint: {
+      text: t('pages.disbursementCosts.gross.hint')
+    },
+    errorMessage: errorSummaries.disbursementCostGross
+  }) }}
+
+  {{ govukButton({
+    text: t('pages.disbursementCosts.continue')
+  }) }}
+</form>
+{% endblock pageContent %}

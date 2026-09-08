@@ -204,6 +204,43 @@
         "assessNewClaimButton": "Assess a new claim"
       }
     },
+    "disbursementCosts": {
+      "heading": "Confirm the total disbursement costs",
+      "intro": "The information you need to complete this section is in the claim cost breakdown spreadsheet the provider has uploaded as supporting evidence.",
+      "continue": "Continue",
+      "vatZero": {
+        "heading": "Disbursement costs charged at 0% VAT",
+        "label": "Disbursement costs charged at 0% VAT"
+      },
+      "vat20": {
+        "heading": "Disbursements costs charged at 20% VAT"
+      },
+      "net": {
+        "label": "Net total for disbursement costs excluding VAT",
+        "hint": "This is only for costs where VAT applies"
+      },
+      "gross": {
+        "label": "Gross total for disbursement costs including VAT",
+        "hint": "This is calculated by adding the net total disbursement costs where VAT applies, plus 20%"
+      },
+      "validationErrors": {
+        "vatZero": {
+          "notEmpty": "Enter the disbursement costs charged at 0% VAT",
+          "invalid": "Disbursement costs charged at 0% VAT must be an amount of money, like 100 or 250.50",
+          "negative": "Disbursement costs charged at 0% VAT must be 0 or more"
+        },
+        "net": {
+          "notEmpty": "Enter the net total for disbursement costs excluding VAT",
+          "invalid": "Net total for disbursement costs excluding VAT must be an amount of money, like 100 or 250.50",
+          "negative": "Net total for disbursement costs excluding VAT must be 0 or more"
+        },
+        "gross": {
+          "notEmpty": "Enter the gross total for disbursement costs including VAT",
+          "invalid": "Gross total for disbursement costs including VAT must be an amount of money, like 100 or 250.50",
+          "negative": "Gross total for disbursement costs including VAT must be 0 or more"
+        }
+      }
+    },
     "decision": {
       "success": {
         "header": "Application for Inquest legal aid assessed complete",

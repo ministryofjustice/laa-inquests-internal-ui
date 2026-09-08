@@ -25,3 +25,15 @@ export interface AddHistoryNoteValidationResult {
   errors: Partial<AddHistoryNoteFormErrors>;
   excessCount?: number;
 }
+
+export interface DisbursementCostsForm {
+  "disbursement-cost-vat-zero": string;
+  "disbursement-cost-net": string;
+  "disbursement-cost-gross": string;
+}
+
+export interface DisbursementCostsFormErrors {
+  disbursementCostVatZero?: FormErrorMessage;
+  disbursementCostNet?: FormErrorMessage;
+  disbursementCostGross?: FormErrorMessage;
+}

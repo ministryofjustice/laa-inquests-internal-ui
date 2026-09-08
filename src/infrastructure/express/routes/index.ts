@@ -9,6 +9,7 @@ import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
 import { ApplicationDecisionAdaptor } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.adaptor.js";
+import { ConfirmDisbursementCostsAdaptor } from "#src/adaptors/presenter/applications/ConfirmDisbursementCosts/ConfirmDisbursementCosts.adaptor.js";
 import { PublicAuthorityAdaptor } from "#src/adaptors/presenter/applications/PublicAuthority/PublicAuthority.adaptor.js";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/ClaimsAPI.adaptor.js";
@@ -20,6 +21,7 @@ import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper
 import config from "#src/infrastructure/config/config.js";
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
+import { ConfirmDisbursementCostsValidator } from "#src/adaptors/presenter/applications/ConfirmDisbursementCosts/ConfirmDisbursementCosts.validator.js";
 import { PublicAuthorityValidator } from "#src/adaptors/presenter/applications/PublicAuthority/PublicAuthority.validator.js";
 import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
@@ -108,6 +110,10 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,
 );
+const confirmDisbursementCostsAdaptor = new ConfirmDisbursementCostsAdaptor(
+  new SessionHelper(),
+  new ConfirmDisbursementCostsValidator(),
+);
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
@@ -195,6 +201,7 @@ router.use("/applications", requireAuth, [
     applicationDisplayAdaptor,
     claimAssessmentAdaptor,
     certificateDisplayAdaptor,
+    confirmDisbursementCostsAdaptor,
   ),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
   createPublicAuthorityRouter(express.Router(), publicAuthorityAdaptor),
