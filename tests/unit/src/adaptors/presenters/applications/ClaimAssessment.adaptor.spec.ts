@@ -154,7 +154,7 @@ describe("ClaimAssessmentAdaptor", () => {
       } as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>;
     }
 
-    it("redirects to the application overview when validation passes", async () => {
+    it("redirects to the confirm profit costs page when validation passes", async () => {
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: { assessClaim: "Pay in full", rejectionReason: "" },
@@ -166,7 +166,7 @@ describe("ClaimAssessmentAdaptor", () => {
       );
 
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/overview",
+        "/applications/123/claims/10/confirm-profit-costs",
       ]);
       assert.equal(responseStub.render.callCount, 0);
       assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);

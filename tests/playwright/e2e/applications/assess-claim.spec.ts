@@ -528,7 +528,7 @@ test.describe("Assess claim page", () => {
     ).toBeVisible();
   });
 
-  test("redirects to the application overview when Pay in full is selected", async ({
+  test("redirects to the confirm profit costs page when Pay in full is selected", async ({
     page,
   }) => {
     await page.goto(assessClaimPage);
@@ -538,7 +538,7 @@ test.describe("Assess claim page", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page).toHaveURL(applicationOverviewPage);
+    await expect(page).toHaveURL(`${assessClaimPage}/confirm-profit-costs`);
   });
 
   test("shows the rejection success page when Reject is selected with a valid reason", async ({
