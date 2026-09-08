@@ -220,6 +220,30 @@
           "grossLessThanNet": "Net total cannot be higher than the gross total value"
         }
       },
+      "confirmDisbursementCosts": {
+        "heading": "Confirm the total disbursement costs",
+        "intro1": "You must complete either the net and gross total for disbursement costs at 20% VAT, or the total for disbursement costs charged at 0% VAT.",
+        "intro2": "The information you need to complete this section is in the claim cost breakdown spreadsheet the provider has uploaded as supporting evidence.",
+        "vat20Heading": "Disbursement costs at 20% VAT",
+        "netLabel": "Net total for disbursement costs excluding VAT",
+        "netHint": "This is only for costs where VAT applies",
+        "grossLabel": "Gross total for disbursement costs including VAT",
+        "grossHint": "This is calculated by adding the net total disbursement costs where VAT applies, plus 20%",
+        "vat0Heading": "Disbursement costs at 0% VAT",
+        "zeroLabel": "Total for disbursement costs charged at 0% VAT",
+        "zeroHint": "Only complete this field if you have not added values for disbursement costs at 20% VAT",
+        "continue": "Continue",
+        "validationErrors": {
+          "netFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "grossFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "zeroVatFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "totalRequired": "Enter the total of the claim to continue",
+          "netMissing": "Enter the net total of the claim",
+          "grossMissing": "Enter the gross total of the claim",
+          "vatConflict": "You cannot submit a total disbursement cost claim with both 0% and 20% VAT",
+          "grossLessThanNet": "Gross total must be more than the net disbursement costs"
+        }
+      },
       "rejectedSuccess": {
         "panel": "{claimType} claim has been assessed and rejected",
         "whatHappensNext": "What happens next",
