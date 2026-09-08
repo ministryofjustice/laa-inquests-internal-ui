@@ -9,7 +9,7 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const confirmProfitCostsLocale = en.pages.claimAssessment.confirmProfitCosts;
 
-const applicationId = "5";
+const applicationId = "INQ-YYY-005";
 const claimId = "10";
 const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
 const confirmProfitCostsPage = `${assessClaimPage}/confirm-profit-costs`;

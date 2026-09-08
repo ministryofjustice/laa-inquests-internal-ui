@@ -52,7 +52,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     );
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
       backUrl: "/applications/123/claims/10",
-      applicationId: "123",
+      laaReference: "123",
       claimId: "10",
       netTotal: "",
       grossTotal: "",
@@ -76,7 +76,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
 
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
       backUrl: "/applications/123/claims/10",
-      applicationId: "123",
+      laaReference: "123",
       claimId: "10",
       netTotal: "300",
       grossTotal: "360",
@@ -94,7 +94,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "",
         },
         params: {
-          applicationId: "123",
+          laaReference: "123",
           claimId: "10",
         },
       };
@@ -108,7 +108,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     );
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
       backUrl: "/applications/123/claims/10",
-      applicationId: "123",
+      laaReference: "123",
       claimId: "10",
       netTotal: "",
       grossTotal: "",
@@ -132,7 +132,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "100",
         },
         params: {
-          applicationId: "123",
+          laaReference: "123",
           claimId: "10",
         },
       };
@@ -161,7 +161,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "",
         },
         params: {
-          applicationId: "123",
+          laaReference: "123",
           claimId: "10",
         },
       };

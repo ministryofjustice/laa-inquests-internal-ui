@@ -38,7 +38,7 @@ export class ConfirmProfitCostsAdaptor {
   renderConfirmProfitCostsPage(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
     claimId: string,
     errorSummaries?: Partial<ConfirmProfitCostsFormErrors>,
     formValues?: Partial<ConfirmProfitCostsForm>,
@@ -49,7 +49,7 @@ export class ConfirmProfitCostsAdaptor {
       request: req,
       extraContext: {
         event: "confirm_profit_costs_page_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
       },
     });
@@ -61,8 +61,8 @@ export class ConfirmProfitCostsAdaptor {
     const totals = this.#resolveFormValues(formValues, sessionData);
 
     res.render("application/claims/confirm-profit-costs/index", {
-      backUrl: `/applications/${applicationId}/claims/${claimId}`,
-      applicationId,
+      backUrl: `/applications/${laaReference}/claims/${claimId}`,
+      laaReference,
       claimId,
       ...totals,
       ...(errorSummaries !== undefined && {
@@ -124,7 +124,7 @@ export class ConfirmProfitCostsAdaptor {
   ): void {
     const {
       body: formBody,
-      params: { applicationId, claimId },
+      params: { laaReference, claimId },
     } = req;
 
     logger.logInfo({
@@ -133,7 +133,7 @@ export class ConfirmProfitCostsAdaptor {
       request: req as unknown as Request,
       extraContext: {
         event: "confirm_profit_costs_form_submitted",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
         claim_reference: claimId,
       },
     });
@@ -145,7 +145,7 @@ export class ConfirmProfitCostsAdaptor {
       this.renderConfirmProfitCostsPage(
         req as unknown as Request,
         res,
-        applicationId,
+        laaReference,
         claimId,
         errorSummaries,
         formBody,
@@ -160,7 +160,7 @@ export class ConfirmProfitCostsAdaptor {
     });
 
     res.redirect(
-      `/applications/${applicationId}/claims/${claimId}/confirm-disbursement-costs`,
+      `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,
     );
   }
 }
