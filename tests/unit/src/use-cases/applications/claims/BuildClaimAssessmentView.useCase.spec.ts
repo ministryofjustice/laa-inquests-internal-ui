@@ -48,7 +48,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     claimsPortStub.getClaimById.resolves(baseClaim);
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -112,7 +112,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "13",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -149,7 +149,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -174,7 +174,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -210,7 +210,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -275,7 +275,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -293,7 +293,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       claimId: "",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,
@@ -310,7 +310,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     applicationPortStub.getApplication.rejects(new Error("boom"));
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       applicationPort: applicationPortStub,
       claimsPort: claimsPortStub,

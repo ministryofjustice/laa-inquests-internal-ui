@@ -5,7 +5,7 @@ import {
 } from "#src/use-cases/common/useCaseResult.types.js";
 
 interface ConfirmPublicAuthorityUpdateInput {
-  applicationId: string;
+  laaReference: string;
   applicationPort: ApplicationPort;
   selectedPublicAuthorityIds: string[];
   accessToken?: string;
@@ -16,20 +16,20 @@ export class ConfirmPublicAuthorityUpdateUseCase {
     input: ConfirmPublicAuthorityUpdateInput,
   ): Promise<UseCaseResult> {
     if (
-      input.applicationId === "" ||
+      input.laaReference === "" ||
       input.selectedPublicAuthorityIds.length === 0
     ) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         message:
-          "Cannot update public authorities without applicationId or selected public authorities",
+          "Cannot update public authorities without laaReference or selected public authorities",
       };
     }
 
     try {
       await input.applicationPort.updateApplicationPublicBodies(
-        input.applicationId,
+        input.laaReference,
         input.accessToken,
         input.selectedPublicAuthorityIds,
       );

@@ -9,31 +9,31 @@ const RETURN_TO_CHECK_YOUR_ANSWERS_FLAG = "true";
 export class ApplicationDecisionNavigationHelper {
   constructor(private readonly sessionHelper: SessionHelper) {}
 
-  prepareDecisionFormEntry(req: Request, applicationId: string): void {
-    this.#resetDecisionSessionForApplication(req, applicationId);
+  prepareDecisionFormEntry(req: Request, laaReference: string): void {
+    this.#resetDecisionSessionForApplication(req, laaReference);
     this.#resetReturnToCheckYourAnswersFlagForFreshDecisionEntry(req);
     this.#captureCheckYourAnswersEntry(req);
   }
 
-  storeApplicationContext(req: Request, applicationId: string): void {
-    this.sessionHelper.storeSessionData(req, "decision", { applicationId });
+  storeApplicationContext(req: Request, laaReference: string): void {
+    this.sessionHelper.storeSessionData(req, "decision", { laaReference });
   }
 
-  resolveDecisionBackUrl(req: Request, applicationId: string): string {
+  resolveDecisionBackUrl(req: Request, laaReference: string): string {
     if (this.#shouldReturnToCheckYourAnswersFromRequest(req)) {
-      return `/applications/${applicationId}/decision/confirmation`;
+      return `/applications/${laaReference}/decision/confirmation`;
     }
 
-    return `/applications/${applicationId}/overview`;
+    return `/applications/${laaReference}/overview`;
   }
 
   resolveSecondaryDecisionBackUrl(
     req: Request,
-    applicationId: string,
+    laaReference: string,
     defaultPath: string,
   ): string {
     if (this.#shouldReturnToCheckYourAnswersFromRequest(req)) {
-      return `/applications/${applicationId}/decision/confirmation`;
+      return `/applications/${laaReference}/decision/confirmation`;
     }
 
     return defaultPath;
@@ -41,7 +41,7 @@ export class ApplicationDecisionNavigationHelper {
 
   resolvePostDecisionSelectionPath(
     req: Request,
-    applicationId: string,
+    laaReference: string,
     overallDecision: string,
   ): string {
     const decisionSessionData = this.sessionHelper.getSessionData(
@@ -51,10 +51,10 @@ export class ApplicationDecisionNavigationHelper {
 
     if (!this.#shouldReturnToCheckYourAnswers(decisionSessionData)) {
       if (overallDecision === GRANTED_DECISION) {
-        return `/applications/${applicationId}/decision/certificate-start-date`;
+        return `/applications/${laaReference}/decision/certificate-start-date`;
       }
 
-      return `/applications/${applicationId}/decision/justification`;
+      return `/applications/${laaReference}/decision/justification`;
     }
 
     const updatedSessionData: DecisionSessionData = {
@@ -65,18 +65,18 @@ export class ApplicationDecisionNavigationHelper {
     if (overallDecision === GRANTED_DECISION) {
       if (this.#hasCertificateStartDate(updatedSessionData)) {
         this.#clearReturnToCheckYourAnswersFlag(req);
-        return `/applications/${applicationId}/decision/confirmation`;
+        return `/applications/${laaReference}/decision/confirmation`;
       }
 
-      return `/applications/${applicationId}/decision/certificate-start-date`;
+      return `/applications/${laaReference}/decision/certificate-start-date`;
     }
 
     if (this.#hasRefusalDetails(updatedSessionData)) {
       this.#clearReturnToCheckYourAnswersFlag(req);
-      return `/applications/${applicationId}/decision/confirmation`;
+      return `/applications/${laaReference}/decision/confirmation`;
     }
 
-    return `/applications/${applicationId}/decision/justification`;
+    return `/applications/${laaReference}/decision/justification`;
   }
 
   clearReturnToCheckYourAnswersFlagIfSet(req: Request): void {
@@ -125,7 +125,7 @@ export class ApplicationDecisionNavigationHelper {
 
   #resetDecisionSessionForApplication(
     req: Request,
-    applicationId: string,
+    laaReference: string,
   ): void {
     if (req.method !== "GET") {
       return;
@@ -140,7 +140,7 @@ export class ApplicationDecisionNavigationHelper {
       return;
     }
 
-    if (decisionSessionData.applicationId === applicationId) {
+    if (decisionSessionData.laaReference === laaReference) {
       return;
     }
 

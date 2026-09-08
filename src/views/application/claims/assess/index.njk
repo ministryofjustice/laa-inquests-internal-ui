@@ -44,7 +44,7 @@
   ]) %}
 {% endfor %}
 
-<form data-testid="assess-claim" method="post" action="/applications/{{ applicationId }}/claims/{{ claimId }}">
+<form data-testid="assess-claim" method="post" action="/applications/{{ laaReference }}/claims/{{ claimId }}">
   <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
   <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.heading') }}</h1>

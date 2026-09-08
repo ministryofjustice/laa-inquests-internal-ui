@@ -196,6 +196,30 @@
       },
       "reasonLabel": "What is the reason you are rejecting this claim?",
       "reasonHint": "This information will be shared with the provider and added to the application history.",
+      "confirmProfitCosts": {
+        "heading": "Confirm the total profit costs",
+        "intro1": "You must complete either the net and gross total for profit costs at 20% VAT, or the total for profit costs charged at 0% VAT. Profit costs are only eligible for 0% VAT if the client meets certain criteria.",
+        "intro2": "The information you need to complete this section is in the claim cost breakdown spreadsheet the provider has uploaded as supporting evidence.",
+        "vat20Heading": "Profit costs at 20% VAT",
+        "netLabel": "Net total for profit costs excluding VAT",
+        "netHint": "This is only for costs where VAT applies",
+        "grossLabel": "Gross total for profit costs including VAT",
+        "grossHint": "This is calculated by adding the net total profit costs where VAT can be charged, plus 20%",
+        "vat0Heading": "Profit costs at 0% VAT",
+        "zeroLabel": "Total for profit costs charged at 0% VAT",
+        "zeroHint": "Only complete this field if you have not added values for profit costs at 20% VAT",
+        "continue": "Continue",
+        "validationErrors": {
+          "netFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "grossFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "zeroVatFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "totalRequired": "Complete the total value of the claim to continue",
+          "netMissing": "Enter the net total for profit costs excluding VAT",
+          "grossMissing": "Enter the gross total for profit costs including VAT",
+          "vatConflict": "You cannot submit a total profit cost claim with both 0% and 20% VAT",
+          "grossLessThanNet": "Net total cannot be higher than the gross total value"
+        }
+      },
       "rejectedSuccess": {
         "panel": "{claimType} claim has been assessed and rejected",
         "whatHappensNext": "What happens next",

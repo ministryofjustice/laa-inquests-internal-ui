@@ -17,10 +17,10 @@
     ]
   }) }}
 {% endif %}
-<form data-testid="make-a-decision" method="post" action="/applications/{{ applicationId }}/decision">
+<form data-testid="make-a-decision" method="post" action="/applications/{{ laaReference }}/decision">
 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
     <h1 class="govuk-heading-l">{{ t('pages.decision.merits.header') }}</h1>
-    <h2 class="govuk-heading-m">{{ applicationId }}</h2>
+    <h2 class="govuk-heading-m">{{ laaReference }}</h2>
     <p class="govuk-body">{{ t('pages.decision.merits.extraDetail') }}</p>
     {{ govukSummaryList({
         card: {

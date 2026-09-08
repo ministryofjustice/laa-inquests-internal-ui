@@ -12,40 +12,40 @@ export interface ApplicationPort {
     accessToken: string | undefined,
   ) => Promise<ApplicationSummary[]>;
   getApplication: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ) => Promise<Application>;
   submitRefuseDecision: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     refusalReason: string,
     justification: string,
   ) => Promise<void>;
   submitGrantDecision: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     certificateStartDate: string,
   ) => Promise<void>;
   getCoronersLetterDocument: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
   getCertificateDetails: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ) => Promise<OutboundAdapterResult<Certificate>>;
   getApplicationHistory: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
   ) => Promise<HistoryEvent[]>;
   getPublicBodies: (accessToken: string | undefined) => Promise<PublicBody[]>;
   updateApplicationPublicBodies: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     publicBodyIds: string[],
   ) => Promise<void>;
   addHistoryNote: (
-    applicationId: string,
+    laaReference: string,
     accessToken: string | undefined,
     noteText: string,
   ) => Promise<void>;

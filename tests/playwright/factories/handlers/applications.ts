@@ -13,49 +13,49 @@ import {
  */
 const applicationSummaries = [
   {
-    laa_reference: 1,
+    laa_reference: "INQ-YYY-001",
     created_at: "2026-05-18T15:49:07.455255",
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
   {
-    laa_reference: 2,
+    laa_reference: "INQ-YYY-002",
     created_at: "2026-05-19T15:49:07.455255",
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
   {
-    laa_reference: 3,
+    laa_reference: "INQ-YYY-003",
     created_at: "2026-07-13T09:00:00.000000",
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
   {
-    laa_reference: 4,
+    laa_reference: "INQ-YYY-004",
     created_at: "2026-07-14T09:00:00.000000",
     status: "LIVE",
     overall_decision: PENDING_DECISION,
   },
   {
-    laa_reference: 5,
+    laa_reference: "INQ-YYY-005",
     created_at: "2026-07-15T09:00:00.000000",
     status: "LIVE",
     overall_decision: GRANTED_DECISION,
   },
   {
-    laa_reference: 6,
+    laa_reference: "INQ-YYY-006",
     created_at: "2026-07-16T09:00:00.000000",
     status: "LIVE",
     overall_decision: GRANTED_DECISION,
   },
   {
-    laa_reference: 7,
+    laa_reference: "INQ-YYY-007",
     created_at: "2026-07-17T09:00:00.000000",
     status: "LIVE",
     overall_decision: GRANTED_DECISION,
   },
   {
-    laa_reference: 8,
+    laa_reference: "INQ-YYY-008",
     created_at: "2026-07-18T09:00:00.000000",
     status: "LIVE",
     overall_decision: GRANTED_DECISION,
@@ -68,7 +68,7 @@ const applicationSummaries = [
  */
 const fullApplications = [
   {
-    laaReference: 1,
+    laaReference: "INQ-YYY-001",
     createdAt: "2026-05-18T15:49:07.455255",
     updatedAt: "2026-05-18T15:49:07.455279",
     status: "LIVE",
@@ -138,7 +138,7 @@ const fullApplications = [
     },
   },
   {
-    laaReference: 3,
+    laaReference: "INQ-YYY-003",
     createdAt: "2026-05-18T15:49:07.455255",
     updatedAt: "2026-05-18T15:49:07.455279",
     status: "LIVE",
@@ -210,7 +210,7 @@ const fullApplications = [
 ];
 
 const certificate = {
-  laaReference: 1,
+  laaReference: "INQ-YYY-001",
   dateCreated: "2026-05-19",
   clientName: "John Doe",
   clientAddress: {
@@ -429,7 +429,7 @@ export const applicationHandlers = [
 
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/:id`, ({ params }) => {
     let fullApplication;
-    if (params.id == "3") {
+    if (params.id == "INQ-YYY-003") {
       fullApplication = fullApplications[1];
     } else {
       fullApplication = fullApplications[0];
@@ -437,13 +437,12 @@ export const applicationHandlers = [
 
     const appToReturn = { ...fullApplication };
     const matchingSummary = applicationSummaries.find(
-      (applicationSummary) =>
-        applicationSummary.laa_reference === Number(params.id),
+      (applicationSummary) => applicationSummary.laa_reference === params.id,
     );
     const decision = matchingSummary?.overall_decision ?? PENDING_DECISION;
     appToReturn.overallDecision = decision;
     appToReturn.proceeding!.meritsDecision = decision;
-    appToReturn.laaReference = Number(params.id);
+    appToReturn.laaReference = params.id as string;
 
     return HttpResponse.json(appToReturn);
   }),
@@ -452,8 +451,7 @@ export const applicationHandlers = [
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/refuse-decision`,
     ({ params }) => {
       const matchingSummary = applicationSummaries.find(
-        (applicationSummary) =>
-          applicationSummary.laa_reference === Number(params.id),
+        (applicationSummary) => applicationSummary.laa_reference === params.id,
       );
       if (matchingSummary) {
         matchingSummary.overall_decision = REFUSED_DECISION;
@@ -466,8 +464,7 @@ export const applicationHandlers = [
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/grant-decision`,
     ({ params }) => {
       const matchingSummary = applicationSummaries.find(
-        (applicationSummary) =>
-          applicationSummary.laa_reference === Number(params.id),
+        (applicationSummary) => applicationSummary.laa_reference === params.id,
       );
       if (matchingSummary) {
         matchingSummary.overall_decision = GRANTED_DECISION;
@@ -556,19 +553,19 @@ export const applicationHandlers = [
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId`,
     ({ params }) => {
-      if (params.id === "5" && params.claimId === "10") {
+      if (params.id === "INQ-YYY-005" && params.claimId === "10") {
         return HttpResponse.json(claimDetail);
       }
 
-      if (params.id === "5" && params.claimId === "11") {
+      if (params.id === "INQ-YYY-005" && params.claimId === "11") {
         return HttpResponse.json(claimDetailWithoutEvidence);
       }
 
-      if (params.id === "5" && params.claimId === "12") {
+      if (params.id === "INQ-YYY-005" && params.claimId === "12") {
         return HttpResponse.json(claimDetailVatZeroOnly);
       }
 
-      if (params.id === "5" && params.claimId === "13") {
+      if (params.id === "INQ-YYY-005" && params.claimId === "13") {
         return HttpResponse.json(finalBillClaimDetail);
       }
 
@@ -619,7 +616,7 @@ export const applicationHandlers = [
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims`,
     ({ params, request }) => {
       // Simulate an upstream failure so the Claims tab can degrade gracefully.
-      if (params.id === "998") {
+      if (params.id === "INQ-YYY-998") {
         return new HttpResponse(null, { status: 500 });
       }
 
@@ -627,17 +624,17 @@ export const applicationHandlers = [
       const assessed = url.searchParams.get("assessed") === "true";
 
       // id 7: no claims at all (empty state).
-      if (params.id === "7") {
+      if (params.id === "INQ-YYY-007") {
         return HttpResponse.json([]);
       }
 
       // id 6: only claims to be assessed (no assessed claims).
-      if (params.id === "6") {
+      if (params.id === "INQ-YYY-006") {
         return HttpResponse.json(assessed ? [] : toBeAssessedClaims);
       }
 
       // id 8: only assessed claims (nothing to be assessed).
-      if (params.id === "8") {
+      if (params.id === "INQ-YYY-008") {
         return HttpResponse.json(assessed ? assessedClaims : []);
       }
 
@@ -650,8 +647,7 @@ export const applicationHandlers = [
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/public-bodies`,
     ({ params }) => {
       const matchingSummary = applicationSummaries.find(
-        (applicationSummary) =>
-          applicationSummary.laa_reference === Number(params.id),
+        (applicationSummary) => applicationSummary.laa_reference === params.id,
       );
       if (!matchingSummary) {
         return new HttpResponse(null, { status: 404 });

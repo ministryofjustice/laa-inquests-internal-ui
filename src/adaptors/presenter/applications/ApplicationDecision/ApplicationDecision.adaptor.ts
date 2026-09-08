@@ -81,17 +81,17 @@ export class ApplicationDecisionAdaptor {
     res: Response,
     errorSummaries?: Partial<ApplicationDecisionFormErrors>,
   ): Promise<void> {
-    const applicationId = req.params.applicationId as string;
+    const laaReference = req.params.laaReference as string;
 
-    this.navigationHelper.prepareDecisionFormEntry(req, applicationId);
+    this.navigationHelper.prepareDecisionFormEntry(req, laaReference);
 
     const backUrl = this.navigationHelper.resolveDecisionBackUrl(
       req,
-      applicationId,
+      laaReference,
     );
 
     const data = await this.viewApplicationAdaptor.getApplication(
-      applicationId,
+      laaReference,
       req.session.user?.accessToken,
     );
     const sessionDecision = this.sessionHelper.getSessionData(
@@ -116,11 +116,11 @@ export class ApplicationDecisionAdaptor {
       prepareDecisionFormResult.data;
 
     this.sessionHelper.storeSessionData(req, "decision", proceeding);
-    this.navigationHelper.storeApplicationContext(req, applicationId);
+    this.navigationHelper.storeApplicationContext(req, laaReference);
 
     res.render("application/decision/index", {
       backUrl,
-      applicationId,
+      laaReference,
       proceeding,
       overallDecision: selectedOverallDecision,
       ...(errorSummaries && { errorSummaries }),
@@ -133,7 +133,7 @@ export class ApplicationDecisionAdaptor {
   ): Promise<void> {
     const {
       body: { "overall-decision": overallDecision },
-      params: { applicationId },
+      params: { laaReference },
     } = req;
 
     const processDecisionSelectionResult =
@@ -164,7 +164,7 @@ export class ApplicationDecisionAdaptor {
 
     const redirectPath = this.navigationHelper.resolvePostDecisionSelectionPath(
       req as unknown as Request,
-      applicationId,
+      laaReference,
       decisionToPersist,
     );
 
@@ -176,18 +176,18 @@ export class ApplicationDecisionAdaptor {
     res: Response,
     errorSummaries?: Partial<JustificationFormErrors>,
   ): void {
-    const applicationId = req.params.applicationId as string;
-    this.navigationHelper.prepareDecisionFormEntry(req, applicationId);
+    const laaReference = req.params.laaReference as string;
+    this.navigationHelper.prepareDecisionFormEntry(req, laaReference);
 
     const backUrl = this.navigationHelper.resolveSecondaryDecisionBackUrl(
       req,
-      applicationId,
-      `/applications/${applicationId}/decision`,
+      laaReference,
+      `/applications/${laaReference}/decision`,
     );
     const sessionData = this.sessionHelper.getSessionData(req, "decision");
     res.render("application/decision/justification/index", {
       backUrl,
-      laaReference: applicationId,
+      laaReference,
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
       ...(errorSummaries && { errorSummaries }),
@@ -199,7 +199,7 @@ export class ApplicationDecisionAdaptor {
     res: Response,
   ): void {
     const {
-      params: { applicationId },
+      params: { laaReference },
     } = req;
     const {
       body: { "refusal-reason": refusalReason, justification },
@@ -240,7 +240,7 @@ export class ApplicationDecisionAdaptor {
       req as unknown as Request,
     );
 
-    res.redirect(`/applications/${applicationId}/decision/confirmation`);
+    res.redirect(`/applications/${laaReference}/decision/confirmation`);
   }
 
   renderCertificateStartDateForm(
@@ -248,13 +248,13 @@ export class ApplicationDecisionAdaptor {
     res: Response,
     errorSummaries?: Partial<CertificateStartDateFormErrors>,
   ): void {
-    const applicationId = req.params.applicationId as string;
-    this.navigationHelper.prepareDecisionFormEntry(req, applicationId);
+    const laaReference = req.params.laaReference as string;
+    this.navigationHelper.prepareDecisionFormEntry(req, laaReference);
 
     const backUrl = this.navigationHelper.resolveSecondaryDecisionBackUrl(
       req,
-      applicationId,
-      `/applications/${applicationId}/decision`,
+      laaReference,
+      `/applications/${laaReference}/decision`,
     );
     const sessionData = this.sessionHelper.getSessionData(
       req,
@@ -262,7 +262,7 @@ export class ApplicationDecisionAdaptor {
     ) as DecisionSessionData | null;
     res.render("application/decision/certificate-start-date/index", {
       backUrl,
-      applicationId,
+      laaReference,
       startDateOption: sessionData?.certificateStartDateOption,
       day: sessionData?.certificateStartDateDay,
       month: sessionData?.certificateStartDateMonth,
@@ -276,7 +276,7 @@ export class ApplicationDecisionAdaptor {
     res: Response,
   ): void {
     const {
-      params: { applicationId },
+      params: { laaReference },
     } = req;
     const {
       body: {
@@ -327,19 +327,19 @@ export class ApplicationDecisionAdaptor {
       req as unknown as Request,
     );
 
-    res.redirect(`/applications/${applicationId}/decision/confirmation`);
+    res.redirect(`/applications/${laaReference}/decision/confirmation`);
   }
 
   renderConfirmationPage(req: Request, res: Response): void {
-    const applicationId = req.params.applicationId as string;
+    const laaReference = req.params.laaReference as string;
     const sessionData = this.sessionHelper.getSessionData(
       req,
       "decision",
     ) as DecisionSessionData | null;
     const backUrl =
       sessionData?.overallDecision === GRANTED_DECISION
-        ? `/applications/${applicationId}/decision/certificate-start-date`
-        : `/applications/${applicationId}/decision/justification`;
+        ? `/applications/${laaReference}/decision/certificate-start-date`
+        : `/applications/${laaReference}/decision/justification`;
     const prepareConfirmationViewResult: ReturnType<
       PrepareConfirmationViewUseCase["execute"]
     > = this.prepareConfirmationViewUseCase.execute({
@@ -361,7 +361,7 @@ export class ApplicationDecisionAdaptor {
 
     res.render("application/decision/confirmation/index", {
       backUrl,
-      applicationId,
+      laaReference,
       proceeding,
       overallDecision,
       refusalReasonLabel,
@@ -371,7 +371,7 @@ export class ApplicationDecisionAdaptor {
   }
 
   async processConfirmationForm(req: Request, res: Response): Promise<void> {
-    const applicationId = req.params.applicationId as string;
+    const laaReference = req.params.laaReference as string;
     const sessionData = this.sessionHelper.getSessionData(
       req,
       "decision",
@@ -381,7 +381,7 @@ export class ApplicationDecisionAdaptor {
       const grantDecisionResult = await this.#processGrantDecision(
         req,
         res,
-        applicationId,
+        laaReference,
         sessionData,
       );
       if (grantDecisionResult.status === "TECHNICAL_FAILURE") {
@@ -391,7 +391,7 @@ export class ApplicationDecisionAdaptor {
       const refuseDecisionResult = await this.#processRefuseDecision(
         req,
         res,
-        applicationId,
+        laaReference,
         sessionData,
       );
       if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
@@ -401,13 +401,13 @@ export class ApplicationDecisionAdaptor {
       }
     }
 
-    res.redirect(`/applications/${applicationId}/decision/success`);
+    res.redirect(`/applications/${laaReference}/decision/success`);
   }
 
   async #processGrantDecision(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
     sessionData: DecisionSessionData | null,
   ): Promise<UseCaseResult<void>> {
     const {
@@ -426,7 +426,7 @@ export class ApplicationDecisionAdaptor {
     const paddedMonth = certificateStartDateMonth.padStart(2, "0");
     const certificateStartDate = `${certificateStartDateYear}-${paddedMonth}-${paddedDay}`;
     return await this.grantDecisionUseCase.execute({
-      applicationId,
+      laaReference,
       certificateStartDate,
       applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
@@ -436,7 +436,7 @@ export class ApplicationDecisionAdaptor {
   async #processRefuseDecision(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
     sessionData: DecisionSessionData | null,
   ): Promise<UseCaseResult<void>> {
     const { refusalReason, justification } = sessionData ?? {};
@@ -446,7 +446,7 @@ export class ApplicationDecisionAdaptor {
       );
     }
     return await this.refuseDecisionUseCase.execute({
-      applicationId,
+      laaReference,
       refusalReason,
       justification,
       applicationPort: this.viewApplicationAdaptor,
@@ -455,11 +455,11 @@ export class ApplicationDecisionAdaptor {
   }
 
   renderDecisionSuccessPage(req: Request, res: Response): void {
-    const applicationId = req.params.applicationId as string;
-    const backUrl = `/applications/${applicationId}/decision/confirmation`;
+    const laaReference = req.params.laaReference as string;
+    const backUrl = `/applications/${laaReference}/decision/confirmation`;
     this.sessionHelper.clearSessionData(req, "decision");
     res.render("application/decision/success/index", {
-      applicationId,
+      laaReference,
       backUrl,
     });
   }

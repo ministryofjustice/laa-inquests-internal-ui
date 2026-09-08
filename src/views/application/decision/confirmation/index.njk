@@ -7,7 +7,7 @@
 {% set pageTitle = t('pages.decision.confirmation.header') %}
 
 {% block pageContent %}
-<form data-testid="check-your-answers" method="post" action="/applications/{{ applicationId }}/decision/confirmation">
+<form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/decision/confirmation">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
   <h1 class="govuk-heading-l">{{ t('pages.decision.confirmation.header') }}</h1>
   {{ govukSummaryList({
@@ -35,7 +35,7 @@
         actions: {
             items: [
             {
-              href: "/applications/" + applicationId + "/decision/certificate-start-date?from=check-your-answers",
+              href: "/applications/" + laaReference + "/decision/certificate-start-date?from=check-your-answers",
                 text: t('common.change'),
                 visuallyHiddenText: t('pages.decision.confirmation.certificateStartDateTitle')
             }
@@ -53,7 +53,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + applicationId + "/decision?from=check-your-answers",
+              href: "/applications/" + laaReference + "/decision?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.decision.confirmation.overallDecisionTitle')
             }
@@ -70,7 +70,7 @@
         actions: {
             items: [
             {
-              href: "/applications/" + applicationId + "/decision/justification?from=check-your-answers",
+              href: "/applications/" + laaReference + "/decision/justification?from=check-your-answers",
                 text: t('common.change'),
                 visuallyHiddenText: t('pages.decision.confirmation.refusalReasonTitle')
             }
@@ -87,7 +87,7 @@
         actions: {
             items: [
             {
-              href: "/applications/" + applicationId + "/decision/justification?from=check-your-answers",
+              href: "/applications/" + laaReference + "/decision/justification?from=check-your-answers",
                 text: t('common.change'),
                 visuallyHiddenText: t('pages.decision.confirmation.justificationTitle')
             }

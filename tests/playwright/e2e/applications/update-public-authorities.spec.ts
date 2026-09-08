@@ -13,10 +13,10 @@ const publicAuthorityLocale = en.pages.applicationOverview.publicAuthority;
 const notificationBannerLocale = publicAuthorityLocale.notificationBanner;
 const confirmLocale = publicAuthorityLocale.confirm;
 
-const applicationId = "5";
-const selectionPage = `/applications/${applicationId}/public-authorities`;
-const confirmPage = `/applications/${applicationId}/public-authorities/confirm`;
-const overviewPage = `/applications/${applicationId}/overview`;
+const laaReference = "INQ-YYY-005";
+const selectionPage = `/applications/${laaReference}/public-authorities`;
+const confirmPage = `/applications/${laaReference}/public-authorities/confirm`;
+const overviewPage = `/applications/${laaReference}/overview`;
 
 test.describe.serial("Update public authorities journey", () => {
   let sharedContext: BrowserContext;
@@ -64,7 +64,7 @@ test.describe.serial("Update public authorities journey", () => {
   test("renders the public authority selection page with current selections preselected", async () => {
     await validateGovPage(sharedPage, {
       headerText: publicAuthorityLocale.title,
-      backUrl: `/applications/${applicationId}/overview`,
+      backUrl: `/applications/${laaReference}/overview`,
     });
 
     const form = sharedPage.getByTestId("update-public-authorities-form");

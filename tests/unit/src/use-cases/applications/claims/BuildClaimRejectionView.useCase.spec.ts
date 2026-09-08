@@ -25,7 +25,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
     claimsPortStub.getClaimById.resolves(baseClaim);
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       claimsPort: claimsPortStub,
       accessToken: "token",
@@ -43,7 +43,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "13",
       claimsPort: claimsPortStub,
     });
@@ -60,7 +60,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       claimsPort: claimsPortStub,
     });
@@ -73,7 +73,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       claimId: "",
       claimsPort: claimsPortStub,
     });
@@ -87,7 +87,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
     claimsPortStub.getClaimById.rejects(new Error("boom"));
 
     const result = await useCase.execute({
-      applicationId: "5",
+      laaReference: "5",
       claimId: "10",
       claimsPort: claimsPortStub,
     });

@@ -111,7 +111,7 @@ describe("ClaimAssessmentAdaptor", () => {
     assert.deepStrictEqual(
       buildClaimAssessmentViewUseCaseStub.execute.getCall(0).args[0],
       {
-        applicationId: "123",
+        laaReference: "123",
         claimId: "10",
         applicationPort: applicationPortStub,
         claimsPort: claimsPortStub,
@@ -126,7 +126,7 @@ describe("ClaimAssessmentAdaptor", () => {
     );
     assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
       backUrl: "/applications/123/overview",
-      applicationId: "123",
+      laaReference: "123",
       claimId: "10",
       claimStatus: "Reject",
       claimCostBreakdown: {
@@ -148,13 +148,13 @@ describe("ClaimAssessmentAdaptor", () => {
           "rejection-reason": rejectionReason,
         },
         params: {
-          applicationId: "123",
+          laaReference: "123",
           claimId: "10",
         },
       } as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>;
     }
 
-    it("redirects to the application overview when validation passes", async () => {
+    it("redirects to the confirm profit costs page when validation passes", async () => {
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: { assessClaim: "Pay in full", rejectionReason: "" },
@@ -166,7 +166,7 @@ describe("ClaimAssessmentAdaptor", () => {
       );
 
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/overview",
+        "/applications/123/claims/10/confirm-profit-costs",
       ]);
       assert.equal(responseStub.render.callCount, 0);
       assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);
@@ -194,7 +194,7 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.deepStrictEqual(
         rejectClaimUseCaseStub.execute.getCall(0).args[0],
         {
-          applicationId: "123",
+          laaReference: "123",
           claimId: "10",
           justification: "Not enough supporting evidence provided",
           claimsPort: claimsPortStub,
@@ -269,7 +269,7 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.deepStrictEqual(
         buildClaimRejectionViewUseCaseStub.execute.getCall(0).args[0],
         {
-          applicationId: "123",
+          laaReference: "123",
           claimId: "10",
           claimsPort: claimsPortStub,
           accessToken: "test-access-token",
@@ -282,7 +282,7 @@ describe("ClaimAssessmentAdaptor", () => {
         "application/claims/rejected/index",
       );
       assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-        applicationId: "123",
+        laaReference: "123",
         claimType: "Payment on account",
       });
     });

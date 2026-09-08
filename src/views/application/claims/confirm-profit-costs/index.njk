@@ -1,0 +1,85 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set pageTitle = t('pages.claimAssessment.confirmProfitCosts.heading') %}
+
+{% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('common.errorSummaryTitle'),
+    errorList: errorList
+  }) }}
+{% endif %}
+<form data-testid="confirm-profit-costs" method="post" action="/applications/{{ laaReference }}/claims/{{ claimId }}/confirm-profit-costs">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+  <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.confirmProfitCosts.heading') }}</h1>
+
+  <p class="govuk-body">{{ t('pages.claimAssessment.confirmProfitCosts.intro1') }}</p>
+  <p class="govuk-body">{{ t('pages.claimAssessment.confirmProfitCosts.intro2') }}</p>
+
+  <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmProfitCosts.vat20Heading') }}</h2>
+
+  {{ govukInput({
+    id: "net-total",
+    name: "net-total",
+    label: {
+      text: t('pages.claimAssessment.confirmProfitCosts.netLabel'),
+      classes: "govuk-label--s"
+    },
+    hint: {
+      text: t('pages.claimAssessment.confirmProfitCosts.netHint')
+    },
+    prefix: {
+      text: "£"
+    },
+    classes: "govuk-input--width-5",
+    value: netTotal,
+    errorMessage: errorSummaries.netTotal
+  }) }}
+
+  {{ govukInput({
+    id: "gross-total",
+    name: "gross-total",
+    label: {
+      text: t('pages.claimAssessment.confirmProfitCosts.grossLabel'),
+      classes: "govuk-label--s"
+    },
+    hint: {
+      text: t('pages.claimAssessment.confirmProfitCosts.grossHint')
+    },
+    prefix: {
+      text: "£"
+    },
+    classes: "govuk-input--width-5",
+    value: grossTotal,
+    errorMessage: errorSummaries.grossTotal
+  }) }}
+
+  <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmProfitCosts.vat0Heading') }}</h2>
+
+  {{ govukInput({
+    id: "zero-vat-total",
+    name: "zero-vat-total",
+    label: {
+      text: t('pages.claimAssessment.confirmProfitCosts.zeroLabel'),
+      classes: "govuk-label--s"
+    },
+    hint: {
+      text: t('pages.claimAssessment.confirmProfitCosts.zeroHint')
+    },
+    prefix: {
+      text: "£"
+    },
+    classes: "govuk-input--width-5",
+    value: zeroVatTotal,
+    errorMessage: errorSummaries.zeroVatTotal
+  }) }}
+
+  {{ govukButton({
+    text: t('pages.claimAssessment.confirmProfitCosts.continue')
+  }) }}
+</form>
+{% endblock %}

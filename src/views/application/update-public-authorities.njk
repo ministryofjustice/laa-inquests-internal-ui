@@ -4,7 +4,7 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = t("pages.applicationOverview.publicAuthority.title") %}
 {% set pageTitle = pageHeading %}
-{% set backUrl = backHref or "/applications/" ~ applicationId ~ "/overview" %}
+{% set backUrl = backHref or "/applications/" ~ laaReference ~ "/overview" %}
 
 {% block pageContent %}
 
@@ -32,7 +32,7 @@
   }}
   {% endif %}
 
-  <form data-testid="update-public-authorities-form" action="/applications/{{ applicationId }}/public-authorities" method="POST">
+  <form data-testid="update-public-authorities-form" action="/applications/{{ laaReference }}/public-authorities" method="POST">
     <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
     {{ govukCheckboxes({

@@ -6,12 +6,12 @@ import type { Disposition } from "#src/infrastructure/locales/constants.js";
 
 export interface ClaimsPort {
   getClaims: (
-    applicationId: string,
+    laaReference: string,
     assessed: boolean,
     accessToken: string | undefined,
   ) => Promise<ClaimSummary[]>;
   getClaimById: (
-    applicationId: string,
+    laaReference: string,
     claimId: string,
     accessToken: string | undefined,
   ) => Promise<ClaimDetail>;
@@ -25,7 +25,7 @@ export interface ClaimsPort {
     contentDisposition: string;
   }>;
   rejectClaim: (
-    applicationId: string,
+    laaReference: string,
     claimId: string,
     justification: string,
     accessToken: string | undefined,

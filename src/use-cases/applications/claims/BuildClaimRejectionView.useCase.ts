@@ -6,7 +6,7 @@ import {
 import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimRejectionViewInput {
-  applicationId: string;
+  laaReference: string;
   claimId: string;
   claimsPort: ClaimsPort;
   accessToken?: string;
@@ -20,18 +20,18 @@ export class BuildClaimRejectionViewUseCase {
   async execute(
     input: BuildClaimRejectionViewInput,
   ): Promise<UseCaseResult<ClaimRejectionViewData>> {
-    if (!input.applicationId || !input.claimId) {
+    if (!input.laaReference || !input.claimId) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         message:
-          "Cannot build claim rejection view without applicationId and claimId",
+          "Cannot build claim rejection view without laaReference and claimId",
       };
     }
 
     try {
       const claim = await input.claimsPort.getClaimById(
-        input.applicationId,
+        input.laaReference,
         input.claimId,
         input.accessToken,
       );

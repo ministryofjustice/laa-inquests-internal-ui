@@ -6,7 +6,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface RejectClaimInput {
-  applicationId: string;
+  laaReference: string;
   claimId: string;
   justification: string;
   claimsPort: ClaimsPort;
@@ -15,13 +15,13 @@ interface RejectClaimInput {
 
 export class RejectClaimUseCase {
   async execute(input: RejectClaimInput): Promise<UseCaseResult> {
-    if (!input.applicationId || !input.claimId) {
+    if (!input.laaReference || !input.claimId) {
       logger.logWarn({
         functionName: "reject_claim_use_case",
         message: "Reject claim request is invalid",
         extraContext: {
           event: "reject_claim_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           claim_reference: input.claimId,
           reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         },
@@ -29,13 +29,13 @@ export class RejectClaimUseCase {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message: "Cannot reject a claim without applicationId and claimId",
+        message: "Cannot reject a claim without laaReference and claimId",
       };
     }
 
     try {
       await input.claimsPort.rejectClaim(
-        input.applicationId,
+        input.laaReference,
         input.claimId,
         input.justification,
         input.accessToken,
@@ -46,7 +46,7 @@ export class RejectClaimUseCase {
         message: "Claim rejected",
         extraContext: {
           event: "claim_rejected",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           claim_reference: input.claimId,
         },
       });
@@ -62,7 +62,7 @@ export class RejectClaimUseCase {
         err: error,
         extraContext: {
           event: "reject_claim_upstream_failed",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           claim_reference: input.claimId,
           reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
         },

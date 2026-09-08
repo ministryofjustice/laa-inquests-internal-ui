@@ -62,9 +62,9 @@ describe("BuildCertificateViewUseCase", () => {
     useCase = new BuildCertificateViewUseCase(applicationPortStub);
   });
 
-  it("should return SUCCESS and certificate details when given a valid applicationId", async () => {
+  it("should return SUCCESS and certificate details when given a valid laaReference", async () => {
     const result = await useCase.execute({
-      applicationId: "1",
+      laaReference: "1",
       accessToken: "access-token-123",
     });
     assert.equal(result.status, "SUCCESS");
@@ -72,9 +72,9 @@ describe("BuildCertificateViewUseCase", () => {
     assert.deepEqual(result.data, certificateDetails);
   });
 
-  it("should call the applicationPort.getCertificateDetails method with the correct applicationId", async () => {
+  it("should call the applicationPort.getCertificateDetails method with the correct laaReference", async () => {
     await useCase.execute({
-      applicationId: "1",
+      laaReference: "1",
       accessToken: "access-token-123",
     });
     assert.equal(applicationPortStub.getCertificateDetails.calledOnce, true);
@@ -84,9 +84,9 @@ describe("BuildCertificateViewUseCase", () => {
     );
   });
 
-  it("returns TECHNICAL_FAILURE when applicationId is missing", async () => {
+  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       accessToken: "access-token-123",
     });
 
@@ -105,7 +105,7 @@ describe("BuildCertificateViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "1",
+      laaReference: "1",
       accessToken: "access-token-123",
     });
 
@@ -123,7 +123,7 @@ describe("BuildCertificateViewUseCase", () => {
     });
 
     const result = await useCase.execute({
-      applicationId: "1",
+      laaReference: "1",
       accessToken: "access-token-123",
     });
 
@@ -137,7 +137,7 @@ describe("BuildCertificateViewUseCase", () => {
     applicationPortStub.getCertificateDetails.rejects(error);
 
     const result = await useCase.execute({
-      applicationId: "1",
+      laaReference: "1",
       accessToken: "access-token-123",
     });
 

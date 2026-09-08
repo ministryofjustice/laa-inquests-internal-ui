@@ -2,11 +2,11 @@ import { validateGovPage } from "#tests/playwright/utils/govuk-validators.js";
 import { test, expect } from "../../fixtures/index.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
-const applicationId = "1";
+const laaReference = "1";
 const certificateLocale = en.pages.applicationCertificate;
 
-const applicationOverviewUrl = `/applications/${applicationId}/overview`;
-const applicationCertificateUrl = `/applications/${applicationId}/certificate`;
+const applicationOverviewUrl = `/applications/${laaReference}/overview`;
+const applicationCertificateUrl = `/applications/${laaReference}/certificate`;
 
 test.describe("View certificate page", () => {
   test("back button links back to applications list", async ({

@@ -68,7 +68,7 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 
 ## Extra context
 
-laa_reference: <applicationid>
+laa_reference: <laaReference>
 reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
 
 ## Examples
@@ -82,7 +82,7 @@ logger.logInfo({
   request: req,
   extraContext: {
     event: "application_overview_requested",
-    laa_reference: req.params.applicationId,
+    laa_reference: req.params.laaReference,
   },
 });
 ```

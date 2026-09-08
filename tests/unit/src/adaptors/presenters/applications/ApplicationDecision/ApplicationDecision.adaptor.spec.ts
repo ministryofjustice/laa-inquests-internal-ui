@@ -28,7 +28,7 @@ describe("ApplicationDecisionAdaptor", () => {
   let adaptor: ApplicationDecisionAdaptor;
   let validator: ApplicationDecisionValidator;
 
-  const applicationId = "1";
+  const laaReference = "1";
   const mockProceeding = {
     proceedingId: "IQPC",
     proceedingName: "Death in police custody",
@@ -55,7 +55,7 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub,
       validator,
     );
-    requestStub.params = { applicationId };
+    requestStub.params = { laaReference };
   });
 
   describe("renderApplicationDecisionForm", () => {
@@ -89,8 +89,8 @@ describe("ApplicationDecisionAdaptor", () => {
 
       const renderArgs = responseStub.render.getCall(0).args;
       assert.deepEqual(renderArgs[1], {
-        backUrl: `/applications/${applicationId}/overview`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/overview`,
+        laaReference,
         proceeding: {
           certificateType: "Substantive",
           meritsDecision: "Pending",
@@ -126,8 +126,8 @@ describe("ApplicationDecisionAdaptor", () => {
 
       const renderArgs = responseStub.render.getCall(0).args;
       assert.deepEqual(renderArgs[1], {
-        backUrl: `/applications/${applicationId}/decision/confirmation`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/decision/confirmation`,
+        laaReference,
         proceeding: {
           certificateType: "Substantive",
           meritsDecision: "Pending",
@@ -141,7 +141,7 @@ describe("ApplicationDecisionAdaptor", () => {
     let renderApplicationDecisionFormSpy: sinon.SinonSpy;
 
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
       requestStub.body = { "overall-decision": "REFUSED" };
       renderApplicationDecisionFormSpy = sinon.spy(
         adaptor,
@@ -189,7 +189,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/justification`,
+        `/applications/${laaReference}/decision/justification`,
       );
     });
 
@@ -204,7 +204,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/certificate-start-date`,
+        `/applications/${laaReference}/decision/certificate-start-date`,
       );
     });
 
@@ -224,7 +224,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/confirmation`,
+        `/applications/${laaReference}/decision/confirmation`,
       );
       assert.equal(sessionHelperStub.storeSessionData.callCount, 2);
       assert.deepEqual(sessionHelperStub.storeSessionData.getCall(1).args, [
@@ -248,7 +248,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/justification`,
+        `/applications/${laaReference}/decision/justification`,
       );
     });
 
@@ -269,7 +269,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/confirmation`,
+        `/applications/${laaReference}/decision/confirmation`,
       );
       assert.equal(sessionHelperStub.storeSessionData.callCount, 2);
       assert.deepEqual(sessionHelperStub.storeSessionData.getCall(1).args, [
@@ -293,7 +293,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/certificate-start-date`,
+        `/applications/${laaReference}/decision/certificate-start-date`,
       );
     });
 
@@ -335,7 +335,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
   describe("renderJustificationForm", () => {
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
     });
 
     it("calls res.render with the correct view name", () => {
@@ -359,8 +359,8 @@ describe("ApplicationDecisionAdaptor", () => {
       adaptor.renderJustificationForm(requestStub as Request, responseStub);
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision`,
-        laaReference: applicationId,
+        backUrl: `/applications/${laaReference}/decision`,
+        laaReference: laaReference,
         refusalReason: "not-in-scope",
         justification: "some justification",
       });
@@ -384,8 +384,8 @@ describe("ApplicationDecisionAdaptor", () => {
       );
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision`,
-        laaReference: applicationId,
+        backUrl: `/applications/${laaReference}/decision`,
+        laaReference: laaReference,
         refusalReason: "not-in-scope",
         justification: "some justification",
         errorSummaries,
@@ -411,8 +411,8 @@ describe("ApplicationDecisionAdaptor", () => {
       ]);
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision/confirmation`,
-        laaReference: applicationId,
+        backUrl: `/applications/${laaReference}/decision/confirmation`,
+        laaReference: laaReference,
         refusalReason: "not-in-scope",
         justification: "some justification",
       });
@@ -423,7 +423,7 @@ describe("ApplicationDecisionAdaptor", () => {
     let renderJustificationFormSpy: sinon.SinonSpy;
 
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
       requestStub.body = {
         "refusal-reason": "not-in-scope",
         justification: "some justification",
@@ -469,7 +469,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/confirmation`,
+        `/applications/${laaReference}/decision/confirmation`,
       );
     });
 
@@ -578,7 +578,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
   describe("renderCertificateStartDateForm", () => {
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
     });
 
     it("calls res.render with the correct view name and pre-populated date parts", () => {
@@ -600,8 +600,8 @@ describe("ApplicationDecisionAdaptor", () => {
         "application/decision/certificate-start-date/index",
       );
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/decision`,
+        laaReference,
         startDateOption: undefined,
         day: "1",
         month: "1",
@@ -625,8 +625,8 @@ describe("ApplicationDecisionAdaptor", () => {
       );
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/decision`,
+        laaReference,
         startDateOption: undefined,
         day: undefined,
         month: undefined,
@@ -658,8 +658,8 @@ describe("ApplicationDecisionAdaptor", () => {
       ]);
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision/confirmation`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/decision/confirmation`,
+        laaReference,
         startDateOption: undefined,
         day: undefined,
         month: undefined,
@@ -672,7 +672,7 @@ describe("ApplicationDecisionAdaptor", () => {
     let renderCertificateStartDateFormSpy: sinon.SinonSpy;
 
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
       requestStub.body = {
         "start-date-option": "another-date",
         "start-date-day": "1",
@@ -827,7 +827,7 @@ describe("ApplicationDecisionAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/decision/confirmation`,
+        `/applications/${laaReference}/decision/confirmation`,
       );
     });
 
@@ -881,7 +881,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
   describe("renderConfirmationPage", () => {
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
     });
 
     it("calls res.render with the correct view name and refuse variables", () => {
@@ -901,8 +901,8 @@ describe("ApplicationDecisionAdaptor", () => {
       );
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision/justification`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/decision/justification`,
+        laaReference,
         proceeding: sessionData,
         overallDecision: "REFUSED",
         refusalReasonLabel: "Not in scope",
@@ -936,8 +936,8 @@ describe("ApplicationDecisionAdaptor", () => {
       adaptor.renderConfirmationPage(requestStub as Request, responseStub);
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        backUrl: `/applications/${applicationId}/decision/certificate-start-date`,
-        applicationId,
+        backUrl: `/applications/${laaReference}/decision/certificate-start-date`,
+        laaReference,
         proceeding: sessionData,
         overallDecision: GRANTED_DECISION,
         refusalReasonLabel: undefined,
@@ -949,7 +949,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
   describe("processConfirmationForm", () => {
     beforeEach(() => {
-      requestStub.params = { applicationId };
+      requestStub.params = { laaReference };
       requestStub.session = {
         user: { accessToken: "access-token-123" },
       } as unknown as Request["session"];
@@ -1008,7 +1008,7 @@ describe("ApplicationDecisionAdaptor", () => {
         assert.deepEqual(
           viewApplicationSourceStub.submitRefuseDecision.getCall(0).args,
           [
-            applicationId,
+            laaReference,
             "access-token-123",
             "not-in-scope",
             "This case is not in scope",
@@ -1032,7 +1032,7 @@ describe("ApplicationDecisionAdaptor", () => {
         assert.equal(responseStub.redirect.callCount, 1);
         assert.equal(
           responseStub.redirect.getCall(0).args[0],
-          `/applications/${applicationId}/decision/success`,
+          `/applications/${laaReference}/decision/success`,
         );
       });
 
@@ -1117,7 +1117,7 @@ describe("ApplicationDecisionAdaptor", () => {
         );
         assert.deepEqual(
           viewApplicationSourceStub.submitGrantDecision.getCall(0).args,
-          [applicationId, "access-token-123", "2024-01-01"],
+          [laaReference, "access-token-123", "2024-01-01"],
         );
       });
 
@@ -1158,7 +1158,7 @@ describe("ApplicationDecisionAdaptor", () => {
         assert.equal(responseStub.redirect.callCount, 1);
         assert.equal(
           responseStub.redirect.getCall(0).args[0],
-          `/applications/${applicationId}/decision/success`,
+          `/applications/${laaReference}/decision/success`,
         );
       });
 
@@ -1198,8 +1198,8 @@ describe("ApplicationDecisionAdaptor", () => {
       adaptor.renderDecisionSuccessPage(requestStub as Request, responseStub);
 
       assert.deepEqual(responseStub.render.getCall(0).args[1], {
-        applicationId,
-        backUrl: `/applications/${applicationId}/decision/confirmation`,
+        laaReference,
+        backUrl: `/applications/${laaReference}/decision/confirmation`,
       });
     });
 

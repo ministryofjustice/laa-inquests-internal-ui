@@ -7,7 +7,7 @@
 {% block content %}
   {{ govukPanel({
     titleText: t('pages.decision.success.header'),
-    html: t('pages.decision.success.referenceLabel') + ": <br><strong>" + applicationId + "</strong>"
+    html: t('pages.decision.success.referenceLabel') + ": <br><strong>" + laaReference + "</strong>"
   }) }}
 
   <h2 class="govuk-heading-s govuk-!-padding-top-6">{{ t('pages.decision.success.whatHappensNext') }}</h2>
@@ -15,6 +15,6 @@
 
   {{ govukButton({
     text: t('pages.decision.success.applicationOverviewReturnButton'),
-    href: "/applications/" + applicationId + "/overview"
+    href: "/applications/" + laaReference + "/overview"
   }) }}
 {% endblock %}

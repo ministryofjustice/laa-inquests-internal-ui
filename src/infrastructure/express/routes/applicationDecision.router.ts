@@ -12,14 +12,14 @@ export function createApplicationDecisionRouter(
   applicationDecisionAdaptor: ApplicationDecisionAdaptor,
 ): Router {
   applicationDecisionRouter.get(
-    "/:applicationId/decision",
+    "/:laaReference/decision",
     async (req: Request, res: Response): Promise<void> => {
       await applicationDecisionAdaptor.renderApplicationDecisionForm(req, res);
     },
   );
 
   applicationDecisionRouter.post(
-    "/:applicationId/decision",
+    "/:laaReference/decision",
     async (req: Request, res: Response): Promise<void> => {
       await applicationDecisionAdaptor.processApplicationDecisionForm(
         req as unknown as TypedRequest<ApplicationDecisionForm, IdParams>,
@@ -29,14 +29,14 @@ export function createApplicationDecisionRouter(
   );
 
   applicationDecisionRouter.get(
-    "/:applicationId/decision/justification",
+    "/:laaReference/decision/justification",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.renderJustificationForm(req, res);
     },
   );
 
   applicationDecisionRouter.post(
-    "/:applicationId/decision/justification",
+    "/:laaReference/decision/justification",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.processJustificationForm(
         req as unknown as TypedRequest<JustificationForm, IdParams>,
@@ -46,14 +46,14 @@ export function createApplicationDecisionRouter(
   );
 
   applicationDecisionRouter.get(
-    "/:applicationId/decision/certificate-start-date",
+    "/:laaReference/decision/certificate-start-date",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.renderCertificateStartDateForm(req, res);
     },
   );
 
   applicationDecisionRouter.post(
-    "/:applicationId/decision/certificate-start-date",
+    "/:laaReference/decision/certificate-start-date",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.processCertificateStartDateForm(
         req as unknown as TypedRequest<CertificateStartDateForm, IdParams>,
@@ -63,21 +63,21 @@ export function createApplicationDecisionRouter(
   );
 
   applicationDecisionRouter.get(
-    "/:applicationId/decision/confirmation",
+    "/:laaReference/decision/confirmation",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.renderConfirmationPage(req, res);
     },
   );
 
   applicationDecisionRouter.post(
-    "/:applicationId/decision/confirmation",
+    "/:laaReference/decision/confirmation",
     async (req: Request, res: Response): Promise<void> => {
       await applicationDecisionAdaptor.processConfirmationForm(req, res);
     },
   );
 
   applicationDecisionRouter.get(
-    "/:applicationId/decision/success",
+    "/:laaReference/decision/success",
     (req: Request, res: Response): void => {
       applicationDecisionAdaptor.renderDecisionSuccessPage(req, res);
     },
