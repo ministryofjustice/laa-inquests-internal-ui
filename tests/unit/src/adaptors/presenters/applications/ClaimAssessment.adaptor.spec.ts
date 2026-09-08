@@ -5,6 +5,7 @@ import type { Request, Response } from "express";
 import { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
@@ -22,6 +23,7 @@ describe("ClaimAssessmentAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
   let applicationPortStub: StubbedInstance<ApplicationPort>;
   let claimsPortStub: StubbedInstance<ClaimsPort>;
+  let sessionHelperStub: StubbedInstance<SessionHelper>;
   let buildClaimAssessmentViewUseCaseStub: StubbedInstance<BuildClaimAssessmentViewUseCase>;
   let validatorStub: StubbedInstance<ClaimAssessmentValidator>;
   let processClaimAssessmentUseCaseStub: StubbedInstance<ProcessClaimAssessmentUseCase>;
@@ -33,6 +35,7 @@ describe("ClaimAssessmentAdaptor", () => {
     responseStub = stubInterface<Response>();
     applicationPortStub = stubInterface<ApplicationPort>();
     claimsPortStub = stubInterface<ClaimsPort>();
+    sessionHelperStub = stubInterface<SessionHelper>();
     buildClaimAssessmentViewUseCaseStub =
       stubInterface<BuildClaimAssessmentViewUseCase>();
     validatorStub = stubInterface<ClaimAssessmentValidator>();
@@ -87,6 +90,7 @@ describe("ClaimAssessmentAdaptor", () => {
     adaptor = new ClaimAssessmentAdaptor(
       applicationPortStub,
       claimsPortStub,
+      sessionHelperStub,
       buildClaimAssessmentViewUseCaseStub,
       validatorStub,
       processClaimAssessmentUseCaseStub,
@@ -134,6 +138,38 @@ describe("ClaimAssessmentAdaptor", () => {
         downloadHref: "#",
       },
     });
+  });
+
+  it("clears stale claim approval session data on a fresh GET", async () => {
+    requestStub.method = "GET";
+    requestStub.query = {};
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "10",
+    );
+
+    assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
+    assert.deepStrictEqual(sessionHelperStub.clearSessionData.getCall(0).args, [
+      requestStub,
+      "claimApproval",
+    ]);
+  });
+
+  it("does not clear claim approval session data when arriving from check your answers", async () => {
+    requestStub.method = "GET";
+    requestStub.query = { from: "check-your-answers" };
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "10",
+    );
+
+    assert.equal(sessionHelperStub.clearSessionData.callCount, 0);
   });
 
   describe("processClaimAssessmentForm", () => {

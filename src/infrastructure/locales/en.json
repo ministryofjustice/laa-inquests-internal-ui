@@ -244,6 +244,18 @@
           "grossLessThanNet": "Gross total must be more than the net disbursement costs"
         }
       },
+      "checkYourAnswers": {
+        "heading": "Check your answers",
+        "claimDetailsCardTitle": "Claim details",
+        "finalBillTitle": "Final bill",
+        "claimDecisionsTitle": "Claim decisions",
+        "profitCostsCardTitle": "Profit costs",
+        "disbursementCostsCardTitle": "Disbursement costs",
+        "netTotalTitle": "Net total (20% VAT)",
+        "grossTotalTitle": "Gross total (20% VAT)",
+        "zeroVatTotalTitle": "Total (0% VAT)",
+        "finishButton": "Finish assessing claim"
+      },
       "rejectedSuccess": {
         "panel": "{claimType} claim has been assessed and rejected",
         "whatHappensNext": "What happens next",

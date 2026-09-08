@@ -157,7 +157,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 0);
   });
 
-  it("stores the validated totals in session and redirects to the claim assessment page when the form is valid", () => {
+  it("stores the validated totals in session and redirects to the check your answers page when the form is valid", () => {
     const requestWithBody: TypedRequest<
       ConfirmDisbursementCostsForm,
       ClaimIdParams
@@ -190,7 +190,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     assert.equal(
       responseStub.redirect.getCall(0).args[0],
-      "/applications/123/claims/10",
+      "/applications/123/claims/10/check-your-answers",
     );
   });
 });

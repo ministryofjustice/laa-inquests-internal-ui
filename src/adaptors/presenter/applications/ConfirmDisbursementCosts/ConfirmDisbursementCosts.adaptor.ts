@@ -159,6 +159,8 @@ export class ConfirmDisbursementCostsAdaptor {
       disbursementZeroVatTotal: formBody["zero-vat-total"].trim(),
     });
 
-    res.redirect(`/applications/${laaReference}/claims/${claimId}`);
+    res.redirect(
+      `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+    );
   }
 }
