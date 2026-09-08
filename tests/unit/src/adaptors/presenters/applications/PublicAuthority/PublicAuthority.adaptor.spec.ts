@@ -21,7 +21,7 @@ describe("PublicAuthorityAdaptor", () => {
   let adaptor: PublicAuthorityAdaptor;
   let validator: PublicAuthorityValidator;
 
-  const applicationId = "LAA-123";
+  const laaReference = "LAA-123";
   const allPublicBodies = [
     {
       publicBodyId: "Attorney General's Office",
@@ -57,7 +57,7 @@ describe("PublicAuthorityAdaptor", () => {
       sessionHelperStub,
       validator,
     );
-    requestStub.params = { applicationId };
+    requestStub.params = { laaReference };
     requestStub.query = {};
     requestStub.session = {
       user: { accessToken: "access-token-123" },
@@ -85,7 +85,7 @@ describe("PublicAuthorityAdaptor", () => {
 
       const renderArgs = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
-      assert.equal(renderArgs.applicationId, applicationId);
+      assert.equal(renderArgs.laaReference, laaReference);
       assert.deepEqual(renderArgs.publicAuthorityOptions, [
         {
           value: "Attorney General's Office",
@@ -226,7 +226,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/public-authorities/confirm`,
+        `/applications/${laaReference}/public-authorities/confirm`,
       );
     });
 
@@ -322,10 +322,10 @@ describe("PublicAuthorityAdaptor", () => {
 
       const renderArgs = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
-      assert.equal(renderArgs.applicationId, applicationId);
+      assert.equal(renderArgs.laaReference, laaReference);
       assert.equal(
         renderArgs.backUrl,
-        `/applications/${applicationId}/public-authorities?from=confirm`,
+        `/applications/${laaReference}/public-authorities?from=confirm`,
       );
       assert.deepEqual(renderArgs.publicAuthorityRows, [
         { key: { text: "Cabinet Office" }, value: { text: "" } },
@@ -369,7 +369,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.deepEqual(
         applicationPortStub.updateApplicationPublicBodies.getCall(0).args,
         [
-          applicationId,
+          laaReference,
           "access-token-123",
           ["Cabinet Office", "Department for Transport"],
         ],
@@ -378,7 +378,7 @@ describe("PublicAuthorityAdaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        `/applications/${applicationId}/overview`,
+        `/applications/${laaReference}/overview`,
       );
     });
 

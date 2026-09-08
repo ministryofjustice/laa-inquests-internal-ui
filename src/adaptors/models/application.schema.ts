@@ -71,9 +71,7 @@ const CoronersLetterSchema = z.object({
 });
 
 export const ApplicationSchema = z.object({
-  laaReference: z
-    .union([z.number(), z.string()])
-    .transform((val) => String(val)),
+  laaReference: z.string(),
   createdAt: z.string(),
   updatedAt: z.string().optional().nullable(),
   status: z.string(),
@@ -91,19 +89,14 @@ export const ApplicationSchema = z.object({
 });
 
 export const ApplicationSummarySchema = z.object({
-  laaReference: z
-    .union([z.number(), z.string()])
-    .transform((val) => String(val))
-    .nullable(),
+  laaReference: z.string().nullable(),
   createdAt: z.string(),
   status: z.string().nullable(),
   overallDecision: z.string().nullable(),
 });
 
 export const CertificateSchema = z.object({
-  laaReference: z
-    .union([z.number(), z.string()])
-    .transform((val) => String(val)),
+  laaReference: z.string(),
   dateCreated: z.string(),
   clientName: z.string(),
   clientAddress: AddressSchema.nullable(),

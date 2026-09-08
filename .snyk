@@ -10,3 +10,13 @@ ignore:
         reason:
           "Temp ignore as bundled with npm. Resolved when npm releases version
           with brace-expansion@5.0.9."
+  "SNYK-JS-UNDICI-19635210":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
+          new docker image is released with npm version using undici@6.28.1."
+  "SNYK-JS-UNDICI-19635226":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
+          new docker image is released with npm version using undici@6.28.1."

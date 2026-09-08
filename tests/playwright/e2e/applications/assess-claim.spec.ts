@@ -5,17 +5,17 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 const claimAssessmentLocale = en.pages.claimAssessment;
 const rejectedSuccessLocale = en.pages.claimAssessment.rejectedSuccess;
 
-const applicationId = "5";
+const laaReference = "INQ-YYY-005";
 const claimId = "10";
-const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
-const rejectedSuccessPage = `/applications/${applicationId}/claims/${claimId}/rejected`;
-const applicationOverviewPage = `/applications/${applicationId}/overview`;
+const assessClaimPage = `/applications/${laaReference}/claims/${claimId}`;
+const rejectedSuccessPage = `/applications/${laaReference}/claims/${claimId}/rejected`;
+const applicationOverviewPage = `/applications/${laaReference}/overview`;
 const claimWithoutEvidenceId = "11";
-const assessClaimNoEvidencePage = `/applications/${applicationId}/claims/${claimWithoutEvidenceId}`;
+const assessClaimNoEvidencePage = `/applications/${laaReference}/claims/${claimWithoutEvidenceId}`;
 const claimVatZeroOnlyId = "12";
-const assessClaimVatZeroOnlyPage = `/applications/${applicationId}/claims/${claimVatZeroOnlyId}`;
+const assessClaimVatZeroOnlyPage = `/applications/${laaReference}/claims/${claimVatZeroOnlyId}`;
 const finalBillClaimId = "13";
-const assessFinalBillClaimPage = `/applications/${applicationId}/claims/${finalBillClaimId}`;
+const assessFinalBillClaimPage = `/applications/${laaReference}/claims/${finalBillClaimId}`;
 const finalBillRejectedSuccessPage = `${assessFinalBillClaimPage}/rejected`;
 
 const rejectedPanelText = (claimType: string): string =>
@@ -46,7 +46,7 @@ test.describe("Assess claim page", () => {
 
     const claimToAssessRow = claimsPanel.locator("tbody tr", {
       has: page.locator(
-        `a[href="/applications/${applicationId}/claims/${claimId}"]`,
+        `a[href="/applications/${laaReference}/claims/${claimId}"]`,
       ),
     });
     await claimToAssessRow.getByRole("link", { name: "See details" }).click();
@@ -60,7 +60,7 @@ test.describe("Assess claim page", () => {
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { level: 2, name: applicationId }),
+      page.getByRole("heading", { level: 2, name: laaReference }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { level: 3, name: "Claim status: Reject" }),
@@ -186,12 +186,12 @@ test.describe("Assess claim page", () => {
     const claimsPanel = page.locator("#claims");
     const vatZeroClaimTable = claimsPanel.locator("table", {
       has: page.locator(
-        `a[href="/applications/${applicationId}/claims/${claimVatZeroOnlyId}"]`,
+        `a[href="/applications/${laaReference}/claims/${claimVatZeroOnlyId}"]`,
       ),
     });
     const vatZeroClaimRow = vatZeroClaimTable.locator("tbody tr", {
       has: page.locator(
-        `a[href="/applications/${applicationId}/claims/${claimVatZeroOnlyId}"]`,
+        `a[href="/applications/${laaReference}/claims/${claimVatZeroOnlyId}"]`,
       ),
     });
 

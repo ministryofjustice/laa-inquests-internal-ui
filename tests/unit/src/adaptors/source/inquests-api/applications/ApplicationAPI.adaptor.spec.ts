@@ -97,13 +97,13 @@ const expectedApplication: Application = {
 
 const expectedApplicationsSummary = [
   {
-    laa_reference: 1,
+    laa_reference: "1",
     created_at: "2026-05-18T15:49:07.455255",
     status: LIVE_STATUS,
     overall_decision: "PENDING",
   },
   {
-    laa_reference: 2,
+    laa_reference: "2",
     created_at: "2026-05-19T15:49:07.455255",
     status: LIVE_STATUS,
     overall_decision: GRANTED_DECISION,
@@ -249,30 +249,6 @@ describe("Test Application API Adaptor", () => {
       "access-token-123",
     );
     assert.isNull(application.provider?.firmName);
-  });
-
-  // Expand phase: Test backward compatibility with numbers
-  it("accepts laaReference as number and coerces to string (backward compatibility)", async () => {
-    const baseUrl = "https://localhost";
-    const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
-
-    // API returns number (old format)
-    axiosGetStub.resolves({
-      data: {
-        ...expectedApplication,
-        laaReference: 1, // Number from API
-      },
-    });
-
-    const application: Application = await adaptor.getApplication(
-      "123",
-      "access-token-123",
-    );
-
-    // Verify it's coerced to string
-    assert.strictEqual(typeof application.laaReference, "string");
-    assert.strictEqual(application.laaReference, "1");
   });
 });
 
@@ -474,31 +450,6 @@ describe("Test getCertificateDetails", () => {
         (result.cause as Error).message,
         "Missing access token for Inquests API request",
       );
-    }
-  });
-
-  // Expand phase: Test certificate laaReference number coercion
-  it("accepts certificate laaReference as number and coerces to string (backward compatibility)", async () => {
-    const baseUrl = "https://localhost";
-    const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
-
-    axiosGetStub.resolves({
-      data: {
-        ...expectedCertificate,
-        laaReference: 123, // Number from API
-      },
-    });
-
-    const result = await adaptor.getCertificateDetails(
-      "123",
-      "access-token-123",
-    );
-
-    assert.equal(result.status, "SUCCESS");
-    if (result.status === "SUCCESS") {
-      assert.strictEqual(typeof result.data.laaReference, "string");
-      assert.strictEqual(result.data.laaReference, "123");
     }
   });
 });

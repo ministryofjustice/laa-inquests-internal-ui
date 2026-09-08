@@ -7,7 +7,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface BuildCertificateViewInput {
-  applicationId: string;
+  laaReference: string;
   accessToken?: string;
 }
 
@@ -17,26 +17,26 @@ export class BuildCertificateViewUseCase {
   async execute(
     input: BuildCertificateViewInput,
   ): Promise<UseCaseResult<Certificate>> {
-    if (!input.applicationId) {
+    if (!input.laaReference) {
       logger.logWarn({
         functionName: "build_certificate_view_use_case",
         message: "Certificate view request is invalid",
         extraContext: {
           event: "certificate_view_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message: "Cannot build certificate view without an applicationId",
+        message: "Cannot build certificate view without an laaReference",
       };
     }
 
     try {
       const certificateResult =
         await this.applicationPort.getCertificateDetails(
-          input.applicationId,
+          input.laaReference,
           input.accessToken,
         );
 
@@ -50,7 +50,7 @@ export class BuildCertificateViewUseCase {
             message: "Certificate not found",
             extraContext: {
               event: "certificate_not_found",
-              laa_reference: input.applicationId,
+              laa_reference: input.laaReference,
             },
           });
         } else {
@@ -60,7 +60,7 @@ export class BuildCertificateViewUseCase {
             err: certificateResult.cause,
             extraContext: {
               event: "certificate_retrieval_failed",
-              laa_reference: input.applicationId,
+              laa_reference: input.laaReference,
               failure_reason: certificateResult.reason,
             },
           });
@@ -85,7 +85,7 @@ export class BuildCertificateViewUseCase {
         err: error,
         extraContext: {
           event: "certificate_view_unexpected_failure",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {

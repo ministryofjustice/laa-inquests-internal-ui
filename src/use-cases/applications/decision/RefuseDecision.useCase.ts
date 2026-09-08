@@ -6,7 +6,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface RefuseDecisionInput {
-  applicationId: string;
+  laaReference: string;
   refusalReason: string;
   justification: string;
   applicationPort: ApplicationPort;
@@ -15,13 +15,13 @@ interface RefuseDecisionInput {
 
 export class RefuseDecisionUseCase {
   async execute(input: RefuseDecisionInput): Promise<UseCaseResult> {
-    if (!input.applicationId) {
+    if (!input.laaReference) {
       logger.logWarn({
         functionName: "refuse_decision_use_case",
         message: "Refuse decision request is invalid",
         extraContext: {
           event: "refuse_decision_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           refusal_reason: input.refusalReason,
           reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         },
@@ -29,13 +29,13 @@ export class RefuseDecisionUseCase {
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message: "Cannot refuse a merits decision without applicationId",
+        message: "Cannot refuse a merits decision without laaReference",
       };
     }
 
     try {
       await input.applicationPort.submitRefuseDecision(
-        input.applicationId,
+        input.laaReference,
         input.accessToken,
         input.refusalReason,
         input.justification,
@@ -46,7 +46,7 @@ export class RefuseDecisionUseCase {
         message: "Decision refused",
         extraContext: {
           event: "application_decision_refused",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           refusal_reason: input.refusalReason,
         },
       });
@@ -62,7 +62,7 @@ export class RefuseDecisionUseCase {
         err: error,
         extraContext: {
           event: "refuse_decision_upstream_failed",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
           refusal_reason: input.refusalReason,
           reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
         },

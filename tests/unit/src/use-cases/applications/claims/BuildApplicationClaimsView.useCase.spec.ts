@@ -43,7 +43,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       .resolves([assessedClaim]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
       accessToken: "token",
@@ -73,7 +73,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       .resolves([olderClaim, newerClaim, assessedClaim]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -98,7 +98,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       ]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -116,7 +116,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       .resolves([{ ...assessedClaim, totalProfitCostGross: null }]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -138,7 +138,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     ]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -159,7 +159,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     ]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -173,7 +173,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     claimsPortStub.getClaims.resolves([]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -184,11 +184,11 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.deepEqual(result.data.assessedClaims, []);
   });
 
-  it("returns TECHNICAL_FAILURE when applicationId is missing", async () => {
+  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
@@ -202,7 +202,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     claimsPortStub.getClaims.rejects(new Error("boom"));
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });

@@ -11,13 +11,13 @@ test.describe("Claims tab", () => {
 });
 
 test.describe("Claims tab - with claims", () => {
-  const applicationId = "5";
+  const laaReference = "INQ-YYY-005";
 
   test("should show the total section", async ({
     page,
     checkAccessibility,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");
@@ -33,7 +33,7 @@ test.describe("Claims tab - with claims", () => {
   });
 
   test("should show the claims to be assessed table", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");
@@ -45,7 +45,7 @@ test.describe("Claims tab - with claims", () => {
     ).toBeVisible();
 
     const table = claimsPanel.locator("table", {
-      has: page.locator(`a[href="/applications/${applicationId}/claims/10"]`),
+      has: page.locator(`a[href="/applications/${laaReference}/claims/10"]`),
     });
 
     const headers = table.locator("thead th");
@@ -56,7 +56,7 @@ test.describe("Claims tab - with claims", () => {
     await expect(headers.nth(4)).toHaveText("View");
 
     const row = table.locator("tbody tr", {
-      has: page.locator(`a[href="/applications/${applicationId}/claims/10"]`),
+      has: page.locator(`a[href="/applications/${laaReference}/claims/10"]`),
     });
     await expect(row).toContainText("10 August 2026");
     await expect(row).toContainText("£1,200");
@@ -64,11 +64,11 @@ test.describe("Claims tab - with claims", () => {
     await expect(row).toContainText("Payment on account");
     await expect(
       row.getByRole("link", { name: "See details" }),
-    ).toHaveAttribute("href", `/applications/${applicationId}/claims/10`);
+    ).toHaveAttribute("href", `/applications/${laaReference}/claims/10`);
   });
 
   test("should show the assessed claims table", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");
@@ -80,7 +80,7 @@ test.describe("Claims tab - with claims", () => {
     ).toBeVisible();
 
     const table = claimsPanel.locator("table", {
-      has: page.locator(`a[href="/applications/${applicationId}/claims/20"]`),
+      has: page.locator(`a[href="/applications/${laaReference}/claims/20"]`),
     });
 
     const headers = table.locator("thead th");
@@ -97,15 +97,15 @@ test.describe("Claims tab - with claims", () => {
     await expect(row).toContainText("Payment on account");
     await expect(
       row.getByRole("link", { name: "See details" }),
-    ).toHaveAttribute("href", `/applications/${applicationId}/claims/20`);
+    ).toHaveAttribute("href", `/applications/${laaReference}/claims/20`);
   });
 });
 
 test.describe("Claims tab - empty state", () => {
-  const applicationId = "7";
+  const laaReference = "INQ-YYY-007";
 
   test("should show the no claims message and no tables", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");
@@ -117,12 +117,12 @@ test.describe("Claims tab - empty state", () => {
 });
 
 test.describe("Claims tab - only claims to be assessed", () => {
-  const applicationId = "6";
+  const laaReference = "INQ-YYY-006";
 
   test("should show the to be assessed table and hide the assessed table", async ({
     page,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");
@@ -140,12 +140,12 @@ test.describe("Claims tab - only claims to be assessed", () => {
 });
 
 test.describe("Claims tab - only assessed claims", () => {
-  const applicationId = "8";
+  const laaReference = "INQ-YYY-008";
 
   test("should show the assessed table and hide the to be assessed table", async ({
     page,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");
@@ -163,12 +163,12 @@ test.describe("Claims tab - only assessed claims", () => {
 });
 
 test.describe("Claims tab - upstream failure", () => {
-  const applicationId = "998";
+  const laaReference = "INQ-YYY-998";
 
   test("should still render the page and show an unavailable message", async ({
     page,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Claims" }).click();
 
     const claimsPanel = page.locator("#claims");

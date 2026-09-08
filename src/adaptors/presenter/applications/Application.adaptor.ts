@@ -82,7 +82,7 @@ export class ApplicationAdaptor {
   async renderApplicationPage(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
     noteState: NoteState = {},
   ): Promise<void> {
     const { viewApplicationAdaptor, buildApplicationOverviewViewUseCase } =
@@ -94,13 +94,13 @@ export class ApplicationAdaptor {
       request: req,
       extraContext: {
         event: "application_overview_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
       },
     });
 
     const overviewViewResult =
       await buildApplicationOverviewViewUseCase.execute({
-        applicationId,
+        laaReference,
         applicationPort: viewApplicationAdaptor,
         accessToken: req.session.user?.accessToken,
       });
@@ -124,13 +124,13 @@ export class ApplicationAdaptor {
 
     const claims = await this.#buildClaimsView(
       req,
-      applicationId,
+      laaReference,
       overviewViewResult.data.application.proceeding.substantiveCostLimitation,
     );
 
     const { historyRows, historyError } = await this.#buildHistoryView(
       req,
-      applicationId,
+      laaReference,
     );
 
     const flashMessage = this.sessionHelper?.consumeFlash(
@@ -159,7 +159,7 @@ export class ApplicationAdaptor {
 
   async #buildClaimsView(
     req: Request,
-    applicationId: string,
+    laaReference: string,
     substantiveCertificate: number,
   ): Promise<ClaimsViewModel> {
     const { claimsAdaptor, buildApplicationClaimsViewUseCase } = this;
@@ -171,14 +171,14 @@ export class ApplicationAdaptor {
         request: req,
         extraContext: {
           event: "claims_adaptor_missing",
-          laa_reference: applicationId,
+          laa_reference: laaReference,
         },
       });
       return { unavailable: true };
     }
 
     const claimsViewResult = await buildApplicationClaimsViewUseCase.execute({
-      applicationId,
+      laaReference,
       claimsPort: claimsAdaptor,
       substantiveCertificate,
       accessToken: req.session.user?.accessToken,
@@ -195,7 +195,7 @@ export class ApplicationAdaptor {
         request: req,
         extraContext: {
           event: "claims_view_build_failed",
-          laa_reference: applicationId,
+          laa_reference: laaReference,
           result_status: claimsViewResult.status,
         },
       });
@@ -209,17 +209,17 @@ export class ApplicationAdaptor {
       substantiveCertificate: formatCurrency(data.substantiveCertificate),
       totalRemaining: formatCurrency(data.totalRemaining),
       toBeAssessed: data.toBeAssessedClaims.map((claim) =>
-        mapClaimRow(claim, applicationId),
+        mapClaimRow(claim, laaReference),
       ),
       assessed: data.assessedClaims.map((claim) =>
-        mapClaimRow(claim, applicationId),
+        mapClaimRow(claim, laaReference),
       ),
     };
   }
 
   async #buildHistoryView(
     req: Request,
-    applicationId: string,
+    laaReference: string,
   ): Promise<{
     historyRows: Array<Array<{ text?: string; html?: string }>>;
     historyError: boolean;
@@ -227,7 +227,7 @@ export class ApplicationAdaptor {
     const { viewApplicationAdaptor, buildApplicationHistoryViewUseCase } = this;
 
     const historyViewResult = await buildApplicationHistoryViewUseCase.execute({
-      applicationId,
+      laaReference,
       applicationPort: viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
@@ -243,7 +243,7 @@ export class ApplicationAdaptor {
         request: req,
         extraContext: {
           event: "history_view_build_failed",
-          laa_reference: applicationId,
+          laa_reference: laaReference,
           result_status: historyViewResult.status,
         },
       });
@@ -258,7 +258,7 @@ export class ApplicationAdaptor {
   async serveCoronersLetterDocument(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
   ): Promise<void> {
     const { viewApplicationAdaptor } = this;
 
@@ -268,14 +268,14 @@ export class ApplicationAdaptor {
       request: req,
       extraContext: {
         event: "coroners_letter_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
       },
     });
 
     try {
       const { data, contentType } =
         await viewApplicationAdaptor.getCoronersLetterDocument(
-          applicationId,
+          laaReference,
           req.session.user?.accessToken,
         );
 
@@ -290,7 +290,7 @@ export class ApplicationAdaptor {
         request: req,
         extraContext: {
           event: "coroners_letter_retrieval_failed",
-          laa_reference: applicationId,
+          laa_reference: laaReference,
         },
       });
 
@@ -304,7 +304,7 @@ export class ApplicationAdaptor {
   async submitHistoryNote(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
   ): Promise<void> {
     const form = req.body as AddHistoryNoteForm;
 
@@ -314,7 +314,7 @@ export class ApplicationAdaptor {
       request: req,
       extraContext: {
         event: "history_note_submission_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
       },
     });
 
@@ -329,7 +329,7 @@ export class ApplicationAdaptor {
         }),
       );
 
-      await this.renderApplicationPage(req, res, applicationId, {
+      await this.renderApplicationPage(req, res, laaReference, {
         errorSummaries,
         noteText: form["note-text"],
         excessCount: validationResult.excessCount,
@@ -340,14 +340,14 @@ export class ApplicationAdaptor {
     const { "note-text": noteText } = form;
 
     const result = await this.addHistoryNoteUseCase.execute({
-      applicationId,
+      laaReference,
       noteText,
       applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
 
     if (result.status !== "SUCCESS") {
-      await this.renderApplicationPage(req, res, applicationId, {
+      await this.renderApplicationPage(req, res, laaReference, {
         errorSummaries: [
           {
             text: SAVE_FAILED_ERROR,
@@ -360,7 +360,7 @@ export class ApplicationAdaptor {
     }
 
     this.sessionHelper?.setFlash(req, "history", "note-added");
-    res.redirect(`/applications/${applicationId}/overview`);
+    res.redirect(`/applications/${laaReference}/overview`);
   }
 }
 
@@ -381,13 +381,13 @@ interface ClaimsViewModel {
   assessed?: ClaimRow[];
 }
 
-function mapClaimRow(claim: ClaimSummary, applicationId: string): ClaimRow {
+function mapClaimRow(claim: ClaimSummary, laaReference: string): ClaimRow {
   return {
     date: formatDate(claim.submissionDate),
     total: formatCurrency(getClaimCost(claim)),
     status: mapClaimStatus(claim.statusId ?? claim.claimDecisionStatus),
     claimType: mapClaimType(claim.claimTypeId),
-    href: `/applications/${applicationId}/claims/${claim.claimId}`,
+    href: `/applications/${laaReference}/claims/${claim.claimId}`,
   };
 }
 

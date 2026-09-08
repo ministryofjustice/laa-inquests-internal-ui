@@ -74,7 +74,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     applicationPortStub.getApplication.resolves(application as any);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });
@@ -92,7 +92,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       applicationPort: applicationPortStub,
     });
 
@@ -105,7 +105,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     applicationPortStub.getApplication.rejects(new Error("boom"));
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
     });
 

@@ -7,7 +7,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface BuildApplicationHistoryViewInput {
-  applicationId: string;
+  laaReference: string;
   applicationPort: ApplicationPort;
   accessToken?: string;
 }
@@ -20,26 +20,26 @@ export class BuildApplicationHistoryViewUseCase {
   async execute(
     input: BuildApplicationHistoryViewInput,
   ): Promise<UseCaseResult<BuildApplicationHistoryViewData>> {
-    if (!input.applicationId) {
+    if (!input.laaReference) {
       logger.logWarn({
         functionName: "build_application_history_view_use_case",
         message: "Application history view request is invalid",
         extraContext: {
           event: "application_history_view_invalid_input",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {
         status: "TECHNICAL_FAILURE",
         reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
         message:
-          "Cannot build application history view without an applicationId",
+          "Cannot build application history view without an laaReference",
       };
     }
 
     try {
       const history = await input.applicationPort.getApplicationHistory(
-        input.applicationId,
+        input.laaReference,
         input.accessToken,
       );
 
@@ -56,7 +56,7 @@ export class BuildApplicationHistoryViewUseCase {
         err: error,
         extraContext: {
           event: "application_history_retrieval_failed",
-          laa_reference: input.applicationId,
+          laa_reference: input.laaReference,
         },
       });
       return {

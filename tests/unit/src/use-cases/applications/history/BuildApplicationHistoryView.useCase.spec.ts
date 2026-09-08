@@ -27,7 +27,7 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     applicationPortStub.getApplicationHistory.resolves(mockHistory as any);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });
@@ -46,7 +46,7 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     applicationPortStub.getApplicationHistory.resolves([]);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });
@@ -55,11 +55,11 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     assert.deepEqual(result.data.history, []);
   });
 
-  it("returns TECHNICAL_FAILURE when applicationId is missing", async () => {
+  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
-      applicationId: "",
+      laaReference: "",
       applicationPort: applicationPortStub,
     });
 
@@ -67,7 +67,7 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE);
     assert.equal(
       result.message,
-      "Cannot build application history view without an applicationId",
+      "Cannot build application history view without an laaReference",
     );
     assert.equal(applicationPortStub.getApplicationHistory.callCount, 0);
   });
@@ -78,7 +78,7 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     applicationPortStub.getApplicationHistory.rejects(apiError);
 
     const result = await useCase.execute({
-      applicationId: "123",
+      laaReference: "123",
       applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });

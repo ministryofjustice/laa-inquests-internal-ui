@@ -24,7 +24,7 @@ export class CertificateAdaptor {
   async renderCertificatePage(
     req: Request,
     res: Response,
-    applicationId: string,
+    laaReference: string,
   ): Promise<void> {
     logger.logInfo({
       functionName: "render_certificate_page",
@@ -32,13 +32,13 @@ export class CertificateAdaptor {
       request: req,
       extraContext: {
         event: "certificate_page_requested",
-        laa_reference: applicationId,
+        laa_reference: laaReference,
       },
     });
 
     const certificateViewResult =
       await this.buildCertificateViewUseCase.execute({
-        applicationId,
+        laaReference,
         accessToken: req.session.user?.accessToken,
       });
 
@@ -53,7 +53,7 @@ export class CertificateAdaptor {
         request: req,
         extraContext: {
           event: "certificate_page_failed",
-          laa_reference: applicationId,
+          laa_reference: laaReference,
           result_status: certificateViewResult.status,
         },
       });
@@ -103,7 +103,7 @@ export class CertificateAdaptor {
     };
 
     res.render("application/certificate", {
-      backUrl: `/applications/${applicationId}/overview`,
+      backUrl: `/applications/${laaReference}/overview`,
       certificateDetails,
     });
   }

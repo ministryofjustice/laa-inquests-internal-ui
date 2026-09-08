@@ -94,7 +94,7 @@ test.describe("Home page", () => {
       .locator("td a");
     await expect(firstReferenceLink).toHaveAttribute(
       "href",
-      /\/applications\/\d+\/overview/,
+      /\/applications\/INQ-YYY-\d+\/overview/,
     );
 
     const firstCreatedDate = table

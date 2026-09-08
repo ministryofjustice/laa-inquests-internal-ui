@@ -16,14 +16,14 @@ const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
 const overviewLocale = en.pages.applicationOverview;
 
-const applicationId = "3";
-const makeADecisionPage = `/applications/${applicationId}/decision`;
+const laaReference = "3";
+const makeADecisionPage = `/applications/${laaReference}/decision`;
 const makeADecisionFromCheckAnswersPage = `${makeADecisionPage}?from=check-your-answers`;
-const overviewPage = `/applications/${applicationId}/overview`;
-const justificationPage = `/applications/${applicationId}/decision/justification`;
+const overviewPage = `/applications/${laaReference}/overview`;
+const justificationPage = `/applications/${laaReference}/decision/justification`;
 const justificationFromCheckAnswersPage = `${justificationPage}?from=check-your-answers`;
-const confirmationPage = `/applications/${applicationId}/decision/confirmation`;
-const successPage = `/applications/${applicationId}/decision/success`;
+const confirmationPage = `/applications/${laaReference}/decision/confirmation`;
+const successPage = `/applications/${laaReference}/decision/success`;
 const justificationText = "Test note";
 
 test.describe.serial("Refuse application journey", () => {
@@ -57,7 +57,7 @@ test.describe.serial("Refuse application journey", () => {
     await validateGovForm(form, { action: makeADecisionPage });
 
     const referenceLabel = form.getByRole("heading", {
-      name: applicationId,
+      name: laaReference,
       level: 2,
     });
     await expect(referenceLabel).toBeVisible();
@@ -350,7 +350,7 @@ test.describe.serial("Refuse application journey", () => {
       sharedPage.getByText(successLocale.referenceLabel),
     ).toBeVisible();
     await expect(
-      sharedPage.getByText(applicationId, { exact: true }),
+      sharedPage.getByText(laaReference, { exact: true }),
     ).toBeVisible();
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.whatHappensNext }),
@@ -363,7 +363,7 @@ test.describe.serial("Refuse application journey", () => {
     });
     await expect(button).toHaveAttribute(
       "href",
-      `/applications/${applicationId}/overview`,
+      `/applications/${laaReference}/overview`,
     );
   });
 

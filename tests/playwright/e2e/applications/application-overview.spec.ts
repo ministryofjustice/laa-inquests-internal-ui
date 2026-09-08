@@ -5,23 +5,23 @@ import {
   validateSummaryCardKeys,
 } from "../../utils/govuk-validators.js";
 
-const applicationId = "1";
+const laaReference = "1";
 
 test.describe("Application overview page", () => {
   test("should have the correct title and back link", async ({
     page,
     checkAccessibility,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await expect(page).toHaveTitle(/Inquests – GOV.UK/);
-    await validateGovPage(page, { headerText: applicationId, backUrl: "/" });
+    await validateGovPage(page, { headerText: laaReference, backUrl: "/" });
 
     await checkAccessibility();
   });
 
   test("should have a status tag", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     const statusTag = page
       .locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)")
       .first();
@@ -29,7 +29,7 @@ test.describe("Application overview page", () => {
   });
 
   test("should have tabs", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.waitForLoadState("domcontentloaded");
 
     await expect(
@@ -46,7 +46,7 @@ test.describe("Application details tab", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
 
@@ -70,7 +70,7 @@ test.describe("Application details tab", () => {
   });
 
   test("should have the proceedings content", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.getByRole("tab", { name: "Application details" }).click();
 
     const applicationDetailsPanel = page.locator("#application-details");
@@ -92,7 +92,7 @@ test.describe("Application details tab", () => {
   });
 
   test("should have the uploaded evidence content", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
 
@@ -109,7 +109,7 @@ test.describe("Application details tab", () => {
   });
 
   test("should have a make assessment button", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
 
@@ -119,12 +119,12 @@ test.describe("Application details tab", () => {
     await expect(makeAssessmentButton).toBeVisible();
     await expect(makeAssessmentButton).toHaveAttribute(
       "href",
-      `/applications/${applicationId}/decision`,
+      `/applications/${laaReference}/decision`,
     );
     await makeAssessmentButton.click();
     await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain(
-      `/applications/${applicationId}/decision`,
+      `/applications/${laaReference}/decision`,
     );
   });
 
@@ -132,7 +132,7 @@ test.describe("Application details tab", () => {
     page,
     context,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
     const evidenceCard = page.locator(".govuk-summary-card", {
       hasText: "Supporting evidence",
     });
@@ -141,7 +141,7 @@ test.describe("Application details tab", () => {
       context.waitForEvent("response", (response) =>
         response
           .url()
-          .includes(`/applications/${applicationId}/coroners-letter`),
+          .includes(`/applications/${laaReference}/coroners-letter`),
       ),
       evidenceCard.getByRole("link").click(),
     ]);
@@ -150,7 +150,7 @@ test.describe("Application details tab", () => {
 
     // Verify the URL is correct
     await expect(newPage.url()).toContain(
-      `/applications/${applicationId}/coroners-letter`,
+      `/applications/${laaReference}/coroners-letter`,
     );
   });
 });
@@ -160,7 +160,7 @@ test.describe("People tab", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -184,7 +184,7 @@ test.describe("People tab", () => {
   });
 
   test("should have the deceased content", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -205,7 +205,7 @@ test.describe("People tab", () => {
   });
 
   test("should have the provider content", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -225,7 +225,7 @@ test.describe("People tab", () => {
   });
 
   test("should have the interested parties content", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -245,7 +245,7 @@ test.describe("People tab", () => {
   test("should not show Change link for interested parties when application is not granted", async ({
     page,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -267,8 +267,8 @@ test.describe("People tab", () => {
   test("should show Change link for interested parties when application is granted", async ({
     page,
   }) => {
-    const grantedApplicationId = "5";
-    await page.goto(`/applications/${grantedApplicationId}/overview`);
+    const grantedlaaReference = "INQ-YYY-005";
+    await page.goto(`/applications/${grantedlaaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -287,12 +287,12 @@ test.describe("People tab", () => {
     await expect(changeLink).toBeVisible();
     await expect(changeLink).toHaveAttribute(
       "href",
-      `/applications/${grantedApplicationId}/public-authorities`,
+      `/applications/${grantedlaaReference}/public-authorities`,
     );
   });
 
   test("should have a make assessment button", async ({ page }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
 
@@ -302,12 +302,12 @@ test.describe("People tab", () => {
     await expect(makeAssessmentButton).toBeVisible();
     await expect(makeAssessmentButton).toHaveAttribute(
       "href",
-      `/applications/${applicationId}/decision`,
+      `/applications/${laaReference}/decision`,
     );
     await makeAssessmentButton.click();
     await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain(
-      `/applications/${applicationId}/decision`,
+      `/applications/${laaReference}/decision`,
     );
   });
 });
@@ -317,7 +317,7 @@ test.describe("History tab", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "History" }).click();
 
@@ -332,7 +332,7 @@ test.describe("History tab", () => {
   test("should have a history table with the correct columns", async ({
     page,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "History" }).click();
 
@@ -352,7 +352,7 @@ test.describe("History tab", () => {
   test("should display a long note without overflowing the page", async ({
     page,
   }) => {
-    await page.goto(`/applications/${applicationId}/overview`);
+    await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "History" }).click();
 
@@ -372,7 +372,7 @@ test.describe("History tab", () => {
     test("should prevent double submission of the note form", async ({
       page,
     }) => {
-      await page.goto(`/applications/${applicationId}/overview`);
+      await page.goto(`/applications/${laaReference}/overview`);
 
       await page.getByRole("tab", { name: "History" }).click();
 
@@ -387,7 +387,7 @@ test.describe("History tab", () => {
     });
 
     test("should successfully submit a plain text note", async ({ page }) => {
-      await page.goto(`/applications/${applicationId}/overview`);
+      await page.goto(`/applications/${laaReference}/overview`);
 
       await page.getByRole("tab", { name: "History" }).click();
 
@@ -411,7 +411,7 @@ test.describe("History tab", () => {
     test("should successfully submit a free note containing HTML without error", async ({
       page,
     }) => {
-      await page.goto(`/applications/${applicationId}/overview`);
+      await page.goto(`/applications/${laaReference}/overview`);
 
       await page.getByRole("tab", { name: "History" }).click();
 
