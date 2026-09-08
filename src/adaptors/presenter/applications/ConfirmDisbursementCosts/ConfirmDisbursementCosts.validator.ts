@@ -1,49 +1,160 @@
 import type {
-  DisbursementCostsForm,
-  DisbursementCostsFormErrors,
-} from "#src/adaptors/presenter/models/form.types.js";
+  ConfirmDisbursementCostsForm,
+  ConfirmDisbursementCostsFormErrors,
+} from "./models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+
+interface DisbursementCostsTotals {
+  netTotal: string;
+  grossTotal: string;
+  zeroVatTotal: string;
+}
+
+const NIL_TOTAL = 0;
 
 export class ConfirmDisbursementCostsValidator extends FormValidator {
-  validateDisbursementCostsForm(
-    form: DisbursementCostsForm,
-  ): Partial<DisbursementCostsFormErrors> {
-    const errors: Partial<DisbursementCostsFormErrors> = {};
+  validateConfirmDisbursementCostsForm(
+    form: ConfirmDisbursementCostsForm,
+  ): Partial<ConfirmDisbursementCostsFormErrors> {
+    const {
+      "net-total": netTotal,
+      "gross-total": grossTotal,
+      "zero-vat-total": zeroVatTotal,
+    } = form;
 
-    const vatZeroError = this.validateCurrencyInput(
-      form["disbursement-cost-vat-zero"],
-      {
-        missing: en.pages.disbursementCosts.validationErrors.vatZero.notEmpty,
-        invalid: en.pages.disbursementCosts.validationErrors.vatZero.invalid,
-        negative: en.pages.disbursementCosts.validationErrors.vatZero.negative,
-      },
-    );
-    if (vatZeroError) {
-      errors.disbursementCostVatZero = { text: vatZeroError };
+    const totals: DisbursementCostsTotals = {
+      netTotal: netTotal.trim(),
+      grossTotal: grossTotal.trim(),
+      zeroVatTotal: zeroVatTotal.trim(),
+    };
+
+    const formatErrors = this.#validateFormats(totals);
+    if (Object.keys(formatErrors).length > EMPTY_ARR_LENGTH) {
+      return formatErrors;
     }
 
-    const netError = this.validateCurrencyInput(form["disbursement-cost-net"], {
-      missing: en.pages.disbursementCosts.validationErrors.net.notEmpty,
-      invalid: en.pages.disbursementCosts.validationErrors.net.invalid,
-      negative: en.pages.disbursementCosts.validationErrors.net.negative,
-    });
-    if (netError) {
-      errors.disbursementCostNet = { text: netError };
-    }
+    return this.#validateTotalsCombination(totals);
+  }
 
-    const grossError = this.validateCurrencyInput(
-      form["disbursement-cost-gross"],
-      {
-        missing: en.pages.disbursementCosts.validationErrors.gross.notEmpty,
-        invalid: en.pages.disbursementCosts.validationErrors.gross.invalid,
-        negative: en.pages.disbursementCosts.validationErrors.gross.negative,
-      },
-    );
-    if (grossError) {
-      errors.disbursementCostGross = { text: grossError };
+  #validateFormats(
+    totals: DisbursementCostsTotals,
+  ): Partial<ConfirmDisbursementCostsFormErrors> {
+    const { netTotal, grossTotal, zeroVatTotal } = totals;
+    const errors: Partial<ConfirmDisbursementCostsFormErrors> = {};
+
+    if (netTotal !== "" && !this.isValidMonetaryFormat(netTotal)) {
+      errors.netTotal = {
+        text: en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
+          .netFormat,
+      };
+    }
+    if (grossTotal !== "" && !this.isValidMonetaryFormat(grossTotal)) {
+      errors.grossTotal = {
+        text: en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
+          .grossFormat,
+      };
+    }
+    if (zeroVatTotal !== "" && !this.isValidMonetaryFormat(zeroVatTotal)) {
+      errors.zeroVatTotal = {
+        text: en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
+          .zeroVatFormat,
+      };
     }
 
     return errors;
+  }
+
+  #validateTotalsCombination(
+    totals: DisbursementCostsTotals,
+  ): Partial<ConfirmDisbursementCostsFormErrors> {
+    const isNetEmpty = totals.netTotal === "";
+    const isGrossEmpty = totals.grossTotal === "";
+    const isZeroVatEmpty = totals.zeroVatTotal === "";
+    const emptiness = { isNetEmpty, isGrossEmpty, isZeroVatEmpty };
+
+    return (
+      this.#checkAllTotalsEmpty(emptiness) ??
+      this.#checkMissingPair(emptiness) ??
+      this.#checkGrossNotGreaterThanNet(totals, emptiness) ??
+      {}
+    );
+  }
+
+  #checkAllTotalsEmpty(emptiness: {
+    isNetEmpty: boolean;
+    isGrossEmpty: boolean;
+    isZeroVatEmpty: boolean;
+  }): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
+    const { isNetEmpty, isGrossEmpty, isZeroVatEmpty } = emptiness;
+
+    if (isNetEmpty && isGrossEmpty && isZeroVatEmpty) {
+      return {
+        totalRequired: {
+          text: en.pages.claimAssessment.confirmDisbursementCosts
+            .validationErrors.totalRequired,
+        },
+      };
+    }
+
+    return undefined;
+  }
+
+  #checkMissingPair(emptiness: {
+    isNetEmpty: boolean;
+    isGrossEmpty: boolean;
+  }): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
+    const { isNetEmpty, isGrossEmpty } = emptiness;
+
+    if (isNetEmpty === isGrossEmpty) {
+      return undefined;
+    }
+
+    return isNetEmpty
+      ? {
+          netTotal: {
+            text: en.pages.claimAssessment.confirmDisbursementCosts
+              .validationErrors.netMissing,
+          },
+        }
+      : {
+          grossTotal: {
+            text: en.pages.claimAssessment.confirmDisbursementCosts
+              .validationErrors.grossMissing,
+          },
+        };
+  }
+
+  // Gross must exceed net only when the 0% VAT total is blank; a nil (0) gross is allowed.
+  #checkGrossNotGreaterThanNet(
+    totals: DisbursementCostsTotals,
+    emptiness: {
+      isNetEmpty: boolean;
+      isGrossEmpty: boolean;
+      isZeroVatEmpty: boolean;
+    },
+  ): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
+    const { isNetEmpty, isGrossEmpty, isZeroVatEmpty } = emptiness;
+
+    if (isNetEmpty || isGrossEmpty || !isZeroVatEmpty) {
+      return undefined;
+    }
+
+    const grossValue = Number(totals.grossTotal);
+    if (grossValue === NIL_TOTAL) {
+      return undefined;
+    }
+
+    if (grossValue <= Number(totals.netTotal)) {
+      return {
+        grossTotal: {
+          text: en.pages.claimAssessment.confirmDisbursementCosts
+            .validationErrors.grossNotGreaterThanNet,
+        },
+      };
+    }
+
+    return undefined;
   }
 }

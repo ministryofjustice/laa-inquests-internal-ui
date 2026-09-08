@@ -1,90 +1,148 @@
-import { assert } from "chai";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { strict as assert } from "assert";
 import { ConfirmDisbursementCostsValidator } from "#src/adaptors/presenter/applications/ConfirmDisbursementCosts/ConfirmDisbursementCosts.validator.js";
-import type { DisbursementCostsForm } from "#src/adaptors/presenter/models/form.types.js";
+import type { ConfirmDisbursementCostsForm } from "#src/adaptors/presenter/applications/ConfirmDisbursementCosts/models/form.types.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const validationErrors =
+  en.pages.claimAssessment.confirmDisbursementCosts.validationErrors;
 
 describe("ConfirmDisbursementCostsValidator", () => {
-  const validator = new ConfirmDisbursementCostsValidator();
-  const validationErrors = en.pages.disbursementCosts.validationErrors;
+  let validator: ConfirmDisbursementCostsValidator;
 
-  function buildForm(
-    overrides: Partial<DisbursementCostsForm> = {},
-  ): DisbursementCostsForm {
-    return {
-      "disbursement-cost-vat-zero": "100",
-      "disbursement-cost-net": "200.50",
-      "disbursement-cost-gross": "240.60",
-      ...overrides,
-    };
-  }
+  const buildForm = (
+    overrides: Partial<ConfirmDisbursementCostsForm> = {},
+  ): ConfirmDisbursementCostsForm => ({
+    "net-total": "",
+    "gross-total": "",
+    "zero-vat-total": "",
+    ...overrides,
+  });
 
-  describe("validateDisbursementCostsForm", () => {
-    it("returns no errors when all costs are valid", () => {
-      const errors = validator.validateDisbursementCostsForm(buildForm());
+  beforeEach(() => {
+    validator = new ConfirmDisbursementCostsValidator();
+  });
 
-      assert.deepEqual(errors, {});
+  it("returns no errors when the net and gross totals are valid", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "300", "gross-total": "360" }),
+    );
+
+    assert.deepStrictEqual(errors, {});
+  });
+
+  it("returns no errors when only the zero VAT total is valid", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "zero-vat-total": "100" }),
+    );
+
+    assert.deepStrictEqual(errors, {});
+  });
+
+  it("returns no errors when 0% VAT, net and gross totals are all provided", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({
+        "net-total": "300",
+        "gross-total": "360",
+        "zero-vat-total": "100",
+      }),
+    );
+
+    assert.deepStrictEqual(errors, {});
+  });
+
+  it("returns a field error when the net total is not a valid number", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "abc", "gross-total": "360" }),
+    );
+
+    assert.deepStrictEqual(errors, {
+      netTotal: { text: validationErrors.netFormat },
     });
+  });
 
-    it("adds a notEmpty error for each empty cost field", () => {
-      const errors = validator.validateDisbursementCostsForm({
-        "disbursement-cost-vat-zero": "",
-        "disbursement-cost-net": "",
-        "disbursement-cost-gross": "",
-      });
+  it("returns a field error when the gross total has 3 or more decimal places", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "300", "gross-total": "360.123" }),
+    );
 
-      assert.deepEqual(errors, {
-        disbursementCostVatZero: { text: validationErrors.vatZero.notEmpty },
-        disbursementCostNet: { text: validationErrors.net.notEmpty },
-        disbursementCostGross: { text: validationErrors.gross.notEmpty },
-      });
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossFormat },
     });
+  });
 
-    it("adds a notEmpty error when a value is only whitespace", () => {
-      const errors = validator.validateDisbursementCostsForm(
-        buildForm({ "disbursement-cost-net": "   " }),
-      );
+  it("returns a field error when the zero VAT total is not a valid number", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "zero-vat-total": "300.999" }),
+    );
 
-      assert.deepInclude(errors, {
-        disbursementCostNet: { text: validationErrors.net.notEmpty },
-      });
+    assert.deepStrictEqual(errors, {
+      zeroVatTotal: { text: validationErrors.zeroVatFormat },
     });
+  });
 
-    it("adds an invalid error for a non-numeric value", () => {
-      const errors = validator.validateDisbursementCostsForm(
-        buildForm({ "disbursement-cost-vat-zero": "abc" }),
-      );
+  it("returns a summary-only error when all 3 totals are empty", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(buildForm());
 
-      assert.deepInclude(errors, {
-        disbursementCostVatZero: { text: validationErrors.vatZero.invalid },
-      });
+    assert.deepStrictEqual(errors, {
+      totalRequired: { text: validationErrors.totalRequired },
     });
+  });
 
-    it("adds an invalid error for more than two decimal places", () => {
-      const errors = validator.validateDisbursementCostsForm(
-        buildForm({ "disbursement-cost-gross": "120.555" }),
-      );
+  it("returns an error on the net total when only the gross total is filled in", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "gross-total": "360" }),
+    );
 
-      assert.deepInclude(errors, {
-        disbursementCostGross: { text: validationErrors.gross.invalid },
-      });
+    assert.deepStrictEqual(errors, {
+      netTotal: { text: validationErrors.netMissing },
     });
+  });
 
-    it("adds a negative error for a negative value", () => {
-      const errors = validator.validateDisbursementCostsForm(
-        buildForm({ "disbursement-cost-net": "-50" }),
-      );
+  it("returns an error on the gross total when only the net total is filled in", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "300" }),
+    );
 
-      assert.deepInclude(errors, {
-        disbursementCostNet: { text: validationErrors.net.negative },
-      });
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossMissing },
     });
+  });
 
-    it("accepts values with thousands separators", () => {
-      const errors = validator.validateDisbursementCostsForm(
-        buildForm({ "disbursement-cost-gross": "1,200.00" }),
-      );
+  it("returns an error on the gross total when gross is not more than net and the 0% VAT total is blank", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "400", "gross-total": "360" }),
+    );
 
-      assert.notProperty(errors, "disbursementCostGross");
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossNotGreaterThanNet },
     });
+  });
+
+  it("does not compare gross against net when the 0% VAT total is provided", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({
+        "net-total": "400",
+        "gross-total": "360",
+        "zero-vat-total": "100",
+      }),
+    );
+
+    assert.deepStrictEqual(errors, {});
+  });
+
+  it("allows a nil bill where the net and gross totals are both 0", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "0", "gross-total": "0" }),
+    );
+
+    assert.deepStrictEqual(errors, {});
+  });
+
+  it("treats a value of 0 as filled in", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "zero-vat-total": "0" }),
+    );
+
+    assert.deepStrictEqual(errors, {});
   });
 });

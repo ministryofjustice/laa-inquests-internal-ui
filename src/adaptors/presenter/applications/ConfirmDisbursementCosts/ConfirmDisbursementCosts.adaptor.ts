@@ -1,82 +1,164 @@
 import type { Request, Response } from "express";
-import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import type {
   ClaimIdParams,
   TypedRequest,
 } from "#src/infrastructure/express/api.types.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type {
-  DisbursementCostsForm,
-  DisbursementCostsFormErrors,
-} from "#src/adaptors/presenter/models/form.types.js";
+  ConfirmDisbursementCostsForm,
+  ConfirmDisbursementCostsFormErrors,
+} from "./models/form.types.js";
 import type { ConfirmDisbursementCostsValidator } from "./ConfirmDisbursementCosts.validator.js";
-import { ProcessDisbursementCostsUseCase } from "#src/use-cases/applications/claims/ProcessDisbursementCosts.useCase.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
-const SESSION_NAMESPACE = "disbursementCosts";
+const SESSION_NAMESPACE = "claimApproval";
+
+interface ErrorSummaryItem {
+  text: string;
+  href: string;
+}
+
+const ERROR_FIELD_HREFS: Array<{
+  field: keyof ConfirmDisbursementCostsFormErrors;
+  href: string;
+}> = [
+  { field: "totalRequired", href: "#net-total" },
+  { field: "netTotal", href: "#net-total" },
+  { field: "grossTotal", href: "#gross-total" },
+  { field: "zeroVatTotal", href: "#zero-vat-total" },
+];
 
 export class ConfirmDisbursementCostsAdaptor {
   constructor(
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ConfirmDisbursementCostsValidator,
-    private readonly processDisbursementCostsUseCase: ProcessDisbursementCostsUseCase = new ProcessDisbursementCostsUseCase(),
   ) {}
 
-  renderDisbursementCostsForm(
+  renderConfirmDisbursementCostsPage(
     req: Request,
     res: Response,
-    errorSummaries?: Partial<DisbursementCostsFormErrors>,
-    values?: DisbursementCostsForm,
+    laaReference: string,
+    claimId: string,
+    errorSummaries?: Partial<ConfirmDisbursementCostsFormErrors>,
+    formValues?: Partial<ConfirmDisbursementCostsForm>,
   ): void {
-    const applicationId = req.params.applicationId as string;
-    const claimId = req.params.claimId as string;
+    logger.logInfo({
+      functionName: "render_confirm_disbursement_costs_page",
+      message: "Confirm disbursement costs page requested",
+      request: req,
+      extraContext: {
+        event: "confirm_disbursement_costs_page_requested",
+        laa_reference: laaReference,
+        claim_reference: claimId,
+      },
+    });
 
-    res.render("application/claims/disbursement-costs/index", {
-      backUrl: `/applications/${applicationId}/claims/${claimId}`,
-      applicationId,
+    const sessionData = this.sessionHelper.getSessionData(
+      req,
+      SESSION_NAMESPACE,
+    );
+    const totals = this.#resolveFormValues(formValues, sessionData);
+
+    res.render("application/claims/confirm-disbursement-costs/index", {
+      backUrl: `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+      laaReference,
       claimId,
-      vatZero: values?.["disbursement-cost-vat-zero"],
-      net: values?.["disbursement-cost-net"],
-      gross: values?.["disbursement-cost-gross"],
-      ...(errorSummaries && { errorSummaries }),
+      ...totals,
+      ...(errorSummaries !== undefined && {
+        errorSummaries,
+        errorList: this.#buildErrorList(errorSummaries),
+      }),
     });
   }
 
-  processDisbursementCostsForm(
-    req: TypedRequest<DisbursementCostsForm, ClaimIdParams>,
+  #buildErrorList(
+    errorSummaries: Partial<ConfirmDisbursementCostsFormErrors>,
+  ): ErrorSummaryItem[] {
+    const errorList: ErrorSummaryItem[] = [];
+
+    ERROR_FIELD_HREFS.forEach(({ field, href }) => {
+      const { [field]: error } = errorSummaries;
+      if (error === undefined) {
+        return;
+      }
+      if (errorList.some((item) => item.text === error.text)) {
+        return;
+      }
+      errorList.push({ text: error.text, href });
+    });
+
+    return errorList;
+  }
+
+  #resolveFormValues(
+    formValues: Partial<ConfirmDisbursementCostsForm> | undefined,
+    sessionData: Record<string, string> | null,
+  ): { netTotal: string; grossTotal: string; zeroVatTotal: string } {
+    return {
+      netTotal: this.#resolveFormOrSessionValue(
+        formValues?.["net-total"],
+        sessionData?.disbursementNetTotal,
+      ),
+      grossTotal: this.#resolveFormOrSessionValue(
+        formValues?.["gross-total"],
+        sessionData?.disbursementGrossTotal,
+      ),
+      zeroVatTotal: this.#resolveFormOrSessionValue(
+        formValues?.["zero-vat-total"],
+        sessionData?.disbursementZeroVatTotal,
+      ),
+    };
+  }
+
+  #resolveFormOrSessionValue(
+    formValue: string | undefined,
+    sessionValue: string | undefined,
+  ): string {
+    return formValue ?? sessionValue ?? "";
+  }
+
+  processConfirmDisbursementCostsForm(
+    req: TypedRequest<ConfirmDisbursementCostsForm, ClaimIdParams>,
     res: Response,
   ): void {
     const {
-      params: { applicationId, claimId },
-      body,
+      body: formBody,
+      params: { laaReference, claimId },
     } = req;
 
-    const form: DisbursementCostsForm = {
-      "disbursement-cost-vat-zero": body["disbursement-cost-vat-zero"],
-      "disbursement-cost-net": body["disbursement-cost-net"],
-      "disbursement-cost-gross": body["disbursement-cost-gross"],
-    };
-
-    this.sessionHelper.storeSessionData(req, SESSION_NAMESPACE, {
-      "disbursement-cost-vat-zero": form["disbursement-cost-vat-zero"],
-      "disbursement-cost-net": form["disbursement-cost-net"],
-      "disbursement-cost-gross": form["disbursement-cost-gross"],
+    logger.logInfo({
+      functionName: "process_confirm_disbursement_costs_form",
+      message: "Confirm disbursement costs form submitted",
+      request: req as unknown as Request,
+      extraContext: {
+        event: "confirm_disbursement_costs_form_submitted",
+        laa_reference: laaReference,
+        claim_reference: claimId,
+      },
     });
 
-    const result = this.processDisbursementCostsUseCase.execute({
-      form,
-      validate: (submittedForm) =>
-        this.validator.validateDisbursementCostsForm(submittedForm),
-    });
+    const errorSummaries =
+      this.validator.validateConfirmDisbursementCostsForm(formBody);
 
-    if (result.status === "VALIDATION_FAILED") {
-      this.renderDisbursementCostsForm(
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      this.renderConfirmDisbursementCostsPage(
         req as unknown as Request,
         res,
-        result.validationErrors,
-        form,
+        laaReference,
+        claimId,
+        errorSummaries,
+        formBody,
       );
       return;
     }
 
-    res.redirect(`/applications/${applicationId}/claims/${claimId}`);
+    this.sessionHelper.storeSessionData(req, SESSION_NAMESPACE, {
+      disbursementNetTotal: formBody["net-total"].trim(),
+      disbursementGrossTotal: formBody["gross-total"].trim(),
+      disbursementZeroVatTotal: formBody["zero-vat-total"].trim(),
+    });
+
+    res.redirect(`/applications/${laaReference}/claims/${claimId}`);
   }
 }

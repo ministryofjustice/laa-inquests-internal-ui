@@ -2,20 +2,17 @@ import type { NextFunction, Request, Response, Router } from "express";
 import type { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
 import type { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
-import type { ConfirmDisbursementCostsAdaptor } from "#src/adaptors/presenter/applications/ConfirmDisbursementCosts/ConfirmDisbursementCosts.adaptor.js";
 import type {
   ClaimIdParams,
   TypedRequest,
 } from "#src/infrastructure/express/api.types.js";
 import type { AssessClaimForm } from "#src/adaptors/presenter/models/form.types.js";
-import type { DisbursementCostsForm } from "#src/adaptors/presenter/models/form.types.js";
 
 function createApplicationRouter(
   applicationRouter: Router,
   applicationDisplayAdaptor: ApplicationAdaptor,
   claimAssessmentAdaptor: ClaimAssessmentAdaptor,
   certificateDisplayAdaptor: CertificateAdaptor,
-  confirmDisbursementCostsAdaptor: ConfirmDisbursementCostsAdaptor,
 ): Router {
   applicationRouter.get(
     "/:laaReference/overview",
@@ -125,31 +122,6 @@ function createApplicationRouter(
           res,
           laaReferenceParam,
           claimIdParam,
-        );
-      } catch (err: unknown) {
-        next(err);
-      }
-    },
-  );
-
-  applicationRouter.get(
-    "/:laaReference/claims/:claimId/disbursement-costs",
-    (req: Request, res: Response, next: NextFunction): void => {
-      try {
-        confirmDisbursementCostsAdaptor.renderDisbursementCostsForm(req, res);
-      } catch (err: unknown) {
-        next(err);
-      }
-    },
-  );
-
-  applicationRouter.post(
-    "/:laaReference/claims/:claimId/disbursement-costs",
-    (req: Request, res: Response, next: NextFunction): void => {
-      try {
-        confirmDisbursementCostsAdaptor.processDisbursementCostsForm(
-          req as unknown as TypedRequest<DisbursementCostsForm, ClaimIdParams>,
-          res,
         );
       } catch (err: unknown) {
         next(err);

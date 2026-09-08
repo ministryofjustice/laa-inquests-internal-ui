@@ -5,6 +5,7 @@ import { ConfidentialClientApplication } from "@azure/msal-node";
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
 import { createConfirmProfitCostsRouter } from "#src/infrastructure/express/routes/confirmProfitCosts.router.js";
+import { createConfirmDisbursementCostsRouter } from "#src/infrastructure/express/routes/confirmDisbursementCosts.router.js";
 import { createPublicAuthorityRouter } from "#src/infrastructure/express/routes/publicAuthority.router.js";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
@@ -208,9 +209,12 @@ router.use("/applications", requireAuth, [
     applicationDisplayAdaptor,
     claimAssessmentAdaptor,
     certificateDisplayAdaptor,
-    confirmDisbursementCostsAdaptor,
   ),
   createConfirmProfitCostsRouter(express.Router(), confirmProfitCostsAdaptor),
+  createConfirmDisbursementCostsRouter(
+    express.Router(),
+    confirmDisbursementCostsAdaptor,
+  ),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
   createPublicAuthorityRouter(express.Router(), publicAuthorityAdaptor),
 ]);
