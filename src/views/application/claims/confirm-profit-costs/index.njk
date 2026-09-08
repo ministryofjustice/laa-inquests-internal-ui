@@ -1,10 +1,17 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = t('pages.claimAssessment.confirmProfitCosts.heading') %}
 
 {% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('common.errorSummaryTitle'),
+    errorList: errorList
+  }) }}
+{% endif %}
 <form data-testid="confirm-profit-costs" method="post" action="/applications/{{ applicationId }}/claims/{{ claimId }}/confirm-profit-costs">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
 
@@ -28,7 +35,9 @@
     prefix: {
       text: "£"
     },
-    classes: "govuk-input--width-5"
+    classes: "govuk-input--width-5",
+    value: netTotal,
+    errorMessage: errorSummaries.netTotal
   }) }}
 
   {{ govukInput({
@@ -44,7 +53,9 @@
     prefix: {
       text: "£"
     },
-    classes: "govuk-input--width-5"
+    classes: "govuk-input--width-5",
+    value: grossTotal,
+    errorMessage: errorSummaries.grossTotal
   }) }}
 
   <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmProfitCosts.vat0Heading') }}</h2>
@@ -62,7 +73,9 @@
     prefix: {
       text: "£"
     },
-    classes: "govuk-input--width-5"
+    classes: "govuk-input--width-5",
+    value: zeroVatTotal,
+    errorMessage: errorSummaries.zeroVatTotal
   }) }}
 
   {{ govukButton({

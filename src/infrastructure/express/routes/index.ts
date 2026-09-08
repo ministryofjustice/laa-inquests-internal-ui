@@ -22,6 +22,7 @@ import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper
 import config from "#src/infrastructure/config/config.js";
 import { ApplicationDecisionValidator } from "#src/adaptors/presenter/applications/ApplicationDecision/ApplicationDecision.validator.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
+import { ConfirmProfitCostsValidator } from "#src/adaptors/presenter/applications/ConfirmProfitCosts/ConfirmProfitCosts.validator.js";
 import { PublicAuthorityValidator } from "#src/adaptors/presenter/applications/PublicAuthority/PublicAuthority.validator.js";
 import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/decision/ProcessDecisionSelection.useCase.js";
@@ -110,7 +111,10 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,
 );
-const confirmProfitCostsAdaptor = new ConfirmProfitCostsAdaptor();
+const confirmProfitCostsAdaptor = new ConfirmProfitCostsAdaptor(
+  new SessionHelper(),
+  new ConfirmProfitCostsValidator(),
+);
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),

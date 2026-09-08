@@ -208,7 +208,17 @@
         "vat0Heading": "Profit costs at 0% VAT",
         "zeroLabel": "Total for profit costs charged at 0% VAT",
         "zeroHint": "Only complete this field if you have not added values for profit costs at 20% VAT",
-        "continue": "Continue"
+        "continue": "Continue",
+        "validationErrors": {
+          "netFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "grossFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "zeroVatFormat": "Enter your costs in pounds and pence, for example £72.90",
+          "totalRequired": "Complete the total value of the claim to continue",
+          "netMissing": "Enter the net total for profit costs excluding VAT",
+          "grossMissing": "Enter the gross total for profit costs including VAT",
+          "vatConflict": "You cannot submit a total profit cost claim with both 0% and 20% VAT",
+          "grossLessThanNet": "Net total cannot be higher than the gross total value"
+        }
       },
       "rejectedSuccess": {
         "panel": "{claimType} claim has been assessed and rejected",

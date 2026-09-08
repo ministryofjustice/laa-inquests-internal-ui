@@ -4,12 +4,18 @@ import {
   DATE_MONTH_INDEX_OFFSET,
 } from "#src/infrastructure/locales/constants.js";
 
+const VALID_MONETARY_INPUT_REGEX = /^(?:[0-9]+(?:\.[0-9]{1,2})?)$/v;
+
 export class FormValidator {
   protected exceedsMaxLength(
     inputValue: string | undefined,
     maxLength: number,
   ): boolean {
     return typeof inputValue === "string" && inputValue.length > maxLength;
+  }
+
+  protected isValidMonetaryFormat(inputValue: string): boolean {
+    return VALID_MONETARY_INPUT_REGEX.test(inputValue);
   }
 
   protected validateFormInputValue(
