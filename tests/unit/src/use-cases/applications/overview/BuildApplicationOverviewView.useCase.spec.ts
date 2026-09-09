@@ -8,8 +8,6 @@ import {
 } from "#src/use-cases/common/applicationError.js";
 
 describe("BuildApplicationOverviewViewUseCase", () => {
-  const useCase = new BuildApplicationOverviewViewUseCase();
-
   const application = {
     laaReference: "123",
     createdAt: "2026-05-21T08:46:36.793278",
@@ -76,10 +74,12 @@ describe("BuildApplicationOverviewViewUseCase", () => {
   it("returns SUCCESS with application data from the source port", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.getApplication.resolves(application as any);
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
 
     const result = await useCase.execute({
       laaReference: "123",
-      applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });
 
@@ -94,10 +94,12 @@ describe("BuildApplicationOverviewViewUseCase", () => {
 
   it("returns INVALID_INPUT without calling the port when input is incomplete", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
 
     const result = await useCase.execute({
       laaReference: "",
-      applicationPort: applicationPortStub,
     });
 
     assert.deepEqual(result, { status: "INVALID_INPUT" });
@@ -112,11 +114,13 @@ describe("BuildApplicationOverviewViewUseCase", () => {
       true,
     );
     applicationPortStub.getApplication.rejects(error);
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
 
     await assert.rejects(
       useCase.execute({
         laaReference: "123",
-        applicationPort: applicationPortStub,
       }),
       (thrown: unknown) => thrown === error,
     );

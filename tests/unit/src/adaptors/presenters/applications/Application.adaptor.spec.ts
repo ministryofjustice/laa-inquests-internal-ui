@@ -12,7 +12,6 @@ import {
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
-import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import {
   APPLICATION_ERROR_KINDS,
   ApplicationError,
@@ -1234,8 +1233,8 @@ describe("Application adaptor", () => {
       it("re-renders with save error and retained text when use case fails", async () => {
         requestStub.body = { "note-text": "A valid note" };
         addHistoryNoteUseCaseStub.execute.resolves({
-          status: "TECHNICAL_FAILURE",
-          reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+          status: "INVALID_INPUT",
+          message: "Unable to save note",
         });
 
         await applicationAdaptor.submitHistoryNote(

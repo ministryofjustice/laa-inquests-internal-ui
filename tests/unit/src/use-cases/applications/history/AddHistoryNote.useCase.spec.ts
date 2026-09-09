@@ -4,29 +4,26 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 
 describe("AddHistoryNoteUseCase", () => {
-  const useCase = new AddHistoryNoteUseCase();
-
-  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
+  it("returns INVALID_INPUT when laaReference is missing", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new AddHistoryNoteUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "",
       noteText: "A note",
-      applicationPort: applicationPortStub,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.status, "INVALID_INPUT");
   });
 
   it("returns SUCCESS after submitting a history note", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.addHistoryNote.resolves();
+    const useCase = new AddHistoryNoteUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "123",
       noteText: "This is a case note",
-      applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });
 
@@ -39,18 +36,19 @@ describe("AddHistoryNoteUseCase", () => {
     ]);
   });
 
-  it("returns TECHNICAL_FAILURE when upstream submission fails", async () => {
+  it("propagates upstream errors unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.addHistoryNote.rejects(new Error("boom"));
+    const error = new Error("boom");
+    applicationPortStub.addHistoryNote.rejects(error);
+    const useCase = new AddHistoryNoteUseCase(applicationPortStub);
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      noteText: "A note",
-      applicationPort: applicationPortStub,
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "123",
+        noteText: "A note",
+        accessToken: "access-token-123",
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });
