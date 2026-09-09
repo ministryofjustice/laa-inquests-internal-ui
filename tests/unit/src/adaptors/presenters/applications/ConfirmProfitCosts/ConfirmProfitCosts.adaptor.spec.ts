@@ -29,6 +29,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     validator = new ConfirmProfitCostsValidator();
 
     sessionHelperStub.getSessionData.returns(null);
+    requestStub.query = {};
 
     adaptor = new ConfirmProfitCostsAdaptor(sessionHelperStub, validator);
   });

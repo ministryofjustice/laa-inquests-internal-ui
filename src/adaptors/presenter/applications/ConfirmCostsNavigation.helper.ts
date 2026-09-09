@@ -22,7 +22,7 @@ export class ConfirmCostsNavigationHelper {
     checkYourAnswersUrl: string,
     defaultUrl: string,
   ): string {
-    return this.#shouldReturnToCheckYourAnswers(req)
+    return this.#shouldReturnToCheckYourAnswersFromRequest(req)
       ? checkYourAnswersUrl
       : defaultUrl;
   }
@@ -32,9 +32,17 @@ export class ConfirmCostsNavigationHelper {
     checkYourAnswersUrl: string,
     defaultUrl: string,
   ): string {
-    return this.#shouldReturnToCheckYourAnswers(req)
+    return this.#shouldReturnToCheckYourAnswersFromRequest(req)
       ? checkYourAnswersUrl
       : defaultUrl;
+  }
+
+  #shouldReturnToCheckYourAnswersFromRequest(req: Request): boolean {
+    if (this.#isCheckYourAnswersOrigin(req)) {
+      return true;
+    }
+
+    return this.#shouldReturnToCheckYourAnswers(req);
   }
 
   #shouldReturnToCheckYourAnswers(req: Request): boolean {

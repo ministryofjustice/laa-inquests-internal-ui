@@ -29,6 +29,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     validator = new ConfirmDisbursementCostsValidator();
 
     sessionHelperStub.getSessionData.returns(null);
+    requestStub.query = {};
 
     adaptor = new ConfirmDisbursementCostsAdaptor(sessionHelperStub, validator);
   });
