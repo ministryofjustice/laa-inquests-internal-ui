@@ -77,6 +77,33 @@ export default [
       "@typescript-eslint/no-namespace": "off", // Namespaces are allowed in d.ts
     },
   },
+  {
+    files: ["src/use-cases/**/*.ts", "src/ports/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "axios",
+              message:
+                "Axios types and errors must remain inside outbound adapters.",
+            },
+            {
+              name: "@azure/msal-node",
+              message:
+                "MSAL types and errors must remain inside the auth adapter.",
+            },
+            {
+              name: "express",
+              message:
+                "Express types must remain inside inbound infrastructure and adapters.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Ignore patterns
   {
     ignores: [
