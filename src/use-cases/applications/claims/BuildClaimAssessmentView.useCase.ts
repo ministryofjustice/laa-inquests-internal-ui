@@ -7,10 +7,6 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { mapClaimType } from "#src/utils/claim.js";
@@ -18,8 +14,6 @@ import { mapClaimType } from "#src/utils/claim.js";
 interface BuildClaimAssessmentViewInput {
   laaReference: string;
   claimId: string;
-  applicationPort: ApplicationPort;
-  claimsPort: ClaimsPort;
   accessToken?: string;
 }
 
@@ -80,86 +74,84 @@ export interface ClaimAssessmentViewData {
   finalOrNilBillDetails?: ClaimAssessmentFinalOrNilBillDetails;
 }
 
+export type BuildClaimAssessmentViewResult =
+  | { status: "SUCCESS"; data: ClaimAssessmentViewData }
+  | { status: "INVALID_INPUT" }
+  | { status: "NOT_FOUND" };
+
 export class BuildClaimAssessmentViewUseCase {
+  constructor(
+    private readonly applicationPort: ApplicationPort,
+    private readonly claimsPort: ClaimsPort,
+  ) {}
+
   async execute(
     input: BuildClaimAssessmentViewInput,
-  ): Promise<UseCaseResult<ClaimAssessmentViewData>> {
+  ): Promise<BuildClaimAssessmentViewResult> {
     if (!input.laaReference || !input.claimId) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message:
-          "Cannot build claim assessment view without laaReference and claimId",
-      };
+      return { status: "INVALID_INPUT" };
     }
 
-    try {
-      const [application, claim] = await Promise.all([
-        input.applicationPort.getApplication(
-          input.laaReference,
-          input.accessToken,
-        ),
-        input.claimsPort.getClaimById(
+    const [application, claim] = await Promise.all([
+      this.applicationPort.getApplication(
+        input.laaReference,
+        input.accessToken,
+      ),
+      this.claimsPort.getClaimById(
+        input.laaReference,
+        input.claimId,
+        input.accessToken,
+      ),
+    ]);
+    if (claim === undefined) return { status: "NOT_FOUND" };
+
+    const substantiveCostLimitation =
+      claim.substantiveCostLimitation ??
+      application.proceeding.substantiveCostLimitation;
+
+    return {
+      status: "SUCCESS",
+      data: {
+        laaReference: application.laaReference,
+        claimId: String(claim.claimId),
+        claimStatus: mapClaimDecision(claim.claimDecision?.decision),
+        overview: {
+          paymentType: mapClaimType(claim.claimTypeId),
+          paymentAmount: formatAmount(getPaymentAmountRaw(claim)),
+          substantiveCertificate: formatAmount(substantiveCostLimitation),
+          totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
+        },
+        details: {
+          instructedCounsel: formatCounselCount(
+            claim.numberOfCounselInstructed,
+          ),
+          lastWorkingDate: formatDate(claim.submissionDate),
+          outcomeOfInquest: formatInquestOutcomes(claim.inquestOutcomes),
+          alternateFundingProgressed: formatBoolean(
+            claim.hasAlternativeFunding,
+          ),
+        },
+        claimCostBreakdown: mapClaimCostBreakdown(
+          claim,
           input.laaReference,
           input.claimId,
-          input.accessToken,
         ),
-      ]);
-
-      const substantiveCostLimitation =
-        claim.substantiveCostLimitation ??
-        application.proceeding.substantiveCostLimitation;
-
-      return {
-        status: "SUCCESS",
-        data: {
-          laaReference: application.laaReference,
-          claimId: String(claim.claimId),
-          claimStatus: mapClaimDecision(claim.claimDecision?.decision),
-          overview: {
-            paymentType: mapClaimType(claim.claimTypeId),
-            paymentAmount: formatAmount(getPaymentAmountRaw(claim)),
-            substantiveCertificate: formatAmount(substantiveCostLimitation),
-            totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
-          },
-          details: {
-            instructedCounsel: formatCounselCount(
-              claim.numberOfCounselInstructed,
-            ),
-            lastWorkingDate: formatDate(claim.submissionDate),
-            outcomeOfInquest: formatInquestOutcomes(claim.inquestOutcomes),
-            alternateFundingProgressed: formatBoolean(
-              claim.hasAlternativeFunding,
-            ),
-          },
-          claimCostBreakdown: mapClaimCostBreakdown(
-            claim,
-            input.laaReference,
-            input.claimId,
-          ),
-          supportingEvidence: mapSupportingEvidence(
-            claim,
-            input.laaReference,
-            input.claimId,
-          ),
-          ...(isFinalOrNilBill(claim.claimTypeId)
-            ? {
-                finalOrNilBillDetails: mapFinalOrNilBillDetails(
-                  claim,
-                  input.laaReference,
-                  input.claimId,
-                ),
-              }
-            : {}),
-        },
-      };
-    } catch (error) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        cause: error,
-      };
-    }
+        supportingEvidence: mapSupportingEvidence(
+          claim,
+          input.laaReference,
+          input.claimId,
+        ),
+        ...(isFinalOrNilBill(claim.claimTypeId)
+          ? {
+              finalOrNilBillDetails: mapFinalOrNilBillDetails(
+                claim,
+                input.laaReference,
+                input.claimId,
+              ),
+            }
+          : {}),
+      },
+    };
   }
 }
 

@@ -162,19 +162,13 @@ test.describe("Claims tab - only assessed claims", () => {
   });
 });
 
-test.describe("Claims tab - upstream failure", () => {
+test.describe("Claims - upstream failure", () => {
   const laaReference = "INQ-YYY-998";
 
-  test("should still render the page and show an unavailable message", async ({
-    page,
-  }) => {
-    await page.goto(`/applications/${laaReference}/overview`);
-    await page.getByRole("tab", { name: "Claims" }).click();
+  test("shows the generic error page", async ({ page }) => {
+    const response = await page.goto(`/applications/${laaReference}/overview`);
 
-    const claimsPanel = page.locator("#claims");
-    await expect(claimsPanel).toContainText(
-      "Claims are currently unavailable. Please try again later.",
-    );
-    await expect(claimsPanel.locator("table")).toHaveCount(0);
+    expect(response?.status()).toBe(500);
+    await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
   });
 });

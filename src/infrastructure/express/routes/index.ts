@@ -40,6 +40,8 @@ import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/c
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
+import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
+import { GetClaimEvidenceUseCase } from "#src/use-cases/applications/claims/GetClaimEvidence.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
@@ -53,6 +55,7 @@ import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applicati
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
+import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 
 const router = express.Router();
@@ -82,9 +85,13 @@ const reportsApiAdaptor = new ReportsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const claimsAdaptor = new ClaimsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const buildApplicationOverviewViewUseCase =
   new BuildApplicationOverviewViewUseCase();
-const buildApplicationClaimsViewUseCase =
-  new BuildApplicationClaimsViewUseCase();
-const buildClaimAssessmentViewUseCase = new BuildClaimAssessmentViewUseCase();
+const buildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(
+  claimsAdaptor,
+);
+const buildClaimAssessmentViewUseCase = new BuildClaimAssessmentViewUseCase(
+  viewApplicationAdaptor,
+  claimsAdaptor,
+);
 const prepareDecisionFormUseCase = new PrepareDecisionFormUseCase();
 const processDecisionSelectionUseCase = new ProcessDecisionSelectionUseCase();
 const processJustificationUseCase = new ProcessJustificationUseCase();
@@ -101,23 +108,22 @@ const getCoronersLetterDocumentUseCase = new GetCoronersLetterDocumentUseCase(
 );
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
+  buildApplicationClaimsViewUseCase,
   new SessionHelper(),
   buildApplicationOverviewViewUseCase,
-  claimsAdaptor,
-  buildApplicationClaimsViewUseCase,
   undefined,
   new AddHistoryNoteUseCase(),
   new AddHistoryNoteValidator(),
   getCoronersLetterDocumentUseCase,
 );
 const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
-  viewApplicationAdaptor,
-  claimsAdaptor,
   new SessionHelper(),
   buildClaimAssessmentViewUseCase,
+  new RejectClaimUseCase(claimsAdaptor),
+  new BuildClaimRejectionViewUseCase(claimsAdaptor),
+  new GetClaimEvidenceUseCase(claimsAdaptor),
   new ClaimAssessmentValidator(),
   new ProcessClaimAssessmentUseCase(),
-  new RejectClaimUseCase(),
 );
 const certificateDisplayAdaptor = new CertificateAdaptor(
   buildCertificateViewUseCase,
@@ -131,8 +137,8 @@ const confirmDisbursementCostsAdaptor = new ConfirmDisbursementCostsAdaptor(
   new ConfirmDisbursementCostsValidator(),
 );
 const checkYourAnswersAdaptor = new CheckYourAnswersAdaptor(
-  claimsAdaptor,
   new SessionHelper(),
+  new BuildCheckYourAnswersViewUseCase(claimsAdaptor),
 );
 const homeAdaptor = new HomeAdaptor(
   viewApplicationAdaptor,

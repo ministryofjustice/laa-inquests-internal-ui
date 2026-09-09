@@ -4,10 +4,6 @@ import {
   PLACEHOLDER_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 
 export interface CheckYourAnswersCostTotals {
@@ -19,7 +15,6 @@ export interface CheckYourAnswersCostTotals {
 interface BuildCheckYourAnswersViewInput {
   laaReference: string;
   claimId: string;
-  claimsPort: ClaimsPort;
   accessToken?: string;
   profitCosts: CheckYourAnswersCostTotals;
   disbursementCosts: CheckYourAnswersCostTotals;
@@ -40,44 +35,39 @@ export interface CheckYourAnswersViewData {
   disbursementCosts: CheckYourAnswersFormattedCostTotals;
 }
 
+export type BuildCheckYourAnswersViewResult =
+  | { status: "SUCCESS"; data: CheckYourAnswersViewData }
+  | { status: "INVALID_INPUT" }
+  | { status: "NOT_FOUND" };
+
 export class BuildCheckYourAnswersViewUseCase {
+  constructor(private readonly claimsPort: ClaimsPort) {}
+
   async execute(
     input: BuildCheckYourAnswersViewInput,
-  ): Promise<UseCaseResult<CheckYourAnswersViewData>> {
+  ): Promise<BuildCheckYourAnswersViewResult> {
     if (!input.laaReference || !input.claimId) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message:
-          "Cannot build check your answers view without laaReference and claimId",
-      };
+      return { status: "INVALID_INPUT" };
     }
 
-    try {
-      const claim = await input.claimsPort.getClaimById(
-        input.laaReference,
-        input.claimId,
-        input.accessToken,
-      );
+    const claim = await this.claimsPort.getClaimById(
+      input.laaReference,
+      input.claimId,
+      input.accessToken,
+    );
+    if (claim === undefined) return { status: "NOT_FOUND" };
 
-      return {
-        status: "SUCCESS",
-        data: {
-          laaReference: input.laaReference,
-          claimId: input.claimId,
-          finalBill: formatAmount(getPaymentAmountRaw(claim)),
-          claimDecision: CLAIM_DECISION_STATUSES.PAY_IN_FULL,
-          profitCosts: formatCostTotals(input.profitCosts),
-          disbursementCosts: formatCostTotals(input.disbursementCosts),
-        },
-      };
-    } catch (error) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        cause: error,
-      };
-    }
+    return {
+      status: "SUCCESS",
+      data: {
+        laaReference: input.laaReference,
+        claimId: input.claimId,
+        finalBill: formatAmount(getPaymentAmountRaw(claim)),
+        claimDecision: CLAIM_DECISION_STATUSES.PAY_IN_FULL,
+        profitCosts: formatCostTotals(input.profitCosts),
+        disbursementCosts: formatCostTotals(input.disbursementCosts),
+      },
+    };
   }
 }
 

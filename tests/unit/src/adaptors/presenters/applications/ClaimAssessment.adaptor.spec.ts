@@ -11,11 +11,17 @@ import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/clai
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 import type { AssessClaimForm } from "#src/adaptors/presenter/models/form.types.js";
 import type {
   ClaimIdParams,
   TypedRequest,
 } from "#src/infrastructure/express/api.types.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { GetClaimEvidenceUseCase } from "#src/use-cases/applications/claims/GetClaimEvidence.useCase.js";
 
 describe("ClaimAssessmentAdaptor", () => {
   let adaptor: ClaimAssessmentAdaptor;
@@ -88,14 +94,13 @@ describe("ClaimAssessmentAdaptor", () => {
     };
 
     adaptor = new ClaimAssessmentAdaptor(
-      applicationPortStub,
-      claimsPortStub,
       sessionHelperStub,
       buildClaimAssessmentViewUseCaseStub,
-      validatorStub,
-      processClaimAssessmentUseCaseStub,
       rejectClaimUseCaseStub,
       buildClaimRejectionViewUseCaseStub,
+      new GetClaimEvidenceUseCase(claimsPortStub),
+      validatorStub,
+      processClaimAssessmentUseCaseStub,
     );
   });
 
@@ -117,8 +122,6 @@ describe("ClaimAssessmentAdaptor", () => {
       {
         laaReference: "123",
         claimId: "10",
-        applicationPort: applicationPortStub,
-        claimsPort: claimsPortStub,
         accessToken: "test-access-token",
       },
     );
@@ -209,6 +212,7 @@ describe("ClaimAssessmentAdaptor", () => {
     });
 
     it("rejects the claim then redirects to the rejection success page when Reject is selected with a valid reason", async () => {
+      const logInfoStub = sinon.stub(logger, "logInfo");
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: {
@@ -218,7 +222,6 @@ describe("ClaimAssessmentAdaptor", () => {
       });
       rejectClaimUseCaseStub.execute.resolves({
         status: "SUCCESS",
-        data: undefined,
       });
 
       await adaptor.processClaimAssessmentForm(
@@ -233,9 +236,16 @@ describe("ClaimAssessmentAdaptor", () => {
           laaReference: "123",
           claimId: "10",
           justification: "Not enough supporting evidence provided",
-          claimsPort: claimsPortStub,
           accessToken: "test-access-token",
         },
+      );
+      assert.equal(
+        logInfoStub
+          .getCalls()
+          .filter(
+            (call) => call.args[0].extraContext?.event === "claim_rejected",
+          ).length,
+        1,
       );
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
         "/applications/123/claims/10/rejected",
@@ -250,17 +260,19 @@ describe("ClaimAssessmentAdaptor", () => {
           rejectionReason: "Not enough supporting evidence provided",
         },
       });
-      rejectClaimUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
-      });
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "reject_claim",
+        true,
+      );
+      rejectClaimUseCaseStub.execute.rejects(error);
 
       await assert.rejects(
         adaptor.processClaimAssessmentForm(
           buildPostRequest("Reject", "Not enough supporting evidence provided"),
           responseStub,
         ),
-        /Unable to reject claim/,
+        (thrown: unknown) => thrown === error,
       );
 
       assert.equal(responseStub.redirect.callCount, 0);
@@ -307,7 +319,6 @@ describe("ClaimAssessmentAdaptor", () => {
         {
           laaReference: "123",
           claimId: "10",
-          claimsPort: claimsPortStub,
           accessToken: "test-access-token",
         },
       );
@@ -323,11 +334,13 @@ describe("ClaimAssessmentAdaptor", () => {
       });
     });
 
-    it("throws when the claim rejection view cannot be built", async () => {
-      buildClaimRejectionViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
-      });
+    it("propagates errors when the claim rejection view cannot be built", async () => {
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_claim",
+        true,
+      );
+      buildClaimRejectionViewUseCaseStub.execute.rejects(error);
 
       await assert.rejects(
         adaptor.renderClaimRejectionSuccessPage(
@@ -336,7 +349,7 @@ describe("ClaimAssessmentAdaptor", () => {
           "123",
           "10",
         ),
-        /Unable to build claim rejection view/,
+        (thrown: unknown) => thrown === error,
       );
 
       assert.equal(responseStub.render.callCount, 0);
@@ -409,34 +422,32 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.deepStrictEqual(responseStub.render.getCall(0).args, [
         "application/error",
         {
-          status: "Invalid request",
-          error: "Unable to retrieve evidence. Please try again later",
+          status: 400,
+          error: "Invalid claim evidence request.",
         },
       ]);
       assert.equal(responseStub.send.callCount, 0);
     });
 
-    it("renders a 500 error page when the port call fails", async () => {
-      responseStub.status.returns(responseStub);
-      claimsPortStub.getClaimEvidence.rejects(new Error("API error"));
+    it("propagates evidence errors without rendering or duplicate logging", async () => {
+      const logErrorStub = sinon.stub(logger, "logError");
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_claim_evidence",
+        true,
+      );
+      claimsPortStub.getClaimEvidence.rejects(error);
 
-      await adaptor.serveClaimEvidence(
-        requestStub,
-        responseStub,
-        "1",
-        "inline",
+      await assert.rejects(
+        adaptor.serveClaimEvidence(requestStub, responseStub, "1", "inline"),
+        (thrown: unknown) => thrown === error,
       );
 
       assert.equal(claimsPortStub.getClaimEvidence.callCount, 1);
-      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
-      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
-        "application/error",
-        {
-          status: "Unable to retrieve evidence",
-          error: "Unable to retrieve evidence. Please try again later",
-        },
-      ]);
+      assert.equal(responseStub.status.callCount, 0);
+      assert.equal(responseStub.render.callCount, 0);
       assert.equal(responseStub.send.callCount, 0);
+      assert.equal(logErrorStub.callCount, 0);
     });
   });
 });

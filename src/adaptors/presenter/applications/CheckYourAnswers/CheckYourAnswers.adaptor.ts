@@ -5,16 +5,19 @@ import type {
   TypedRequest,
 } from "#src/infrastructure/express/api.types.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
-import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
+import type { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_NOT_FOUND,
+} from "#src/infrastructure/express/constants.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const SESSION_NAMESPACE = "claimApproval";
 
 export class CheckYourAnswersAdaptor {
   constructor(
-    private readonly claimsPort: ClaimsPort,
     private readonly sessionHelper: SessionHelper,
-    private readonly buildCheckYourAnswersViewUseCase: BuildCheckYourAnswersViewUseCase = new BuildCheckYourAnswersViewUseCase(),
+    private readonly buildCheckYourAnswersViewUseCase: BuildCheckYourAnswersViewUseCase,
   ) {}
 
   async renderCheckYourAnswersPage(
@@ -42,7 +45,6 @@ export class CheckYourAnswersAdaptor {
     const result = await this.buildCheckYourAnswersViewUseCase.execute({
       laaReference,
       claimId,
-      claimsPort: this.claimsPort,
       accessToken: req.session.user?.accessToken,
       profitCosts: {
         netTotal: sessionData?.netTotal,
@@ -56,8 +58,18 @@ export class CheckYourAnswersAdaptor {
       },
     });
 
-    if (result.status !== "SUCCESS") {
-      throw new Error("Unable to build check your answers view");
+    if (result.status === "INVALID_INPUT") {
+      res.status(HTTP_BAD_REQUEST).render("application/error", {
+        status: HTTP_BAD_REQUEST,
+        error: en.pages.claimAssessment.checkYourAnswers.invalidRequest,
+      });
+      return;
+    } else if (result.status === "NOT_FOUND") {
+      res.status(HTTP_NOT_FOUND).render("application/error", {
+        status: HTTP_NOT_FOUND,
+        error: en.pages.claimAssessment.notFound,
+      });
+      return;
     }
 
     res.render("application/claims/check-your-answers/index", {

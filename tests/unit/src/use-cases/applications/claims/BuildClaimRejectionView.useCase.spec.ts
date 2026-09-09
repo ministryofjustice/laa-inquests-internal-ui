@@ -5,8 +5,6 @@ import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/Claims
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildClaimRejectionViewUseCase", () => {
-  const useCase = new BuildClaimRejectionViewUseCase();
-
   const baseClaim: ClaimDetail = {
     claimId: 10,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -24,10 +22,11 @@ describe("BuildClaimRejectionViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaimById.resolves(baseClaim);
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimRejectionViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      claimsPort: claimsPortStub,
       accessToken: "token",
     });
 
@@ -42,57 +41,56 @@ describe("BuildClaimRejectionViewUseCase", () => {
       claimTypeId: "FINAL_BILL",
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimRejectionViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "13",
-      claimsPort: claimsPortStub,
     });
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, { claimType: "Final bill" });
   });
 
-  it("returns TECHNICAL_FAILURE when the claim type is not recognised", async () => {
+  it("returns INVALID_CLAIM_TYPE when the claim type is not recognised", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaimById.resolves({
       ...baseClaim,
       claimTypeId: "UNKNOWN_TYPE",
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimRejectionViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      claimsPort: claimsPortStub,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    assert.deepEqual(result, { status: "INVALID_CLAIM_TYPE" });
   });
 
-  it("returns TECHNICAL_FAILURE when ids are missing", async () => {
+  it("returns INVALID_INPUT when ids are missing", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimRejectionViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "",
       claimId: "",
-      claimsPort: claimsPortStub,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.deepEqual(result, { status: "INVALID_INPUT" });
   });
 
-  it("returns TECHNICAL_FAILURE when the claim lookup fails", async () => {
+  it("propagates claim lookup failures", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaimById.rejects(new Error("boom"));
 
-    const result = await useCase.execute({
-      laaReference: "5",
-      claimId: "10",
-      claimsPort: claimsPortStub,
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    await assert.rejects(
+      new BuildClaimRejectionViewUseCase(claimsPortStub).execute({
+        laaReference: "5",
+        claimId: "10",
+      }),
+    );
   });
 });

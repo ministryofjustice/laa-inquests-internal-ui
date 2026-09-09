@@ -3,11 +3,13 @@ import { stubInterface } from "ts-sinon";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildClaimAssessmentViewUseCase", () => {
-  const useCase = new BuildClaimAssessmentViewUseCase();
-
   const baseClaim: ClaimDetail = {
     claimId: 10,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -47,11 +49,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     } as any);
     claimsPortStub.getClaimById.resolves(baseClaim);
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
       accessToken: "token",
     });
 
@@ -111,11 +114,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       ],
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "13",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -148,11 +152,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimCostTemplateFile: null,
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -173,11 +178,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       totalProfitCostVatZero: "700.00",
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -209,11 +215,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       payingParty: "Ministry of Justice",
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -274,11 +281,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       payingParty: "Ministry of Justice",
     });
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
       claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -288,35 +296,59 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     );
   });
 
-  it("returns TECHNICAL_FAILURE when ids are missing", async () => {
+  it("returns INVALID_INPUT when ids are missing", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();
 
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "",
       claimId: "",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.deepEqual(result, { status: "INVALID_INPUT" });
   });
 
-  it("returns TECHNICAL_FAILURE when an upstream dependency fails", async () => {
+  it("returns NOT_FOUND when the claim does not exist", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();
+    applicationPortStub.getApplication.resolves({
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves(undefined);
 
-    applicationPortStub.getApplication.rejects(new Error("boom"));
-
-    const result = await useCase.execute({
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
       laaReference: "5",
-      claimId: "10",
-      applicationPort: applicationPortStub,
-      claimsPort: claimsPortStub,
+      claimId: "missing",
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    assert.deepEqual(result, { status: "NOT_FOUND" });
+  });
+
+  it("propagates application errors unchanged", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+    const error = new ApplicationError(
+      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      "get_claim",
+      true,
+    );
+    applicationPortStub.getApplication.rejects(error);
+
+    await assert.rejects(
+      new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({
+        laaReference: "5",
+        claimId: "10",
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });

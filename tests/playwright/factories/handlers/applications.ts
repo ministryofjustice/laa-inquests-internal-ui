@@ -296,7 +296,7 @@ const assessedClaims = [
   },
 ];
 
-const claimDetail = {
+export const claimDetail = {
   claimId: 10,
   claimTypeId: "PAYMENT_ON_ACCOUNT",
   submissionDate: "2026-08-10T13:37:56.629563",

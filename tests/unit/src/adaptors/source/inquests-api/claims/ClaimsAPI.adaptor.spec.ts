@@ -1,10 +1,16 @@
 import sinon from "sinon";
+import axios from "axios";
 import { assert } from "chai";
 import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/ClaimsAPI.adaptor.js";
 import type {
   ClaimDetail,
   ClaimSummary,
 } from "#src/adaptors/models/claim.types.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 const axiosGetStub = sinon.stub();
 const axiosPatchStub = sinon.stub();
@@ -136,11 +142,19 @@ describe("Test Claims API Adaptor", () => {
     assert.instanceOf(thrown, Error);
   });
 
-  it("propagates errors from axios", async () => {
+  it("logs once and throws a sanitized retryable error when claims retrieval returns 500", async () => {
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
-
-    axiosGetStub.rejects(new Error("network error"));
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Server Error",
+        "ERR_BAD_RESPONSE",
+        undefined,
+        undefined,
+        { status: 500 } as any,
+      ),
+    );
 
     let thrown: unknown;
     try {
@@ -149,8 +163,24 @@ describe("Test Claims API Adaptor", () => {
       thrown = error;
     }
 
-    assert.instanceOf(thrown, Error);
-    assert.equal((thrown as Error).message, "network error");
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_claims");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    assert.deepInclude(logErrorStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "get_claims",
+      upstream_method: "GET",
+      upstream_route: "/applications/:id/claims",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+    });
+    logErrorStub.restore();
   });
 
   it("calls axios with the claim detail endpoint", async () => {
@@ -177,9 +207,72 @@ describe("Test Claims API Adaptor", () => {
     assert.deepEqual(claim, expectedClaimDetail);
   });
 
-  it("throws when claim detail response fails schema validation", async () => {
+  it("returns undefined when the claim does not exist", async () => {
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Not Found",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 404 } as any,
+      ),
+    );
+
+    const claim = await adaptor.getClaimById("123", "10", "access-token-123");
+
+    assert.equal(claim, undefined);
+  });
+
+  it("logs once and throws a sanitized retryable error when claim retrieval returns 500", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    const serverError = new axios.AxiosError(
+      "Server Error",
+      "ERR_BAD_RESPONSE",
+      undefined,
+      undefined,
+      { status: 500 } as any,
+    );
+    axiosGetStub.rejects(serverError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getClaimById("123", "10", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_claim");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    assert.deepInclude(logErrorStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "get_claim",
+      upstream_method: "GET",
+      upstream_route: "/applications/:id/claims/:id",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+      laa_reference: "123",
+      claim_reference: "10",
+    });
+    assert.notProperty(logErrorStub.firstCall.args[0].extraContext, "body");
+    assert.notProperty(logErrorStub.firstCall.args[0].extraContext, "response");
+    logErrorStub.restore();
+  });
+
+  it("throws a sanitized invalid-response error without logging claim success", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logInfoStub = sinon.stub(logger, "logInfo");
 
     axiosGetStub.resolves({ data: { claimId: "not-a-number" } });
 
@@ -190,7 +283,18 @@ describe("Test Claims API Adaptor", () => {
       thrown = error;
     }
 
-    assert.instanceOf(thrown, Error);
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+      );
+      assert.equal(thrown.operation, "get_claim");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.notCalled(logInfoStub);
+    logInfoStub.restore();
   });
 
   it("calls axios with the claim evidence endpoint and disposition query param", async () => {
@@ -232,6 +336,8 @@ describe("Test Claims API Adaptor", () => {
       "access-token-123",
     );
 
+    assert.isDefined(result);
+    if (result === undefined) return;
     assert.instanceOf(result.data, Buffer);
     assert.equal(result.data.toString(), "evidence");
     assert.equal(result.contentType, "application/pdf");
@@ -256,15 +362,47 @@ describe("Test Claims API Adaptor", () => {
       "access-token-123",
     );
 
+    assert.isDefined(result);
+    if (result === undefined) return;
     assert.equal(result.contentType, "application/octet-stream");
     assert.equal(result.contentDisposition, "inline");
   });
 
-  it("propagates errors from axios when fetching evidence", async () => {
+  it("returns undefined when claim evidence does not exist", async () => {
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Not Found",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 404 } as any,
+      ),
+    );
 
-    axiosGetStub.rejects(new Error("network error"));
+    const result = await adaptor.getClaimEvidence(
+      "evidence-404",
+      "inline",
+      "access-token-123",
+    );
+
+    assert.equal(result, undefined);
+  });
+
+  it("logs once and throws a sanitized retryable error when evidence retrieval returns 500", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Server Error",
+        "ERR_BAD_RESPONSE",
+        undefined,
+        undefined,
+        { status: 500 } as any,
+      ),
+    );
 
     let thrown: unknown;
     try {
@@ -273,8 +411,24 @@ describe("Test Claims API Adaptor", () => {
       thrown = error;
     }
 
-    assert.instanceOf(thrown, Error);
-    assert.equal((thrown as Error).message, "network error");
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_claim_evidence");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    assert.deepInclude(logErrorStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "get_claim_evidence",
+      upstream_method: "GET",
+      upstream_route: "/claims/:id",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+    });
+    logErrorStub.restore();
   });
 
   it("calls axios with the reject endpoint, justification body and token", async () => {
@@ -314,11 +468,19 @@ describe("Test Claims API Adaptor", () => {
     assert.isFalse(axiosPatchStub.called);
   });
 
-  it("propagates errors from axios when rejecting a claim", async () => {
+  it("logs once and throws a sanitized retryable error when rejecting a claim returns 500", async () => {
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
-
-    axiosPatchStub.rejects(new Error("network error"));
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosPatchStub.rejects(
+      new axios.AxiosError(
+        "Server Error",
+        "ERR_BAD_RESPONSE",
+        undefined,
+        undefined,
+        { status: 500 } as any,
+      ),
+    );
 
     let thrown: unknown;
     try {
@@ -327,7 +489,23 @@ describe("Test Claims API Adaptor", () => {
       thrown = error;
     }
 
-    assert.instanceOf(thrown, Error);
-    assert.equal((thrown as Error).message, "network error");
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "reject_claim");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    assert.deepInclude(logErrorStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "reject_claim",
+      upstream_method: "PATCH",
+      upstream_route: "/applications/:id/claims/:id/reject",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+    });
+    logErrorStub.restore();
   });
 });

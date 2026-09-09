@@ -179,10 +179,9 @@ describe("Application adaptor", () => {
     viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
     applicationAdaptor = new ApplicationAdaptor(
       viewApplicationAdaptorStub,
-      undefined,
-      undefined,
-      claimsAdaptorStub,
       buildApplicationClaimsViewUseCaseStub,
+      undefined,
+      undefined,
     );
     requestStub.session.user = {
       userId: "test-user-id",
@@ -592,24 +591,26 @@ describe("Application adaptor", () => {
       assert.equal(executeArgs.substantiveCertificate, 10000);
     });
 
-    it("renders claims as unavailable when the claims use case fails", async () => {
+    it("propagates claims retrieval errors without rendering or duplicate logging", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
-      buildApplicationClaimsViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-      });
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_claims",
+        true,
+      );
+      buildApplicationClaimsViewUseCaseStub.execute.rejects(error);
 
-      await applicationAdaptor.renderApplicationPage(
-        requestStub,
-        responseStub,
-        "123",
+      await assert.rejects(
+        applicationAdaptor.renderApplicationPage(
+          requestStub,
+          responseStub,
+          "123",
+        ),
+        (thrown: unknown) => thrown === error,
       );
 
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.partialDeepStrictEqual(renderArgs[1], {
-        claims: { unavailable: true },
-      });
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(logErrorStub.callCount, 0);
     });
   });
 
@@ -675,10 +676,9 @@ describe("Application adaptor", () => {
       });
       applicationAdaptor = new ApplicationAdaptor(
         viewApplicationAdaptorStub,
-        undefined,
-        undefined,
-        claimsAdaptorStub,
         buildApplicationClaimsViewUseCaseStub,
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -715,10 +715,9 @@ describe("Application adaptor", () => {
       getCoronersLetterDocumentUseCase.execute.rejects(error);
       applicationAdaptor = new ApplicationAdaptor(
         viewApplicationAdaptorStub,
-        undefined,
-        undefined,
-        claimsAdaptorStub,
         buildApplicationClaimsViewUseCaseStub,
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -1132,10 +1131,9 @@ describe("Application adaptor", () => {
         viewApplicationAdaptorStub.getApplicationHistory.resolves([]);
         applicationAdaptor = new ApplicationAdaptor(
           viewApplicationAdaptorStub,
+          buildApplicationClaimsViewUseCaseStub,
           sessionHelperStub,
           undefined,
-          claimsAdaptorStub,
-          buildApplicationClaimsViewUseCaseStub,
           undefined,
           addHistoryNoteUseCaseStub,
           new AddHistoryNoteValidator(),

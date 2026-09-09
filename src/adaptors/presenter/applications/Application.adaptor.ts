@@ -1,10 +1,9 @@
 import type { Request, Response } from "express";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
-import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
+import type { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { formatCurrency } from "#src/utils/formatter.js";
@@ -46,8 +45,6 @@ interface NoteState {
 export class ApplicationAdaptor {
   viewApplicationAdaptor: ApplicationPort;
 
-  private readonly claimsAdaptor?: ClaimsPort;
-
   private readonly sessionHelper?: SessionHelper;
 
   private readonly buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase;
@@ -64,10 +61,9 @@ export class ApplicationAdaptor {
 
   constructor(
     viewApplicationAdaptor: ApplicationPort,
+    buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase,
     sessionHelper?: SessionHelper,
     buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(),
-    claimsAdaptor?: ClaimsPort,
-    buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(),
     buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase = new BuildApplicationHistoryViewUseCase(),
     addHistoryNoteUseCase: AddHistoryNoteUseCase = new AddHistoryNoteUseCase(),
     addHistoryNoteValidator: AddHistoryNoteValidator = new AddHistoryNoteValidator(),
@@ -77,7 +73,6 @@ export class ApplicationAdaptor {
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
     this.sessionHelper = sessionHelper;
-    this.claimsAdaptor = claimsAdaptor;
     this.buildApplicationOverviewViewUseCase =
       buildApplicationOverviewViewUseCase;
     this.buildApplicationClaimsViewUseCase = buildApplicationClaimsViewUseCase;
@@ -185,41 +180,22 @@ export class ApplicationAdaptor {
     laaReference: string,
     substantiveCertificate: number,
   ): Promise<ClaimsViewModel> {
-    const { claimsAdaptor, buildApplicationClaimsViewUseCase } = this;
-
-    if (!claimsAdaptor) {
-      logger.logError({
-        functionName: "build_claims_view",
-        message: "No claims adaptor configured",
-        request: req,
-        extraContext: {
-          event: "claims_adaptor_missing",
-          laa_reference: laaReference,
-        },
-      });
-      return { unavailable: true };
-    }
+    const { buildApplicationClaimsViewUseCase } = this;
 
     const claimsViewResult = await buildApplicationClaimsViewUseCase.execute({
       laaReference,
-      claimsPort: claimsAdaptor,
       substantiveCertificate,
       accessToken: req.session.user?.accessToken,
     });
 
-    if (claimsViewResult.status !== "SUCCESS") {
-      logger.logError({
+    if (claimsViewResult.status === "INVALID_INPUT") {
+      logger.logWarn({
         functionName: "build_claims_view",
-        message: "Failed to build claims view",
-        err:
-          claimsViewResult.status === "TECHNICAL_FAILURE"
-            ? (claimsViewResult.cause ?? claimsViewResult.message)
-            : undefined,
+        message: "Application claims request is invalid",
         request: req,
         extraContext: {
-          event: "claims_view_build_failed",
+          event: "application_claims_view_invalid_input",
           laa_reference: laaReference,
-          result_status: claimsViewResult.status,
         },
       });
       return { unavailable: true };
