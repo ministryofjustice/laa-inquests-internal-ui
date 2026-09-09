@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
+import { ApplicationError } from "#src/use-cases/common/applicationError.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type {
@@ -86,10 +86,13 @@ export class PublicAuthorityAdaptor {
     });
 
     if (prepareResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        prepareResult,
-        "Unable to prepare public authorities form",
-      );
+      if (
+        prepareResult.status === "TECHNICAL_FAILURE" &&
+        prepareResult.cause instanceof ApplicationError
+      ) {
+        throw prepareResult.cause;
+      }
+      throw new Error("Unable to prepare public authorities form");
     }
 
     const selectedPublicAuthorityIds = this.#resolveSelectedIds(
@@ -150,10 +153,10 @@ export class PublicAuthorityAdaptor {
     }
 
     if (processResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        processResult,
-        "Unable to process public authority selection",
-      );
+      if (processResult.cause instanceof ApplicationError) {
+        throw processResult.cause;
+      }
+      throw new Error("Unable to process public authority selection");
     }
 
     this.sessionHelper.storeSessionData(req, SESSION_NAMESPACE, {
@@ -190,10 +193,13 @@ export class PublicAuthorityAdaptor {
     );
 
     if (prepareResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        prepareResult,
-        "Unable to prepare public authorities confirmation view",
-      );
+      if (
+        prepareResult.status === "TECHNICAL_FAILURE" &&
+        prepareResult.cause instanceof ApplicationError
+      ) {
+        throw prepareResult.cause;
+      }
+      throw new Error("Unable to prepare public authorities confirmation view");
     }
 
     const publicAuthorityRows =

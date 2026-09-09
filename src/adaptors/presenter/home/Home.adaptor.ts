@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
+import { ApplicationError } from "#src/use-cases/common/applicationError.js";
 import type { ApplicationSummary } from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -43,10 +43,13 @@ export class HomeAdaptor {
       });
 
     if (applicationsListResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        applicationsListResult,
-        "Unable to build applications list view",
-      );
+      if (
+        applicationsListResult.status === "TECHNICAL_FAILURE" &&
+        applicationsListResult.cause instanceof ApplicationError
+      ) {
+        throw applicationsListResult.cause;
+      }
+      throw new Error("Unable to build applications list view");
     }
 
     res.render("main/index", {

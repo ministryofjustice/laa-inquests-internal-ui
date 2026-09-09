@@ -30,7 +30,11 @@ export function translateInquestsApiError(
       false,
     );
   } else if (status === 403) {
-    return new ApplicationError(APPLICATION_ERROR_KINDS.FORBIDDEN, operation, false);
+    return new ApplicationError(
+      APPLICATION_ERROR_KINDS.FORBIDDEN,
+      operation,
+      false,
+    );
   } else if (status !== undefined && status >= 500) {
     return new ApplicationError(
       APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,

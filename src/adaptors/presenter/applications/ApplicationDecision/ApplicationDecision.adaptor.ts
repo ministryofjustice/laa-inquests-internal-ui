@@ -1,5 +1,6 @@
+/* eslint-disable max-lines -- prefer to keep application decision code in one file */
 import type { Request, Response } from "express";
-import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
+import { ApplicationError } from "#src/use-cases/common/applicationError.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type {
@@ -109,17 +110,17 @@ export class ApplicationDecisionAdaptor {
     });
 
     if (prepareDecisionFormResult.status === "TECHNICAL_FAILURE") {
-      throwUseCaseFailure(
-        prepareDecisionFormResult,
+      if (prepareDecisionFormResult.cause instanceof ApplicationError) {
+        throw prepareDecisionFormResult.cause;
+      }
+      throw new Error(
         prepareDecisionFormResult.message ?? "Unable to prepare decision form",
+        { cause: prepareDecisionFormResult.cause },
       );
     }
 
     if (prepareDecisionFormResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        prepareDecisionFormResult,
-        "Unable to prepare decision form",
-      );
+      throw new Error("Unable to prepare decision form");
     }
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
@@ -313,11 +314,12 @@ export class ApplicationDecisionAdaptor {
       });
 
     if (processCertificateStartDateResult.status === "TECHNICAL_FAILURE") {
-      throwUseCaseFailure(
-        processCertificateStartDateResult,
-        processCertificateStartDateResult.message ??
-          "Unable to process certificate start date",
-      );
+      if (processCertificateStartDateResult.cause instanceof ApplicationError) {
+        throw processCertificateStartDateResult.cause;
+      }
+      throw new Error("Unable to process certificate start date", {
+        cause: processCertificateStartDateResult.cause,
+      });
     }
 
     if (processCertificateStartDateResult.data) {
@@ -359,10 +361,13 @@ export class ApplicationDecisionAdaptor {
     });
 
     if (prepareConfirmationViewResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        prepareConfirmationViewResult,
-        "Unable to prepare confirmation view",
-      );
+      if (
+        prepareConfirmationViewResult.status === "TECHNICAL_FAILURE" &&
+        prepareConfirmationViewResult.cause instanceof ApplicationError
+      ) {
+        throw prepareConfirmationViewResult.cause;
+      }
+      throw new Error("Unable to prepare confirmation view");
     }
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
