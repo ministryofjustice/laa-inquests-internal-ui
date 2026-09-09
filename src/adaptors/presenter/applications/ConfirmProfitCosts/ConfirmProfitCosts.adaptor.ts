@@ -11,6 +11,7 @@ import type {
 } from "./models/form.types.js";
 import type { ConfirmProfitCostsValidator } from "./ConfirmProfitCosts.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -30,10 +31,16 @@ const ERROR_FIELD_HREFS: Array<{
 ];
 
 export class ConfirmProfitCostsAdaptor {
+  private readonly navigationHelper: ClaimAssessmentNavigationHelper;
+
   constructor(
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ConfirmProfitCostsValidator,
-  ) {}
+  ) {
+    this.navigationHelper = new ClaimAssessmentNavigationHelper(
+      this.sessionHelper,
+    );
+  }
 
   renderConfirmProfitCostsPage(
     req: Request,
@@ -54,6 +61,8 @@ export class ConfirmProfitCostsAdaptor {
       },
     });
 
+    this.navigationHelper.syncChangeLinkReturnFlag(req);
+
     const sessionData = this.sessionHelper.getSessionData(
       req,
       SESSION_NAMESPACE,
@@ -61,7 +70,11 @@ export class ConfirmProfitCostsAdaptor {
     const totals = this.#resolveFormValues(formValues, sessionData);
 
     res.render("application/claims/confirm-profit-costs/index", {
-      backUrl: `/applications/${laaReference}/claims/${claimId}`,
+      backUrl: this.navigationHelper.resolveBackLinkUrl(
+        req,
+        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimId}`,
+      ),
       laaReference,
       claimId,
       ...totals,
@@ -160,7 +173,11 @@ export class ConfirmProfitCostsAdaptor {
     });
 
     res.redirect(
-      `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,
+      this.navigationHelper.resolveContinueUrl(
+        req as unknown as Request,
+        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,
+      ),
     );
   }
 }

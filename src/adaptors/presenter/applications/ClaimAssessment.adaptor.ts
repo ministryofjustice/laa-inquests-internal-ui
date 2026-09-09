@@ -7,6 +7,8 @@ import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/clai
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
+import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import {
   CLAIM_DECISION_STATUSES,
   DISPOSITION,
@@ -24,15 +26,22 @@ import type {
 const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;
 
 export class ClaimAssessmentAdaptor {
+  private readonly navigationHelper: ClaimAssessmentNavigationHelper;
+
   constructor(
     private readonly applicationPort: ApplicationPort,
     private readonly claimsPort: ClaimsPort,
+    private readonly sessionHelper: SessionHelper,
     private readonly buildClaimAssessmentViewUseCase: BuildClaimAssessmentViewUseCase = new BuildClaimAssessmentViewUseCase(),
     private readonly validator: ClaimAssessmentValidator = new ClaimAssessmentValidator(),
     private readonly processClaimAssessmentUseCase: ProcessClaimAssessmentUseCase = new ProcessClaimAssessmentUseCase(),
     private readonly rejectClaimUseCase: RejectClaimUseCase = new RejectClaimUseCase(),
     private readonly buildClaimRejectionViewUseCase: BuildClaimRejectionViewUseCase = new BuildClaimRejectionViewUseCase(),
-  ) {}
+  ) {
+    this.navigationHelper = new ClaimAssessmentNavigationHelper(
+      this.sessionHelper,
+    );
+  }
 
   async renderClaimAssessmentPage(
     req: Request,
@@ -53,6 +62,9 @@ export class ClaimAssessmentAdaptor {
         claim_reference: claimId,
       },
     });
+
+    this.navigationHelper.clearChangeLinkReturnOnFreshVisit(req);
+
     const claimAssessmentViewResult =
       await this.buildClaimAssessmentViewUseCase.execute({
         laaReference,

@@ -1,0 +1,183 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set pageTitle = t('pages.claimAssessment.checkYourAnswers.heading') %}
+
+{% block pageContent %}
+<form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/claims/{{ claimId }}/check-your-answers">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+  <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.checkYourAnswers.heading') }}</h1>
+
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.checkYourAnswers.claimDetailsCardTitle')
+      }
+    },
+    rows: [
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.finalBillTitle')
+        },
+        value: {
+          text: finalBill
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId,
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.finalBillTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.claimDecisionsTitle')
+        },
+        value: {
+          text: claimDecision
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.claimDecisionsTitle')
+            }
+          ]
+        }
+      }
+    ]
+  }) }}
+
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.checkYourAnswers.profitCostsCardTitle')
+      }
+    },
+    rows: [
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.profitZeroVatTitle')
+        },
+        value: {
+          text: profitCosts.zeroVatTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitZeroVatTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.profitNetTotalTitle')
+        },
+        value: {
+          text: profitCosts.netTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitNetTotalTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.profitGrossTotalTitle')
+        },
+        value: {
+          text: profitCosts.grossTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitGrossTotalTitle')
+            }
+          ]
+        }
+      }
+    ]
+  }) }}
+
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.checkYourAnswers.disbursementCostsCardTitle')
+      }
+    },
+    rows: [
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.disbursementZeroVatTitle')
+        },
+        value: {
+          text: disbursementCosts.zeroVatTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementZeroVatTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.disbursementNetTotalTitle')
+        },
+        value: {
+          text: disbursementCosts.netTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementNetTotalTitle')
+            }
+          ]
+        }
+      },
+      {
+        key: {
+          text: t('pages.claimAssessment.checkYourAnswers.disbursementGrossTotalTitle')
+        },
+        value: {
+          text: disbursementCosts.grossTotal
+        },
+        actions: {
+          items: [
+            {
+              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs?from=check-your-answers",
+              text: t('common.change'),
+              visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementGrossTotalTitle')
+            }
+          ]
+        }
+      }
+    ]
+  }) }}
+
+  {{ govukButton({
+    text: t('pages.claimAssessment.checkYourAnswers.finishButton')
+  }) }}
+</form>
+{% endblock pageContent %}

@@ -12,11 +12,12 @@ const confirmDisbursementCostsLocale =
   en.pages.claimAssessment.confirmDisbursementCosts;
 const validationErrors = confirmDisbursementCostsLocale.validationErrors;
 
-const applicationId = "5";
+const applicationId = "INQ-YYY-005";
 const claimId = "10";
 const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
 const confirmProfitCostsPage = `${assessClaimPage}/confirm-profit-costs`;
 const confirmDisbursementCostsPage = `${assessClaimPage}/confirm-disbursement-costs`;
+const checkYourAnswersPage = `${assessClaimPage}/check-your-answers`;
 
 async function setTotals(
   form: Locator,
@@ -166,7 +167,7 @@ test.describe("Confirm the total disbursement costs page", () => {
     ).toBeVisible();
   });
 
-  test("redirects to the claim assessment page when net and gross totals are valid", async ({
+  test("redirects to the check your answers page when net and gross totals are valid", async ({
     page,
   }) => {
     await page.goto(confirmDisbursementCostsPage);
@@ -175,10 +176,10 @@ test.describe("Confirm the total disbursement costs page", () => {
     await setTotals(form, { net: "300", gross: "360" });
     await submitForm(form, page);
 
-    await expect(page).toHaveURL(assessClaimPage);
+    await expect(page).toHaveURL(checkYourAnswersPage);
   });
 
-  test("redirects to the claim assessment page when only the 0% VAT total is valid", async ({
+  test("redirects to the check your answers page when only the 0% VAT total is valid", async ({
     page,
   }) => {
     await page.goto(confirmDisbursementCostsPage);
@@ -187,7 +188,7 @@ test.describe("Confirm the total disbursement costs page", () => {
     await setTotals(form, { zeroVat: "100.50" });
     await submitForm(form, page);
 
-    await expect(page).toHaveURL(assessClaimPage);
+    await expect(page).toHaveURL(checkYourAnswersPage);
   });
 
   test("allows a nil bill where the net and gross totals are both 0", async ({
@@ -199,7 +200,7 @@ test.describe("Confirm the total disbursement costs page", () => {
     await setTotals(form, { net: "0", gross: "0" });
     await submitForm(form, page);
 
-    await expect(page).toHaveURL(assessClaimPage);
+    await expect(page).toHaveURL(checkYourAnswersPage);
   });
 
   test("shows the VAT conflict error when net, gross and 0% VAT totals are all filled in", async ({

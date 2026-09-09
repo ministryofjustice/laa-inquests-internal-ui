@@ -11,6 +11,7 @@ import type {
 } from "./models/form.types.js";
 import type { ConfirmDisbursementCostsValidator } from "./ConfirmDisbursementCosts.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -30,10 +31,16 @@ const ERROR_FIELD_HREFS: Array<{
 ];
 
 export class ConfirmDisbursementCostsAdaptor {
+  private readonly navigationHelper: ClaimAssessmentNavigationHelper;
+
   constructor(
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ConfirmDisbursementCostsValidator,
-  ) {}
+  ) {
+    this.navigationHelper = new ClaimAssessmentNavigationHelper(
+      this.sessionHelper,
+    );
+  }
 
   renderConfirmDisbursementCostsPage(
     req: Request,
@@ -54,6 +61,8 @@ export class ConfirmDisbursementCostsAdaptor {
       },
     });
 
+    this.navigationHelper.syncChangeLinkReturnFlag(req);
+
     const sessionData = this.sessionHelper.getSessionData(
       req,
       SESSION_NAMESPACE,
@@ -61,7 +70,11 @@ export class ConfirmDisbursementCostsAdaptor {
     const totals = this.#resolveFormValues(formValues, sessionData);
 
     res.render("application/claims/confirm-disbursement-costs/index", {
-      backUrl: `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+      backUrl: this.navigationHelper.resolveBackLinkUrl(
+        req,
+        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+      ),
       laaReference,
       claimId,
       ...totals,
@@ -159,6 +172,8 @@ export class ConfirmDisbursementCostsAdaptor {
       disbursementZeroVatTotal: formBody["zero-vat-total"].trim(),
     });
 
-    res.redirect(`/applications/${laaReference}/claims/${claimId}`);
+    res.redirect(
+      `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+    );
   }
 }
