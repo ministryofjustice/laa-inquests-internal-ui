@@ -5,8 +5,6 @@ import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/Claims
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildApplicationClaimsViewUseCase", () => {
-  const useCase = new BuildApplicationClaimsViewUseCase();
-
   const toBeAssessedClaim: ClaimSummary = {
     claimId: 10,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -42,9 +40,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       .withArgs("123", true, "token")
       .resolves([assessedClaim]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
       accessToken: "token",
     });
@@ -72,9 +71,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       .withArgs("123", true, undefined)
       .resolves([olderClaim, newerClaim, assessedClaim]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
@@ -97,9 +97,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
         { ...assessedClaim, totalProfitCostGross: "500.00" },
       ]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
@@ -115,9 +116,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       .withArgs("123", true, undefined)
       .resolves([{ ...assessedClaim, totalProfitCostGross: null }]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
@@ -137,9 +139,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       },
     ]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
@@ -158,9 +161,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
       { ...assessedClaim, claimId: 5, statusId: "SUBMITTED" },
     ]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
@@ -172,9 +176,10 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.resolves([]);
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "123",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
@@ -184,30 +189,28 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.deepEqual(result.data.assessedClaims, []);
   });
 
-  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
+  it("returns INVALID_INPUT when laaReference is missing", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
 
-    const result = await useCase.execute({
+    const result = await new BuildApplicationClaimsViewUseCase(
+      claimsPortStub,
+    ).execute({
       laaReference: "",
-      claimsPort: claimsPortStub,
       substantiveCertificate: 10000,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.deepEqual(result, { status: "INVALID_INPUT" });
   });
 
-  it("returns TECHNICAL_FAILURE when the claims source fails", async () => {
+  it("propagates errors from the claims source", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.rejects(new Error("boom"));
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      claimsPort: claimsPortStub,
-      substantiveCertificate: 10000,
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    await assert.rejects(
+      new BuildApplicationClaimsViewUseCase(claimsPortStub).execute({
+        laaReference: "123",
+        substantiveCertificate: 10000,
+      }),
+    );
   });
 });

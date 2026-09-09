@@ -14,16 +14,19 @@ export interface ClaimsPort {
     laaReference: string,
     claimId: string,
     accessToken: string | undefined,
-  ) => Promise<ClaimDetail>;
+  ) => Promise<ClaimDetail | undefined>;
   getClaimEvidence: (
     claimEvidenceId: string,
     disposition: Disposition,
     accessToken: string | undefined,
-  ) => Promise<{
-    data: Buffer;
-    contentType: string;
-    contentDisposition: string;
-  }>;
+  ) => Promise<
+    | {
+        data: Buffer;
+        contentType: string;
+        contentDisposition: string;
+      }
+    | undefined
+  >;
   rejectClaim: (
     laaReference: string,
     claimId: string,

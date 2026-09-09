@@ -1,14 +1,9 @@
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
 import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimRejectionViewInput {
   laaReference: string;
   claimId: string;
-  claimsPort: ClaimsPort;
   accessToken?: string;
 }
 
@@ -16,38 +11,38 @@ export interface ClaimRejectionViewData {
   claimType: string;
 }
 
+export type BuildClaimRejectionViewResult =
+  | { status: "SUCCESS"; data: ClaimRejectionViewData }
+  | { status: "INVALID_INPUT" }
+  | { status: "NOT_FOUND" }
+  | { status: "INVALID_CLAIM_TYPE" };
+
 export class BuildClaimRejectionViewUseCase {
+  constructor(private readonly claimsPort: ClaimsPort) {}
+
   async execute(
     input: BuildClaimRejectionViewInput,
-  ): Promise<UseCaseResult<ClaimRejectionViewData>> {
+  ): Promise<BuildClaimRejectionViewResult> {
     if (!input.laaReference || !input.claimId) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        message:
-          "Cannot build claim rejection view without laaReference and claimId",
-      };
+      return { status: "INVALID_INPUT" };
     }
 
-    try {
-      const claim = await input.claimsPort.getClaimById(
-        input.laaReference,
-        input.claimId,
-        input.accessToken,
-      );
+    const claim = await this.claimsPort.getClaimById(
+      input.laaReference,
+      input.claimId,
+      input.accessToken,
+    );
+    if (claim === undefined) return { status: "NOT_FOUND" };
 
+    try {
       return {
         status: "SUCCESS",
         data: {
           claimType: mapClaimType(claim.claimTypeId),
         },
       };
-    } catch (error) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        cause: error,
-      };
+    } catch {
+      return { status: "INVALID_CLAIM_TYPE" };
     }
   }
 }

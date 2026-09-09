@@ -140,6 +140,13 @@
       "invalidRequest": "Invalid certificate request."
     },
     "claimAssessment": {
+      "invalidRequest": "Invalid claim request.",
+      "notFound": "The claim could not be found.",
+      "invalidClaimType": "The claim type is not supported.",
+      "evidence": {
+        "notFound": "The claim evidence could not be found.",
+        "invalidRequest": "Invalid claim evidence request."
+      },
       "heading": "Assess a claim and make a decision",
       "claimStatus": "Claim status",
       "continue": "Continue",
@@ -253,6 +260,7 @@
         }
       },
       "checkYourAnswers": {
+        "invalidRequest": "Invalid check your answers request.",
         "heading": "Check your answers",
         "claimDetailsCardTitle": "Claim details",
         "finalBillTitle": "Final bill",
