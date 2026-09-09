@@ -11,11 +11,12 @@ import {
   UNAUTHORISED_CORONERS_LETTER_REFERENCE,
   UNAUTHORISED_HISTORY_REFERENCE,
 } from "#tests/playwright/factories/handlers/applicationOverviewErrors.js";
-
-const HTTP_FOUND = 302;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_INTERNAL_SERVER_ERROR = 500;
+import {
+  HTTP_FOUND,
+  HTTP_FORBIDDEN,
+  HTTP_NOT_FOUND,
+  HTTP_INTERNAL_SERVER_ERROR,
+} from "#tests/playwright/constants/httpStatus.js";
 
 const overviewPath = (laaReference: string): string =>
   `/applications/${laaReference}/overview`;

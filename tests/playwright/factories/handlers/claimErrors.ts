@@ -1,11 +1,12 @@
 import { http, HttpResponse } from "msw";
 import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { claimDetail } from "#tests/playwright/factories/handlers/applications.js";
-
-const HTTP_UNAUTHORIZED = 401;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_INTERNAL_SERVER_ERROR = 500;
+import {
+  HTTP_UNAUTHORIZED,
+  HTTP_FORBIDDEN,
+  HTTP_NOT_FOUND,
+  HTTP_INTERNAL_SERVER_ERROR,
+} from "#tests/playwright/constants/httpStatus.js";
 
 export const CLAIM_APPLICATION_REFERENCE = "INQ-YYY-005";
 export const UNAUTHORISED_CLAIM_ID = "claim-401";

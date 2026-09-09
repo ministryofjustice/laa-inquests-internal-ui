@@ -12,11 +12,12 @@ import {
   UNAUTHORISED_CLAIM_ID,
   UNAUTHORISED_EVIDENCE_ID,
 } from "#tests/playwright/factories/handlers/claimErrors.js";
-
-const HTTP_FOUND = 302;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_INTERNAL_SERVER_ERROR = 500;
+import {
+  HTTP_FOUND,
+  HTTP_FORBIDDEN,
+  HTTP_NOT_FOUND,
+  HTTP_INTERNAL_SERVER_ERROR,
+} from "#tests/playwright/constants/httpStatus.js";
 
 const claimPath = (claimId: string): string =>
   `/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimId}`;
