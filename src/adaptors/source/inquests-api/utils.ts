@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   HTTP_FORBIDDEN,
   HTTP_UNAUTHORIZED,

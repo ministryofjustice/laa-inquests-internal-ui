@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
   getUpstreamAuthErrorContext,
@@ -103,6 +103,7 @@ const handleServerErrors = (
       status_code: HTTP_INTERNAL_SERVER_ERROR,
     },
   });
+  res.status(HTTP_INTERNAL_SERVER_ERROR);
   res.render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
     error: t("pages.error.internalServerError"),

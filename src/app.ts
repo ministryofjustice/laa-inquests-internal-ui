@@ -25,7 +25,8 @@ import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsr
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { requestLoggingContext } from "#src/infrastructure/express/middleware/requestLoggingContext.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -59,6 +60,7 @@ app.set("view engine", "njk");
 
 initializeI18nextSync();
 
+app.use(requestLoggingContext);
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));

@@ -11,7 +11,7 @@ import {
   CLAIM_DECISION_STATUSES,
   DISPOSITION,
 } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import type {
   AssessClaimForm,
   AssessClaimFormErrors,

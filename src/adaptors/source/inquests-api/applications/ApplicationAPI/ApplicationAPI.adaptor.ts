@@ -23,7 +23,7 @@ import {
   getInquestsApi,
   postInquestsApi,
 } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
