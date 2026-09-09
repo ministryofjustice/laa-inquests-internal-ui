@@ -129,7 +129,10 @@ test.describe.serial("Check your answers page", () => {
     await expect(profitNetRow.getByText("£300")).toBeVisible();
     await expect(
       profitNetRow.getByRole("link", { name: /change/i }),
-    ).toHaveAttribute("href", confirmProfitCostsPage);
+    ).toHaveAttribute(
+      "href",
+      `${confirmProfitCostsPage}?from=check-your-answers`,
+    );
 
     const profitGrossRow = profitCostsCard.locator(".govuk-summary-list__row", {
       has: sharedPage.getByText(checkYourAnswersLocale.profitGrossTotalTitle, {
@@ -169,7 +172,10 @@ test.describe.serial("Check your answers page", () => {
     await expect(disbursementNetRow.getByText("£500")).toBeVisible();
     await expect(
       disbursementNetRow.getByRole("link", { name: /change/i }),
-    ).toHaveAttribute("href", confirmDisbursementCostsPage);
+    ).toHaveAttribute(
+      "href",
+      `${confirmDisbursementCostsPage}?from=check-your-answers`,
+    );
 
     const disbursementGrossRow = disbursementCostsCard.locator(
       ".govuk-summary-list__row",
@@ -190,6 +196,116 @@ test.describe.serial("Check your answers page", () => {
   test("check your answers page form contains a CSRF token", async () => {
     const form = sharedPage.getByTestId("check-your-answers");
     await validateCSRFToken(form);
+  });
+
+  test("caseworker clicks Change on profit costs and returns to the confirm profit costs page", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const profitCostsCard = form.locator(".govuk-summary-card", {
+      has: sharedPage.locator(".govuk-summary-card__title", {
+        hasText: checkYourAnswersLocale.profitCostsCardTitle,
+      }),
+    });
+    const profitNetRow = profitCostsCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText(checkYourAnswersLocale.profitNetTotalTitle, {
+        exact: true,
+      }),
+    });
+    await profitNetRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(
+      `${confirmProfitCostsPage}?from=check-your-answers`,
+    );
+  });
+
+  test("caseworker uses back from confirm profit costs and returns to Check your answers", async () => {
+    await sharedPage.getByRole("link", { name: "Back", exact: true }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+  });
+
+  test("caseworker clicks Change on profit costs and returns to Check your answers on continue", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const profitCostsCard = form.locator(".govuk-summary-card", {
+      has: sharedPage.locator(".govuk-summary-card__title", {
+        hasText: checkYourAnswersLocale.profitCostsCardTitle,
+      }),
+    });
+    const profitNetRow = profitCostsCard.locator(".govuk-summary-list__row", {
+      has: sharedPage.getByText(checkYourAnswersLocale.profitNetTotalTitle, {
+        exact: true,
+      }),
+    });
+    await profitNetRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    const profitCostsForm = sharedPage.getByTestId("confirm-profit-costs");
+    await continueToNextPage(profitCostsForm, sharedPage);
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+  });
+
+  test("caseworker clicks Change on disbursement costs and returns to the confirm disbursement costs page", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const disbursementCostsCard = form.locator(".govuk-summary-card", {
+      has: sharedPage.locator(".govuk-summary-card__title", {
+        hasText: checkYourAnswersLocale.disbursementCostsCardTitle,
+      }),
+    });
+    const disbursementNetRow = disbursementCostsCard.locator(
+      ".govuk-summary-list__row",
+      {
+        has: sharedPage.getByText(
+          checkYourAnswersLocale.disbursementNetTotalTitle,
+          {
+            exact: true,
+          },
+        ),
+      },
+    );
+    await disbursementNetRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(
+      `${confirmDisbursementCostsPage}?from=check-your-answers`,
+    );
+  });
+
+  test("caseworker uses back from confirm disbursement costs and returns to Check your answers", async () => {
+    await sharedPage.getByRole("link", { name: "Back", exact: true }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+  });
+
+  test("caseworker clicks Change on disbursement costs and returns to Check your answers on continue", async () => {
+    const form = sharedPage.getByTestId("check-your-answers");
+    const disbursementCostsCard = form.locator(".govuk-summary-card", {
+      has: sharedPage.locator(".govuk-summary-card__title", {
+        hasText: checkYourAnswersLocale.disbursementCostsCardTitle,
+      }),
+    });
+    const disbursementNetRow = disbursementCostsCard.locator(
+      ".govuk-summary-list__row",
+      {
+        has: sharedPage.getByText(
+          checkYourAnswersLocale.disbursementNetTotalTitle,
+          {
+            exact: true,
+          },
+        ),
+      },
+    );
+    await disbursementNetRow.getByRole("link", { name: /change/i }).click();
+    await sharedPage.waitForLoadState("domcontentloaded");
+
+    const disbursementCostsForm = sharedPage.getByTestId(
+      "confirm-disbursement-costs",
+    );
+    await continueToNextPage(disbursementCostsForm, sharedPage);
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
   });
 
   test("caseworker clicks Finish assessing claim and remains on the check your answers page", async () => {

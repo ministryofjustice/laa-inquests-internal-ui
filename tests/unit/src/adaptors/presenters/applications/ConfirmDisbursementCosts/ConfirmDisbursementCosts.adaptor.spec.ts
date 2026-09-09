@@ -84,6 +84,24 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     });
   });
 
+  it("uses the check your answers page as the back link when arriving from check your answers", () => {
+    requestStub.query = { from: "check-your-answers" };
+
+    adaptor.renderConfirmDisbursementCostsPage(
+      requestStub,
+      responseStub,
+      "123",
+      "10",
+    );
+
+    const renderArgs = responseStub.render.getCall(0)
+      .args[1] as unknown as Record<string, unknown>;
+    assert.equal(
+      renderArgs.backUrl,
+      "/applications/123/claims/10/check-your-answers",
+    );
+  });
+
   it("re-renders the confirm disbursement costs page with errors and submitted values when validation fails", () => {
     const requestWithBody: TypedRequest<
       ConfirmDisbursementCostsForm,

@@ -11,6 +11,7 @@ import type {
 } from "./models/form.types.js";
 import type { ConfirmDisbursementCostsValidator } from "./ConfirmDisbursementCosts.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { ConfirmCostsNavigationHelper } from "#src/adaptors/presenter/applications/ConfirmCostsNavigation.helper.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -30,10 +31,16 @@ const ERROR_FIELD_HREFS: Array<{
 ];
 
 export class ConfirmDisbursementCostsAdaptor {
+  private readonly navigationHelper: ConfirmCostsNavigationHelper;
+
   constructor(
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ConfirmDisbursementCostsValidator,
-  ) {}
+  ) {
+    this.navigationHelper = new ConfirmCostsNavigationHelper(
+      this.sessionHelper,
+    );
+  }
 
   renderConfirmDisbursementCostsPage(
     req: Request,
@@ -54,6 +61,8 @@ export class ConfirmDisbursementCostsAdaptor {
       },
     });
 
+    this.navigationHelper.prepareConfirmCostsEntry(req);
+
     const sessionData = this.sessionHelper.getSessionData(
       req,
       SESSION_NAMESPACE,
@@ -61,7 +70,11 @@ export class ConfirmDisbursementCostsAdaptor {
     const totals = this.#resolveFormValues(formValues, sessionData);
 
     res.render("application/claims/confirm-disbursement-costs/index", {
-      backUrl: `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+      backUrl: this.navigationHelper.resolveBackUrl(
+        req,
+        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+      ),
       laaReference,
       claimId,
       ...totals,
