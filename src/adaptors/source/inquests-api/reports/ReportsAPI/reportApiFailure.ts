@@ -4,10 +4,9 @@ import {
   APPLICATION_ERROR_KINDS,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
-import { UpstreamAuthError } from "#src/ports/common/upstreamAuthError.js";
 
 export function translateReportApiFailure(error: unknown): Error {
-  if (error instanceof UpstreamAuthError) {
+  if (error instanceof ApplicationError) {
     return error;
   }
 

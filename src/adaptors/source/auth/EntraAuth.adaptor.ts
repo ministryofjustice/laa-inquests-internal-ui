@@ -6,15 +6,33 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 export class EntraAuthAdaptor implements AuthPort {
   constructor(private readonly msalClient: ConfidentialClientApplication) {}
 
   async getAuthCodeUrl(scopes: string[], redirectUri: string): Promise<string> {
-    const authCodeUrl = await this.msalClient.getAuthCodeUrl({
-      scopes,
-      redirectUri,
-    });
+    const authCodeUrl = await this.msalClient
+      .getAuthCodeUrl({
+        scopes,
+        redirectUri,
+      })
+      .catch((error: unknown) => {
+        logger.logError({
+          functionName: "entra_auth_adaptor",
+          message: "Auth code URL generation failed",
+          err: error,
+          extraContext: { event: "auth_token_acquisition_failed" },
+        });
+        throw new ApplicationError(
+          APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+          "auth_code_url",
+          true,
+        );
+      });
     logger.logInfo({
       functionName: "entra_auth_adaptor",
       message: "Auth code URL generated",
@@ -33,8 +51,21 @@ export class EntraAuthAdaptor implements AuthPort {
     redirectUri: string,
   ): Promise<AuthTokenResult> {
     const request: AuthorizationCodeRequest = { code, scopes, redirectUri };
-    const result = await this.msalClient.acquireTokenByCode(request);
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- MSAL can return null at runtime despite the type signature
+    const result = await this.msalClient
+      .acquireTokenByCode(request)
+      .catch((error: unknown): AuthenticationResult | null => {
+        logger.logError({
+          functionName: "entra_auth_adaptor",
+          message: "Token acquisition failed",
+          err: error,
+          extraContext: { event: "auth_token_acquisition_failed" },
+        });
+        throw new ApplicationError(
+          APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+          "auth_token_acquisition",
+          true,
+        );
+      });
     if (result === null) {
       logger.logError({
         functionName: "entra_auth_adaptor",
@@ -44,7 +75,11 @@ export class EntraAuthAdaptor implements AuthPort {
           reason: "msal_null_result",
         },
       });
-      throw new Error("MSAL returned null token result");
+      throw new ApplicationError(
+        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        "auth_token_acquisition",
+        false,
+      );
     }
 
     logger.logInfo({
