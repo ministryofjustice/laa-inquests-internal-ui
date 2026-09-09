@@ -15,6 +15,8 @@ import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/p
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
+import { GetPublicBodiesUseCase } from "#src/use-cases/applications/publicAuthority/GetPublicBodies.useCase.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 const SESSION_NAMESPACE = "publicAuthority";
 
@@ -23,6 +25,7 @@ interface PublicAuthorityUseCases {
   processPublicAuthoritySelectionUseCase: ProcessPublicAuthoritySelectionUseCase;
   prepareConfirmPublicAuthorityViewUseCase: PrepareConfirmPublicAuthorityViewUseCase;
   confirmPublicAuthorityUpdateUseCase: ConfirmPublicAuthorityUpdateUseCase;
+  getPublicBodiesUseCase: GetPublicBodiesUseCase;
 }
 
 export class PublicAuthorityAdaptor {
@@ -30,6 +33,7 @@ export class PublicAuthorityAdaptor {
   private readonly processPublicAuthoritySelectionUseCase: ProcessPublicAuthoritySelectionUseCase;
   private readonly prepareConfirmPublicAuthorityViewUseCase: PrepareConfirmPublicAuthorityViewUseCase;
   private readonly confirmPublicAuthorityUpdateUseCase: ConfirmPublicAuthorityUpdateUseCase;
+  private readonly getPublicBodiesUseCase: GetPublicBodiesUseCase;
 
   constructor(
     private readonly applicationPort: ApplicationPort,
@@ -48,7 +52,10 @@ export class PublicAuthorityAdaptor {
       new PrepareConfirmPublicAuthorityViewUseCase();
     this.confirmPublicAuthorityUpdateUseCase =
       useCases.confirmPublicAuthorityUpdateUseCase ??
-      new ConfirmPublicAuthorityUpdateUseCase();
+      new ConfirmPublicAuthorityUpdateUseCase(applicationPort);
+    this.getPublicBodiesUseCase =
+      useCases.getPublicBodiesUseCase ??
+      new GetPublicBodiesUseCase(applicationPort);
   }
 
   async renderSelectionForm(
@@ -65,7 +72,7 @@ export class PublicAuthorityAdaptor {
       req.session.user?.accessToken,
     );
 
-    const allPublicBodies = await this.applicationPort.getPublicBodies(
+    const allPublicBodies = await this.getPublicBodiesUseCase.execute(
       req.session.user?.accessToken,
     );
 
@@ -171,7 +178,7 @@ export class PublicAuthorityAdaptor {
       ? (JSON.parse(sessionData.selectedPublicAuthorityIds) as string[])
       : [];
 
-    const allPublicBodies = await this.applicationPort.getPublicBodies(
+    const allPublicBodies = await this.getPublicBodiesUseCase.execute(
       req.session.user?.accessToken,
     );
 
@@ -217,14 +224,23 @@ export class PublicAuthorityAdaptor {
     const confirmResult =
       await this.confirmPublicAuthorityUpdateUseCase.execute({
         laaReference,
-        applicationPort: this.applicationPort,
         selectedPublicAuthorityIds,
         accessToken: req.session.user?.accessToken,
       });
 
-    if (confirmResult.status !== "SUCCESS") {
-      throwUseCaseFailure(confirmResult, "Unable to update public authorities");
+    if (confirmResult.status === "INVALID_INPUT") {
+      throw new Error(confirmResult.message);
     }
+
+    logger.logInfo({
+      functionName: "process_public_authority_confirmation",
+      message: "Public authorities updated",
+      request: req,
+      extraContext: {
+        event: "public_authorities_updated",
+        laa_reference: laaReference,
+      },
+    });
 
     this.sessionHelper.clearSessionData(req, SESSION_NAMESPACE);
     this.sessionHelper.setFlash(

@@ -1,73 +1,32 @@
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface GrantDecisionInput {
   laaReference: string;
-  applicationPort: ApplicationPort;
   certificateStartDate: string;
   accessToken?: string;
 }
 
+export type GrantDecisionResult =
+  | { status: "SUCCESS"; data: undefined }
+  | { status: "INVALID_INPUT"; message: string };
+
 export class GrantDecisionUseCase {
-  async execute(input: GrantDecisionInput): Promise<UseCaseResult> {
+  constructor(private readonly applicationPort: ApplicationPort) {}
+
+  async execute(input: GrantDecisionInput): Promise<GrantDecisionResult> {
     if (input.laaReference === "" || input.certificateStartDate === "") {
-      logger.logWarn({
-        functionName: "grant_decision_use_case",
-        message: "Grant decision request is invalid",
-        extraContext: {
-          event: "grant_decision_invalid_input",
-          laa_reference: input.laaReference,
-          certificate_start_date: input.certificateStartDate,
-          reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        },
-      });
       return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+        status: "INVALID_INPUT",
         message:
           "Cannot grant a decision without laaReference or certificateStartDate",
       };
     }
 
-    try {
-      await input.applicationPort.submitGrantDecision(
-        input.laaReference,
-        input.accessToken,
-        input.certificateStartDate,
-      );
-      logger.logInfo({
-        functionName: "grant_decision_use_case",
-        message: "Decision granted",
-        extraContext: {
-          event: "application_decision_granted",
-          laa_reference: input.laaReference,
-          certificate_start_date: input.certificateStartDate,
-        },
-      });
-      return {
-        status: "SUCCESS",
-        data: undefined,
-      };
-    } catch (error) {
-      logger.logError({
-        functionName: "grant_decision_use_case",
-        message: "Grant decision failed",
-        err: error,
-        extraContext: {
-          event: "grant_decision_upstream_failed",
-          laa_reference: input.laaReference,
-          certificate_start_date: input.certificateStartDate,
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        cause: error,
-      };
-    }
+    await this.applicationPort.submitGrantDecision(
+      input.laaReference,
+      input.accessToken,
+      input.certificateStartDate,
+    );
+    return { status: "SUCCESS", data: undefined };
   }
 }

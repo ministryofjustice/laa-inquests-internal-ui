@@ -13,6 +13,7 @@ import { applicationOverviewErrorHandlers } from "#tests/playwright/factories/ha
 import { authErrorHandlers } from "#tests/playwright/factories/handlers/authErrors.js";
 import { certificateErrorHandlers } from "#tests/playwright/factories/handlers/certificateErrors.js";
 import { claimErrorHandlers } from "#tests/playwright/factories/handlers/claimErrors.js";
+import { decisionErrorHandlers } from "#tests/playwright/factories/handlers/decisionErrors.js";
 
 const debugHandler = http.all("*", () => {
   // Return undefined to pass through to actual handlers
@@ -30,6 +31,7 @@ export const handlers = [
   ...certificateErrorHandlers,
   ...applicationOverviewErrorHandlers,
   ...claimErrorHandlers,
+  ...decisionErrorHandlers,
   ...applicationHandlers,
 
   // Health check endpoint for testing

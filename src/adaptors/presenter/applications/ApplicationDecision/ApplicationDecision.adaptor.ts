@@ -27,7 +27,9 @@ import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/deci
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+import type { GrantDecisionResult } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
+import type { RefuseDecisionResult } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface DecisionUseCases {
   prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
@@ -69,9 +71,11 @@ export class ApplicationDecisionAdaptor {
       useCases.prepareConfirmationViewUseCase ??
       new PrepareConfirmationViewUseCase();
     this.refuseDecisionUseCase =
-      useCases.refuseDecisionUseCase ?? new RefuseDecisionUseCase();
+      useCases.refuseDecisionUseCase ??
+      new RefuseDecisionUseCase(viewApplicationAdaptor);
     this.grantDecisionUseCase =
-      useCases.grantDecisionUseCase ?? new GrantDecisionUseCase();
+      useCases.grantDecisionUseCase ??
+      new GrantDecisionUseCase(viewApplicationAdaptor);
     this.navigationHelper = new ApplicationDecisionNavigationHelper(
       this.sessionHelper,
     );
@@ -395,12 +399,18 @@ export class ApplicationDecisionAdaptor {
         laaReference,
         sessionData,
       );
-      if (grantDecisionResult.status === "TECHNICAL_FAILURE") {
-        throwUseCaseFailure(
-          grantDecisionResult,
-          "Unable to submit grant decision",
-        );
+      if (grantDecisionResult.status === "INVALID_INPUT") {
+        throw new Error(grantDecisionResult.message);
       }
+      logger.logInfo({
+        functionName: "process_application_decision_form",
+        message: "Decision granted",
+        request: req,
+        extraContext: {
+          event: "application_decision_granted",
+          laa_reference: laaReference,
+        },
+      });
     } else {
       const refuseDecisionResult = await this.#processRefuseDecision(
         req,
@@ -408,12 +418,18 @@ export class ApplicationDecisionAdaptor {
         laaReference,
         sessionData,
       );
-      if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
-        throwUseCaseFailure(
-          refuseDecisionResult,
-          refuseDecisionResult.message ?? "Unable to submit refusal decision",
-        );
+      if (refuseDecisionResult.status === "INVALID_INPUT") {
+        throw new Error(refuseDecisionResult.message);
       }
+      logger.logInfo({
+        functionName: "process_application_decision_form",
+        message: "Decision refused",
+        request: req,
+        extraContext: {
+          event: "application_decision_refused",
+          laa_reference: laaReference,
+        },
+      });
     }
 
     res.redirect(`/applications/${laaReference}/decision/success`);
@@ -424,7 +440,7 @@ export class ApplicationDecisionAdaptor {
     res: Response,
     laaReference: string,
     sessionData: DecisionSessionData | null,
-  ): Promise<UseCaseResult<void>> {
+  ): Promise<GrantDecisionResult> {
     const {
       certificateStartDateDay,
       certificateStartDateMonth,
@@ -443,7 +459,6 @@ export class ApplicationDecisionAdaptor {
     return await this.grantDecisionUseCase.execute({
       laaReference,
       certificateStartDate,
-      applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
   }
@@ -453,7 +468,7 @@ export class ApplicationDecisionAdaptor {
     res: Response,
     laaReference: string,
     sessionData: DecisionSessionData | null,
-  ): Promise<UseCaseResult<void>> {
+  ): Promise<RefuseDecisionResult> {
     const { refusalReason, justification } = sessionData ?? {};
     if (!refusalReason || !justification) {
       throw new Error(
@@ -464,7 +479,6 @@ export class ApplicationDecisionAdaptor {
       laaReference,
       refusalReason,
       justification,
-      applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
   }

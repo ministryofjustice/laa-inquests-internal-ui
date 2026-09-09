@@ -4,15 +4,15 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
 
 describe("ConfirmPublicAuthorityUpdateUseCase", () => {
-  const useCase = new ConfirmPublicAuthorityUpdateUseCase();
-
   it("returns SUCCESS after updating public authorities with valid inputs", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.updateApplicationPublicBodies.resolves();
+    const useCase = new ConfirmPublicAuthorityUpdateUseCase(
+      applicationPortStub,
+    );
 
     const result = await useCase.execute({
       laaReference: "123",
-      applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: [
         "Cabinet Office",
         "Department for Transport",
@@ -35,54 +35,57 @@ describe("ConfirmPublicAuthorityUpdateUseCase", () => {
     );
   });
 
-  it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when laaReference is empty", async () => {
+  it("returns INVALID_INPUT when laaReference is empty", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new ConfirmPublicAuthorityUpdateUseCase(
+      applicationPortStub,
+    );
 
     const result = await useCase.execute({
       laaReference: "",
-      applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: ["Cabinet Office"],
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.status, "INVALID_INPUT");
     assert.equal(
       result.message,
       "Cannot update public authorities without laaReference or selected public authorities",
     );
   });
 
-  it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when selectedPublicAuthorityIds is empty", async () => {
+  it("returns INVALID_INPUT when selectedPublicAuthorityIds is empty", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new ConfirmPublicAuthorityUpdateUseCase(
+      applicationPortStub,
+    );
 
     const result = await useCase.execute({
       laaReference: "123",
-      applicationPort: applicationPortStub,
       selectedPublicAuthorityIds: [],
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.status, "INVALID_INPUT");
     assert.equal(
       result.message,
       "Cannot update public authorities without laaReference or selected public authorities",
     );
   });
 
-  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when updateApplicationPublicBodies throws an error", async () => {
+  it("propagates upstream errors unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const error = new Error("Upstream error");
     applicationPortStub.updateApplicationPublicBodies.rejects(error);
+    const useCase = new ConfirmPublicAuthorityUpdateUseCase(
+      applicationPortStub,
+    );
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      applicationPort: applicationPortStub,
-      selectedPublicAuthorityIds: ["Cabinet Office"],
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
-    assert.equal(result.cause, error);
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "123",
+        selectedPublicAuthorityIds: ["Cabinet Office"],
+        accessToken: "access-token-123",
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });
