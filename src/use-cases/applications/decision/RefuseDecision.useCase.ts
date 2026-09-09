@@ -1,77 +1,33 @@
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface RefuseDecisionInput {
   laaReference: string;
   refusalReason: string;
   justification: string;
-  applicationPort: ApplicationPort;
   accessToken?: string;
 }
 
+export type RefuseDecisionResult =
+  | { status: "SUCCESS"; data: undefined }
+  | { status: "INVALID_INPUT"; message: string };
+
 export class RefuseDecisionUseCase {
-  async execute(input: RefuseDecisionInput): Promise<UseCaseResult> {
+  constructor(private readonly applicationPort: ApplicationPort) {}
+
+  async execute(input: RefuseDecisionInput): Promise<RefuseDecisionResult> {
     if (!input.laaReference) {
-      logger.logWarn({
-        functionName: "refuse_decision_use_case",
-        message: "Refuse decision request is invalid",
-        extraContext: {
-          event: "refuse_decision_invalid_input",
-          laa_reference: input.laaReference,
-          refusal_reason: input.refusalReason,
-          reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
-        },
-      });
       return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+        status: "INVALID_INPUT",
         message: "Cannot refuse a merits decision without laaReference",
       };
     }
 
-    try {
-      await input.applicationPort.submitRefuseDecision(
-        input.laaReference,
-        input.accessToken,
-        input.refusalReason,
-        input.justification,
-      );
-
-      logger.logInfo({
-        functionName: "refuse_decision_use_case",
-        message: "Decision refused",
-        extraContext: {
-          event: "application_decision_refused",
-          laa_reference: input.laaReference,
-          refusal_reason: input.refusalReason,
-        },
-      });
-
-      return {
-        status: "SUCCESS",
-        data: undefined,
-      };
-    } catch (error) {
-      logger.logError({
-        functionName: "refuse_decision_use_case",
-        message: "Refuse decision failed",
-        err: error,
-        extraContext: {
-          event: "refuse_decision_upstream_failed",
-          laa_reference: input.laaReference,
-          refusal_reason: input.refusalReason,
-          reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        cause: error,
-      };
-    }
+    await this.applicationPort.submitRefuseDecision(
+      input.laaReference,
+      input.accessToken,
+      input.refusalReason,
+      input.justification,
+    );
+    return { status: "SUCCESS", data: undefined };
   }
 }

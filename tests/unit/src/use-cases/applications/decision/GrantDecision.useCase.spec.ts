@@ -4,36 +4,32 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 
 describe("GrantDecisionUseCase", () => {
-  const useCase = new GrantDecisionUseCase();
-
-  it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when laaReference is empty", async () => {
+  it("returns INVALID_INPUT when laaReference is empty", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new GrantDecisionUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "",
-      applicationPort: applicationPortStub,
       certificateStartDate: "2024-01-01",
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.status, "INVALID_INPUT");
     assert.equal(
       result.message,
       "Cannot grant a decision without laaReference or certificateStartDate",
     );
   });
 
-  it("returns TECHNICAL_FAILURE with INVALID_INPUT_STATE when certificateStartDate is empty", async () => {
+  it("returns INVALID_INPUT when certificateStartDate is empty", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new GrantDecisionUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "1",
-      applicationPort: applicationPortStub,
       certificateStartDate: "",
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.status, "INVALID_INPUT");
     assert.equal(
       result.message,
       "Cannot grant a decision without laaReference or certificateStartDate",
@@ -43,10 +39,10 @@ describe("GrantDecisionUseCase", () => {
   it("returns SUCCESS after submitting grant decision with valid laaReference and certificateStartDate", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.submitGrantDecision.resolves();
+    const useCase = new GrantDecisionUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "123",
-      applicationPort: applicationPortStub,
       certificateStartDate: "2024-01-01",
       accessToken: "access-token-123",
     });
@@ -60,20 +56,19 @@ describe("GrantDecisionUseCase", () => {
     ]);
   });
 
-  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when submitGrantDecision throws an error", async () => {
+  it("propagates upstream errors unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const error = new Error("Upstream error");
     applicationPortStub.submitGrantDecision.rejects(error);
+    const useCase = new GrantDecisionUseCase(applicationPortStub);
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      applicationPort: applicationPortStub,
-      certificateStartDate: "2024-01-01",
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
-    assert.equal(result.cause, error);
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "123",
+        certificateStartDate: "2024-01-01",
+        accessToken: "access-token-123",
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });

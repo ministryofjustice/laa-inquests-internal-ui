@@ -4,31 +4,28 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 
 describe("RefuseDecisionUseCase", () => {
-  const useCase = new RefuseDecisionUseCase();
-
-  it("returns TECHNICAL_FAILURE when input is incomplete", async () => {
+  it("returns INVALID_INPUT when input is incomplete", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new RefuseDecisionUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "",
-      applicationPort: applicationPortStub,
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.status, "INVALID_INPUT");
   });
 
   it("returns SUCCESS after submitting refusal decision with refusalReason and justification", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     applicationPortStub.submitRefuseDecision.resolves();
+    const useCase = new RefuseDecisionUseCase(applicationPortStub);
 
     const result = await useCase.execute({
       laaReference: "123",
       refusalReason: "not-in-scope",
       justification: "This case is not in scope",
-      applicationPort: applicationPortStub,
       accessToken: "access-token-123",
     });
 
@@ -42,18 +39,19 @@ describe("RefuseDecisionUseCase", () => {
     ]);
   });
 
-  it("returns TECHNICAL_FAILURE when upstream submission fails", async () => {
+  it("propagates upstream errors unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.submitRefuseDecision.rejects(new Error("boom"));
+    const error = new Error("boom");
+    applicationPortStub.submitRefuseDecision.rejects(error);
+    const useCase = new RefuseDecisionUseCase(applicationPortStub);
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      applicationPort: applicationPortStub,
-      refusalReason: "not-in-scope",
-      justification: "This case is not in scope",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "123",
+        refusalReason: "not-in-scope",
+        justification: "This case is not in scope",
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });

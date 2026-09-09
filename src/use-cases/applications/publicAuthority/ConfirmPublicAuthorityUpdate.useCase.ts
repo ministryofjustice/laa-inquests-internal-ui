@@ -1,48 +1,37 @@
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import {
-  TECHNICAL_FAILURE_REASONS,
-  type UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
 
 interface ConfirmPublicAuthorityUpdateInput {
   laaReference: string;
-  applicationPort: ApplicationPort;
   selectedPublicAuthorityIds: string[];
   accessToken?: string;
 }
 
+export type ConfirmPublicAuthorityUpdateResult =
+  | { status: "SUCCESS"; data: undefined }
+  | { status: "INVALID_INPUT"; message: string };
+
 export class ConfirmPublicAuthorityUpdateUseCase {
+  constructor(private readonly applicationPort: ApplicationPort) {}
+
   async execute(
     input: ConfirmPublicAuthorityUpdateInput,
-  ): Promise<UseCaseResult> {
+  ): Promise<ConfirmPublicAuthorityUpdateResult> {
     if (
       input.laaReference === "" ||
       input.selectedPublicAuthorityIds.length === 0
     ) {
       return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+        status: "INVALID_INPUT",
         message:
           "Cannot update public authorities without laaReference or selected public authorities",
       };
     }
 
-    try {
-      await input.applicationPort.updateApplicationPublicBodies(
-        input.laaReference,
-        input.accessToken,
-        input.selectedPublicAuthorityIds,
-      );
-      return {
-        status: "SUCCESS",
-        data: undefined,
-      };
-    } catch (error) {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        cause: error,
-      };
-    }
+    await this.applicationPort.updateApplicationPublicBodies(
+      input.laaReference,
+      input.accessToken,
+      input.selectedPublicAuthorityIds,
+    );
+    return { status: "SUCCESS", data: undefined };
   }
 }

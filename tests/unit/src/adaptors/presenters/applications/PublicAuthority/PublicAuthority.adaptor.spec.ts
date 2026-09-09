@@ -414,7 +414,7 @@ describe("PublicAuthorityAdaptor", () => {
 
       await assert.rejects(
         () => adaptor.processConfirmation(requestStub as Request, responseStub),
-        /Unable to update public authorities/,
+        /Upstream error/,
       );
     });
 
@@ -424,7 +424,7 @@ describe("PublicAuthorityAdaptor", () => {
 
       await assert.rejects(
         () => adaptor.processConfirmation(requestStub as Request, responseStub),
-        /Unable to update public authorities/,
+        /Cannot update public authorities without laaReference or selected public authorities/,
       );
     });
   });
