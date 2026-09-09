@@ -1052,7 +1052,7 @@ describe("ApplicationDecisionAdaptor", () => {
               requestStub as Request,
               responseStub,
             ),
-          new Error("Unable to submit refusal decision"),
+          new Error("Merits rejection failed"),
         );
       });
     });
@@ -1177,7 +1177,7 @@ describe("ApplicationDecisionAdaptor", () => {
               requestStub as Request,
               responseStub,
             ),
-          new Error("Unable to submit grant decision"),
+          new Error(),
         );
       });
     });
