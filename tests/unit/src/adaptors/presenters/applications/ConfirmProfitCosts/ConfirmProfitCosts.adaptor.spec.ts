@@ -29,6 +29,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     validator = new ConfirmProfitCostsValidator();
 
     sessionHelperStub.getSessionData.returns(null);
+    requestStub.query = {};
 
     adaptor = new ConfirmProfitCostsAdaptor(sessionHelperStub, validator);
   });
@@ -82,6 +83,24 @@ describe("ConfirmProfitCostsAdaptor", () => {
       grossTotal: "360",
       zeroVatTotal: "",
     });
+  });
+
+  it("uses the check your answers page as the back link when arriving from check your answers", () => {
+    requestStub.query = { from: "check-your-answers" };
+
+    adaptor.renderConfirmProfitCostsPage(
+      requestStub,
+      responseStub,
+      "123",
+      "10",
+    );
+
+    const renderArgs = responseStub.render.getCall(0)
+      .args[1] as unknown as Record<string, unknown>;
+    assert.equal(
+      renderArgs.backUrl,
+      "/applications/123/claims/10/check-your-answers",
+    );
   });
 
   it("re-renders the confirm profit costs page with errors and submitted values when validation fails", () => {
@@ -183,6 +202,34 @@ describe("ConfirmProfitCostsAdaptor", () => {
     assert.equal(
       responseStub.redirect.getCall(0).args[0],
       "/applications/123/claims/10/confirm-disbursement-costs",
+    );
+  });
+
+  it("redirects back to check your answers when the request originated there", () => {
+    sessionHelperStub.getSessionData.returns({
+      returnToCheckYourAnswers: "true",
+    });
+
+    const requestWithBody: TypedRequest<ConfirmProfitCostsForm, ClaimIdParams> =
+      {
+        ...requestStub,
+        body: {
+          "net-total": "300",
+          "gross-total": "360",
+          "zero-vat-total": "",
+        },
+        params: {
+          laaReference: "123",
+          claimId: "10",
+        },
+      };
+
+    adaptor.processConfirmProfitCostsForm(requestWithBody, responseStub);
+
+    assert.equal(responseStub.redirect.callCount, 1);
+    assert.equal(
+      responseStub.redirect.getCall(0).args[0],
+      "/applications/123/claims/10/check-your-answers",
     );
   });
 });

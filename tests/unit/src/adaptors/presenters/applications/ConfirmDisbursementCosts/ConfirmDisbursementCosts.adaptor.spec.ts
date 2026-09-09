@@ -29,6 +29,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     validator = new ConfirmDisbursementCostsValidator();
 
     sessionHelperStub.getSessionData.returns(null);
+    requestStub.query = {};
 
     adaptor = new ConfirmDisbursementCostsAdaptor(sessionHelperStub, validator);
   });
@@ -82,6 +83,24 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       grossTotal: "360",
       zeroVatTotal: "",
     });
+  });
+
+  it("uses the check your answers page as the back link when arriving from check your answers", () => {
+    requestStub.query = { from: "check-your-answers" };
+
+    adaptor.renderConfirmDisbursementCostsPage(
+      requestStub,
+      responseStub,
+      "123",
+      "10",
+    );
+
+    const renderArgs = responseStub.render.getCall(0)
+      .args[1] as unknown as Record<string, unknown>;
+    assert.equal(
+      renderArgs.backUrl,
+      "/applications/123/claims/10/check-your-answers",
+    );
   });
 
   it("re-renders the confirm disbursement costs page with errors and submitted values when validation fails", () => {
@@ -157,7 +176,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 0);
   });
 
-  it("stores the validated totals in session and redirects to the claim assessment page when the form is valid", () => {
+  it("stores the validated totals in session and redirects to the check your answers page when the form is valid", () => {
     const requestWithBody: TypedRequest<
       ConfirmDisbursementCostsForm,
       ClaimIdParams
@@ -190,7 +209,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     assert.equal(
       responseStub.redirect.getCall(0).args[0],
-      "/applications/123/claims/10",
+      "/applications/123/claims/10/check-your-answers",
     );
   });
 });
