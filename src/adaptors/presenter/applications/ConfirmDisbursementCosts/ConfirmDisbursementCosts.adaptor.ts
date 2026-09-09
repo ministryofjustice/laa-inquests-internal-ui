@@ -61,7 +61,7 @@ export class ConfirmDisbursementCostsAdaptor {
       },
     });
 
-    this.navigationHelper.prepareConfirmCostsEntry(req);
+    this.navigationHelper.syncChangeLinkReturnFlag(req);
 
     const sessionData = this.sessionHelper.getSessionData(
       req,
@@ -70,7 +70,7 @@ export class ConfirmDisbursementCostsAdaptor {
     const totals = this.#resolveFormValues(formValues, sessionData);
 
     res.render("application/claims/confirm-disbursement-costs/index", {
-      backUrl: this.navigationHelper.resolveBackUrl(
+      backUrl: this.navigationHelper.resolveBackLinkUrl(
         req,
         `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
         `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,

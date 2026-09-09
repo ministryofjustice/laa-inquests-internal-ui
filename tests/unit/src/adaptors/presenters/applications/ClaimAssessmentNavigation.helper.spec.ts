@@ -24,12 +24,12 @@ describe("ClaimAssessmentNavigationHelper", () => {
     sinon.restore();
   });
 
-  describe("prepareClaimAssessmentEntry", () => {
+  describe("clearChangeLinkReturnOnFreshVisit", () => {
     it("clears claim approval session data on a fresh GET request", () => {
       requestStub.method = "GET";
       requestStub.query = {};
 
-      helper.prepareClaimAssessmentEntry(requestStub);
+      helper.clearChangeLinkReturnOnFreshVisit(requestStub);
 
       assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
       assert.deepStrictEqual(
@@ -42,7 +42,7 @@ describe("ClaimAssessmentNavigationHelper", () => {
       requestStub.method = "GET";
       requestStub.query = { from: "check-your-answers" };
 
-      helper.prepareClaimAssessmentEntry(requestStub);
+      helper.clearChangeLinkReturnOnFreshVisit(requestStub);
 
       assert.equal(sessionHelperStub.clearSessionData.callCount, 0);
     });
@@ -51,18 +51,18 @@ describe("ClaimAssessmentNavigationHelper", () => {
       requestStub.method = "POST";
       requestStub.query = {};
 
-      helper.prepareClaimAssessmentEntry(requestStub);
+      helper.clearChangeLinkReturnOnFreshVisit(requestStub);
 
       assert.equal(sessionHelperStub.clearSessionData.callCount, 0);
     });
   });
 
-  describe("prepareConfirmCostsEntry", () => {
+  describe("syncChangeLinkReturnFlag", () => {
     it("captures the check your answers origin on a fresh GET request", () => {
       requestStub.method = "GET";
       requestStub.query = { from: "check-your-answers" };
 
-      helper.prepareConfirmCostsEntry(requestStub);
+      helper.syncChangeLinkReturnFlag(requestStub);
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
       assert.deepStrictEqual(
@@ -75,7 +75,7 @@ describe("ClaimAssessmentNavigationHelper", () => {
       requestStub.method = "POST";
       requestStub.query = { from: "check-your-answers" };
 
-      helper.prepareConfirmCostsEntry(requestStub);
+      helper.syncChangeLinkReturnFlag(requestStub);
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
     });
@@ -87,7 +87,7 @@ describe("ClaimAssessmentNavigationHelper", () => {
         returnToCheckYourAnswers: "true",
       });
 
-      helper.prepareConfirmCostsEntry(requestStub);
+      helper.syncChangeLinkReturnFlag(requestStub);
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
       assert.deepStrictEqual(
@@ -100,20 +100,20 @@ describe("ClaimAssessmentNavigationHelper", () => {
       requestStub.method = "GET";
       requestStub.query = {};
 
-      helper.prepareConfirmCostsEntry(requestStub);
+      helper.syncChangeLinkReturnFlag(requestStub);
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
     });
   });
 
-  describe("resolveBackUrl", () => {
+  describe("resolveBackLinkUrl", () => {
     it("returns the check your answers url when the return flag is set", () => {
       requestStub.query = {};
       sessionHelperStub.getSessionData.returns({
         returnToCheckYourAnswers: "true",
       });
 
-      const result = helper.resolveBackUrl(
+      const result = helper.resolveBackLinkUrl(
         requestStub,
         checkYourAnswersUrl,
         defaultUrl,
@@ -125,7 +125,7 @@ describe("ClaimAssessmentNavigationHelper", () => {
     it("returns the default url when the return flag is not set", () => {
       requestStub.query = {};
 
-      const result = helper.resolveBackUrl(
+      const result = helper.resolveBackLinkUrl(
         requestStub,
         checkYourAnswersUrl,
         defaultUrl,
@@ -135,14 +135,14 @@ describe("ClaimAssessmentNavigationHelper", () => {
     });
   });
 
-  describe("resolveNextUrl", () => {
+  describe("resolveContinueUrl", () => {
     it("returns the check your answers url when the return flag is set", () => {
       requestStub.query = {};
       sessionHelperStub.getSessionData.returns({
         returnToCheckYourAnswers: "true",
       });
 
-      const result = helper.resolveNextUrl(
+      const result = helper.resolveContinueUrl(
         requestStub,
         checkYourAnswersUrl,
         defaultUrl,
@@ -154,7 +154,7 @@ describe("ClaimAssessmentNavigationHelper", () => {
     it("returns the default url when the return flag is not set", () => {
       requestStub.query = {};
 
-      const result = helper.resolveNextUrl(
+      const result = helper.resolveContinueUrl(
         requestStub,
         checkYourAnswersUrl,
         defaultUrl,

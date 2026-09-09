@@ -61,7 +61,7 @@ export class ConfirmProfitCostsAdaptor {
       },
     });
 
-    this.navigationHelper.prepareConfirmCostsEntry(req);
+    this.navigationHelper.syncChangeLinkReturnFlag(req);
 
     const sessionData = this.sessionHelper.getSessionData(
       req,
@@ -70,7 +70,7 @@ export class ConfirmProfitCostsAdaptor {
     const totals = this.#resolveFormValues(formValues, sessionData);
 
     res.render("application/claims/confirm-profit-costs/index", {
-      backUrl: this.navigationHelper.resolveBackUrl(
+      backUrl: this.navigationHelper.resolveBackLinkUrl(
         req,
         `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
         `/applications/${laaReference}/claims/${claimId}`,
@@ -173,7 +173,7 @@ export class ConfirmProfitCostsAdaptor {
     });
 
     res.redirect(
-      this.navigationHelper.resolveNextUrl(
+      this.navigationHelper.resolveContinueUrl(
         req as unknown as Request,
         `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
         `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,

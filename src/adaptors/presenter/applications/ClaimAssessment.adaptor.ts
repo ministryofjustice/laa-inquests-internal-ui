@@ -62,7 +62,7 @@ export class ClaimAssessmentAdaptor {
       },
     });
 
-    this.navigationHelper.prepareClaimAssessmentEntry(req);
+    this.navigationHelper.clearChangeLinkReturnOnFreshVisit(req);
 
     const claimAssessmentViewResult =
       await this.buildClaimAssessmentViewUseCase.execute({
