@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 export class AuthAdaptor {
   constructor(
@@ -22,7 +24,11 @@ export class AuthAdaptor {
     const code =
       typeof req.query.code === "string" ? req.query.code : undefined;
     if (!code) {
-      throw new Error("code is required");
+      res.status(HTTP_BAD_REQUEST).render("main/error", {
+        status: HTTP_BAD_REQUEST,
+        error: en.pages.error.invalidRequest,
+      });
+      return;
     }
     const user = await this.authPort.acquireTokenByCode(
       code,

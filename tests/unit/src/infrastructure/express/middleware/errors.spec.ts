@@ -9,17 +9,20 @@ import {
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
-  UPSTREAM_AUTH_FAILURES,
-  UpstreamAuthError,
-  type UpstreamAuthFailure,
-} from "#src/ports/common/upstreamAuthError.js";
-import {
   APPLICATION_ERROR_KINDS,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
-const buildAuthError = (failure: UpstreamAuthFailure): UpstreamAuthError =>
-  new UpstreamAuthError(failure, "/applications/INQ-YYY-001", "GET");
+const buildAuthError = (
+  failure: "UNAUTHENTICATED" | "FORBIDDEN",
+): ApplicationError =>
+  new ApplicationError(
+    failure === "UNAUTHENTICATED"
+      ? APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED
+      : APPLICATION_ERROR_KINDS.FORBIDDEN,
+    "get_application",
+    false,
+  );
 
 describe("error middleware", () => {
   let req: StubbedInstance<Request>;
@@ -118,7 +121,7 @@ describe("error middleware", () => {
     });
 
     it("signs the user out and redirects to the login route when unauthenticated", () => {
-      callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED));
+      callMiddleware(buildAuthError("UNAUTHENTICATED"));
 
       assert.equal(destroy.callCount, 1);
       assert.equal(res.redirect.callCount, 1);
@@ -150,7 +153,7 @@ describe("error middleware", () => {
     it("logs a single warning when unauthenticated", () => {
       const logSpy = sinon.spy(logger, "logWarn");
 
-      callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED));
+      callMiddleware(buildAuthError("UNAUTHENTICATED"));
 
       assert.equal(logSpy.callCount, 1);
       assert.equal(
@@ -162,7 +165,7 @@ describe("error middleware", () => {
     it("redirects even when destroying the session fails", () => {
       destroy.callsArgWith(0, new Error("redis unavailable"));
 
-      callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED));
+      callMiddleware(buildAuthError("UNAUTHENTICATED"));
 
       assert.equal(res.redirect.callCount, 1);
     });
@@ -170,7 +173,7 @@ describe("error middleware", () => {
     it("does not redirect a request that has already been redirected once", () => {
       req.query = { sessionExpired: "true" };
 
-      callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED));
+      callMiddleware(buildAuthError("UNAUTHENTICATED"));
 
       assert.equal(res.redirect.callCount, 0);
       assert.equal(destroy.callCount, 0);
@@ -178,7 +181,7 @@ describe("error middleware", () => {
     });
 
     it("renders the forbidden page when forbidden", () => {
-      callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.FORBIDDEN));
+      callMiddleware(buildAuthError("FORBIDDEN"));
 
       assert.equal(res.status.callCount, 1);
       assert.equal(res.status.firstCall.args[0], 403);
@@ -220,7 +223,7 @@ describe("error middleware", () => {
     it("logs a single warning when forbidden", () => {
       const logSpy = sinon.spy(logger, "logWarn");
 
-      callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.FORBIDDEN));
+      callMiddleware(buildAuthError("FORBIDDEN"));
 
       assert.equal(logSpy.callCount, 1);
       assert.equal(

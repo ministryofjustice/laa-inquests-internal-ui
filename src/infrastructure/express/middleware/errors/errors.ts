@@ -2,10 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
-  getUpstreamAuthErrorContext,
-  getUpstreamAuthFailure,
-} from "#src/infrastructure/express/middleware/errors/upstreamAuthErrors.js";
-import { UPSTREAM_AUTH_FAILURES } from "#src/ports/common/upstreamAuthError.js";
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 import {
   HTTP_FORBIDDEN,
   HTTP_INTERNAL_SERVER_ERROR,
@@ -48,7 +47,7 @@ const handleApiAuthErrors = (
   res: Response,
   next: NextFunction,
 ): void => {
-  const failure = getUpstreamAuthFailure(err);
+  const failure = err instanceof ApplicationError ? err.kind : undefined;
 
   const logAuthFailure = (event: string, statusCode: number): void => {
     logger.logWarn({
@@ -60,19 +59,25 @@ const handleApiAuthErrors = (
         route: getRequestRoutePath(req),
         method: req.method,
         status_code: statusCode,
-        ...getUpstreamAuthErrorContext(err),
+        ...(err instanceof ApplicationError
+          ? {
+              error_kind: err.kind,
+              operation: err.operation,
+              retryable: err.retryable,
+            }
+          : {}),
       },
     });
   };
 
-  if (failure === UPSTREAM_AUTH_FAILURES.FORBIDDEN) {
+  if (failure === APPLICATION_ERROR_KINDS.FORBIDDEN) {
     logAuthFailure("api_forbidden", HTTP_FORBIDDEN);
     res.status(HTTP_FORBIDDEN).render("main/error", {
       status: HTTP_FORBIDDEN,
       error: t("pages.error.forbidden"),
     });
   } else if (
-    failure === UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED &&
+    failure === APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED &&
     req.query[SESSION_EXPIRED_QUERY_FLAG] === undefined
   ) {
     logAuthFailure("auth_session_expired", HTTP_UNAUTHORIZED);
@@ -101,7 +106,13 @@ const handleServerErrors = (
       route: getRequestRoutePath(req),
       method: req.method,
       status_code: HTTP_INTERNAL_SERVER_ERROR,
-      ...getUpstreamAuthErrorContext(err),
+      ...(err instanceof ApplicationError
+        ? {
+            error_kind: err.kind,
+            operation: err.operation,
+            retryable: err.retryable,
+          }
+        : {}),
     },
   });
   res.status(HTTP_INTERNAL_SERVER_ERROR);

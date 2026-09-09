@@ -4,6 +4,7 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response, NextFunction } from "express";
 import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
@@ -25,6 +26,7 @@ describe("AuthAdaptor", () => {
     authPort = stubInterface<AuthPort>();
     req = stubInterface<Request>();
     res = stubInterface<Response>();
+    res.status.returns(res);
     next = sinon.stub();
     req.session = {} as any;
     adaptor = new AuthAdaptor(
@@ -150,13 +152,18 @@ describe("AuthAdaptor", () => {
       );
     });
 
-    it("throws an error when code is missing from query", async () => {
+    it("renders a bad-request page when code is missing from query", async () => {
       req.query = {} as any;
 
-      await assert.rejects(
-        () => adaptor.callback(req, res),
-        /code is required/,
-      );
+      await adaptor.callback(req, res);
+
+      assert.equal(authPort.acquireTokenByCode.callCount, 0);
+      assert.deepEqual(res.status.firstCall.args, [400]);
+      assert.deepEqual(res.render.firstCall.args, [
+        "main/error",
+        { status: 400, error: en.pages.error.invalidRequest },
+      ]);
+      assert.equal(res.redirect.callCount, 0);
     });
   });
 

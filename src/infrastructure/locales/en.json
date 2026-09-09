@@ -59,6 +59,7 @@
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
       "pageNotFound": "Page not found",
       "forbidden": "Forbidden",
+      "invalidRequest": "Invalid request",
       "internalServerError": "Internal Server Error"
     },
     "applicationOverview": {

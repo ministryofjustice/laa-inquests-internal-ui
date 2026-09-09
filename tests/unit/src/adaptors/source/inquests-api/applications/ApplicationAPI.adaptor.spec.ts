@@ -2,6 +2,10 @@ import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 import type {
   Application,
   ApplicationSummary,
@@ -11,10 +15,6 @@ import {
   APPLICATION_STATUSES,
   GRANTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
-import {
-  APPLICATION_ERROR_KINDS,
-  ApplicationError,
-} from "#src/use-cases/common/applicationError.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 const LIVE_STATUS = "LIVE";
@@ -1191,8 +1191,15 @@ describe("addHistoryNote", () => {
       await adaptor.addHistoryNote("123", "access-token-123", "A note");
       assert.fail("Expected an error to be thrown");
     } catch (error) {
-      assert.instanceOf(error, Error);
-      assert.equal((error as Error).message, "Network error");
+      assert.instanceOf(error, ApplicationError);
+      assert.equal(
+        (error as ApplicationError).kind,
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      );
+      assert.equal(
+        (error as ApplicationError).operation,
+        "/applications/123/note",
+      );
     }
   });
 });

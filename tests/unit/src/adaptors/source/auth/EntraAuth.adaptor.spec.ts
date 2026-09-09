@@ -3,6 +3,10 @@ import sinon from "sinon";
 import type { ConfidentialClientApplication } from "@azure/msal-node";
 import { stubInterface } from "ts-sinon";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 const SCOPES = ["openid", "profile", "offline_access"];
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
@@ -46,7 +50,10 @@ describe("EntraAuthAdaptor", () => {
 
       await assert.rejects(
         () => adaptor.getAuthCodeUrl(SCOPES, REDIRECT_URI),
-        /MSAL network failure/,
+        (error: unknown) =>
+          error instanceof ApplicationError &&
+          error.kind === APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE &&
+          error.operation === "auth_code_url",
       );
     });
   });
@@ -113,7 +120,10 @@ describe("EntraAuthAdaptor", () => {
 
       await assert.rejects(
         () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-        /MSAL returned null token result/,
+        (error: unknown) =>
+          error instanceof ApplicationError &&
+          error.kind === APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE &&
+          error.operation === "auth_token_acquisition",
       );
     });
 
@@ -122,7 +132,10 @@ describe("EntraAuthAdaptor", () => {
 
       await assert.rejects(
         () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-        /token endpoint error/,
+        (error: unknown) =>
+          error instanceof ApplicationError &&
+          error.kind === APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE &&
+          error.operation === "auth_token_acquisition",
       );
     });
   });

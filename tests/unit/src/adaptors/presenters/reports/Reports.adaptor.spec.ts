@@ -2,24 +2,34 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
-import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
+import type { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
+import type { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
 
 describe("Reports adaptor", () => {
   let reportsAdaptor: ReportsAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
-  let reportsPortStub: StubbedInstance<ReportsPort>;
+  let downloadApplicationsBacklogReportUseCaseStub: StubbedInstance<DownloadApplicationsBacklogReportUseCase>;
+  let downloadClaimsBacklogReportUseCaseStub: StubbedInstance<DownloadClaimsBacklogReportUseCase>;
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
-    reportsPortStub = stubInterface<ReportsPort>();
+    downloadApplicationsBacklogReportUseCaseStub =
+      stubInterface<DownloadApplicationsBacklogReportUseCase>();
+    downloadClaimsBacklogReportUseCaseStub =
+      stubInterface<DownloadClaimsBacklogReportUseCase>();
     requestStub.session = {
       user: {
         accessToken: "test-access-token",
       },
     } as never;
-    reportsAdaptor = new ReportsAdaptor(reportsPortStub);
+    reportsAdaptor = new ReportsAdaptor({
+      downloadApplicationsBacklogReportUseCase:
+        downloadApplicationsBacklogReportUseCaseStub,
+      downloadClaimsBacklogReportUseCase:
+        downloadClaimsBacklogReportUseCaseStub,
+    });
   });
 
   it("renders reports page", () => {
@@ -31,16 +41,19 @@ describe("Reports adaptor", () => {
 
   it("downloads applications backlog report with attachment headers", async () => {
     const mockBuffer = Buffer.from("col1,col2\n1,2");
-    reportsPortStub.getApplicationsBacklogReport.resolves({
+    downloadApplicationsBacklogReportUseCaseStub.execute.resolves({
       data: mockBuffer,
       contentType: "text/csv",
     });
 
     await reportsAdaptor.downloadApplicationsBacklog(requestStub, responseStub);
 
-    assert.equal(reportsPortStub.getApplicationsBacklogReport.callCount, 1);
+    assert.equal(
+      downloadApplicationsBacklogReportUseCaseStub.execute.callCount,
+      1,
+    );
     assert.deepEqual(
-      reportsPortStub.getApplicationsBacklogReport.firstCall.args,
+      downloadApplicationsBacklogReportUseCaseStub.execute.firstCall.args,
       ["test-access-token"],
     );
     assert.equal(responseStub.setHeader.callCount, 2);
@@ -56,41 +69,33 @@ describe("Reports adaptor", () => {
     assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
   });
 
-  it("renders error page when backlog report retrieval fails", async () => {
-    reportsPortStub.getApplicationsBacklogReport.rejects(
-      new Error("API error"),
+  it("propagates applications report failures without writing a response", async () => {
+    const error = new Error("API error");
+    downloadApplicationsBacklogReportUseCaseStub.execute.rejects(error);
+
+    await assert.rejects(
+      reportsAdaptor.downloadApplicationsBacklog(requestStub, responseStub),
+      (thrown: unknown) => thrown === error,
     );
-    responseStub.status.returns(responseStub);
 
-    await reportsAdaptor.downloadApplicationsBacklog(requestStub, responseStub);
-
-    assert.equal(reportsPortStub.getApplicationsBacklogReport.callCount, 1);
-    assert.equal(responseStub.status.callCount, 1);
-    assert.deepEqual(responseStub.status.firstCall.args, [500]);
-    assert.equal(responseStub.render.callCount, 1);
-    assert.deepEqual(responseStub.render.firstCall.args, [
-      "application/error",
-      {
-        status: "Unable to retrieve report",
-        error: "Unable to retrieve report. Please try again later",
-      },
-    ]);
+    assert.equal(responseStub.setHeader.callCount, 0);
     assert.equal(responseStub.send.callCount, 0);
   });
 
   it("downloads claims backlog report with attachment headers", async () => {
     const mockBuffer = Buffer.from("col1,col2\n1,2");
-    reportsPortStub.getClaimsBacklogReport.resolves({
+    downloadClaimsBacklogReportUseCaseStub.execute.resolves({
       data: mockBuffer,
       contentType: "text/csv",
     });
 
     await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
 
-    assert.equal(reportsPortStub.getClaimsBacklogReport.callCount, 1);
-    assert.deepEqual(reportsPortStub.getClaimsBacklogReport.firstCall.args, [
-      "test-access-token",
-    ]);
+    assert.equal(downloadClaimsBacklogReportUseCaseStub.execute.callCount, 1);
+    assert.deepEqual(
+      downloadClaimsBacklogReportUseCaseStub.execute.firstCall.args,
+      ["test-access-token"],
+    );
     assert.equal(responseStub.setHeader.callCount, 2);
     assert.deepEqual(responseStub.setHeader.getCall(0).args, [
       "Content-Type",
@@ -104,23 +109,16 @@ describe("Reports adaptor", () => {
     assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
   });
 
-  it("renders error page when claims backlog report retrieval fails", async () => {
-    reportsPortStub.getClaimsBacklogReport.rejects(new Error("API error"));
-    responseStub.status.returns(responseStub);
+  it("propagates claims report failures without writing a response", async () => {
+    const error = new Error("API error");
+    downloadClaimsBacklogReportUseCaseStub.execute.rejects(error);
 
-    await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
+    await assert.rejects(
+      reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub),
+      (thrown: unknown) => thrown === error,
+    );
 
-    assert.equal(reportsPortStub.getClaimsBacklogReport.callCount, 1);
-    assert.equal(responseStub.status.callCount, 1);
-    assert.deepEqual(responseStub.status.firstCall.args, [500]);
-    assert.equal(responseStub.render.callCount, 1);
-    assert.deepEqual(responseStub.render.firstCall.args, [
-      "application/error",
-      {
-        status: "Unable to retrieve report",
-        error: "Unable to retrieve report. Please try again later",
-      },
-    ]);
+    assert.equal(responseStub.setHeader.callCount, 0);
     assert.equal(responseStub.send.callCount, 0);
   });
 });
