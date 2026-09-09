@@ -35,6 +35,7 @@ import { ProcessJustificationUseCase } from "#src/use-cases/applications/decisio
 import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
+import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
@@ -56,6 +57,7 @@ import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/p
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
+import { GetPublicBodiesUseCase } from "#src/use-cases/applications/publicAuthority/GetPublicBodies.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
@@ -100,7 +102,8 @@ const processJustificationUseCase = new ProcessJustificationUseCase();
 const processCertificateStartDateUseCase =
   new ProcessCertificateStartDateUseCase();
 const prepareConfirmationViewUseCase = new PrepareConfirmationViewUseCase();
-const submitDecisionUseCase = new RefuseDecisionUseCase();
+const submitDecisionUseCase = new RefuseDecisionUseCase(viewApplicationAdaptor);
+const grantDecisionUseCase = new GrantDecisionUseCase(viewApplicationAdaptor);
 const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase();
 const buildCertificateViewUseCase = new BuildCertificateViewUseCase(
   viewApplicationAdaptor,
@@ -165,6 +168,7 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
     processCertificateStartDateUseCase,
     prepareConfirmationViewUseCase,
     refuseDecisionUseCase: submitDecisionUseCase,
+    grantDecisionUseCase,
   },
 );
 const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
@@ -178,7 +182,8 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
     prepareConfirmPublicAuthorityViewUseCase:
       new PrepareConfirmPublicAuthorityViewUseCase(),
     confirmPublicAuthorityUpdateUseCase:
-      new ConfirmPublicAuthorityUpdateUseCase(),
+      new ConfirmPublicAuthorityUpdateUseCase(viewApplicationAdaptor),
+    getPublicBodiesUseCase: new GetPublicBodiesUseCase(viewApplicationAdaptor),
   },
 );
 const authAdaptor = new AuthAdaptor(
