@@ -4,11 +4,7 @@ import {
   type ApplicationErrorKind,
 } from "#src/use-cases/common/applicationError.js";
 
-export const GET_CERTIFICATE_OPERATION = "get_certificate";
-export const GET_CERTIFICATE_METHOD = "GET";
-export const GET_CERTIFICATE_ROUTE = "/applications/:id/certificate";
-
-export type CertificateHttpFailure =
+export type ApplicationApiHttpFailure =
   | { outcome: "NOT_FOUND"; status: number }
   | {
       outcome: "ERROR";
@@ -18,9 +14,9 @@ export type CertificateHttpFailure =
       status?: number;
     };
 
-export function classifyCertificateHttpFailure(
+export function classifyApplicationApiHttpFailure(
   error: AxiosError,
-): CertificateHttpFailure {
+): ApplicationApiHttpFailure {
   const { code, response } = error;
   const { status } = response ?? {};
 
@@ -78,5 +74,21 @@ export function getUpstreamStatusContext(
     return {};
   } else {
     return { upstream_status_code: status };
+  }
+}
+
+export function asUnexpectedApplicationApiFailure(
+  failure: ApplicationApiHttpFailure,
+): Exclude<ApplicationApiHttpFailure, { outcome: "NOT_FOUND" }> {
+  if (failure.outcome === "NOT_FOUND") {
+    return {
+      outcome: "ERROR",
+      kind: APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+      failureKind: "upstream_4xx",
+      retryable: false,
+      status: failure.status,
+    };
+  } else {
+    return failure;
   }
 }

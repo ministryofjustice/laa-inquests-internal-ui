@@ -62,6 +62,7 @@
       "internalServerError": "Internal Server Error"
     },
     "applicationOverview": {
+      "invalidRequest": "Invalid application request.",
       "details": {
         "viewCertificate": "View certificate"
       },
@@ -89,7 +90,9 @@
       },
       "documentError": {
         "pageTitle": "Unable to retrieve document – {SERVICE_NAME} – GOV.UK",
-        "message": "Unable to retrieve document. Please try again later"
+        "message": "Unable to retrieve document. Please try again later",
+        "notFound": "The coroner's letter for this application could not be found.",
+        "invalidRequest": "Invalid coroner letter request."
       },
       "publicAuthority": {
         "title": "Who are the listed public authorities on this application?",

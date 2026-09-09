@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
@@ -12,6 +11,8 @@ import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
 import { CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
 import { formatHistoryRows } from "#src/adaptors/presenter/applications/History.formatter.js";
 import {
   getHomeAddressDisplay,
@@ -23,6 +24,7 @@ import type { SessionHelper } from "#src/infrastructure/express/session/SessionH
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 import type { AddHistoryNoteForm } from "#src/adaptors/presenter/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 
 const {
   pages: {
@@ -58,6 +60,8 @@ export class ApplicationAdaptor {
 
   private readonly addHistoryNoteValidator: AddHistoryNoteValidator;
 
+  private readonly getCoronersLetterDocumentUseCase: GetCoronersLetterDocumentUseCase;
+
   constructor(
     viewApplicationAdaptor: ApplicationPort,
     sessionHelper?: SessionHelper,
@@ -67,6 +71,9 @@ export class ApplicationAdaptor {
     buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase = new BuildApplicationHistoryViewUseCase(),
     addHistoryNoteUseCase: AddHistoryNoteUseCase = new AddHistoryNoteUseCase(),
     addHistoryNoteValidator: AddHistoryNoteValidator = new AddHistoryNoteValidator(),
+    getCoronersLetterDocumentUseCase: GetCoronersLetterDocumentUseCase = new GetCoronersLetterDocumentUseCase(
+      viewApplicationAdaptor,
+    ),
   ) {
     this.viewApplicationAdaptor = viewApplicationAdaptor;
     this.sessionHelper = sessionHelper;
@@ -78,6 +85,7 @@ export class ApplicationAdaptor {
       buildApplicationHistoryViewUseCase;
     this.addHistoryNoteUseCase = addHistoryNoteUseCase;
     this.addHistoryNoteValidator = addHistoryNoteValidator;
+    this.getCoronersLetterDocumentUseCase = getCoronersLetterDocumentUseCase;
   }
 
   async renderApplicationPage(
@@ -106,11 +114,22 @@ export class ApplicationAdaptor {
         accessToken: req.session.user?.accessToken,
       });
 
-    if (overviewViewResult.status !== "SUCCESS") {
-      throwUseCaseFailure(
-        overviewViewResult,
-        "Unable to build application overview view",
-      );
+    if (overviewViewResult.status === "INVALID_INPUT") {
+      logger.logWarn({
+        functionName: "render_application_page",
+        message: "Application overview request is invalid",
+        request: req,
+        extraContext: {
+          event: "application_overview_invalid_input",
+          laa_reference: laaReference,
+          status_code: HTTP_BAD_REQUEST,
+        },
+      });
+      res.status(HTTP_BAD_REQUEST).render("application/error", {
+        status: HTTP_BAD_REQUEST,
+        error: en.pages.applicationOverview.invalidRequest,
+      });
+      return;
     }
 
     const application = mapApplication(overviewViewResult.data.application);
@@ -236,19 +255,14 @@ export class ApplicationAdaptor {
       accessToken: req.session.user?.accessToken,
     });
 
-    if (historyViewResult.status !== "SUCCESS") {
-      logger.logError({
+    if (historyViewResult.status === "INVALID_INPUT") {
+      logger.logWarn({
         functionName: "build_history_view",
-        message: "Failed to build history view",
-        err:
-          historyViewResult.status === "TECHNICAL_FAILURE"
-            ? (historyViewResult.cause ?? historyViewResult.message)
-            : undefined,
+        message: "Application history request is invalid",
         request: req,
         extraContext: {
-          event: "history_view_build_failed",
+          event: "application_history_view_invalid_input",
           laa_reference: laaReference,
-          result_status: historyViewResult.status,
         },
       });
       return { historyRows: [], historyError: true };
@@ -264,8 +278,6 @@ export class ApplicationAdaptor {
     res: Response,
     laaReference: string,
   ): Promise<void> {
-    const { viewApplicationAdaptor } = this;
-
     logger.logInfo({
       functionName: "serve_coroners_letter_document",
       message: "Coroner letter requested",
@@ -276,32 +288,45 @@ export class ApplicationAdaptor {
       },
     });
 
-    try {
-      const { data, contentType } =
-        await viewApplicationAdaptor.getCoronersLetterDocument(
-          laaReference,
-          req.session.user?.accessToken,
-        );
+    const result = await this.getCoronersLetterDocumentUseCase.execute({
+      laaReference,
+      accessToken: req.session.user?.accessToken,
+    });
 
-      res.setHeader("Content-Type", contentType);
-      res.setHeader("Content-Disposition", "inline");
-      res.send(data);
-    } catch (error) {
-      logger.logError({
+    if (result.status === "INVALID_INPUT") {
+      logger.logWarn({
         functionName: "serve_coroners_letter_document",
-        message: "Failed to retrieve coroner letter",
-        err: error,
+        message: "Coroner letter request is invalid",
         request: req,
         extraContext: {
-          event: "coroners_letter_retrieval_failed",
+          event: "coroners_letter_invalid_input",
           laa_reference: laaReference,
+          status_code: HTTP_BAD_REQUEST,
         },
       });
-
-      res.status(500).render("application/error", {
-        status: "Unable to retrieve document",
-        error: "Unable to retrieve document. Please try again later",
+      res.status(HTTP_BAD_REQUEST).render("application/error", {
+        status: HTTP_BAD_REQUEST,
+        error: en.pages.applicationOverview.documentError.invalidRequest,
       });
+    } else if (result.status === "NOT_FOUND") {
+      logger.logWarn({
+        functionName: "serve_coroners_letter_document",
+        message: "Coroner letter not found",
+        request: req,
+        extraContext: {
+          event: "coroners_letter_not_found",
+          laa_reference: laaReference,
+          status_code: HTTP_NOT_FOUND,
+        },
+      });
+      res.status(HTTP_NOT_FOUND).render("application/error", {
+        status: HTTP_NOT_FOUND,
+        error: en.pages.applicationOverview.documentError.notFound,
+      });
+    } else {
+      res.setHeader("Content-Type", result.data.contentType);
+      res.setHeader("Content-Disposition", "inline");
+      res.send(result.data.data);
     }
   }
 

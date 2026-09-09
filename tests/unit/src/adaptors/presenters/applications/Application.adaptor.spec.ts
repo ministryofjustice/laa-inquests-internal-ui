@@ -13,6 +13,11 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
+import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -190,6 +195,26 @@ describe("Application adaptor", () => {
   });
 
   describe("renderApplicationPage", () => {
+    it("renders a 400 error page when the application reference is invalid", async () => {
+      responseStub.status.returns(responseStub);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "",
+      );
+
+      assert.equal(viewApplicationAdaptorStub.getApplication.callCount, 0);
+      assert.deepEqual(responseStub.status.firstCall.args, [400]);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "application/error",
+        {
+          status: 400,
+          error: en.pages.applicationOverview.invalidRequest,
+        },
+      ]);
+    });
+
     it("render application overview page", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       await applicationAdaptor.renderApplicationPage(
@@ -642,12 +667,23 @@ describe("Application adaptor", () => {
       ]);
     });
 
-    it("serveCoronersLetterDocument renders error page when port call fails", async () => {
-      viewApplicationAdaptorStub.getCoronersLetterDocument.rejects(
-        new Error("API error"),
+    it("renders a 404 page when the coroner letter does not exist", async () => {
+      const getCoronersLetterDocumentUseCase =
+        stubInterface<GetCoronersLetterDocumentUseCase>();
+      getCoronersLetterDocumentUseCase.execute.resolves({
+        status: "NOT_FOUND",
+      });
+      applicationAdaptor = new ApplicationAdaptor(
+        viewApplicationAdaptorStub,
+        undefined,
+        undefined,
+        claimsAdaptorStub,
+        buildApplicationClaimsViewUseCaseStub,
+        undefined,
+        undefined,
+        undefined,
+        getCoronersLetterDocumentUseCase,
       );
-
-      // Configure the stub to return itself for chaining
       responseStub.status.returns(responseStub);
 
       await applicationAdaptor.serveCoronersLetterDocument(
@@ -656,21 +692,53 @@ describe("Application adaptor", () => {
         "789",
       );
 
-      assert.equal(
-        viewApplicationAdaptorStub.getCoronersLetterDocument.callCount,
-        1,
-      );
-      assert.equal(responseStub.status.callCount, 1);
-      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepStrictEqual(responseStub.render.getCall(0).args, [
+      assert.deepEqual(responseStub.status.firstCall.args, [404]);
+      assert.deepEqual(responseStub.render.firstCall.args, [
         "application/error",
         {
-          status: "Unable to retrieve document",
-          error: "Unable to retrieve document. Please try again later",
+          status: 404,
+          error:
+            "The coroner's letter for this application could not be found.",
         },
       ]);
       assert.equal(responseStub.send.callCount, 0);
+    });
+
+    it("propagates document errors without responding or duplicate logging", async () => {
+      const getCoronersLetterDocumentUseCase =
+        stubInterface<GetCoronersLetterDocumentUseCase>();
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_coroners_letter",
+        true,
+      );
+      getCoronersLetterDocumentUseCase.execute.rejects(error);
+      applicationAdaptor = new ApplicationAdaptor(
+        viewApplicationAdaptorStub,
+        undefined,
+        undefined,
+        claimsAdaptorStub,
+        buildApplicationClaimsViewUseCaseStub,
+        undefined,
+        undefined,
+        undefined,
+        getCoronersLetterDocumentUseCase,
+      );
+
+      await assert.rejects(
+        applicationAdaptor.serveCoronersLetterDocument(
+          requestStub,
+          responseStub,
+          "789",
+        ),
+        (thrown: unknown) => thrown === error,
+      );
+
+      assert.equal(responseStub.setHeader.callCount, 0);
+      assert.equal(responseStub.status.callCount, 0);
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(responseStub.send.callCount, 0);
+      assert.equal(logErrorStub.callCount, 0);
     });
   });
 
@@ -1032,23 +1100,26 @@ describe("Application adaptor", () => {
       );
     });
 
-    it("sets historyError flag when getApplicationHistory fails", async () => {
+    it("propagates history retrieval errors without rendering or duplicate logging", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
-      viewApplicationAdaptorStub.getApplicationHistory.rejects(
-        new Error("API connection failed"),
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_application_history",
+        true,
+      );
+      viewApplicationAdaptorStub.getApplicationHistory.rejects(error);
+
+      await assert.rejects(
+        applicationAdaptor.renderApplicationPage(
+          requestStub,
+          responseStub,
+          "123",
+        ),
+        (thrown: unknown) => thrown === error,
       );
 
-      await applicationAdaptor.renderApplicationPage(
-        requestStub,
-        responseStub,
-        "123",
-      );
-
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.partialDeepStrictEqual(renderArgs[1], {
-        historyRows: [],
-        historyError: true,
-      });
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(logErrorStub.callCount, 0);
     });
 
     describe("submitHistoryNote", () => {

@@ -2,6 +2,10 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 describe("BuildApplicationOverviewViewUseCase", () => {
   const useCase = new BuildApplicationOverviewViewUseCase();
@@ -88,7 +92,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     ]);
   });
 
-  it("returns TECHNICAL_FAILURE when input is incomplete", async () => {
+  it("returns INVALID_INPUT without calling the port when input is incomplete", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
@@ -96,20 +100,25 @@ describe("BuildApplicationOverviewViewUseCase", () => {
       applicationPort: applicationPortStub,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.deepEqual(result, { status: "INVALID_INPUT" });
+    assert.equal(applicationPortStub.getApplication.callCount, 0);
   });
 
-  it("returns TECHNICAL_FAILURE when source retrieval fails", async () => {
+  it("propagates application errors from the port unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.getApplication.rejects(new Error("boom"));
+    const error = new ApplicationError(
+      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      "get_application",
+      true,
+    );
+    applicationPortStub.getApplication.rejects(error);
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      applicationPort: applicationPortStub,
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "123",
+        applicationPort: applicationPortStub,
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });

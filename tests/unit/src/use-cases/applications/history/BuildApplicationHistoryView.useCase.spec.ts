@@ -2,7 +2,10 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 describe("BuildApplicationHistoryViewUseCase", () => {
   const useCase = new BuildApplicationHistoryViewUseCase();
@@ -55,7 +58,7 @@ describe("BuildApplicationHistoryViewUseCase", () => {
     assert.deepEqual(result.data.history, []);
   });
 
-  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
+  it("returns INVALID_INPUT when laaReference is missing", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
 
     const result = await useCase.execute({
@@ -63,28 +66,26 @@ describe("BuildApplicationHistoryViewUseCase", () => {
       applicationPort: applicationPortStub,
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE);
-    assert.equal(
-      result.message,
-      "Cannot build application history view without an laaReference",
-    );
+    assert.deepEqual(result, { status: "INVALID_INPUT" });
     assert.equal(applicationPortStub.getApplicationHistory.callCount, 0);
   });
 
-  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when API call fails", async () => {
+  it("propagates application errors from the port unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
-    const apiError = new Error("API connection failed");
+    const apiError = new ApplicationError(
+      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      "get_application_history",
+      true,
+    );
     applicationPortStub.getApplicationHistory.rejects(apiError);
 
-    const result = await useCase.execute({
-      laaReference: "123",
-      applicationPort: applicationPortStub,
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
-    assert.equal(result.cause, apiError);
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "123",
+        applicationPort: applicationPortStub,
+        accessToken: "access-token-123",
+      }),
+      (thrown: unknown) => thrown === apiError,
+    );
   });
 });

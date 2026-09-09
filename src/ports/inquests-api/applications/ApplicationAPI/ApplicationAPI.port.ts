@@ -28,7 +28,7 @@ export interface ApplicationPort {
   getCoronersLetterDocument: (
     laaReference: string,
     accessToken: string | undefined,
-  ) => Promise<{ data: Buffer; contentType: string }>;
+  ) => Promise<{ data: Buffer; contentType: string } | undefined>;
   getCertificateDetails: (
     laaReference: string,
     accessToken: string | undefined,
