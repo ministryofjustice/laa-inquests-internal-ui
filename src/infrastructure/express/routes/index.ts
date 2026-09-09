@@ -49,6 +49,8 @@ import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHi
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
+import { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
+import { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
 import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/publicAuthority/PreparePublicAuthorityForm.useCase.js";
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
@@ -145,7 +147,13 @@ const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
-const reportsAdaptor = new ReportsAdaptor(reportsApiAdaptor);
+const reportsAdaptor = new ReportsAdaptor({
+  downloadApplicationsBacklogReportUseCase:
+    new DownloadApplicationsBacklogReportUseCase(reportsApiAdaptor),
+  downloadClaimsBacklogReportUseCase: new DownloadClaimsBacklogReportUseCase(
+    reportsApiAdaptor,
+  ),
+});
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
