@@ -5,7 +5,7 @@ import {
   HTTP_FORBIDDEN,
   HTTP_NOT_FOUND,
   HTTP_INTERNAL_SERVER_ERROR,
-} from "#src/infrastructure/express/constants.js";
+} from "#tests/playwright/constants/httpStatus.js";
 
 export const FAILED_APPLICATION_REFERENCE = "INQ-OVERVIEW-500";
 export const INVALID_APPLICATION_REFERENCE = "INQ-OVERVIEW-INVALID";

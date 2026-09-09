@@ -1,8 +1,9 @@
 import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 import { http, HttpResponse } from "msw";
-
-const HTTP_UNAUTHORIZED = 401;
-const HTTP_FORBIDDEN = 403;
+import {
+  HTTP_UNAUTHORIZED,
+  HTTP_FORBIDDEN,
+} from "#tests/playwright/constants/httpStatus.js";
 
 // References reserved for exercising API auth failures; no fixture data exists for them.
 export const UNAUTHORISED_APPLICATION_REFERENCE = "INQ-401-001";

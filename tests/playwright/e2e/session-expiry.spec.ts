@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { HTTP_FOUND } from "#tests/playwright/constants/httpStatus.js";
 
 const BUFFER_SECONDS = 60;
 const EFFECTIVE_SECONDS = 2;
 const MILLISECONDS_IN_A_SECOND = 1000;
-const HTTP_FOUND = 302;
 
 // This journey logs in with its own short-lived expiry, so it must not reuse
 // the shared authenticated storage state.

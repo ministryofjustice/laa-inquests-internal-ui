@@ -8,13 +8,15 @@ import {
   MISSING_CERTIFICATE_REFERENCE,
   UNAUTHORISED_CERTIFICATE_REFERENCE,
 } from "#tests/playwright/factories/handlers/certificateErrors.js";
+import {
+  HTTP_FOUND,
+  HTTP_FORBIDDEN,
+  HTTP_NOT_FOUND,
+  HTTP_INTERNAL_SERVER_ERROR,
+} from "#tests/playwright/constants/httpStatus.js";
 
 const laaReference = "1";
 const certificateLocale = en.pages.applicationCertificate;
-const HTTP_FOUND = 302;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_INTERNAL_SERVER_ERROR = 500;
 
 const applicationOverviewUrl = `/applications/${laaReference}/overview`;
 const applicationCertificateUrl = `/applications/${laaReference}/certificate`;
