@@ -11,7 +11,7 @@ import type {
 } from "./models/form.types.js";
 import type { ConfirmDisbursementCostsValidator } from "./ConfirmDisbursementCosts.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import { ConfirmCostsNavigationHelper } from "#src/adaptors/presenter/applications/ConfirmCostsNavigation.helper.js";
+import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -31,13 +31,13 @@ const ERROR_FIELD_HREFS: Array<{
 ];
 
 export class ConfirmDisbursementCostsAdaptor {
-  private readonly navigationHelper: ConfirmCostsNavigationHelper;
+  private readonly navigationHelper: ClaimAssessmentNavigationHelper;
 
   constructor(
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ConfirmDisbursementCostsValidator,
   ) {
-    this.navigationHelper = new ConfirmCostsNavigationHelper(
+    this.navigationHelper = new ClaimAssessmentNavigationHelper(
       this.sessionHelper,
     );
   }
