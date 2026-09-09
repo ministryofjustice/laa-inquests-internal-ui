@@ -2,11 +2,15 @@ import { strict as assert } from "assert";
 import sinon from "sinon";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
-import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 describe("CertificateAdaptor", () => {
   let buildCertificateViewUseCaseStub: StubbedInstance<BuildCertificateViewUseCase>;
@@ -15,6 +19,10 @@ describe("CertificateAdaptor", () => {
   let requestStub: StubbedInstance<Request>;
   let logInfoStub: sinon.SinonStub;
   let logErrorStub: sinon.SinonStub;
+
+  before(() => {
+    initializeI18nextSync();
+  });
 
   const application = {
     laaReference: "123",
@@ -227,12 +235,10 @@ describe("CertificateAdaptor", () => {
       });
     });
 
-    it("renders an error page when certificate view returns with TECHNICAL_FAILURE", async () => {
+    it("renders a 400 error page when the certificate request is invalid", async () => {
       responseStub.status.returns(responseStub);
       buildCertificateViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        message: "Unable to build certificate view",
+        status: "INVALID_INPUT",
       });
 
       await certificateAdaptor.renderCertificatePage(
@@ -242,23 +248,21 @@ describe("CertificateAdaptor", () => {
       );
 
       assert.equal(responseStub.status.callCount, 1);
-      assert.deepStrictEqual(responseStub.status.getCall(0).args, [500]);
+      assert.deepStrictEqual(responseStub.status.getCall(0).args, [400]);
       assert.equal(responseStub.render.callCount, 1);
       assert.deepStrictEqual(responseStub.render.getCall(0).args, [
         "application/error",
         {
-          status: "Unable to retrieve certificate",
-          error: "Unable to retrieve certificate. Please try again later",
+          status: 400,
+          error: "Invalid certificate request.",
         },
       ]);
     });
 
-    it("renders a 404 not found page when certificate view returns RESOURCE_NOT_FOUND", async () => {
+    it("renders a 404 not found page when the certificate does not exist", async () => {
       responseStub.status.returns(responseStub);
       buildCertificateViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND,
-        message: "Certificate not found for application 123",
+        status: "NOT_FOUND",
       });
 
       await certificateAdaptor.renderCertificatePage(
@@ -279,34 +283,26 @@ describe("CertificateAdaptor", () => {
       ]);
     });
 
-    it("logs error when certificate returns with TECHNICAL_FAILURE", async () => {
-      buildCertificateViewUseCaseStub.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
-        message: "Unable to build certificate view",
-      });
+    it("propagates application errors without rendering or duplicate logging", async () => {
+      const error = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_certificate",
+        true,
+      );
+      buildCertificateViewUseCaseStub.execute.rejects(error);
 
-      responseStub.status.returns(responseStub);
-      await certificateAdaptor.renderCertificatePage(
-        requestStub,
-        responseStub,
-        application.laaReference.toString(),
+      await assert.rejects(
+        certificateAdaptor.renderCertificatePage(
+          requestStub,
+          responseStub,
+          application.laaReference.toString(),
+        ),
+        (thrown: unknown) => thrown === error,
       );
 
-      assert.equal(logErrorStub.callCount, 1);
-      assert.deepStrictEqual(logErrorStub.getCall(0).args, [
-        {
-          functionName: "render_certificate_page",
-          message: "Failed to build certificate view",
-          err: "Unable to build certificate view",
-          request: requestStub,
-          extraContext: {
-            event: "certificate_page_failed",
-            laa_reference: application.laaReference.toString(),
-            result_status: "TECHNICAL_FAILURE",
-          },
-        },
-      ]);
+      assert.equal(responseStub.status.callCount, 0);
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(logErrorStub.callCount, 0);
     });
   });
 });

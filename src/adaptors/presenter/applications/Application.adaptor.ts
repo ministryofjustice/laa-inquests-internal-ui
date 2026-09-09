@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
+import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
@@ -106,7 +107,10 @@ export class ApplicationAdaptor {
       });
 
     if (overviewViewResult.status !== "SUCCESS") {
-      throw new Error("Unable to build application overview view");
+      throwUseCaseFailure(
+        overviewViewResult,
+        "Unable to build application overview view",
+      );
     }
 
     const application = mapApplication(overviewViewResult.data.application);

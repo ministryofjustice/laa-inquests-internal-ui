@@ -1,7 +1,7 @@
 import axios, { type AxiosResponse, type AxiosStatic } from "axios";
 import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
 import { getInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class ReportsAPIAdaptor implements ReportsPort {
   constructor(

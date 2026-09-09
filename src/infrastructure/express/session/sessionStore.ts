@@ -1,7 +1,7 @@
 import { RedisStore } from "connect-redis";
 import type { Store } from "express-session";
 import config from "#src/infrastructure/config/config.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { createRedisClient } from "#src/infrastructure/express/session/redisClient.js";
 
 // Returns undefined in test so express-session falls back to its in-memory store.

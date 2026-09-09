@@ -13,7 +13,7 @@ import {
 } from "#src/adaptors/source/inquests-api/utils.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class ClaimsAPIAdaptor implements ClaimsPort {
   constructor(

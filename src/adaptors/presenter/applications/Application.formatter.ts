@@ -14,7 +14,7 @@ import type {
   Application,
   Proceeding,
 } from "#src/adaptors/models/application.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { formatCurrency } from "#src/utils/formatter.js";
 

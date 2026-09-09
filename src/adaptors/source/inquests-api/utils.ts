@@ -1,5 +1,43 @@
+import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  HTTP_FORBIDDEN,
+  HTTP_UNAUTHORIZED,
+} from "#src/infrastructure/express/constants.js";
+import {
+  UPSTREAM_AUTH_FAILURES,
+  UpstreamAuthError,
+} from "#src/ports/common/upstreamAuthError.js";
+
+export function toUpstreamAuthError(
+  error: unknown,
+  route: string,
+  method: string,
+): UpstreamAuthError | undefined {
+  if (!axios.isAxiosError(error)) {
+    return undefined;
+  }
+
+  const status = error.response?.status;
+  if (status === HTTP_UNAUTHORIZED) {
+    return new UpstreamAuthError(
+      UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED,
+      route,
+      method,
+      { cause: error },
+    );
+  } else if (status === HTTP_FORBIDDEN) {
+    return new UpstreamAuthError(
+      UPSTREAM_AUTH_FAILURES.FORBIDDEN,
+      route,
+      method,
+      { cause: error },
+    );
+  } else {
+    return undefined;
+  }
+}
 
 interface PostInquestsApiParams<TBody> {
   http: AxiosInstance;
@@ -65,6 +103,10 @@ export async function patchInquestsApi<TResponse, TBody>(
         route: path,
       },
     });
+    const authError = toUpstreamAuthError(error, path, "PATCH");
+    if (authError !== undefined) {
+      throw authError;
+    }
     throw error;
   }
 }
@@ -106,6 +148,10 @@ export async function getInquestsApi<TResponse>(
         route: path,
       },
     });
+    const authError = toUpstreamAuthError(error, path, "GET");
+    if (authError !== undefined) {
+      throw authError;
+    }
     throw error;
   }
 }
@@ -148,6 +194,10 @@ export async function postInquestsApi<TResponse, TBody>(
         route: path,
       },
     });
+    const authError = toUpstreamAuthError(error, path, "POST");
+    if (authError !== undefined) {
+      throw authError;
+    }
     throw error;
   }
 }

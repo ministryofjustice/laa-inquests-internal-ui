@@ -5,7 +5,6 @@ import type {
   HistoryEvent,
   PublicBody,
 } from "#src/adaptors/models/application.types.js";
-import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 
 export interface ApplicationPort {
   getAllApplications: (
@@ -33,7 +32,7 @@ export interface ApplicationPort {
   getCertificateDetails: (
     laaReference: string,
     accessToken: string | undefined,
-  ) => Promise<OutboundAdapterResult<Certificate>>;
+  ) => Promise<Certificate | undefined>;
   getApplicationHistory: (
     laaReference: string,
     accessToken: string | undefined,

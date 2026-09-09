@@ -6,7 +6,7 @@ import {
 } from "#src/use-cases/common/useCaseResult.types.js";
 import { getClaimCost } from "#src/utils/claim.js";
 import { PAYABLE_CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface BuildApplicationClaimsViewInput {
   laaReference: string;

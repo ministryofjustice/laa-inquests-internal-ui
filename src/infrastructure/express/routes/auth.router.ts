@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;

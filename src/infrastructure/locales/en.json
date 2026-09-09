@@ -56,7 +56,10 @@
       "downloadClaimsBacklogLink": "Download Claims Backlog"
     },
     "error": {
-      "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
+      "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
+      "pageNotFound": "Page not found",
+      "forbidden": "Forbidden",
+      "internalServerError": "Internal Server Error"
     },
     "applicationOverview": {
       "details": {
@@ -129,7 +132,9 @@
       }
     },
     "applicationCertificate": {
-      "title": "Civil legal aid certificate"
+      "title": "Civil legal aid certificate",
+      "notFound": "The certificate for this application could not be found.",
+      "invalidRequest": "Invalid certificate request."
     },
     "claimAssessment": {
       "heading": "Assess a claim and make a decision",

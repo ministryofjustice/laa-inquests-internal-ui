@@ -37,11 +37,27 @@ NOTE: Keep internal and external logger behavior aligned.
 
 - Domain and schemas: no logs where PII-rich data is handled.
 - Inbound adapters (routes/presenters): log request milestones and user actions.
-- Use cases: log outcome events and safe state transitions.
+- Inbound adapters (routes/presenters): log semantic business success outcomes
+  after the awaited use case succeeds.
+- Use cases: do not import the concrete logger or emit logs directly.
 - Outbound adapters: log external call boundaries and durations.
 - Error middleware:
   - `route_not_found` as warn
   - `http_request_failed` as error
+
+## Error event ownership
+
+Follow the `error-handling` skill for the complete event catalogue.
+
+- Outbound adapters emit `outbound_api_call`, `outbound_api_not_found`, or
+  `outbound_api_request_failed` with operation, route template, method,
+  duration, classification, retryability, and safe status.
+- Error middleware emits one final `http_request_failed`,
+  `auth_session_expired`, or `api_forbidden` request outcome.
+- Do not duplicate the same technical exception in a use case or presenter.
+- Presenters retain semantic success events such as `history_note_added`,
+  `application_decision_granted`, `application_decision_refused`,
+  `claim_rejected`, and `public_authorities_updated`.
 
 ## Levels and defaults
 
@@ -63,6 +79,9 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 
 - Never log raw request bodies.
 - Never log full objects likely to include PII.
+- Never log tokens, authorization headers, upstream response bodies, query
+  strings, session dumps, free text, SDK account objects, or SDK errors outside
+  their owning outbound adapter.
 - Include only minimal identifiers and operational metadata in `extraContext`.
 - Keep event names `snake_case` and outcome-focused.
 

@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type {
@@ -104,11 +105,17 @@ export class ApplicationDecisionAdaptor {
     });
 
     if (prepareDecisionFormResult.status === "TECHNICAL_FAILURE") {
-      throw new Error(prepareDecisionFormResult.message);
+      throwUseCaseFailure(
+        prepareDecisionFormResult,
+        prepareDecisionFormResult.message ?? "Unable to prepare decision form",
+      );
     }
 
     if (prepareDecisionFormResult.status !== "SUCCESS") {
-      throw new Error("Unable to prepare decision form");
+      throwUseCaseFailure(
+        prepareDecisionFormResult,
+        "Unable to prepare decision form",
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
@@ -302,7 +309,8 @@ export class ApplicationDecisionAdaptor {
       });
 
     if (processCertificateStartDateResult.status === "TECHNICAL_FAILURE") {
-      throw new Error(
+      throwUseCaseFailure(
+        processCertificateStartDateResult,
         processCertificateStartDateResult.message ??
           "Unable to process certificate start date",
       );
@@ -347,7 +355,10 @@ export class ApplicationDecisionAdaptor {
     });
 
     if (prepareConfirmationViewResult.status !== "SUCCESS") {
-      throw new Error("Unable to prepare confirmation view");
+      throwUseCaseFailure(
+        prepareConfirmationViewResult,
+        "Unable to prepare confirmation view",
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- false positive on already-destructured payload
@@ -385,7 +396,10 @@ export class ApplicationDecisionAdaptor {
         sessionData,
       );
       if (grantDecisionResult.status === "TECHNICAL_FAILURE") {
-        throw new Error("Unable to submit grant decision");
+        throwUseCaseFailure(
+          grantDecisionResult,
+          "Unable to submit grant decision",
+        );
       }
     } else {
       const refuseDecisionResult = await this.#processRefuseDecision(
@@ -395,7 +409,8 @@ export class ApplicationDecisionAdaptor {
         sessionData,
       );
       if (refuseDecisionResult.status === "TECHNICAL_FAILURE") {
-        throw new Error(
+        throwUseCaseFailure(
+          refuseDecisionResult,
           refuseDecisionResult.message ?? "Unable to submit refusal decision",
         );
       }

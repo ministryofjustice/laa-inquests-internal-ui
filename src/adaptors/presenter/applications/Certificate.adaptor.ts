@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import type { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
-import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import {
@@ -42,40 +43,42 @@ export class CertificateAdaptor {
         accessToken: req.session.user?.accessToken,
       });
 
-    if (certificateViewResult.status !== "SUCCESS") {
-      logger.logError({
+    if (certificateViewResult.status === "NOT_FOUND") {
+      logger.logWarn({
         functionName: "render_certificate_page",
-        message: "Failed to build certificate view",
-        err:
-          certificateViewResult.status === "TECHNICAL_FAILURE"
-            ? (certificateViewResult.cause ?? certificateViewResult.message)
-            : undefined,
+        message: "Certificate not found",
         request: req,
         extraContext: {
-          event: "certificate_page_failed",
+          event: "certificate_not_found",
           laa_reference: laaReference,
-          result_status: certificateViewResult.status,
+          status_code: 404,
         },
       });
-
-      if (
-        certificateViewResult.status === "TECHNICAL_FAILURE" &&
-        certificateViewResult.reason ===
-          TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND
-      ) {
-        res.status(404).render("application/error", {
-          status: 404,
-          error: "The certificate for this application could not be found.",
-        });
-        return;
-      }
-
-      res.status(500).render("application/error", {
-        status: "Unable to retrieve certificate",
-        error: "Unable to retrieve certificate. Please try again later",
+      res.status(404).render("application/error", {
+        status: 404,
+        error: t("pages.applicationCertificate.notFound"),
       });
       return;
     }
+
+    if (certificateViewResult.status === "INVALID_INPUT") {
+      logger.logWarn({
+        functionName: "render_certificate_page",
+        message: "Certificate request is invalid",
+        request: req,
+        extraContext: {
+          event: "certificate_view_invalid_input",
+          laa_reference: laaReference,
+          status_code: HTTP_BAD_REQUEST,
+        },
+      });
+      res.status(HTTP_BAD_REQUEST).render("application/error", {
+        status: HTTP_BAD_REQUEST,
+        error: t("pages.applicationCertificate.invalidRequest"),
+      });
+      return;
+    }
+
     const { data } = certificateViewResult;
 
     const certificateDetails = {

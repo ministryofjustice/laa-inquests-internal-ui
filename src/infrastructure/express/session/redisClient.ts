@@ -1,6 +1,6 @@
 import { createClient, type RedisClientType } from "@redis/client";
 import config from "#src/infrastructure/config/config.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export const createRedisClient = (): RedisClientType => {
   const url =

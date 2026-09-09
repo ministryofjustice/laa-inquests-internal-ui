@@ -16,14 +16,23 @@ import {
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
-import { OUTBOUND_ADAPTER_FAILURE_REASONS } from "#src/ports/common/outboundAdapterResult.types.js";
-import type { OutboundAdapterResult } from "#src/ports/common/outboundAdapterResult.types.js";
 import {
   patchInquestsApi,
   getInquestsApi,
   postInquestsApi,
 } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
+import {
+  classifyCertificateHttpFailure,
+  GET_CERTIFICATE_METHOD,
+  GET_CERTIFICATE_OPERATION,
+  GET_CERTIFICATE_ROUTE,
+  getUpstreamStatusContext,
+} from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/certificateFailure.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -204,57 +213,131 @@ export class ApplicationAPIAdaptor {
   async getCertificateDetails(
     laaReference: string,
     accessToken: string | undefined,
-  ): Promise<OutboundAdapterResult<Certificate>> {
-    try {
-      const startedAt = Date.now();
-      const { data }: AxiosResponse<Certificate> = await getInquestsApi({
-        http: this.http,
-        baseUrl: this.baseUrl,
-        path: `/applications/${laaReference}/certificate`,
-        accessToken,
+  ): Promise<Certificate | undefined> {
+    const startedAt = Date.now();
+
+    if (typeof accessToken !== "string" || accessToken === "") {
+      logger.logError({
+        functionName: "application_api_adaptor",
+        message: "Certificate request is missing credentials",
+        extraContext: {
+          event: "outbound_api_request_failed",
+          operation: GET_CERTIFICATE_OPERATION,
+          upstream_method: GET_CERTIFICATE_METHOD,
+          upstream_route: GET_CERTIFICATE_ROUTE,
+          failure_kind: "missing_credentials",
+          retryable: false,
+          duration_ms: Date.now() - startedAt,
+          laa_reference: laaReference,
+        },
       });
+      throw new ApplicationError(
+        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        GET_CERTIFICATE_OPERATION,
+        false,
+      );
+    }
+
+    try {
+      const { data }: AxiosResponse<Certificate> = await this.http.get(
+        `${this.baseUrl}/applications/${laaReference}/certificate`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      const certificateResult = CertificateSchema.safeParse(data);
+      if (!certificateResult.success) {
+        logger.logError({
+          functionName: "application_api_adaptor",
+          message: "Certificate response validation failed",
+          extraContext: {
+            event: "outbound_api_request_failed",
+            operation: GET_CERTIFICATE_OPERATION,
+            upstream_method: GET_CERTIFICATE_METHOD,
+            upstream_route: GET_CERTIFICATE_ROUTE,
+            failure_kind: "invalid_response",
+            retryable: false,
+            duration_ms: Date.now() - startedAt,
+            laa_reference: laaReference,
+          },
+        });
+        throw new ApplicationError(
+          APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+          GET_CERTIFICATE_OPERATION,
+          false,
+        );
+      }
+
       logger.logInfo({
         functionName: "application_api_adaptor",
         message: "Certificate details retrieved upstream",
         extraContext: {
           event: "outbound_api_call",
-          route: "/applications/:id/certificate",
-          laa_reference: laaReference,
+          operation: GET_CERTIFICATE_OPERATION,
+          upstream_method: GET_CERTIFICATE_METHOD,
+          upstream_route: GET_CERTIFICATE_ROUTE,
           duration_ms: Date.now() - startedAt,
+          laa_reference: laaReference,
         },
       });
 
-      const certificate = CertificateSchema.parse(data);
+      const { data: certificate } = certificateResult;
 
       return {
-        status: "SUCCESS",
-        data: {
-          ...certificate,
-          status:
-            mapApplicationStatusForDisplay(certificate.status) ??
-            certificate.status,
-          currentProceedingStatus:
-            mapApplicationStatusForDisplay(
-              certificate.currentProceedingStatus,
-            ) ?? certificate.currentProceedingStatus,
-        },
+        ...certificate,
+        status:
+          mapApplicationStatusForDisplay(certificate.status) ??
+          certificate.status,
+        currentProceedingStatus:
+          mapApplicationStatusForDisplay(certificate.currentProceedingStatus) ??
+          certificate.currentProceedingStatus,
       };
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        return {
-          status: "FAILURE",
-          reason: OUTBOUND_ADAPTER_FAILURE_REASONS.RESOURCE_NOT_FOUND,
-          message: `Certificate not found for application ${laaReference}`,
-          cause: error,
-        };
+      if (error instanceof ApplicationError) {
+        throw error;
+      } else if (!axios.isAxiosError(error)) {
+        throw error;
       }
 
-      return {
-        status: "FAILURE",
-        reason: OUTBOUND_ADAPTER_FAILURE_REASONS.UPSTREAM_REJECTED,
-        message: `Failed to retrieve certificate for application ${laaReference}`,
-        cause: error,
-      };
+      const failure = classifyCertificateHttpFailure(error);
+      if (failure.outcome === "NOT_FOUND") {
+        logger.logWarn({
+          functionName: "application_api_adaptor",
+          message: "Certificate not found upstream",
+          extraContext: {
+            event: "outbound_api_not_found",
+            operation: GET_CERTIFICATE_OPERATION,
+            upstream_method: GET_CERTIFICATE_METHOD,
+            upstream_route: GET_CERTIFICATE_ROUTE,
+            upstream_status_code: failure.status,
+            duration_ms: Date.now() - startedAt,
+            laa_reference: laaReference,
+          },
+        });
+        return undefined;
+      }
+
+      logger.logError({
+        functionName: "application_api_adaptor",
+        message: "Certificate request failed",
+        err: error,
+        extraContext: {
+          event: "outbound_api_request_failed",
+          operation: GET_CERTIFICATE_OPERATION,
+          upstream_method: GET_CERTIFICATE_METHOD,
+          upstream_route: GET_CERTIFICATE_ROUTE,
+          ...getUpstreamStatusContext(failure.status),
+          failure_kind: failure.failureKind,
+          retryable: failure.retryable,
+          duration_ms: Date.now() - startedAt,
+          laa_reference: laaReference,
+        },
+      });
+      throw new ApplicationError(
+        failure.kind,
+        GET_CERTIFICATE_OPERATION,
+        failure.retryable,
+      );
     }
   }
 

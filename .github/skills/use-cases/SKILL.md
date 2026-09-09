@@ -25,13 +25,24 @@ To do this they:
 - Contain no infrastructure concerns (HTTP, SQL, queues, etc.) — those belong in adapters.
 - Depend only on ports (interfaces), never on concrete adapter implementations.
 - Accept and return simple value objects or domain types — not framework-specific types.
+- Return expected validation, not-found, and business outcomes as
+  use-case-specific result values.
+- Allow sanitized application exceptions from outbound ports to propagate
+  unchanged.
+- Do not import a concrete infrastructure logger or emit logging events directly.
 
 ## Anti-patterns to avoid
 
 - Putting validation logic that belongs in the domain inside a use case. (But be loose on this if the repo doesn't have a solid domain layer).
 - Directly instantiating infrastructure clients or repositories. There should be no instantiation of anything accept domain objects.
 - Handling multiple unrelated intentions in one class/function.
+- Catching a technical exception only to log, rename, wrap, or convert it to a
+  technical-failure result.
 
 ## Testing
 
 Should be tested with unit tests that mock out all of the adapters that are used, so only the use case and domain objects are real objects.
+
+For technical failures, assert that the exact application exception instance is
+propagated unchanged. For expected outcomes, assert the returned result and that
+invalid input prevents outbound calls.

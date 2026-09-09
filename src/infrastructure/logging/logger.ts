@@ -1,10 +1,11 @@
 import config from "#src/infrastructure/config/config.js";
 import type { Request } from "express";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
 import type {
   LogLevel,
   OpenSearchLog,
-} from "#src/infrastructure/express/middleware/logger/opensearchlog.types.js";
+} from "#src/infrastructure/logging/opensearchlog.types.js";
 
 export const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
 
@@ -25,6 +26,15 @@ export const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
 interface LogContext {
   requestId: string;
   correlationId: string;
+}
+
+const loggingContextStorage = new AsyncLocalStorage<LogContext>();
+
+export function runWithLoggingContext<Result>(
+  context: LogContext,
+  callback: () => Result,
+): Result {
+  return loggingContextStorage.run(context, callback);
 }
 
 type ExtraContext = Record<string, unknown>;
@@ -78,14 +88,21 @@ export function shouldLog(
 }
 
 function extractContext(request: Request | undefined): LogContext {
+  const activeContext = loggingContextStorage.getStore();
   const requestHeaders = (
     request as
       { headers?: Record<string, string | string[] | undefined> } | undefined
   )?.headers;
   const requestIdHeader = requestHeaders?.["x-request-id"];
   const correlationIdHeader = requestHeaders?.["x-correlation-id"];
-  const requestId = headerValueToString(requestIdHeader) ?? randomUUID();
-  const correlationId = headerValueToString(correlationIdHeader) ?? requestId;
+  const requestId =
+    headerValueToString(requestIdHeader) ??
+    activeContext?.requestId ??
+    randomUUID();
+  const correlationId =
+    headerValueToString(correlationIdHeader) ??
+    activeContext?.correlationId ??
+    requestId;
 
   return {
     requestId,
@@ -97,12 +114,15 @@ function headerValueToString(
   headerValue: string | string[] | undefined,
 ): string | undefined {
   if (typeof headerValue === "string") {
-    return headerValue;
+    return headerValue.trim() === "" ? undefined : headerValue;
   }
 
   if (Array.isArray(headerValue)) {
     const [firstHeaderValue] = headerValue;
-    return firstHeaderValue;
+    return typeof firstHeaderValue === "string" &&
+      firstHeaderValue.trim() !== ""
+      ? firstHeaderValue
+      : undefined;
   }
 
   return undefined;

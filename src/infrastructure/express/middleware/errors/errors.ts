@@ -1,9 +1,18 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
+  getUpstreamAuthErrorContext,
+  getUpstreamAuthFailure,
+} from "#src/infrastructure/express/middleware/errors/upstreamAuthErrors.js";
+import { UPSTREAM_AUTH_FAILURES } from "#src/ports/common/upstreamAuthError.js";
+import {
+  HTTP_FORBIDDEN,
   HTTP_INTERNAL_SERVER_ERROR,
   HTTP_NOT_FOUND,
+  HTTP_UNAUTHORIZED,
 } from "#src/infrastructure/express/constants.js";
+import { SESSION_EXPIRED_QUERY_FLAG } from "#src/infrastructure/locales/constants.js";
 
 const getRequestRoutePath = (req: Request): string => {
   const route = req.route as { path?: unknown } | undefined;
@@ -29,8 +38,51 @@ const handleRouteNotFound = (req: Request, res: Response): void => {
 
   res.status(HTTP_NOT_FOUND).render("main/error", {
     status: HTTP_NOT_FOUND,
-    message: "Page not found",
+    error: t("pages.error.pageNotFound"),
   });
+};
+
+const handleApiAuthErrors = (
+  err: unknown,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  const failure = getUpstreamAuthFailure(err);
+
+  const logAuthFailure = (event: string, statusCode: number): void => {
+    logger.logWarn({
+      functionName: "api_auth_error_middleware",
+      message: "Inquests API rejected the request",
+      request: req,
+      extraContext: {
+        event,
+        route: getRequestRoutePath(req),
+        method: req.method,
+        status_code: statusCode,
+        ...getUpstreamAuthErrorContext(err),
+      },
+    });
+  };
+
+  if (failure === UPSTREAM_AUTH_FAILURES.FORBIDDEN) {
+    logAuthFailure("api_forbidden", HTTP_FORBIDDEN);
+    res.status(HTTP_FORBIDDEN).render("main/error", {
+      status: HTTP_FORBIDDEN,
+      error: t("pages.error.forbidden"),
+    });
+  } else if (
+    failure === UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED &&
+    req.query[SESSION_EXPIRED_QUERY_FLAG] === undefined
+  ) {
+    logAuthFailure("auth_session_expired", HTTP_UNAUTHORIZED);
+    // Destroying the session is best effort; the credentials are stale either way.
+    req.session.destroy(() => {
+      res.redirect(`/auth/login?${SESSION_EXPIRED_QUERY_FLAG}=true`);
+    });
+  } else {
+    next(err);
+  }
 };
 
 const handleServerErrors = (
@@ -49,12 +101,14 @@ const handleServerErrors = (
       route: getRequestRoutePath(req),
       method: req.method,
       status_code: HTTP_INTERNAL_SERVER_ERROR,
+      ...getUpstreamAuthErrorContext(err),
     },
   });
+  res.status(HTTP_INTERNAL_SERVER_ERROR);
   res.render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
-    message: "Internal Server Error",
+    error: t("pages.error.internalServerError"),
   });
 };
 
-export { handleRouteNotFound, handleServerErrors };
+export { handleApiAuthErrors, handleRouteNotFound, handleServerErrors };

@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { throwUseCaseFailure } from "#src/adaptors/presenter/common/useCaseFailure.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
@@ -12,7 +13,7 @@ import {
   CLAIM_DECISION_STATUSES,
   DISPOSITION,
 } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import type {
   AssessClaimForm,
   AssessClaimFormErrors,
@@ -74,7 +75,10 @@ export class ClaimAssessmentAdaptor {
       });
 
     if (claimAssessmentViewResult.status !== "SUCCESS") {
-      throw new Error("Unable to build claim assessment view");
+      throwUseCaseFailure(
+        claimAssessmentViewResult,
+        "Unable to build claim assessment view",
+      );
     }
 
     res.render("application/claims/assess/index", {
@@ -136,7 +140,7 @@ export class ClaimAssessmentAdaptor {
       });
 
       if (rejectResult.status === "TECHNICAL_FAILURE") {
-        throw new Error("Unable to reject claim");
+        throwUseCaseFailure(rejectResult, "Unable to reject claim");
       }
 
       res.redirect(`/applications/${laaReference}/claims/${claimId}/rejected`);
@@ -173,7 +177,10 @@ export class ClaimAssessmentAdaptor {
       });
 
     if (claimRejectionViewResult.status !== "SUCCESS") {
-      throw new Error("Unable to build claim rejection view");
+      throwUseCaseFailure(
+        claimRejectionViewResult,
+        "Unable to build claim rejection view",
+      );
     }
 
     res.render("application/claims/rejected/index", {

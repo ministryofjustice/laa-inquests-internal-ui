@@ -8,6 +8,7 @@ import indexRouter from "#src/infrastructure/express/routes/index.js";
 import livereload from "connect-livereload";
 import config from "#src/infrastructure/config/config.js";
 import {
+  handleApiAuthErrors,
   handleRouteNotFound,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
@@ -24,7 +25,8 @@ import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsr
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { requestLoggingContext } from "#src/infrastructure/express/middleware/requestLoggingContext.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -58,6 +60,7 @@ app.set("view engine", "njk");
 
 initializeI18nextSync();
 
+app.use(requestLoggingContext);
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));
@@ -148,6 +151,7 @@ if (process.env.NODE_ENV === "production") {
 app.use("/", indexRouter);
 
 app.all("{*splat}", handleRouteNotFound);
+app.use(handleApiAuthErrors);
 app.use(handleServerErrors);
 
 if (process.env.NODE_ENV === "development") {

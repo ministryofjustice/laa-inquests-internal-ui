@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class ReportsAdaptor {
   constructor(private readonly reportsPort: ReportsPort) {}
