@@ -101,6 +101,7 @@ const handleServerErrors = (
       route: getRequestRoutePath(req),
       method: req.method,
       status_code: HTTP_INTERNAL_SERVER_ERROR,
+      ...getUpstreamAuthErrorContext(err),
     },
   });
   res.status(HTTP_INTERNAL_SERVER_ERROR);

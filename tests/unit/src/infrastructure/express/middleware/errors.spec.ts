@@ -13,6 +13,10 @@ import {
   UpstreamAuthError,
   type UpstreamAuthFailure,
 } from "#src/ports/common/upstreamAuthError.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 const buildAuthError = (failure: UpstreamAuthFailure): UpstreamAuthError =>
   new UpstreamAuthError(failure, "/applications/INQ-YYY-001", "GET");
@@ -62,6 +66,36 @@ describe("error middleware", () => {
       ]);
       assert.equal(next.callCount, 0);
     });
+
+    it("logs safe application error metadata", () => {
+      const err = new ApplicationError(
+        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        "get_certificate",
+        true,
+      );
+      const logSpy = sinon.spy(logger, "logError");
+      Object.defineProperty(req, "path", {
+        value: "/applications/123/certificate",
+      });
+      Object.defineProperty(req, "method", { value: "GET" });
+
+      handleServerErrors(
+        err,
+        req as unknown as Request,
+        res as unknown as Response,
+        next as unknown as NextFunction,
+      );
+
+      assert.deepEqual(logSpy.firstCall.args[0].extraContext, {
+        event: "http_request_failed",
+        error_kind: APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        operation: "get_certificate",
+        retryable: true,
+        route: "/applications/123/certificate",
+        method: "GET",
+        status_code: 500,
+      });
+    });
   });
 
   describe("handleApiAuthErrors", () => {
@@ -85,6 +119,24 @@ describe("error middleware", () => {
 
     it("signs the user out and redirects to the login route when unauthenticated", () => {
       callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.UNAUTHENTICATED));
+
+      assert.equal(destroy.callCount, 1);
+      assert.equal(res.redirect.callCount, 1);
+      assert.equal(
+        res.redirect.firstCall.args[0],
+        "/auth/login?sessionExpired=true",
+      );
+      assert.equal(next.callCount, 0);
+    });
+
+    it("signs the user out when an application error requires authentication", () => {
+      callMiddleware(
+        new ApplicationError(
+          APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+          "get_certificate",
+          false,
+        ),
+      );
 
       assert.equal(destroy.callCount, 1);
       assert.equal(res.redirect.callCount, 1);
@@ -127,6 +179,29 @@ describe("error middleware", () => {
 
     it("renders the forbidden page when forbidden", () => {
       callMiddleware(buildAuthError(UPSTREAM_AUTH_FAILURES.FORBIDDEN));
+
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], 403);
+      assert.deepEqual(res.render.firstCall.args, [
+        "main/error",
+        {
+          status: 403,
+          error: "Forbidden",
+        },
+      ]);
+      assert.equal(res.redirect.callCount, 0);
+      assert.equal(destroy.callCount, 0);
+      assert.equal(next.callCount, 0);
+    });
+
+    it("renders the forbidden page for a forbidden application error", () => {
+      callMiddleware(
+        new ApplicationError(
+          APPLICATION_ERROR_KINDS.FORBIDDEN,
+          "get_certificate",
+          false,
+        ),
+      );
 
       assert.equal(res.status.callCount, 1);
       assert.equal(res.status.firstCall.args[0], 403);

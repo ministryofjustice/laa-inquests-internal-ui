@@ -11,6 +11,11 @@ import {
   APPLICATION_STATUSES,
   GRANTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 const LIVE_STATUS = "LIVE";
 
@@ -358,13 +363,37 @@ describe("Test getCertificateDetails", () => {
       "access-token-123",
     );
 
-    assert.equal(result.status, "SUCCESS");
-    if (result.status === "SUCCESS") {
-      assert.deepEqual(result.data, expectedCertificate);
+    assert.deepEqual(result, expectedCertificate);
+  });
+
+  it("throws a sanitized invalid-response error when certificate data is malformed", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.resolves({
+      data: { laaReference: "123" },
+    });
+
+    let thrown: unknown;
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+      );
+      assert.equal(thrown.operation, "get_certificate");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
     }
   });
 
-  it("returns a FAILURE result with RESOURCE_NOT_FOUND when the API responds with 404", async () => {
+  it("returns undefined when the certificate does not exist", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
@@ -383,17 +412,112 @@ describe("Test getCertificateDetails", () => {
       "access-token-123",
     );
 
-    assert.equal(result.status, "FAILURE");
-    if (result.status === "FAILURE") {
-      assert.equal(result.reason, "RESOURCE_NOT_FOUND");
-      assert.equal(result.cause, notFoundError);
-    }
+    assert.equal(result, undefined);
   });
 
-  it("returns a FAILURE result with UPSTREAM_REJECTED when the API responds with a non-404 error", async () => {
+  it("logs expected certificate absence once with safe operation metadata", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const logWarnStub = sinon.stub(logger, "logWarn");
+    const notFoundError = new axios.AxiosError(
+      "Not Found",
+      "ERR_BAD_REQUEST",
+      undefined,
+      undefined,
+      { status: 404 } as any,
+    );
+    axiosGetStub.rejects(notFoundError);
+
+    await adaptor.getCertificateDetails("123", "access-token-123");
+
+    sinon.assert.calledOnce(logWarnStub);
+    assert.deepInclude(logWarnStub.firstCall.args[0], {
+      functionName: "application_api_adaptor",
+      message: "Certificate not found upstream",
+    });
+    const { extraContext } = logWarnStub.firstCall.args[0];
+    assert.isDefined(extraContext);
+    if (extraContext !== undefined) {
+      assert.deepInclude(extraContext, {
+        event: "outbound_api_not_found",
+        operation: "get_certificate",
+        upstream_method: "GET",
+        upstream_route: "/applications/:id/certificate",
+        upstream_status_code: 404,
+        laa_reference: "123",
+      });
+      assert.isNumber(extraContext.duration_ms);
+    }
+    logWarnStub.restore();
+  });
+
+  it("throws a sanitized authentication error when the API responds with 401", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const unauthorisedError = new axios.AxiosError(
+      "Unauthorised",
+      "ERR_BAD_REQUEST",
+      undefined,
+      undefined,
+      { status: 401 } as any,
+    );
+    axiosGetStub.rejects(unauthorisedError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      );
+      assert.equal(thrown.operation, "get_certificate");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("throws a sanitized forbidden error when the API responds with 403", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const forbiddenError = new axios.AxiosError(
+      "Forbidden",
+      "ERR_BAD_REQUEST",
+      undefined,
+      undefined,
+      { status: 403 } as any,
+    );
+    axiosGetStub.rejects(forbiddenError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.operation, "get_certificate");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("throws a sanitized retryable error when the API responds with 500", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
 
     const serverError = new axios.AxiosError(
       "Server Error",
@@ -404,19 +528,48 @@ describe("Test getCertificateDetails", () => {
     );
     axiosGetStub.rejects(serverError);
 
-    const result = await adaptor.getCertificateDetails(
-      "123",
-      "access-token-123",
-    );
-
-    assert.equal(result.status, "FAILURE");
-    if (result.status === "FAILURE") {
-      assert.equal(result.reason, "UPSTREAM_REJECTED");
-      assert.equal(result.cause, serverError);
+    let thrown: unknown;
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
     }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_certificate");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+
+    sinon.assert.calledOnce(logErrorStub);
+    const logInput = logErrorStub.firstCall.args[0];
+    assert.deepInclude(logInput, {
+      functionName: "application_api_adaptor",
+      message: "Certificate request failed",
+      err: serverError,
+    });
+    assert.isDefined(logInput.extraContext);
+    if (logInput.extraContext !== undefined) {
+      assert.deepInclude(logInput.extraContext, {
+        event: "outbound_api_request_failed",
+        operation: "get_certificate",
+        upstream_method: "GET",
+        upstream_route: "/applications/:id/certificate",
+        upstream_status_code: 500,
+        failure_kind: "upstream_5xx",
+        retryable: true,
+        laa_reference: "123",
+      });
+      assert.notProperty(logInput.extraContext, "authorization");
+      assert.notProperty(logInput.extraContext, "body");
+      assert.notProperty(logInput.extraContext, "response");
+    }
+    logErrorStub.restore();
   });
 
-  it("returns a FAILURE result with UPSTREAM_REJECTED when no response is received from the server", async () => {
+  it("throws a sanitized retryable error when no response is received", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
@@ -424,32 +577,44 @@ describe("Test getCertificateDetails", () => {
     const networkError = new axios.AxiosError("Network Error", "ERR_NETWORK");
     axiosGetStub.rejects(networkError);
 
-    const result = await adaptor.getCertificateDetails(
-      "123",
-      "access-token-123",
-    );
+    let thrown: unknown;
+    try {
+      await adaptor.getCertificateDetails("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
 
-    assert.equal(result.status, "FAILURE");
-    if (result.status === "FAILURE") {
-      assert.equal(result.reason, "UPSTREAM_REJECTED");
-      assert.equal(result.cause, networkError);
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_certificate");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
     }
   });
 
-  it("returns a FAILURE result with UPSTREAM_REJECTED when the access token is missing", async () => {
+  it("throws a sanitized authentication error without calling Axios when the access token is missing", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
 
-    const result = await adaptor.getCertificateDetails("123", undefined);
+    let thrown: unknown;
+    try {
+      await adaptor.getCertificateDetails("123", undefined);
+    } catch (error) {
+      thrown = error;
+    }
 
-    assert.equal(result.status, "FAILURE");
-    if (result.status === "FAILURE") {
-      assert.equal(result.reason, "UPSTREAM_REJECTED");
+    assert.equal(axiosGetStub.callCount, 0);
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
       assert.equal(
-        (result.cause as Error).message,
-        "Missing access token for Inquests API request",
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
       );
+      assert.equal(thrown.operation, "get_certificate");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
     }
   });
 });

@@ -2,7 +2,10 @@ import { strict as assert } from "assert";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
-import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import {
+  APPLICATION_ERROR_KINDS,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
 
 describe("BuildCertificateViewUseCase", () => {
   const certificateDetails = {
@@ -55,10 +58,7 @@ describe("BuildCertificateViewUseCase", () => {
 
   beforeEach(() => {
     applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.getCertificateDetails.resolves({
-      status: "SUCCESS",
-      data: certificateDetails,
-    });
+    applicationPortStub.getCertificateDetails.resolves(certificateDetails);
     useCase = new BuildCertificateViewUseCase(applicationPortStub);
   });
 
@@ -84,65 +84,54 @@ describe("BuildCertificateViewUseCase", () => {
     );
   });
 
-  it("returns TECHNICAL_FAILURE when laaReference is missing", async () => {
+  it("returns INVALID_INPUT when laaReference is missing", async () => {
     const result = await useCase.execute({
       laaReference: "",
       accessToken: "access-token-123",
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE);
+    assert.deepEqual(result, { status: "INVALID_INPUT" });
     assert.equal(applicationPortStub.getCertificateDetails.called, false);
   });
 
-  it("returns TECHNICAL_FAILURE with RESOURCE_NOT_FOUND when the certificate is not found", async () => {
-    const cause = new Error("Certificate not found for application 1");
-    applicationPortStub.getCertificateDetails.resolves({
-      status: "FAILURE",
-      reason: "RESOURCE_NOT_FOUND",
-      message: "Certificate not found for application 1",
-      cause,
-    });
+  it("returns NOT_FOUND when the certificate does not exist", async () => {
+    applicationPortStub.getCertificateDetails.resolves(undefined);
 
     const result = await useCase.execute({
       laaReference: "1",
       accessToken: "access-token-123",
     });
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.RESOURCE_NOT_FOUND);
-    assert.equal(result.cause, cause);
+    assert.deepEqual(result, { status: "NOT_FOUND" });
   });
 
-  it("returns TECHNICAL_FAILURE with UPSTREAM_REJECTED when the adaptor reports an upstream failure", async () => {
+  it("propagates unexpected port errors unchanged", async () => {
     const cause = new Error("Upstream error");
-    applicationPortStub.getCertificateDetails.resolves({
-      status: "FAILURE",
-      reason: "UPSTREAM_REJECTED",
-      cause,
-    });
+    applicationPortStub.getCertificateDetails.rejects(cause);
 
-    const result = await useCase.execute({
-      laaReference: "1",
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
-    assert.equal(result.cause, cause);
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "1",
+        accessToken: "access-token-123",
+      }),
+      (thrown: unknown) => thrown === cause,
+    );
   });
 
-  it("returns TECHNICAL_FAILURE when certificate retrieval throws", async () => {
-    const error = new Error("Get certificate details failed");
+  it("propagates application errors from the port unchanged", async () => {
+    const error = new ApplicationError(
+      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      "get_certificate",
+      true,
+    );
     applicationPortStub.getCertificateDetails.rejects(error);
 
-    const result = await useCase.execute({
-      laaReference: "1",
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED);
-    assert.equal(result.cause, error);
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "1",
+        accessToken: "access-token-123",
+      }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });

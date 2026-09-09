@@ -1,14 +1,32 @@
 import { validateGovPage } from "#tests/playwright/utils/govuk-validators.js";
 import { test, expect } from "../../fixtures/index.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import {
+  FAILED_CERTIFICATE_REFERENCE,
+  FORBIDDEN_CERTIFICATE_REFERENCE,
+  INVALID_CERTIFICATE_REFERENCE,
+  MISSING_CERTIFICATE_REFERENCE,
+  UNAUTHORISED_CERTIFICATE_REFERENCE,
+} from "#tests/playwright/factories/handlers/certificateErrors.js";
 
 const laaReference = "1";
 const certificateLocale = en.pages.applicationCertificate;
+const HTTP_FOUND = 302;
+const HTTP_FORBIDDEN = 403;
+const HTTP_NOT_FOUND = 404;
+const HTTP_INTERNAL_SERVER_ERROR = 500;
 
 const applicationOverviewUrl = `/applications/${laaReference}/overview`;
 const applicationCertificateUrl = `/applications/${laaReference}/certificate`;
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("View certificate page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/auth/test-login");
+    await page.waitForURL("/");
+  });
+
   test("back button links back to applications list", async ({
     page,
     checkAccessibility,
@@ -179,15 +197,76 @@ test.describe("View certificate page", () => {
 
   test("shows a not found page when the certificate does not exist", async ({
     page,
+    checkAccessibility,
   }) => {
-    const response = await page.goto("/applications/999/certificate");
+    const response = await page.goto(
+      `/applications/${MISSING_CERTIFICATE_REFERENCE}/certificate`,
+    );
 
-    expect(response?.status()).toBe(404);
+    expect(response?.status()).toBe(HTTP_NOT_FOUND);
     await expect(page.getByRole("heading", { name: "404" })).toBeVisible();
     await expect(
       page.getByText(
         "The certificate for this application could not be found.",
       ),
     ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
+  test("redirects to login when the certificate API returns 401", async ({
+    page,
+  }) => {
+    const response = await page.request.get(
+      `/applications/${UNAUTHORISED_CERTIFICATE_REFERENCE}/certificate`,
+      { maxRedirects: 0 },
+    );
+
+    expect(response.status()).toBe(HTTP_FOUND);
+    expect(response.headers().location).toBe("/auth/login?sessionExpired=true");
+  });
+
+  test("shows the forbidden page when the certificate API returns 403", async ({
+    page,
+  }) => {
+    const response = await page.goto(
+      `/applications/${FORBIDDEN_CERTIFICATE_REFERENCE}/certificate`,
+    );
+
+    expect(response?.status()).toBe(HTTP_FORBIDDEN);
+    await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
+    await expect(page.getByText(en.pages.error.forbidden)).toBeVisible();
+  });
+
+  test("shows the generic error page when the certificate API returns 500", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const response = await page.goto(
+      `/applications/${FAILED_CERTIFICATE_REFERENCE}/certificate`,
+    );
+
+    expect(response?.status()).toBe(HTTP_INTERNAL_SERVER_ERROR);
+    await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
+    await expect(
+      page.getByText(en.pages.error.internalServerError),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
+  test("shows the generic error page without validation details for an invalid certificate response", async ({
+    page,
+  }) => {
+    const response = await page.goto(
+      `/applications/${INVALID_CERTIFICATE_REFERENCE}/certificate`,
+    );
+
+    expect(response?.status()).toBe(HTTP_INTERNAL_SERVER_ERROR);
+    await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
+    await expect(
+      page.getByText(en.pages.error.internalServerError),
+    ).toBeVisible();
+    await expect(page.getByText(/invalid_type|ZodError/)).toHaveCount(0);
   });
 });
