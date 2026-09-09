@@ -1,10 +1,11 @@
 import { http, HttpResponse } from "msw";
 import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
-
-const HTTP_UNAUTHORIZED = 401;
-const HTTP_FORBIDDEN = 403;
-const HTTP_NOT_FOUND = 404;
-const HTTP_INTERNAL_SERVER_ERROR = 500;
+import {
+  HTTP_UNAUTHORIZED,
+  HTTP_FORBIDDEN,
+  HTTP_NOT_FOUND,
+  HTTP_INTERNAL_SERVER_ERROR,
+} from "#src/infrastructure/express/constants.js";
 
 export const FAILED_APPLICATION_REFERENCE = "INQ-OVERVIEW-500";
 export const INVALID_APPLICATION_REFERENCE = "INQ-OVERVIEW-INVALID";

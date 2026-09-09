@@ -28,17 +28,18 @@ import {
   classifyApplicationApiHttpFailure,
   getUpstreamStatusContext,
 } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/applicationApiFailure.js";
-import {
-  GET_CERTIFICATE_METHOD,
-  GET_CERTIFICATE_OPERATION,
-  GET_CERTIFICATE_ROUTE,
-} from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/certificateFailure.js";
 
 import {
   getApplication,
   getApplicationHistory,
   getCoronersLetterDocument,
 } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/applicationReadOperations.js";
+
+const GET_CERTIFICATE = {
+  operation: "get_certificate",
+  method: "GET",
+  route: "/applications/:id/certificate",
+};
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -185,9 +186,9 @@ export class ApplicationAPIAdaptor {
         message: "Certificate request is missing credentials",
         extraContext: {
           event: "outbound_api_request_failed",
-          operation: GET_CERTIFICATE_OPERATION,
-          upstream_method: GET_CERTIFICATE_METHOD,
-          upstream_route: GET_CERTIFICATE_ROUTE,
+          operation: GET_CERTIFICATE.operation,
+          upstream_method: GET_CERTIFICATE.method,
+          upstream_route: GET_CERTIFICATE.route,
           failure_kind: "missing_credentials",
           retryable: false,
           duration_ms: Date.now() - startedAt,
@@ -196,7 +197,7 @@ export class ApplicationAPIAdaptor {
       });
       throw new ApplicationError(
         APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
-        GET_CERTIFICATE_OPERATION,
+        GET_CERTIFICATE.operation,
         false,
       );
     }
@@ -215,9 +216,9 @@ export class ApplicationAPIAdaptor {
           message: "Certificate response validation failed",
           extraContext: {
             event: "outbound_api_request_failed",
-            operation: GET_CERTIFICATE_OPERATION,
-            upstream_method: GET_CERTIFICATE_METHOD,
-            upstream_route: GET_CERTIFICATE_ROUTE,
+            operation: GET_CERTIFICATE.operation,
+            upstream_method: GET_CERTIFICATE.method,
+            upstream_route: GET_CERTIFICATE.route,
             failure_kind: "invalid_response",
             retryable: false,
             duration_ms: Date.now() - startedAt,
@@ -226,7 +227,7 @@ export class ApplicationAPIAdaptor {
         });
         throw new ApplicationError(
           APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
-          GET_CERTIFICATE_OPERATION,
+          GET_CERTIFICATE.operation,
           false,
         );
       }
@@ -236,9 +237,9 @@ export class ApplicationAPIAdaptor {
         message: "Certificate details retrieved upstream",
         extraContext: {
           event: "outbound_api_call",
-          operation: GET_CERTIFICATE_OPERATION,
-          upstream_method: GET_CERTIFICATE_METHOD,
-          upstream_route: GET_CERTIFICATE_ROUTE,
+          operation: GET_CERTIFICATE.operation,
+          upstream_method: GET_CERTIFICATE.method,
+          upstream_route: GET_CERTIFICATE.route,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
         },
@@ -269,9 +270,9 @@ export class ApplicationAPIAdaptor {
           message: "Certificate not found upstream",
           extraContext: {
             event: "outbound_api_not_found",
-            operation: GET_CERTIFICATE_OPERATION,
-            upstream_method: GET_CERTIFICATE_METHOD,
-            upstream_route: GET_CERTIFICATE_ROUTE,
+            operation: GET_CERTIFICATE.operation,
+            upstream_method: GET_CERTIFICATE.method,
+            upstream_route: GET_CERTIFICATE.route,
             upstream_status_code: failure.status,
             duration_ms: Date.now() - startedAt,
             laa_reference: laaReference,
@@ -286,9 +287,9 @@ export class ApplicationAPIAdaptor {
         err: error,
         extraContext: {
           event: "outbound_api_request_failed",
-          operation: GET_CERTIFICATE_OPERATION,
-          upstream_method: GET_CERTIFICATE_METHOD,
-          upstream_route: GET_CERTIFICATE_ROUTE,
+          operation: GET_CERTIFICATE.operation,
+          upstream_method: GET_CERTIFICATE.method,
+          upstream_route: GET_CERTIFICATE.route,
           ...getUpstreamStatusContext(failure.status),
           failure_kind: failure.failureKind,
           retryable: failure.retryable,
@@ -298,7 +299,7 @@ export class ApplicationAPIAdaptor {
       });
       throw new ApplicationError(
         failure.kind,
-        GET_CERTIFICATE_OPERATION,
+        GET_CERTIFICATE.operation,
         failure.retryable,
       );
     }

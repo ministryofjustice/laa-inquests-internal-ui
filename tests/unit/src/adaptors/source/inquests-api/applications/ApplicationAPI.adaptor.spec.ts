@@ -160,7 +160,7 @@ const expectedCertificate: Certificate = {
   scopeLimitationDescription: "This is the scope description",
 };
 
-describe("Slice 2 application API credentials", () => {
+describe("Application API access token enforcement", () => {
   const operations = [
     {
       name: "get_application",
