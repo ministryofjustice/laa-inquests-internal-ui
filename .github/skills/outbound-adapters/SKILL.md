@@ -11,7 +11,9 @@ An outbound adapter implements an outbound port so that the application can inte
 
 - Implement exactly one outbound port interface.
 - Translate between the domain/use-case model and the external system's model (SQL rows, API payloads, file formats, etc.).
-- Handle infrastructure-level errors and translate them into domain-meaningful exceptions or result types.
+- Handle infrastructure-level errors according to the `error-handling` skill:
+  expected absence is a value and unexpected technical failure is a sanitized
+  application exception.
 
 ## Rules
 
@@ -20,12 +22,17 @@ An outbound adapter implements an outbound port so that the application can inte
 - Contain no domain logic.
 - Own the mapping between domain types and external representations. External types MUST NOT escape this layer (e.g. database models)
 - Keep all infrastructure-specific concerns (ORMs, HTTP clients, SDK calls) inside this layer.
+- Log raw infrastructure failures once before translation, using only safe
+  metadata defined by the `error-handling` and logging skills.
+- Never attach an SDK/client error to an application exception or result through
+  `cause` or another property.
 
 ## Anti-patterns to avoid
 
 - Leaking ORM entities, HTTP response models, or SDK types into use cases or the domain.
 - A single adapter implementing concerns from multiple external systems.
 - Performing business decisions inside an adapter. In particular validation of business concerns.
+- Returning `cause?: unknown` from a port or allowing an SDK error to escape.
 
 ## Testing
 
@@ -35,3 +42,6 @@ Should be tested with:
   - mock out the external system
   - use a live external system
   - use some sort of replacement stand in for the external system
+
+For failure behavior, also test the translation matrix in the `error-handling`
+skill, including redaction and exactly one outbound failure log.

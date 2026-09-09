@@ -39,12 +39,24 @@ This project uses **Ports and Adaptors (Hexagonal Architecture)**:
 
 - **Ports** (`src/ports/`) — TypeScript interfaces only. No implementation.
 - **Source Adaptors** (`src/adaptors/source/`) — implement ports, contain Axios HTTP logic.
-- **Presenter Adaptors** (`src/adaptors/presenters/`) — handle request/response, render views, delegate to validators and source adaptors.
+- **Presenter Adaptors** (`src/adaptors/presenters/`) — handle request/response, render views, and delegate to validators and use cases. Existing direct source-adaptor calls are legacy and must not be copied.
 - **Validators** (`[Feature].validator.ts`) — extend `FormValidator`, validation logic only.
 - **Routes** (`src/infrastructure/express/routes/`) — route bindings only, no business logic, use `createXRouter` factory pattern.
 - **Views** (`src/views/`) — Nunjucks templates, logic-free.
 
 Wire all dependencies manually in `src/infrastructure/express/routes/index.ts`. Do not use a DI framework.
+
+### Error handling
+
+- Follow the `error-handling` skill for every error-path change.
+- Expected outcomes use typed values; technical failures use sanitized
+  application exceptions.
+- External client errors never escape outbound adaptors, including through
+  `cause`.
+- Presenters do not render generic 500 responses; Express error middleware owns
+  fallback responses.
+- Do not import infrastructure loggers into use cases.
+- Existing hybrid error handling is migration work, not a pattern to copy.
 
 ### Adding a new API operation
 
@@ -62,7 +74,7 @@ Use Axios injected via the constructor. Never instantiate Axios inside an adapto
 - Always use the `#src/` path alias. Always include `.js` extensions in imports. Use `import type` for type-only imports.
 - All user-facing strings in `src/infrastructure/locales/en.json`. Never hardcode UI copy in TypeScript.
 - Magic numbers and strings → `src/infrastructure/locales/constants.ts`.
-- No `console.log` in production code. Use the logger middleware.
+- No `console.log` in production code. Use the infrastructure logger.
 - Validation errors must render the form with `errorSummaries` — never throw.
 - Always handle rejected promises explicitly.
 - Templates contain **no** business logic. Use GOV.UK Frontend macros for all standard components.
