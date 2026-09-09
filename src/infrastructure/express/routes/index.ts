@@ -53,6 +53,7 @@ import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applicati
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
+import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -95,6 +96,9 @@ const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase();
 const buildCertificateViewUseCase = new BuildCertificateViewUseCase(
   viewApplicationAdaptor,
 );
+const getCoronersLetterDocumentUseCase = new GetCoronersLetterDocumentUseCase(
+  viewApplicationAdaptor,
+);
 const applicationDisplayAdaptor = new ApplicationAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
@@ -104,6 +108,7 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
   undefined,
   new AddHistoryNoteUseCase(),
   new AddHistoryNoteValidator(),
+  getCoronersLetterDocumentUseCase,
 );
 const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   viewApplicationAdaptor,

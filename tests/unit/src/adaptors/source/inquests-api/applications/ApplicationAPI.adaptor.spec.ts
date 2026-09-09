@@ -160,6 +160,52 @@ const expectedCertificate: Certificate = {
   scopeLimitationDescription: "This is the scope description",
 };
 
+describe("Slice 2 application API credentials", () => {
+  const operations = [
+    {
+      name: "get_application",
+      execute: (adaptor: ApplicationAPIAdaptor) =>
+        adaptor.getApplication("123", undefined),
+    },
+    {
+      name: "get_application_history",
+      execute: (adaptor: ApplicationAPIAdaptor) =>
+        adaptor.getApplicationHistory("123", undefined),
+    },
+    {
+      name: "get_coroners_letter",
+      execute: (adaptor: ApplicationAPIAdaptor) =>
+        adaptor.getCoronersLetterDocument("123", undefined),
+    },
+  ];
+
+  for (const operation of operations) {
+    it(`throws before Axios when ${operation.name} has no access token`, async () => {
+      const fakeAxios = { get: axiosGetStub } as any;
+      const adaptor = new ApplicationAPIAdaptor(fakeAxios, "https://localhost");
+      let thrown: unknown;
+
+      try {
+        await operation.execute(adaptor);
+      } catch (error) {
+        thrown = error;
+      }
+
+      assert.equal(axiosGetStub.callCount, 0);
+      assert.instanceOf(thrown, ApplicationError);
+      if (thrown instanceof ApplicationError) {
+        assert.equal(
+          thrown.kind,
+          APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        );
+        assert.equal(thrown.operation, operation.name);
+        assert.equal(thrown.retryable, false);
+        assert.equal(thrown.cause, undefined);
+      }
+    });
+  }
+});
+
 describe("Test Application API Adaptor", () => {
   it("Test get All Applications calls axios", async () => {
     const baseUrl = "https://localhost";
@@ -234,6 +280,126 @@ describe("Test Application API Adaptor", () => {
     assert.deepEqual(expectedApplication, application);
   });
 
+  it("throws a sanitized retryable error when application retrieval returns 500", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const serverError = new axios.AxiosError(
+      "Server Error",
+      "ERR_BAD_RESPONSE",
+      undefined,
+      undefined,
+      { status: 500 } as any,
+    );
+    axiosGetStub.rejects(serverError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplication("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_application");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("throws a sanitized invalid-response error without logging success for malformed application data", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const logInfoStub = sinon.stub(logger, "logInfo");
+    axiosGetStub.resolves({ data: { laaReference: "123" } });
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplication("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+      );
+      assert.equal(thrown.operation, "get_application");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.notCalled(logInfoStub);
+    logInfoStub.restore();
+  });
+
+  it("throws a sanitized authentication error when application retrieval returns 401", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Unauthorised",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 401 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplication("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      );
+      assert.equal(thrown.operation, "get_application");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("throws a sanitized forbidden error when application retrieval returns 403", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Forbidden",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 403 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplication("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.operation, "get_application");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
   it("accepts null provider firmName without throwing", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
@@ -300,6 +466,10 @@ describe("Test getCoronersLetterDocument", () => {
       "access-token-123",
     );
 
+    assert.isDefined(result);
+    if (result === undefined) {
+      return;
+    }
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "image/jpeg");
   });
@@ -320,8 +490,142 @@ describe("Test getCoronersLetterDocument", () => {
       "access-token-123",
     );
 
+    assert.isDefined(result);
+    if (result === undefined) {
+      return;
+    }
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "application/octet-stream");
+  });
+
+  it("returns undefined when the coroner letter does not exist", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Not Found",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 404 } as any,
+      ),
+    );
+
+    const result = await adaptor.getCoronersLetterDocument(
+      "123",
+      "access-token-123",
+    );
+
+    assert.equal(result, undefined);
+  });
+
+  it("throws a sanitized authentication error when coroner letter retrieval returns 401", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Unauthorised",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 401 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.getCoronersLetterDocument("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      );
+      assert.equal(thrown.operation, "get_coroners_letter");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("throws a sanitized forbidden error when coroner letter retrieval returns 403", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Forbidden",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 403 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.getCoronersLetterDocument("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.operation, "get_coroners_letter");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("logs once and throws a sanitized retryable error when coroner letter retrieval returns 500", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    const serverError = new axios.AxiosError(
+      "Server Error",
+      "ERR_BAD_RESPONSE",
+      undefined,
+      undefined,
+      { status: 500 } as any,
+    );
+    axiosGetStub.rejects(serverError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getCoronersLetterDocument("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_coroners_letter");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    const logInput = logErrorStub.firstCall.args[0];
+    assert.deepInclude(logInput.extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "get_coroners_letter",
+      upstream_method: "GET",
+      upstream_route: "/applications/:id/coroners-letter",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+      laa_reference: "123",
+    });
+    assert.notProperty(logInput.extraContext, "body");
+    assert.notProperty(logInput.extraContext, "response");
+    logErrorStub.restore();
   });
 });
 
@@ -616,6 +920,144 @@ describe("Test getCertificateDetails", () => {
       assert.equal(thrown.retryable, false);
       assert.equal(thrown.cause, undefined);
     }
+  });
+});
+
+describe("Test getApplicationHistory", () => {
+  it("throws a sanitized authentication error when history retrieval returns 401", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Unauthorised",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 401 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplicationHistory("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      );
+      assert.equal(thrown.operation, "get_application_history");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("throws a sanitized forbidden error when history retrieval returns 403", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Forbidden",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 403 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplicationHistory("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.operation, "get_application_history");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
+  it("logs once and throws a sanitized retryable error when history retrieval returns 500", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    const serverError = new axios.AxiosError(
+      "Server Error",
+      "ERR_BAD_RESPONSE",
+      undefined,
+      undefined,
+      { status: 500 } as any,
+    );
+    axiosGetStub.rejects(serverError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplicationHistory("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "get_application_history");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    const logInput = logErrorStub.firstCall.args[0];
+    assert.deepInclude(logInput.extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "get_application_history",
+      upstream_method: "GET",
+      upstream_route: "/applications/:id/history",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+      laa_reference: "123",
+    });
+    assert.notProperty(logInput.extraContext, "body");
+    assert.notProperty(logInput.extraContext, "response");
+    logErrorStub.restore();
+  });
+
+  it("throws a sanitized invalid-response error without logging history success", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const logInfoStub = sinon.stub(logger, "logInfo");
+    axiosGetStub.resolves({ data: [{ timestamp: "2026-09-09" }] });
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplicationHistory("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.kind,
+        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+      );
+      assert.equal(thrown.operation, "get_application_history");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.notCalled(logInfoStub);
+    logInfoStub.restore();
   });
 });
 

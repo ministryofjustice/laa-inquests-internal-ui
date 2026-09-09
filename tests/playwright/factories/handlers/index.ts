@@ -9,6 +9,7 @@
 
 import { http, HttpResponse } from "msw";
 import { applicationHandlers } from "#tests/playwright/factories/handlers/applications.js";
+import { applicationOverviewErrorHandlers } from "#tests/playwright/factories/handlers/applicationOverviewErrors.js";
 import { authErrorHandlers } from "#tests/playwright/factories/handlers/authErrors.js";
 import { certificateErrorHandlers } from "#tests/playwright/factories/handlers/certificateErrors.js";
 
@@ -26,6 +27,7 @@ export const handlers = [
   // these specific references would otherwise be caught by /applications/:id.
   ...authErrorHandlers,
   ...certificateErrorHandlers,
+  ...applicationOverviewErrorHandlers,
   ...applicationHandlers,
 
   // Health check endpoint for testing

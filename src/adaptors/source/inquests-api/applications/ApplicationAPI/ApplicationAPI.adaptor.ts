@@ -8,10 +8,8 @@ import type {
   RefusalReason,
 } from "../../../../models/application.types.js";
 import {
-  ApplicationSchema,
   ApplicationSummarySchema,
   CertificateSchema,
-  HistoryEventSchema,
   PublicBodySchema,
 } from "../../../../models/application.schema.js";
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
@@ -27,12 +25,20 @@ import {
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import {
-  classifyCertificateHttpFailure,
+  classifyApplicationApiHttpFailure,
+  getUpstreamStatusContext,
+} from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/applicationApiFailure.js";
+import {
   GET_CERTIFICATE_METHOD,
   GET_CERTIFICATE_OPERATION,
   GET_CERTIFICATE_ROUTE,
-  getUpstreamStatusContext,
 } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/certificateFailure.js";
+
+import {
+  getApplication,
+  getApplicationHistory,
+  getCoronersLetterDocument,
+} from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/applicationReadOperations.js";
 
 export class ApplicationAPIAdaptor {
   constructor(
@@ -82,31 +88,12 @@ export class ApplicationAPIAdaptor {
     laaReference: string,
     accessToken: string | undefined,
   ): Promise<Application> {
-    const startedAt = Date.now();
-    const { data }: AxiosResponse<Application> = await getInquestsApi({
+    return await getApplication({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${laaReference}`,
+      laaReference,
       accessToken,
     });
-    logger.logInfo({
-      functionName: "application_api_adaptor",
-      message: "Application retrieved upstream",
-      extraContext: {
-        event: "outbound_api_call",
-        route: "/applications/:id",
-        laa_reference: laaReference,
-        duration_ms: Date.now() - startedAt,
-      },
-    });
-    const application = ApplicationSchema.parse(data);
-
-    return {
-      ...application,
-      status:
-        mapApplicationStatusForDisplay(application.status) ??
-        application.status,
-    };
   }
 
   async submitRefuseDecision(
@@ -177,37 +164,13 @@ export class ApplicationAPIAdaptor {
   async getCoronersLetterDocument(
     laaReference: string,
     accessToken: string | undefined,
-  ): Promise<{ data: Buffer; contentType: string }> {
-    const startedAt = Date.now();
-    const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
+  ): Promise<{ data: Buffer; contentType: string } | undefined> {
+    return await getCoronersLetterDocument({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${laaReference}/coroners-letter`,
+      laaReference,
       accessToken,
-      axiosConfig: { responseType: "arraybuffer" },
     });
-    logger.logInfo({
-      functionName: "application_api_adaptor",
-      message: "Coroner letter document retrieved upstream",
-      extraContext: {
-        event: "outbound_api_call",
-        route: "/applications/:id/coroners-letter",
-        laa_reference: laaReference,
-        duration_ms: Date.now() - startedAt,
-      },
-    });
-
-    const { headers, data } = response;
-    const { "content-type": contentType } = headers;
-    const contentTypeString =
-      typeof contentType === "string"
-        ? contentType
-        : "application/octet-stream";
-
-    return {
-      data: Buffer.from(data),
-      contentType: contentTypeString,
-    };
   }
 
   async getCertificateDetails(
@@ -299,7 +262,7 @@ export class ApplicationAPIAdaptor {
         throw error;
       }
 
-      const failure = classifyCertificateHttpFailure(error);
+      const failure = classifyApplicationApiHttpFailure(error);
       if (failure.outcome === "NOT_FOUND") {
         logger.logWarn({
           functionName: "application_api_adaptor",
@@ -345,25 +308,12 @@ export class ApplicationAPIAdaptor {
     laaReference: string,
     accessToken: string | undefined,
   ): Promise<HistoryEvent[]> {
-    const startedAt = Date.now();
-    const { data }: AxiosResponse<HistoryEvent[]> = await getInquestsApi({
+    return await getApplicationHistory({
       http: this.http,
       baseUrl: this.baseUrl,
-      path: `/applications/${laaReference}/history`,
+      laaReference,
       accessToken,
     });
-    logger.logInfo({
-      functionName: "application_api_adaptor",
-      message: "Application history retrieved upstream",
-      extraContext: {
-        event: "outbound_api_call",
-        route: "/applications/:id/history",
-        laa_reference: laaReference,
-        duration_ms: Date.now() - startedAt,
-      },
-    });
-
-    return data.map((event) => HistoryEventSchema.parse(event));
   }
 
   async getPublicBodies(
