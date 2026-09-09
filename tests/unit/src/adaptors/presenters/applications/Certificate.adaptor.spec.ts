@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 import sinon from "sinon";
 import { stubInterface, StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";

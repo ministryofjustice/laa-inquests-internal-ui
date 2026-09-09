@@ -7,6 +7,7 @@ import {
 const HTTP_OK = 200;
 const HTTP_FOUND = 302;
 const HTTP_FORBIDDEN = 403;
+const HTTP_INTERNAL_SERVER_ERROR = 500;
 const VALID_APPLICATION_REFERENCE = "INQ-YYY-001";
 
 const overviewPath = (laaReference: string): string =>
@@ -64,6 +65,7 @@ test.describe("API auth errors", () => {
       { maxRedirects: 0 },
     );
 
+    expect(response.status()).toBe(HTTP_INTERNAL_SERVER_ERROR);
     expect(response.headers().location).toBeUndefined();
     expect(await response.text()).toContain("Internal Server Error");
   });

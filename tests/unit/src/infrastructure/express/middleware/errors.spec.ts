@@ -6,7 +6,7 @@ import {
   handleApiAuthErrors,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
   UPSTREAM_AUTH_FAILURES,
@@ -49,6 +49,9 @@ describe("error middleware", () => {
       );
 
       assert.equal(logSpy.callCount, 1);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], 500);
+      assert.equal(res.status.calledBefore(res.render), true);
       assert.equal(res.render.callCount, 1);
       assert.deepEqual(res.render.firstCall.args, [
         "main/error",

@@ -5,10 +5,11 @@ import { stubInterface } from "ts-sinon";
 import config from "#src/infrastructure/config/config.js";
 import {
   getConfiguredLogLevel,
+  runWithLoggingContext,
   shouldLog,
   validLogLevel,
   Logger,
-} from "#src/infrastructure/express/middleware/logger/logger.js";
+} from "#src/infrastructure/logging/logger.js";
 
 const now = new Date("2026-08-17T12:20:24.744Z");
 
@@ -148,6 +149,70 @@ describe("logger output", () => {
     const output = JSON.parse(rawOutput) as Record<string, unknown>;
     assert.equal(output.request_id, "req-123");
     assert.equal(output.correlation_id, "req-123");
+  });
+
+  it("uses the active logging context when no request is provided", () => {
+    const subject = new Logger("debug");
+
+    config.app.environment = "prod";
+    runWithLoggingContext(
+      { requestId: "req-context", correlationId: "cor-context" },
+      () => {
+        subject.logInfo({
+          functionName: "test-function",
+          message: "this is a message",
+        });
+      },
+    );
+
+    const [rawOutput] = logSpy.firstCall.args as [string];
+    const output = JSON.parse(rawOutput) as Record<string, unknown>;
+    assert.equal(output.request_id, "req-context");
+    assert.equal(output.correlation_id, "cor-context");
+  });
+
+  it("isolates logging context between concurrent asynchronous operations", async () => {
+    const subject = new Logger("debug");
+    config.app.environment = "prod";
+
+    await Promise.all([
+      runWithLoggingContext(
+        { requestId: "req-first", correlationId: "cor-first" },
+        async () => {
+          await Promise.resolve();
+          subject.logInfo({
+            functionName: "test-function",
+            message: "first operation",
+          });
+        },
+      ),
+      runWithLoggingContext(
+        { requestId: "req-second", correlationId: "cor-second" },
+        async () => {
+          await Promise.resolve();
+          subject.logInfo({
+            functionName: "test-function",
+            message: "second operation",
+          });
+        },
+      ),
+    ]);
+
+    const outputs = logSpy.getCalls().map((call) => {
+      const [rawOutput] = call.args as [string];
+      return JSON.parse(rawOutput) as Record<string, unknown>;
+    });
+    const firstOutput = outputs.find(
+      (output) => output.message === "first operation",
+    );
+    const secondOutput = outputs.find(
+      (output) => output.message === "second operation",
+    );
+
+    assert.equal(firstOutput?.request_id, "req-first");
+    assert.equal(firstOutput?.correlation_id, "cor-first");
+    assert.equal(secondOutput?.request_id, "req-second");
+    assert.equal(secondOutput?.correlation_id, "cor-second");
   });
 
   it("suppresses logs below the configured threshold", () => {
