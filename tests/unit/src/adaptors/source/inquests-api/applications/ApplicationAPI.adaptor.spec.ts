@@ -3,7 +3,7 @@ import axios from "axios";
 import { assert } from "chai";
 import { ApplicationAPIAdaptor } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/ApplicationAPI.adaptor.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import type {
@@ -195,8 +195,8 @@ describe("Application API access token enforcement", () => {
       assert.instanceOf(thrown, ApplicationError);
       if (thrown instanceof ApplicationError) {
         assert.equal(
-          thrown.kind,
-          APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+          thrown.type,
+          APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
         );
         assert.equal(thrown.operation, operation.name);
         assert.equal(thrown.retryable, false);
@@ -302,7 +302,7 @@ describe("Test Application API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_application");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -326,8 +326,8 @@ describe("Test Application API Adaptor", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
       );
       assert.equal(thrown.operation, "get_application");
       assert.equal(thrown.retryable, false);
@@ -361,8 +361,8 @@ describe("Test Application API Adaptor", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       );
       assert.equal(thrown.operation, "get_application");
       assert.equal(thrown.retryable, false);
@@ -393,7 +393,7 @@ describe("Test Application API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.FORBIDDEN);
       assert.equal(thrown.operation, "get_application");
       assert.equal(thrown.retryable, false);
       assert.equal(thrown.cause, undefined);
@@ -544,8 +544,8 @@ describe("Test getCoronersLetterDocument", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       );
       assert.equal(thrown.operation, "get_coroners_letter");
       assert.equal(thrown.retryable, false);
@@ -576,7 +576,7 @@ describe("Test getCoronersLetterDocument", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.FORBIDDEN);
       assert.equal(thrown.operation, "get_coroners_letter");
       assert.equal(thrown.retryable, false);
       assert.equal(thrown.cause, undefined);
@@ -606,7 +606,7 @@ describe("Test getCoronersLetterDocument", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_coroners_letter");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -619,7 +619,7 @@ describe("Test getCoronersLetterDocument", () => {
       upstream_method: "GET",
       upstream_route: "/applications/:id/coroners-letter",
       upstream_status_code: 500,
-      failure_kind: "upstream_5xx",
+      failure_reason: "upstream_5xx",
       retryable: true,
       laa_reference: "123",
     });
@@ -688,8 +688,8 @@ describe("Test getCertificateDetails", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
       );
       assert.equal(thrown.operation, "get_certificate");
       assert.equal(thrown.retryable, false);
@@ -779,8 +779,8 @@ describe("Test getCertificateDetails", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       );
       assert.equal(thrown.operation, "get_certificate");
       assert.equal(thrown.retryable, false);
@@ -810,7 +810,7 @@ describe("Test getCertificateDetails", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.FORBIDDEN);
       assert.equal(thrown.operation, "get_certificate");
       assert.equal(thrown.retryable, false);
       assert.equal(thrown.cause, undefined);
@@ -841,7 +841,7 @@ describe("Test getCertificateDetails", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_certificate");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -862,7 +862,7 @@ describe("Test getCertificateDetails", () => {
         upstream_method: "GET",
         upstream_route: "/applications/:id/certificate",
         upstream_status_code: 500,
-        failure_kind: "upstream_5xx",
+        failure_reason: "upstream_5xx",
         retryable: true,
         laa_reference: "123",
       });
@@ -890,7 +890,7 @@ describe("Test getCertificateDetails", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_certificate");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -913,8 +913,8 @@ describe("Test getCertificateDetails", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       );
       assert.equal(thrown.operation, "get_certificate");
       assert.equal(thrown.retryable, false);
@@ -948,8 +948,8 @@ describe("Test getApplicationHistory", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       );
       assert.equal(thrown.operation, "get_application_history");
       assert.equal(thrown.retryable, false);
@@ -980,7 +980,7 @@ describe("Test getApplicationHistory", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.FORBIDDEN);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.FORBIDDEN);
       assert.equal(thrown.operation, "get_application_history");
       assert.equal(thrown.retryable, false);
       assert.equal(thrown.cause, undefined);
@@ -1010,7 +1010,7 @@ describe("Test getApplicationHistory", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_application_history");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -1023,7 +1023,7 @@ describe("Test getApplicationHistory", () => {
       upstream_method: "GET",
       upstream_route: "/applications/:id/history",
       upstream_status_code: 500,
-      failure_kind: "upstream_5xx",
+      failure_reason: "upstream_5xx",
       retryable: true,
       laa_reference: "123",
     });
@@ -1049,8 +1049,8 @@ describe("Test getApplicationHistory", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
       );
       assert.equal(thrown.operation, "get_application_history");
       assert.equal(thrown.retryable, false);
@@ -1193,8 +1193,8 @@ describe("addHistoryNote", () => {
     } catch (error) {
       assert.instanceOf(error, ApplicationError);
       assert.equal(
-        (error as ApplicationError).kind,
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        (error as ApplicationError).type,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       );
       assert.equal(
         (error as ApplicationError).operation,

@@ -3,7 +3,7 @@ import { stubInterface } from "ts-sinon";
 import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -73,7 +73,7 @@ describe("BuildApplicationHistoryViewUseCase", () => {
   it("propagates application errors from the port unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const apiError = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "get_application_history",
       true,
     );

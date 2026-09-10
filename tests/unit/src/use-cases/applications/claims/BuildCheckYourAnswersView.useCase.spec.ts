@@ -4,7 +4,7 @@ import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -76,7 +76,7 @@ describe("BuildCheckYourAnswersViewUseCase", () => {
   it("propagates application errors unchanged", async () => {
     const claimsPort = stubInterface<ClaimsPort>();
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "get_claim",
       true,
     );

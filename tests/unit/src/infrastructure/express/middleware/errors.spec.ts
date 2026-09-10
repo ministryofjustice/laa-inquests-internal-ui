@@ -9,7 +9,7 @@ import {
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -18,8 +18,8 @@ const buildAuthError = (
 ): ApplicationError =>
   new ApplicationError(
     failure === "UNAUTHENTICATED"
-      ? APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED
-      : APPLICATION_ERROR_KINDS.FORBIDDEN,
+      ? APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED
+      : APPLICATION_ERROR_TYPES.FORBIDDEN,
     "get_application",
     false,
   );
@@ -72,7 +72,7 @@ describe("error middleware", () => {
 
     it("logs safe application error metadata", () => {
       const err = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_certificate",
         true,
       );
@@ -91,7 +91,7 @@ describe("error middleware", () => {
 
       assert.deepEqual(logSpy.firstCall.args[0].extraContext, {
         event: "http_request_failed",
-        error_kind: APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        error_type: APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         operation: "get_certificate",
         retryable: true,
         route: "/applications/123/certificate",
@@ -135,7 +135,7 @@ describe("error middleware", () => {
     it("signs the user out when an application error requires authentication", () => {
       callMiddleware(
         new ApplicationError(
-          APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+          APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
           "get_certificate",
           false,
         ),
@@ -200,7 +200,7 @@ describe("error middleware", () => {
     it("renders the forbidden page for a forbidden application error", () => {
       callMiddleware(
         new ApplicationError(
-          APPLICATION_ERROR_KINDS.FORBIDDEN,
+          APPLICATION_ERROR_TYPES.FORBIDDEN,
           "get_certificate",
           false,
         ),

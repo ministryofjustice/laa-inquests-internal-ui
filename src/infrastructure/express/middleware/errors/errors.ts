@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import {
@@ -47,7 +47,7 @@ const handleApiAuthErrors = (
   res: Response,
   next: NextFunction,
 ): void => {
-  const failure = err instanceof ApplicationError ? err.kind : undefined;
+  const failure = err instanceof ApplicationError ? err.type : undefined;
 
   const logAuthFailure = (event: string, statusCode: number): void => {
     logger.logWarn({
@@ -61,7 +61,7 @@ const handleApiAuthErrors = (
         status_code: statusCode,
         ...(err instanceof ApplicationError
           ? {
-              error_kind: err.kind,
+              error_type: err.type,
               operation: err.operation,
               retryable: err.retryable,
             }
@@ -70,14 +70,14 @@ const handleApiAuthErrors = (
     });
   };
 
-  if (failure === APPLICATION_ERROR_KINDS.FORBIDDEN) {
+  if (failure === APPLICATION_ERROR_TYPES.FORBIDDEN) {
     logAuthFailure("api_forbidden", HTTP_FORBIDDEN);
     res.status(HTTP_FORBIDDEN).render("main/error", {
       status: HTTP_FORBIDDEN,
       error: t("pages.error.forbidden"),
     });
   } else if (
-    failure === APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED &&
+    failure === APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED &&
     req.query[SESSION_EXPIRED_QUERY_FLAG] === undefined
   ) {
     logAuthFailure("auth_session_expired", HTTP_UNAUTHORIZED);
@@ -108,7 +108,7 @@ const handleServerErrors = (
       status_code: HTTP_INTERNAL_SERVER_ERROR,
       ...(err instanceof ApplicationError
         ? {
-            error_kind: err.kind,
+            error_type: err.type,
             operation: err.operation,
             retryable: err.retryable,
           }
