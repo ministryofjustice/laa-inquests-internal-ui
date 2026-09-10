@@ -3,7 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { PayInFullClaimUseCase } from "#src/use-cases/applications/claims/PayInFullClaim.useCase.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -45,7 +45,7 @@ describe("PayInFullClaimUseCase", () => {
   it("propagates application errors unchanged", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "pay_in_full_claim",
       true,
     );

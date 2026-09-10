@@ -169,7 +169,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     const startedAt = Date.now();
     if (typeof accessToken !== "string" || accessToken === "") {
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
         PAY_IN_FULL_CLAIM_OPERATION,
         false,
       );
@@ -197,7 +197,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       if (!axios.isAxiosError(error)) {
         if (error instanceof Error) throw error;
         throw new ApplicationError(
-          APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+          APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
           PAY_IN_FULL_CLAIM_OPERATION,
           false,
         );
@@ -206,7 +206,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       const failure =
         classified.outcome === "NOT_FOUND"
           ? {
-              kind: APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+              type: APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
               failureKind: "upstream_4xx",
               retryable: false,
               status: classified.status,
@@ -222,7 +222,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           upstream_method: "PATCH",
           upstream_route: PAY_IN_FULL_CLAIM_ROUTE,
           ...getClaimsUpstreamStatusContext(failure.status),
-          failure_kind: failure.failureKind,
+          failure_kind: "upstream_5xx",
           retryable: failure.retryable,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
@@ -230,7 +230,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
         },
       });
       throw new ApplicationError(
-        failure.kind,
+        failure.type,
         PAY_IN_FULL_CLAIM_OPERATION,
         failure.retryable,
       );

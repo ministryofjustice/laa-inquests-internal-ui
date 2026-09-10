@@ -551,8 +551,8 @@ describe("Test Claims API Adaptor", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       );
       assert.equal(thrown.operation, "pay_in_full_claim");
     }
@@ -587,7 +587,7 @@ describe("Test Claims API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "pay_in_full_claim");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);

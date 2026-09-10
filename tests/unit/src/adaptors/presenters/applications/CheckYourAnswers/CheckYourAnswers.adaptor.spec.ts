@@ -145,7 +145,7 @@ describe("CheckYourAnswersAdaptor", () => {
   it("propagates application errors from the pay in full submission", async () => {
     const processRequest = buildProcessRequest();
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "pay_in_full_claim",
       true,
     );
