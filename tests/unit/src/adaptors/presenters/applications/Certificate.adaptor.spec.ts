@@ -8,7 +8,7 @@ import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certifi
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
 import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -285,7 +285,7 @@ describe("CertificateAdaptor", () => {
 
     it("propagates application errors without rendering or duplicate logging", async () => {
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_certificate",
         true,
       );

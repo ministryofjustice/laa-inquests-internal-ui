@@ -50,21 +50,21 @@ describe("ProcessCertificateStartDateUseCase", () => {
     });
   });
 
-  it("returns TECHNICAL_FAILURE when validate throws", () => {
-    const result = useCase.execute({
-      option: "another-date",
-      day: "1",
-      month: "1",
-      year: "2020",
-      validate: () => {
-        throw new Error("unexpected error");
-      },
-    });
+  it("propagates validation errors unchanged", () => {
+    const error = new Error("unexpected error");
 
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    if (result.status === "TECHNICAL_FAILURE") {
-      assert.equal(result.reason, "UNEXPECTED_EXCEPTION");
-      assert.ok(result.cause instanceof Error);
-    }
+    assert.throws(
+      () =>
+        useCase.execute({
+          option: "another-date",
+          day: "1",
+          month: "1",
+          year: "2020",
+          validate: () => {
+            throw error;
+          },
+        }),
+      (thrown: unknown) => thrown === error,
+    );
   });
 });

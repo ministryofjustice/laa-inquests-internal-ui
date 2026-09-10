@@ -3,7 +3,6 @@ import type { ApplicationPort } from "#src/ports/inquests-api/applications/Appli
 
 interface BuildApplicationOverviewViewInput {
   laaReference: string;
-  applicationPort: ApplicationPort;
   accessToken?: string;
 }
 
@@ -16,6 +15,8 @@ export type BuildApplicationOverviewViewResult =
   | { status: "INVALID_INPUT" };
 
 export class BuildApplicationOverviewViewUseCase {
+  constructor(private readonly applicationPort: ApplicationPort) {}
+
   async execute(
     input: BuildApplicationOverviewViewInput,
   ): Promise<BuildApplicationOverviewViewResult> {
@@ -23,7 +24,7 @@ export class BuildApplicationOverviewViewUseCase {
       return { status: "INVALID_INPUT" };
     }
 
-    const application = await input.applicationPort.getApplication(
+    const application = await this.applicationPort.getApplication(
       input.laaReference,
       input.accessToken,
     );

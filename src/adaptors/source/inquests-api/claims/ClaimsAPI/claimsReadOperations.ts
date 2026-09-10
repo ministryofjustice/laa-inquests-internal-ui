@@ -10,7 +10,7 @@ import {
 } from "#src/adaptors/models/claim.schema.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import {
@@ -60,14 +60,14 @@ function requireAccessToken(
       operation: metadata.operation,
       upstream_method: "GET",
       upstream_route: metadata.route,
-      failure_kind: "missing_credentials",
+      failure_reason: "missing_credentials",
       retryable: false,
       duration_ms: Date.now() - startedAt,
       ...identifiers,
     },
   });
   throw new ApplicationError(
-    APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+    APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
     metadata.operation,
     false,
   );
@@ -83,7 +83,7 @@ function throwClaimsFailure(
   if (!axios.isAxiosError(error)) {
     if (error instanceof Error) throw error;
     throw new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+      APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
       metadata.operation,
       false,
     );
@@ -93,8 +93,8 @@ function throwClaimsFailure(
     classified.outcome === "NOT_FOUND"
       ? {
           outcome: "ERROR",
-          kind: APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
-          failureKind: "upstream_4xx",
+          type: APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
+          failureReason: "upstream_4xx",
           retryable: false,
           status: classified.status,
         }
@@ -109,14 +109,14 @@ function throwClaimsFailure(
       upstream_method: "GET",
       upstream_route: metadata.route,
       ...getClaimsUpstreamStatusContext(failure.status),
-      failure_kind: failure.failureKind,
+      failure_reason: failure.failureReason,
       retryable: failure.retryable,
       duration_ms: Date.now() - startedAt,
       ...identifiers,
     },
   });
   throw new ApplicationError(
-    failure.kind,
+    failure.type,
     metadata.operation,
     failure.retryable,
   );
@@ -152,14 +152,14 @@ export async function getClaims(
           operation: GET_CLAIMS.operation,
           upstream_method: "GET",
           upstream_route: GET_CLAIMS.route,
-          failure_kind: "invalid_response",
+          failure_reason: "invalid_response",
           retryable: false,
           duration_ms: Date.now() - startedAt,
           ...identifiers,
         },
       });
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
         GET_CLAIMS.operation,
         false,
       );
@@ -212,14 +212,14 @@ export async function getClaimById(
           operation: GET_CLAIM.operation,
           upstream_method: "GET",
           upstream_route: GET_CLAIM.route,
-          failure_kind: "invalid_response",
+          failure_reason: "invalid_response",
           retryable: false,
           duration_ms: Date.now() - startedAt,
           ...identifiers,
         },
       });
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
         GET_CLAIM.operation,
         false,
       );

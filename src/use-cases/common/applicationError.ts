@@ -1,4 +1,4 @@
-export const APPLICATION_ERROR_KINDS = {
+export const APPLICATION_ERROR_TYPES = {
   AUTHENTICATION_REQUIRED: "AUTHENTICATION_REQUIRED",
   FORBIDDEN: "FORBIDDEN",
   UPSTREAM_UNAVAILABLE: "UPSTREAM_UNAVAILABLE",
@@ -6,12 +6,12 @@ export const APPLICATION_ERROR_KINDS = {
   INVALID_UPSTREAM_RESPONSE: "INVALID_UPSTREAM_RESPONSE",
 } as const;
 
-export type ApplicationErrorKind =
-  (typeof APPLICATION_ERROR_KINDS)[keyof typeof APPLICATION_ERROR_KINDS];
+export type ApplicationErrorType =
+  (typeof APPLICATION_ERROR_TYPES)[keyof typeof APPLICATION_ERROR_TYPES];
 
 export class ApplicationError extends Error {
   constructor(
-    readonly kind: ApplicationErrorKind,
+    readonly type: ApplicationErrorType,
     readonly operation: string,
     readonly retryable: boolean,
   ) {

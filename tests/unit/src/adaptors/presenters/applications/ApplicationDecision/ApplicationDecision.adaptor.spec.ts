@@ -716,14 +716,13 @@ describe("ApplicationDecisionAdaptor", () => {
       ]);
     });
 
-    it("throws and does not save the certificate start date to session on TECHNICAL_FAILURE", () => {
+    it("propagates certificate validation errors without saving session data", () => {
+      const error = new Error("Unable to validate certificate start date");
       const failedUseCase = {
         processCertificateStartDateUseCase: {
-          execute: () => ({
-            status: "TECHNICAL_FAILURE",
-            reason: "INVALID_INPUT_STATE",
-            message: "Unable to validate certificate start date",
-          }),
+          execute: () => {
+            throw error;
+          },
         } as unknown as ProcessCertificateStartDateUseCase,
       };
 
@@ -747,7 +746,7 @@ describe("ApplicationDecisionAdaptor", () => {
             >,
             responseStub,
           ),
-        /Unable to process certificate start date/,
+        (thrown: unknown) => thrown === error,
       );
 
       assert.equal(sessionHelperStub.storeSessionData.callCount, 0);

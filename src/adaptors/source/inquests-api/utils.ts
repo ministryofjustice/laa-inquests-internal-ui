@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -16,7 +16,7 @@ export function translateInquestsApiError(
 
   if (!axios.isAxiosError(error)) {
     return new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       operation,
       true,
     );
@@ -25,25 +25,25 @@ export function translateInquestsApiError(
   const status = error.response?.status;
   if (status === 401) {
     return new ApplicationError(
-      APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       operation,
       false,
     );
   } else if (status === 403) {
     return new ApplicationError(
-      APPLICATION_ERROR_KINDS.FORBIDDEN,
+      APPLICATION_ERROR_TYPES.FORBIDDEN,
       operation,
       false,
     );
   } else if (status !== undefined && status >= 500) {
     return new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       operation,
       true,
     );
   } else {
     return new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+      APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
       operation,
       false,
     );
@@ -91,7 +91,7 @@ export async function patchInquestsApi<TResponse, TBody>(
       },
     });
     throw new ApplicationError(
-      APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       path,
       false,
     );
@@ -136,7 +136,7 @@ export async function getInquestsApi<TResponse>(
       },
     });
     throw new ApplicationError(
-      APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       path,
       false,
     );
@@ -182,7 +182,7 @@ export async function postInquestsApi<TResponse, TBody>(
       },
     });
     throw new ApplicationError(
-      APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
       path,
       false,
     );

@@ -7,7 +7,7 @@ import type {
   ClaimSummary,
 } from "#src/adaptors/models/claim.types.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -165,7 +165,7 @@ describe("Test Claims API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_claims");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -177,7 +177,7 @@ describe("Test Claims API Adaptor", () => {
       upstream_method: "GET",
       upstream_route: "/applications/:id/claims",
       upstream_status_code: 500,
-      failure_kind: "upstream_5xx",
+      failure_reason: "upstream_5xx",
       retryable: true,
     });
     logErrorStub.restore();
@@ -247,7 +247,7 @@ describe("Test Claims API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_claim");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -259,7 +259,7 @@ describe("Test Claims API Adaptor", () => {
       upstream_method: "GET",
       upstream_route: "/applications/:id/claims/:id",
       upstream_status_code: 500,
-      failure_kind: "upstream_5xx",
+      failure_reason: "upstream_5xx",
       retryable: true,
       laa_reference: "123",
       claim_reference: "10",
@@ -286,8 +286,8 @@ describe("Test Claims API Adaptor", () => {
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
       assert.equal(
-        thrown.kind,
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        thrown.type,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
       );
       assert.equal(thrown.operation, "get_claim");
       assert.equal(thrown.retryable, false);
@@ -413,7 +413,7 @@ describe("Test Claims API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "get_claim_evidence");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -425,7 +425,7 @@ describe("Test Claims API Adaptor", () => {
       upstream_method: "GET",
       upstream_route: "/claims/:id",
       upstream_status_code: 500,
-      failure_kind: "upstream_5xx",
+      failure_reason: "upstream_5xx",
       retryable: true,
     });
     logErrorStub.restore();
@@ -491,7 +491,7 @@ describe("Test Claims API Adaptor", () => {
 
     assert.instanceOf(thrown, ApplicationError);
     if (thrown instanceof ApplicationError) {
-      assert.equal(thrown.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
       assert.equal(thrown.operation, "reject_claim");
       assert.equal(thrown.retryable, true);
       assert.equal(thrown.cause, undefined);
@@ -503,7 +503,7 @@ describe("Test Claims API Adaptor", () => {
       upstream_method: "PATCH",
       upstream_route: "/applications/:id/claims/:id/reject",
       upstream_status_code: 500,
-      failure_kind: "upstream_5xx",
+      failure_reason: "upstream_5xx",
       retryable: true,
     });
     logErrorStub.restore();

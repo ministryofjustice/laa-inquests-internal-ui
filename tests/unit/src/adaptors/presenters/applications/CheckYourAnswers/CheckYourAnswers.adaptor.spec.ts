@@ -5,7 +5,7 @@ import { CheckYourAnswersAdaptor } from "#src/adaptors/presenter/applications/Ch
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -38,7 +38,7 @@ describe("CheckYourAnswersAdaptor", () => {
 
   it("propagates application errors without rendering", async () => {
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "get_claim",
       true,
     );

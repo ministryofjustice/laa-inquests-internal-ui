@@ -12,9 +12,8 @@ import {
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
-import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
@@ -594,7 +593,7 @@ describe("Application adaptor", () => {
     it("propagates claims retrieval errors without rendering or duplicate logging", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_claims",
         true,
       );
@@ -708,7 +707,7 @@ describe("Application adaptor", () => {
       const getCoronersLetterDocumentUseCase =
         stubInterface<GetCoronersLetterDocumentUseCase>();
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_coroners_letter",
         true,
       );
@@ -1102,7 +1101,7 @@ describe("Application adaptor", () => {
     it("propagates history retrieval errors without rendering or duplicate logging", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_application_history",
         true,
       );
@@ -1234,8 +1233,8 @@ describe("Application adaptor", () => {
       it("re-renders with save error and retained text when use case fails", async () => {
         requestStub.body = { "note-text": "A valid note" };
         addHistoryNoteUseCaseStub.execute.resolves({
-          status: "TECHNICAL_FAILURE",
-          reason: TECHNICAL_FAILURE_REASONS.UPSTREAM_REJECTED,
+          status: "INVALID_INPUT",
+          message: "Unable to save note",
         });
 
         await applicationAdaptor.submitHistoryNote(

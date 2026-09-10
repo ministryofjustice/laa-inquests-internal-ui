@@ -12,7 +12,7 @@ import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/C
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import type { AssessClaimForm } from "#src/adaptors/presenter/models/form.types.js";
@@ -261,7 +261,7 @@ describe("ClaimAssessmentAdaptor", () => {
         },
       });
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "reject_claim",
         true,
       );
@@ -336,7 +336,7 @@ describe("ClaimAssessmentAdaptor", () => {
 
     it("propagates errors when the claim rejection view cannot be built", async () => {
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_claim",
         true,
       );
@@ -432,7 +432,7 @@ describe("ClaimAssessmentAdaptor", () => {
     it("propagates evidence errors without rendering or duplicate logging", async () => {
       const logErrorStub = sinon.stub(logger, "logError");
       const error = new ApplicationError(
-        APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
         "get_claim_evidence",
         true,
       );
