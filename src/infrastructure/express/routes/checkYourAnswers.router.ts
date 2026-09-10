@@ -45,5 +45,27 @@ export function createCheckYourAnswersRouter(
     },
   );
 
+  checkYourAnswersRouter.get(
+    "/:laaReference/claims/:claimId/paid-in-full",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      const {
+        params: { laaReference, claimId },
+      } = req;
+      const laaReferenceParam = laaReference as string;
+      const claimIdParam = claimId as string;
+
+      try {
+        await checkYourAnswersAdaptor.renderClaimPaidInFullSuccessPage(
+          req,
+          res,
+          laaReferenceParam,
+          claimIdParam,
+        );
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return checkYourAnswersRouter;
 }
