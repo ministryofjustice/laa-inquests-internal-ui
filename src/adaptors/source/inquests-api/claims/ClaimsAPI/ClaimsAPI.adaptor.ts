@@ -99,7 +99,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     }
     try {
       await this.http.patch(
-        `${this.baseUrl}/applications/${laaReference}/claims/${claimId}/reject`,
+        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}/reject`,
         { justification },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -176,7 +176,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     }
     try {
       await this.http.patch(
-        `${this.baseUrl}/applications/${laaReference}/claims/${claimId}/pay-in-full`,
+        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}/pay-in-full`,
         data,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
