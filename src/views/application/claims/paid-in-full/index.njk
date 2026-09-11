@@ -1,0 +1,25 @@
+{% extends "base.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set pageTitle = t('pages.claimAssessment.paidInFullSuccess.panel', { claimType: claimType }) %}
+
+{% block content %}
+  {{ govukPanel({
+    titleText: t('pages.claimAssessment.paidInFullSuccess.panel', { claimType: claimType })
+  }) }}
+
+  <h2 class="govuk-heading-s govuk-!-padding-top-6">{{ t('pages.claimAssessment.paidInFullSuccess.whatHappensNext') }}</h2>
+  <p class="govuk-body">{{ t('pages.claimAssessment.paidInFullSuccess.whatHappensNextBody') }}</p>
+
+  {{ govukWarningText({
+    text: t('pages.claimAssessment.paidInFullSuccess.warning'),
+    iconFallbackText: "Warning"
+  }) }}
+
+  {{ govukButton({
+    text: t('pages.claimAssessment.paidInFullSuccess.goToApplicationButton'),
+    href: "/applications/" + laaReference + "/overview"
+  }) }}
+{% endblock %}

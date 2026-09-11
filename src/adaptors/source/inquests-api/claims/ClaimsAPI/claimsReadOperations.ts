@@ -136,7 +136,7 @@ export async function getClaims(
   );
   try {
     const { data }: AxiosResponse<ClaimSummary[]> = await http.get(
-      `${baseUrl}/applications/${laaReference}/claims`,
+      `${baseUrl}/applications/${encodeURIComponent(laaReference)}/claims`,
       {
         params: { assessed },
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -199,7 +199,7 @@ export async function getClaimById(
   );
   try {
     const { data }: AxiosResponse<ClaimDetail> = await http.get(
-      `${baseUrl}/applications/${laaReference}/claims/${claimId}`,
+      `${baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     const result = ClaimDetailSchema.safeParse(data);
@@ -280,7 +280,7 @@ export async function getClaimEvidence(
   );
   try {
     const response: AxiosResponse<ArrayBuffer> = await http.get(
-      `${baseUrl}/claims/${claimEvidenceId}`,
+      `${baseUrl}/claims/${encodeURIComponent(claimEvidenceId)}`,
       {
         params: { disposition },
         responseType: "arraybuffer",

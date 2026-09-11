@@ -61,6 +61,8 @@ import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications
 import { GetPublicBodiesUseCase } from "#src/use-cases/applications/publicAuthority/GetPublicBodies.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
+import { PayInFullClaimUseCase } from "#src/use-cases/applications/claims/PayInFullClaim.useCase.js";
+import { BuildClaimPaidInFullViewUseCase } from "#src/use-cases/applications/claims/BuildClaimPaidInFullView.useCase.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 
 const router = express.Router();
@@ -147,6 +149,8 @@ const confirmDisbursementCostsAdaptor = new ConfirmDisbursementCostsAdaptor(
 const checkYourAnswersAdaptor = new CheckYourAnswersAdaptor(
   new SessionHelper(),
   new BuildCheckYourAnswersViewUseCase(claimsAdaptor),
+  new PayInFullClaimUseCase(claimsAdaptor),
+  new BuildClaimPaidInFullViewUseCase(claimsAdaptor),
 );
 const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),

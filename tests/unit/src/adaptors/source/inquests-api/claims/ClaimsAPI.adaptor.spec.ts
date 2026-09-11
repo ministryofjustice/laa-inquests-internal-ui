@@ -508,4 +508,102 @@ describe("Test Claims API Adaptor", () => {
     });
     logErrorStub.restore();
   });
+
+  it("calls axios with the pay in full endpoint, cost body and token", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logInfoStub = sinon.stub(logger, "logInfo");
+
+    axiosPatchStub.resolves({ data: undefined });
+
+    await adaptor.payInFullClaim(
+      "123",
+      "10",
+      { profitCostNet: 1000, disbursementNet: 100 },
+      "access-token-123",
+    );
+
+    assert.isTrue(axiosPatchStub.calledOnce);
+    const [url, body, config] = axiosPatchStub.getCall(0).args;
+    assert.equal(url, `${baseUrl}/applications/123/claims/10/pay-in-full`);
+    assert.deepEqual(body, { profitCostNet: 1000, disbursementNet: 100 });
+    assert.equal(config?.headers?.Authorization, "Bearer access-token-123");
+    sinon.assert.calledOnce(logInfoStub);
+    logInfoStub.restore();
+  });
+
+  it("throws when paying a claim in full without an access token", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    let thrown: unknown;
+    try {
+      await adaptor.payInFullClaim(
+        "123",
+        "10",
+        { profitCostNet: 1000 },
+        undefined,
+      );
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+      );
+      assert.equal(thrown.operation, "pay_in_full_claim");
+    }
+    assert.isFalse(axiosPatchStub.called);
+  });
+
+  it("logs once and throws a sanitized retryable error when paying a claim in full returns 500", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosPatchStub.rejects(
+      new axios.AxiosError(
+        "Server Error",
+        "ERR_BAD_RESPONSE",
+        undefined,
+        undefined,
+        { status: 500 } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.payInFullClaim(
+        "123",
+        "10",
+        { profitCostNet: 1000 },
+        "access-token-123",
+      );
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
+      assert.equal(thrown.operation, "pay_in_full_claim");
+      assert.equal(thrown.retryable, true);
+      assert.equal(thrown.cause, undefined);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    assert.deepInclude(logErrorStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_request_failed",
+      operation: "pay_in_full_claim",
+      upstream_method: "PATCH",
+      upstream_route: "/applications/:id/claims/:id/pay-in-full",
+      upstream_status_code: 500,
+      failure_kind: "upstream_5xx",
+      retryable: true,
+    });
+    assert.notProperty(logErrorStub.firstCall.args[0].extraContext, "body");
+    assert.notProperty(logErrorStub.firstCall.args[0].extraContext, "response");
+    logErrorStub.restore();
+  });
 });

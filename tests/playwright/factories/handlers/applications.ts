@@ -578,6 +578,11 @@ export const applicationHandlers = [
     () => new HttpResponse(null, { status: 204 }),
   ),
 
+  http.patch(
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId/pay-in-full`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/reports/applications/backlog`,
     () => {
