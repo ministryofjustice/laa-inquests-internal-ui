@@ -1,4 +1,4 @@
-import axios, { type AxiosStatic } from "axios";
+import axios, { type AxiosStatic, type AxiosError } from "axios";
 import type {
   ClaimDetail,
   ClaimSummary,
@@ -6,6 +6,7 @@ import type {
 import type {
   ClaimsPort,
   PayInFullClaimData,
+  PayInFullClaimResult,
 } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -22,11 +23,25 @@ import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
+import { PayInFullValidationErrorSchema } from "#src/adaptors/models/payInFullError.schema.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 
 const REJECT_CLAIM_OPERATION = "reject_claim";
 const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:id/reject";
 const PAY_IN_FULL_CLAIM_OPERATION = "pay_in_full_claim";
 const PAY_IN_FULL_CLAIM_ROUTE = "/applications/:id/claims/:id/pay-in-full";
+
+function extractPayInFullValidationErrorCode(
+  error: AxiosError,
+): string | undefined {
+  if (error.response?.status !== HTTP_BAD_REQUEST) {
+    return undefined;
+  }
+  const validation = PayInFullValidationErrorSchema.safeParse(
+    error.response.data,
+  );
+  return validation.success ? validation.data.detail.errorCode : undefined;
+}
 
 export class ClaimsAPIAdaptor implements ClaimsPort {
   constructor(
@@ -165,7 +180,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     claimId: string,
     data: PayInFullClaimData,
     accessToken: string | undefined,
-  ): Promise<void> {
+  ): Promise<PayInFullClaimResult> {
     const startedAt = Date.now();
     if (typeof accessToken !== "string" || accessToken === "") {
       throw new ApplicationError(
@@ -193,6 +208,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           duration_ms: Date.now() - startedAt,
         },
       });
+      return { status: "SUCCESS" };
     } catch (error) {
       if (!axios.isAxiosError(error)) {
         if (error instanceof Error) throw error;
@@ -201,6 +217,10 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           PAY_IN_FULL_CLAIM_OPERATION,
           false,
         );
+      }
+      const validationErrorCode = extractPayInFullValidationErrorCode(error);
+      if (validationErrorCode !== undefined) {
+        return { status: "VALIDATION_ERROR", errorCode: validationErrorCode };
       }
       const classified = classifyClaimsApiHttpFailure(error);
       const failure =

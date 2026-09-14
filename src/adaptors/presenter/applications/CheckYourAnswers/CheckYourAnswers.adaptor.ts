@@ -17,6 +17,32 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const SESSION_NAMESPACE = "claimApproval";
 
+/* eslint-disable @typescript-eslint/prefer-destructuring -- deeply nested constant */
+const {
+  confirmProfitCosts: { validationErrors: profitCostErrors },
+  confirmDisbursementCosts: { validationErrors: disbursementCostErrors },
+} = en.pages.claimAssessment;
+/* eslint-enable @typescript-eslint/prefer-destructuring */
+
+const PAY_IN_FULL_ERROR_MESSAGE_BY_CODE: Record<string, string> = {
+  MISSING_TOTAL_CLAIM_COST: profitCostErrors.totalRequired,
+  PROFIT_COST_MIXED_VAT: profitCostErrors.vatConflict,
+  MISSING_GROSS_TOTAL_WHEN_NET_ENTERED: profitCostErrors.grossMissing,
+  MISSING_NET_TOTAL_WHEN_GROSS_ENTERED: profitCostErrors.netMissing,
+  NET_TOTAL_HIGHER_THAN_GROSS_TOTAL: profitCostErrors.grossLessThanNet,
+  MISSING_DISBURSEMENT_TOTAL: disbursementCostErrors.totalRequired,
+  MISSING_DISBURSEMENT_GROSS_WHEN_NET_ENTERED:
+    disbursementCostErrors.grossMissing,
+  MISSING_DISBURSEMENT_NET_WHEN_GROSS_ENTERED:
+    disbursementCostErrors.netMissing,
+  DISBURSEMENT_GROSS_NOT_GREATER_THAN_TOTAL:
+    disbursementCostErrors.grossLessThanNet,
+};
+
+const resolvePayInFullErrorMessage = (errorCode: string): string =>
+  PAY_IN_FULL_ERROR_MESSAGE_BY_CODE[errorCode] ??
+  en.pages.claimAssessment.checkYourAnswers.submissionError;
+
 export class CheckYourAnswersAdaptor {
   constructor(
     private readonly sessionHelper: SessionHelper,
@@ -42,6 +68,16 @@ export class CheckYourAnswersAdaptor {
       },
     });
 
+    await this.#renderCheckYourAnswersView(req, res, laaReference, claimId);
+  }
+
+  async #renderCheckYourAnswersView(
+    req: Request,
+    res: Response,
+    laaReference: string,
+    claimId: string,
+    errorSummaries?: { payInFull: { text: string } },
+  ): Promise<void> {
     const sessionData = this.sessionHelper.getSessionData(
       req,
       SESSION_NAMESPACE,
@@ -51,16 +87,7 @@ export class CheckYourAnswersAdaptor {
       laaReference,
       claimId,
       accessToken: req.session.user?.accessToken,
-      profitCosts: {
-        netTotal: sessionData?.netTotal,
-        grossTotal: sessionData?.grossTotal,
-        zeroVatTotal: sessionData?.zeroVatTotal,
-      },
-      disbursementCosts: {
-        netTotal: sessionData?.disbursementNetTotal,
-        grossTotal: sessionData?.disbursementGrossTotal,
-        zeroVatTotal: sessionData?.disbursementZeroVatTotal,
-      },
+      ...this.#buildCostsFromSession(sessionData),
     });
 
     if (result.status === "INVALID_INPUT") {
@@ -80,7 +107,34 @@ export class CheckYourAnswersAdaptor {
     res.render("application/claims/check-your-answers/index", {
       backUrl: `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,
       ...result.data,
+      ...(errorSummaries === undefined ? {} : { errorSummaries }),
     });
+  }
+
+  #buildCostsFromSession(sessionData: Record<string, string> | null): {
+    profitCosts: {
+      netTotal?: string;
+      grossTotal?: string;
+      zeroVatTotal?: string;
+    };
+    disbursementCosts: {
+      netTotal?: string;
+      grossTotal?: string;
+      zeroVatTotal?: string;
+    };
+  } {
+    return {
+      profitCosts: {
+        netTotal: sessionData?.netTotal,
+        grossTotal: sessionData?.grossTotal,
+        zeroVatTotal: sessionData?.zeroVatTotal,
+      },
+      disbursementCosts: {
+        netTotal: sessionData?.disbursementNetTotal,
+        grossTotal: sessionData?.disbursementGrossTotal,
+        zeroVatTotal: sessionData?.disbursementZeroVatTotal,
+      },
+    };
   }
 
   async processFinishAssessingClaim(
@@ -121,6 +175,17 @@ export class CheckYourAnswersAdaptor {
         status: HTTP_BAD_REQUEST,
         error: en.pages.claimAssessment.checkYourAnswers.invalidRequest,
       });
+      return;
+    }
+
+    if (result.status === "VALIDATION_ERROR") {
+      await this.#renderCheckYourAnswersView(
+        req as unknown as Request,
+        res,
+        laaReference,
+        claimId,
+        { payInFull: { text: resolvePayInFullErrorMessage(result.errorCode) } },
+      );
       return;
     }
 

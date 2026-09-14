@@ -262,6 +262,7 @@
       },
       "checkYourAnswers": {
         "invalidRequest": "Invalid check your answers request.",
+        "submissionError": "The claim could not be submitted. Check the claim details and try again.",
         "heading": "Check your answers",
         "claimDetailsCardTitle": "Claim details",
         "finalBillTitle": "Final bill",

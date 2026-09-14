@@ -15,17 +15,26 @@ export class PayInFullClaimUseCase {
 
   async execute(
     input: PayInFullClaimInput,
-  ): Promise<{ status: "SUCCESS" } | { status: "INVALID_INPUT" }> {
+  ): Promise<
+    | { status: "SUCCESS" }
+    | { status: "INVALID_INPUT" }
+    | { status: "VALIDATION_ERROR"; errorCode: string }
+  > {
     if (!input.laaReference || !input.claimId) {
       return { status: "INVALID_INPUT" };
     }
 
-    await this.claimsPort.payInFullClaim(
+    const result = await this.claimsPort.payInFullClaim(
       input.laaReference,
       input.claimId,
       input.data,
       input.accessToken,
     );
+
+    if (result.status === "VALIDATION_ERROR") {
+      return { status: "VALIDATION_ERROR", errorCode: result.errorCode };
+    }
+
     return { status: "SUCCESS" };
   }
 }

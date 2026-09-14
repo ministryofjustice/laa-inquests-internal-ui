@@ -13,6 +13,9 @@ export interface PayInFullClaimData {
   disbursementVatZero?: number;
 }
 
+export type PayInFullClaimResult =
+  { status: "SUCCESS" } | { status: "VALIDATION_ERROR"; errorCode: string };
+
 export interface ClaimsPort {
   getClaims: (
     laaReference: string,
@@ -47,5 +50,5 @@ export interface ClaimsPort {
     claimId: string,
     data: PayInFullClaimData,
     accessToken: string | undefined,
-  ) => Promise<void>;
+  ) => Promise<PayInFullClaimResult>;
 }
