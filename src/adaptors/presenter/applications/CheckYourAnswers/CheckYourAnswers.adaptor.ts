@@ -68,10 +68,10 @@ export class CheckYourAnswersAdaptor {
       },
     });
 
-    await this.#renderCheckYourAnswers(req, res, laaReference, claimId);
+    await this.#renderCheckYourAnswersView(req, res, laaReference, claimId);
   }
 
-  async #renderCheckYourAnswers(
+  async #renderCheckYourAnswersView(
     req: Request,
     res: Response,
     laaReference: string,
@@ -179,7 +179,7 @@ export class CheckYourAnswersAdaptor {
     }
 
     if (result.status === "VALIDATION_ERROR") {
-      await this.#renderCheckYourAnswers(
+      await this.#renderCheckYourAnswersView(
         req as unknown as Request,
         res,
         laaReference,
