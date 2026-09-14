@@ -23,7 +23,7 @@ describe("PayInFullClaimUseCase", () => {
 
   it("returns SUCCESS after paying the claim in full with the cost data", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
-    claimsPortStub.payInFullClaim.resolves();
+    claimsPortStub.payInFullClaim.resolves({ status: "SUCCESS" });
 
     const result = await new PayInFullClaimUseCase(claimsPortStub).execute({
       laaReference: "123",
@@ -40,6 +40,26 @@ describe("PayInFullClaimUseCase", () => {
       { profitCostNet: 1000, disbursementNet: 100 },
       "access-token-123",
     ]);
+  });
+
+  it("propagates a VALIDATION_ERROR outcome with its error code", async () => {
+    const claimsPortStub = stubInterface<ClaimsPort>();
+    claimsPortStub.payInFullClaim.resolves({
+      status: "VALIDATION_ERROR",
+      errorCode: "PROFIT_COST_MIXED_VAT",
+    });
+
+    const result = await new PayInFullClaimUseCase(claimsPortStub).execute({
+      laaReference: "123",
+      claimId: "10",
+      data: { profitCostNet: 1000 },
+      accessToken: "access-token-123",
+    });
+
+    assert.deepEqual(result, {
+      status: "VALIDATION_ERROR",
+      errorCode: "PROFIT_COST_MIXED_VAT",
+    });
   });
 
   it("propagates application errors unchanged", async () => {

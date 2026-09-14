@@ -532,6 +532,111 @@ describe("Test Claims API Adaptor", () => {
     logInfoStub.restore();
   });
 
+  it("returns SUCCESS when paying a claim in full succeeds", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logInfoStub = sinon.stub(logger, "logInfo");
+
+    axiosPatchStub.resolves({ data: undefined });
+
+    const result = await adaptor.payInFullClaim(
+      "123",
+      "10",
+      { profitCostNet: 1000 },
+      "access-token-123",
+    );
+
+    assert.deepEqual(result, { status: "SUCCESS" });
+    logInfoStub.restore();
+  });
+
+  it("returns a VALIDATION_ERROR outcome and does not throw when pay in full returns a 400 validation body", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logWarnStub = sinon.stub(logger, "logWarn");
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosPatchStub.rejects(
+      new axios.AxiosError(
+        "Bad Request",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        {
+          status: 400,
+          data: {
+            detail: {
+              errorCode: "PROFIT_COST_MIXED_VAT",
+              message:
+                "You cannot submit a total profit cost claim with both 0% and 20% VAT",
+            },
+          },
+        } as any,
+      ),
+    );
+
+    const result = await adaptor.payInFullClaim(
+      "123",
+      "10",
+      { profitCostNet: 1000 },
+      "access-token-123",
+    );
+
+    assert.deepEqual(result, {
+      status: "VALIDATION_ERROR",
+      errorCode: "PROFIT_COST_MIXED_VAT",
+    });
+    sinon.assert.notCalled(logErrorStub);
+    sinon.assert.calledOnce(logWarnStub);
+    assert.deepInclude(logWarnStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_validation_rejected",
+      operation: "pay_in_full_claim",
+      upstream_status_code: 400,
+    });
+    assert.notProperty(logWarnStub.firstCall.args[0].extraContext, "message");
+    assert.notProperty(logWarnStub.firstCall.args[0].extraContext, "response");
+    logWarnStub.restore();
+    logErrorStub.restore();
+  });
+
+  it("throws a sanitized error when pay in full returns a 400 without a recognisable validation body", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosPatchStub.rejects(
+      new axios.AxiosError(
+        "Bad Request",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        {
+          status: 400,
+          data: { unexpected: "shape" },
+        } as any,
+      ),
+    );
+
+    let thrown: unknown;
+    try {
+      await adaptor.payInFullClaim(
+        "123",
+        "10",
+        { profitCostNet: 1000 },
+        "access-token-123",
+      );
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(thrown.type, APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED);
+      assert.equal(thrown.operation, "pay_in_full_claim");
+      assert.equal(thrown.retryable, false);
+    }
+    sinon.assert.calledOnce(logErrorStub);
+    logErrorStub.restore();
+  });
+
   it("throws when paying a claim in full without an access token", async () => {
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);

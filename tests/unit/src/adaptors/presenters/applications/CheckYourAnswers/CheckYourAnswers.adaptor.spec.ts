@@ -142,6 +142,50 @@ describe("CheckYourAnswersAdaptor", () => {
     assert.equal(response.redirect.callCount, 0);
   });
 
+  it("re-renders check your answers with the mapped message and no redirect on a validation error", async () => {
+    const processRequest = buildProcessRequest();
+    payInFullClaimUseCase.execute.resolves({
+      status: "VALIDATION_ERROR",
+      errorCode: "PROFIT_COST_MIXED_VAT",
+    });
+    useCase.execute.resolves({ status: "SUCCESS", data: {} as never });
+
+    await adaptor.processFinishAssessingClaim(processRequest, response);
+
+    const [view, locals] = response.render.firstCall.args as unknown as [
+      string,
+      { errorSummaries: { payInFull: { text: string } } },
+    ];
+    assert.equal(view, "application/claims/check-your-answers/index");
+    assert.equal(
+      locals.errorSummaries.payInFull.text,
+      "You cannot submit a total profit cost claim with both 0% and 20% VAT",
+    );
+    assert.equal(response.redirect.callCount, 0);
+  });
+
+  it("re-renders check your answers with the generic message for an unmapped error code", async () => {
+    const processRequest = buildProcessRequest();
+    payInFullClaimUseCase.execute.resolves({
+      status: "VALIDATION_ERROR",
+      errorCode: "SOME_UNMAPPED_ERROR_CODE",
+    });
+    useCase.execute.resolves({ status: "SUCCESS", data: {} as never });
+
+    await adaptor.processFinishAssessingClaim(processRequest, response);
+
+    const [view, locals] = response.render.firstCall.args as unknown as [
+      string,
+      { errorSummaries: { payInFull: { text: string } } },
+    ];
+    assert.equal(view, "application/claims/check-your-answers/index");
+    assert.equal(
+      locals.errorSummaries.payInFull.text,
+      "The claim could not be submitted. Check the claim details and try again.",
+    );
+    assert.equal(response.redirect.callCount, 0);
+  });
+
   it("propagates application errors from the pay in full submission", async () => {
     const processRequest = buildProcessRequest();
     const error = new ApplicationError(

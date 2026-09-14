@@ -1,10 +1,20 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = t('pages.claimAssessment.checkYourAnswers.heading') %}
 
 {% block pageContent %}
+{% if errorSummaries %}
+  {{ govukErrorSummary({
+    titleText: t('components.errorSummary.title'),
+    errorList: [
+      { text: errorSummaries.payInFull.text }
+    ]
+  }) }}
+{% endif %}
+
 <form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/claims/{{ claimId }}/check-your-answers">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
 
