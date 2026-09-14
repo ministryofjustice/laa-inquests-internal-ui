@@ -3,7 +3,10 @@ import type {
   ClaimDetail,
   ClaimSummary,
 } from "#src/adaptors/models/claim.types.js";
-import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
+import type {
+  ClaimsPort,
+  PayInFullClaimData,
+} from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
@@ -16,12 +19,14 @@ import {
   getClaimsUpstreamStatusContext,
 } from "#src/adaptors/source/inquests-api/claims/ClaimsAPI/claimsApiFailure.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
 const REJECT_CLAIM_OPERATION = "reject_claim";
 const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:id/reject";
+const PAY_IN_FULL_CLAIM_OPERATION = "pay_in_full_claim";
+const PAY_IN_FULL_CLAIM_ROUTE = "/applications/:id/claims/:id/pay-in-full";
 
 export class ClaimsAPIAdaptor implements ClaimsPort {
   constructor(
@@ -87,14 +92,14 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     const startedAt = Date.now();
     if (typeof accessToken !== "string" || accessToken === "") {
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
         REJECT_CLAIM_OPERATION,
         false,
       );
     }
     try {
       await this.http.patch(
-        `${this.baseUrl}/applications/${laaReference}/claims/${claimId}/reject`,
+        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}/reject`,
         { justification },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -115,7 +120,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       if (!axios.isAxiosError(error)) {
         if (error instanceof Error) throw error;
         throw new ApplicationError(
-          APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+          APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
           REJECT_CLAIM_OPERATION,
           false,
         );
@@ -124,8 +129,8 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       const failure =
         classified.outcome === "NOT_FOUND"
           ? {
-              kind: APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
-              failureKind: "upstream_4xx",
+              type: APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
+              failureReason: "upstream_4xx",
               retryable: false,
               status: classified.status,
             }
@@ -140,7 +145,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           upstream_method: "PATCH",
           upstream_route: REJECT_CLAIM_ROUTE,
           ...getClaimsUpstreamStatusContext(failure.status),
-          failure_kind: failure.failureKind,
+          failure_reason: failure.failureReason,
           retryable: failure.retryable,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
@@ -148,8 +153,85 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
         },
       });
       throw new ApplicationError(
-        failure.kind,
+        failure.type,
         REJECT_CLAIM_OPERATION,
+        failure.retryable,
+      );
+    }
+  }
+
+  async payInFullClaim(
+    laaReference: string,
+    claimId: string,
+    data: PayInFullClaimData,
+    accessToken: string | undefined,
+  ): Promise<void> {
+    const startedAt = Date.now();
+    if (typeof accessToken !== "string" || accessToken === "") {
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+        PAY_IN_FULL_CLAIM_OPERATION,
+        false,
+      );
+    }
+    try {
+      await this.http.patch(
+        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}/pay-in-full`,
+        data,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      logger.logInfo({
+        functionName: "claims_api_adaptor",
+        message: "Claim pay in full submitted upstream",
+        extraContext: {
+          event: "outbound_api_call",
+          operation: PAY_IN_FULL_CLAIM_OPERATION,
+          upstream_method: "PATCH",
+          upstream_route: PAY_IN_FULL_CLAIM_ROUTE,
+          laa_reference: laaReference,
+          claim_reference: claimId,
+          duration_ms: Date.now() - startedAt,
+        },
+      });
+    } catch (error) {
+      if (!axios.isAxiosError(error)) {
+        if (error instanceof Error) throw error;
+        throw new ApplicationError(
+          APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
+          PAY_IN_FULL_CLAIM_OPERATION,
+          false,
+        );
+      }
+      const classified = classifyClaimsApiHttpFailure(error);
+      const failure =
+        classified.outcome === "NOT_FOUND"
+          ? {
+              type: APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
+              failureKind: "upstream_4xx",
+              retryable: false,
+              status: classified.status,
+            }
+          : classified;
+      logger.logError({
+        functionName: "claims_api_adaptor",
+        message: "Claim pay in full request failed",
+        err: error,
+        extraContext: {
+          event: "outbound_api_request_failed",
+          operation: PAY_IN_FULL_CLAIM_OPERATION,
+          upstream_method: "PATCH",
+          upstream_route: PAY_IN_FULL_CLAIM_ROUTE,
+          ...getClaimsUpstreamStatusContext(failure.status),
+          failure_kind: "upstream_5xx",
+          retryable: failure.retryable,
+          duration_ms: Date.now() - startedAt,
+          laa_reference: laaReference,
+          claim_reference: claimId,
+        },
+      });
+      throw new ApplicationError(
+        failure.type,
+        PAY_IN_FULL_CLAIM_OPERATION,
         failure.retryable,
       );
     }

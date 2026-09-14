@@ -16,6 +16,7 @@ import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applicati
 import { PrepareConfirmPublicAuthorityViewUseCase } from "#src/use-cases/applications/publicAuthority/PrepareConfirmPublicAuthorityView.useCase.js";
 import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications/publicAuthority/ConfirmPublicAuthorityUpdate.useCase.js";
 import { GetPublicBodiesUseCase } from "#src/use-cases/applications/publicAuthority/GetPublicBodies.useCase.js";
+import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetApplication.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 const SESSION_NAMESPACE = "publicAuthority";
@@ -26,6 +27,7 @@ interface PublicAuthorityUseCases {
   prepareConfirmPublicAuthorityViewUseCase: PrepareConfirmPublicAuthorityViewUseCase;
   confirmPublicAuthorityUpdateUseCase: ConfirmPublicAuthorityUpdateUseCase;
   getPublicBodiesUseCase: GetPublicBodiesUseCase;
+  getApplicationUseCase: GetApplicationUseCase;
 }
 
 export class PublicAuthorityAdaptor {
@@ -34,9 +36,10 @@ export class PublicAuthorityAdaptor {
   private readonly prepareConfirmPublicAuthorityViewUseCase: PrepareConfirmPublicAuthorityViewUseCase;
   private readonly confirmPublicAuthorityUpdateUseCase: ConfirmPublicAuthorityUpdateUseCase;
   private readonly getPublicBodiesUseCase: GetPublicBodiesUseCase;
+  private readonly getApplicationUseCase: GetApplicationUseCase;
 
   constructor(
-    private readonly applicationPort: ApplicationPort,
+    applicationPort: ApplicationPort,
     private readonly sessionHelper: SessionHelper,
     private readonly validator: PublicAuthorityValidator,
     useCases: Partial<PublicAuthorityUseCases> = {},
@@ -56,6 +59,9 @@ export class PublicAuthorityAdaptor {
     this.getPublicBodiesUseCase =
       useCases.getPublicBodiesUseCase ??
       new GetPublicBodiesUseCase(applicationPort);
+    this.getApplicationUseCase =
+      useCases.getApplicationUseCase ??
+      new GetApplicationUseCase(applicationPort);
   }
 
   async renderSelectionForm(
@@ -67,7 +73,7 @@ export class PublicAuthorityAdaptor {
     const laaReference = req.params.laaReference as string;
     const fromConfirm = req.query.from === "confirm";
 
-    const application = await this.applicationPort.getApplication(
+    const application = await this.getApplicationUseCase.execute(
       laaReference,
       req.session.user?.accessToken,
     );
@@ -119,7 +125,7 @@ export class PublicAuthorityAdaptor {
       params: { laaReference },
     } = req;
 
-    const application = await this.applicationPort.getApplication(
+    const application = await this.getApplicationUseCase.execute(
       laaReference,
       req.session.user?.accessToken,
     );

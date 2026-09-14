@@ -4,6 +4,15 @@ import type {
 } from "#src/adaptors/models/claim.types.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 
+export interface PayInFullClaimData {
+  profitCostNet?: number;
+  profitCostGross?: number;
+  profitCostVatZero?: number;
+  disbursementNet?: number;
+  disbursementGross?: number;
+  disbursementVatZero?: number;
+}
+
 export interface ClaimsPort {
   getClaims: (
     laaReference: string,
@@ -31,6 +40,12 @@ export interface ClaimsPort {
     laaReference: string,
     claimId: string,
     justification: string,
+    accessToken: string | undefined,
+  ) => Promise<void>;
+  payInFullClaim: (
+    laaReference: string,
+    claimId: string,
+    data: PayInFullClaimData,
     accessToken: string | undefined,
   ) => Promise<void>;
 }

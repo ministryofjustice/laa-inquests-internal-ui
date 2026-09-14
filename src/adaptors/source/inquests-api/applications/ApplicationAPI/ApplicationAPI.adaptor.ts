@@ -21,7 +21,7 @@ import {
 } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import {
@@ -189,14 +189,14 @@ export class ApplicationAPIAdaptor {
           operation: GET_CERTIFICATE.operation,
           upstream_method: GET_CERTIFICATE.method,
           upstream_route: GET_CERTIFICATE.route,
-          failure_kind: "missing_credentials",
+          failure_reason: "missing_credentials",
           retryable: false,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
         },
       });
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
         GET_CERTIFICATE.operation,
         false,
       );
@@ -219,14 +219,14 @@ export class ApplicationAPIAdaptor {
             operation: GET_CERTIFICATE.operation,
             upstream_method: GET_CERTIFICATE.method,
             upstream_route: GET_CERTIFICATE.route,
-            failure_kind: "invalid_response",
+            failure_reason: "invalid_response",
             retryable: false,
             duration_ms: Date.now() - startedAt,
             laa_reference: laaReference,
           },
         });
         throw new ApplicationError(
-          APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+          APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
           GET_CERTIFICATE.operation,
           false,
         );
@@ -291,14 +291,14 @@ export class ApplicationAPIAdaptor {
           upstream_method: GET_CERTIFICATE.method,
           upstream_route: GET_CERTIFICATE.route,
           ...getUpstreamStatusContext(failure.status),
-          failure_kind: failure.failureKind,
+          failure_reason: failure.failureReason,
           retryable: failure.retryable,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
         },
       });
       throw new ApplicationError(
-        failure.kind,
+        failure.type,
         GET_CERTIFICATE.operation,
         failure.retryable,
       );

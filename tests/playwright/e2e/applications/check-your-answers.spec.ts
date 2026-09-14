@@ -13,6 +13,7 @@ const checkYourAnswersLocale = en.pages.claimAssessment.checkYourAnswers;
 const confirmProfitCostsLocale = en.pages.claimAssessment.confirmProfitCosts;
 const confirmDisbursementCostsLocale =
   en.pages.claimAssessment.confirmDisbursementCosts;
+const paidInFullSuccessLocale = en.pages.claimAssessment.paidInFullSuccess;
 
 const applicationId = "INQ-YYY-005";
 const claimId = "10";
@@ -81,7 +82,7 @@ test.describe.serial("Check your answers page", () => {
   test("caseworker views claim details, profit costs and disbursement costs on the check your answers page", async () => {
     await validateGovPage(sharedPage, {
       headerText: checkYourAnswersLocale.heading,
-      backUrl: assessClaimPage,
+      backUrl: confirmDisbursementCostsPage,
     });
 
     const form = sharedPage.getByTestId("check-your-answers");
@@ -308,16 +309,26 @@ test.describe.serial("Check your answers page", () => {
     await expect(sharedPage).toHaveURL(checkYourAnswersPage);
   });
 
-  test("caseworker clicks Finish assessing claim and remains on the check your answers page", async () => {
+  test("caseworker clicks Finish assessing claim and reaches the paid in full success page", async () => {
     const form = sharedPage.getByTestId("check-your-answers");
     await continueToNextPage(form, sharedPage);
 
-    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+    await expect(sharedPage).toHaveURL(`${assessClaimPage}/paid-in-full`);
     await expect(
       sharedPage.getByRole("heading", {
-        level: 1,
-        name: checkYourAnswersLocale.heading,
+        name: paidInFullSuccessLocale.panel.replace(
+          "{claimType}",
+          "Payment on account",
+        ),
       }),
     ).toBeVisible();
+    await expect(
+      sharedPage.getByText(paidInFullSuccessLocale.whatHappensNextBody),
+    ).toBeVisible();
+    await expect(
+      sharedPage.getByRole("button", {
+        name: paidInFullSuccessLocale.goToApplicationButton,
+      }),
+    ).toHaveAttribute("href", `/applications/${applicationId}/overview`);
   });
 });

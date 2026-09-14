@@ -4,10 +4,9 @@ import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildAppli
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 
 describe("BuildApplicationsListViewUseCase", () => {
-  const useCase = new BuildApplicationsListViewUseCase();
-
   it("returns SUCCESS with applications list data from the source port", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationsListViewUseCase(applicationPortStub);
     const applications = [
       {
         laaReference: "1",
@@ -19,26 +18,22 @@ describe("BuildApplicationsListViewUseCase", () => {
 
     applicationPortStub.getAllApplications.resolves(applications as any);
 
-    const result = await useCase.execute({
-      applicationPort: applicationPortStub,
-    });
+    const result = await useCase.execute({});
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data.applications, applications);
     assert.equal(applicationPortStub.getAllApplications.callCount, 1);
   });
 
-  it("returns TECHNICAL_FAILURE when source retrieval fails", async () => {
+  it("propagates source retrieval errors unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
-    applicationPortStub.getAllApplications.rejects(
-      new Error("API Call failure"),
+    const error = new Error("API Call failure");
+    applicationPortStub.getAllApplications.rejects(error);
+    const useCase = new BuildApplicationsListViewUseCase(applicationPortStub);
+
+    await assert.rejects(
+      useCase.execute({}),
+      (thrown: unknown) => thrown === error,
     );
-
-    const result = await useCase.execute({
-      applicationPort: applicationPortStub,
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(result.reason, "UPSTREAM_REJECTED");
   });
 });

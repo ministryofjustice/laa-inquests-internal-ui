@@ -4,7 +4,7 @@ import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/cla
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
@@ -334,7 +334,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "get_claim",
       true,
     );

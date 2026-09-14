@@ -1,4 +1,3 @@
-/* eslint-disable max-lines -- prefer to keep application decision code in one file */
 import type { Request, Response } from "express";
 import { ApplicationError } from "#src/use-cases/common/applicationError.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -25,6 +24,7 @@ import { ProcessDecisionSelectionUseCase } from "#src/use-cases/applications/dec
 import { ProcessJustificationUseCase } from "#src/use-cases/applications/decision/ProcessJustification.useCase.js";
 import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/decision/ProcessCertificateStartDate.useCase.js";
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
+import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetApplication.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
@@ -40,6 +40,7 @@ interface DecisionUseCases {
   prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   refuseDecisionUseCase: RefuseDecisionUseCase;
   grantDecisionUseCase: GrantDecisionUseCase;
+  getApplicationUseCase: GetApplicationUseCase;
 }
 
 export class ApplicationDecisionAdaptor {
@@ -50,10 +51,11 @@ export class ApplicationDecisionAdaptor {
   private readonly prepareConfirmationViewUseCase: PrepareConfirmationViewUseCase;
   private readonly refuseDecisionUseCase: RefuseDecisionUseCase;
   private readonly grantDecisionUseCase: GrantDecisionUseCase;
+  private readonly getApplicationUseCase: GetApplicationUseCase;
   private readonly navigationHelper: ApplicationDecisionNavigationHelper;
 
   constructor(
-    private readonly viewApplicationAdaptor: ApplicationPort,
+    viewApplicationAdaptor: ApplicationPort,
     private readonly sessionHelper: SessionHelper,
     private readonly validator: ApplicationDecisionValidator,
     useCases: Partial<DecisionUseCases> = {},
@@ -77,6 +79,9 @@ export class ApplicationDecisionAdaptor {
     this.grantDecisionUseCase =
       useCases.grantDecisionUseCase ??
       new GrantDecisionUseCase(viewApplicationAdaptor);
+    this.getApplicationUseCase =
+      useCases.getApplicationUseCase ??
+      new GetApplicationUseCase(viewApplicationAdaptor);
     this.navigationHelper = new ApplicationDecisionNavigationHelper(
       this.sessionHelper,
     );
@@ -96,7 +101,7 @@ export class ApplicationDecisionAdaptor {
       laaReference,
     );
 
-    const data = await this.viewApplicationAdaptor.getApplication(
+    const data = await this.getApplicationUseCase.execute(
       laaReference,
       req.session.user?.accessToken,
     );
@@ -313,20 +318,9 @@ export class ApplicationDecisionAdaptor {
         existingSessionData,
       });
 
-    if (processCertificateStartDateResult.status === "TECHNICAL_FAILURE") {
-      if (processCertificateStartDateResult.cause instanceof ApplicationError) {
-        throw processCertificateStartDateResult.cause;
-      }
-      throw new Error("Unable to process certificate start date", {
-        cause: processCertificateStartDateResult.cause,
-      });
-    }
-
-    if (processCertificateStartDateResult.data) {
-      this.sessionHelper.storeSessionData(req, "decision", {
-        ...processCertificateStartDateResult.data,
-      });
-    }
+    this.sessionHelper.storeSessionData(req, "decision", {
+      ...processCertificateStartDateResult.data,
+    });
 
     if (processCertificateStartDateResult.status === "VALIDATION_FAILED") {
       this.renderCertificateStartDateForm(

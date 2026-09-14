@@ -1,10 +1,8 @@
 import type { Request, Response } from "express";
-import { ApplicationError } from "#src/use-cases/common/applicationError.js";
 import type { ApplicationSummary } from "#src/adaptors/models/application.types.js";
-import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { formatDateTime } from "#src/utils/dateFormatter.js";
-import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
+import type { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
 interface HomeApplicationRow {
   reference: string;
@@ -26,9 +24,8 @@ export class HomeAdaptor {
   private readonly sessionHelper: SessionHelper;
 
   constructor(
-    private readonly applicationPort: ApplicationPort,
     sessionHelper: SessionHelper,
-    buildApplicationsListViewUseCase: BuildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase(),
+    buildApplicationsListViewUseCase: BuildApplicationsListViewUseCase,
   ) {
     this.buildApplicationsListViewUseCase = buildApplicationsListViewUseCase;
     this.sessionHelper = sessionHelper;
@@ -38,19 +35,8 @@ export class HomeAdaptor {
     this.sessionHelper.clearSessionData(req, "decision");
     const applicationsListResult =
       await this.buildApplicationsListViewUseCase.execute({
-        applicationPort: this.applicationPort,
         accessToken: req.session.user?.accessToken,
       });
-
-    if (applicationsListResult.status !== "SUCCESS") {
-      if (
-        applicationsListResult.status === "TECHNICAL_FAILURE" &&
-        applicationsListResult.cause instanceof ApplicationError
-      ) {
-        throw applicationsListResult.cause;
-      }
-      throw new Error("Unable to build applications list view");
-    }
 
     res.render("main/index", {
       tableRows: sortApplicationsByCreatedAtDesc(

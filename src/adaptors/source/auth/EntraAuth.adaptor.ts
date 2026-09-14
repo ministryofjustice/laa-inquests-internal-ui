@@ -7,7 +7,7 @@ import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -28,7 +28,7 @@ export class EntraAuthAdaptor implements AuthPort {
           extraContext: { event: "auth_token_acquisition_failed" },
         });
         throw new ApplicationError(
-          APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+          APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
           "auth_code_url",
           true,
         );
@@ -61,7 +61,7 @@ export class EntraAuthAdaptor implements AuthPort {
           extraContext: { event: "auth_token_acquisition_failed" },
         });
         throw new ApplicationError(
-          APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+          APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
           "auth_token_acquisition",
           true,
         );
@@ -76,7 +76,7 @@ export class EntraAuthAdaptor implements AuthPort {
         },
       });
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
         "auth_token_acquisition",
         false,
       );
