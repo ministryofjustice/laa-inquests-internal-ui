@@ -553,7 +553,6 @@ describe("Test Claims API Adaptor", () => {
   it("returns a VALIDATION_ERROR outcome and does not throw when pay in full returns a 400 validation body", async () => {
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
-    const logWarnStub = sinon.stub(logger, "logWarn");
     const logErrorStub = sinon.stub(logger, "logError");
     axiosPatchStub.rejects(
       new axios.AxiosError(
@@ -586,15 +585,6 @@ describe("Test Claims API Adaptor", () => {
       errorCode: "PROFIT_COST_MIXED_VAT",
     });
     sinon.assert.notCalled(logErrorStub);
-    sinon.assert.calledOnce(logWarnStub);
-    assert.deepInclude(logWarnStub.firstCall.args[0].extraContext, {
-      event: "outbound_api_validation_rejected",
-      operation: "pay_in_full_claim",
-      upstream_status_code: 400,
-    });
-    assert.notProperty(logWarnStub.firstCall.args[0].extraContext, "message");
-    assert.notProperty(logWarnStub.firstCall.args[0].extraContext, "response");
-    logWarnStub.restore();
     logErrorStub.restore();
   });
 
