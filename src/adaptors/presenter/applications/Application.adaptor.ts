@@ -63,9 +63,13 @@ export class ApplicationAdaptor {
     viewApplicationAdaptor: ApplicationPort,
     buildApplicationClaimsViewUseCase: BuildApplicationClaimsViewUseCase,
     sessionHelper?: SessionHelper,
-    buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(),
+    buildApplicationOverviewViewUseCase: BuildApplicationOverviewViewUseCase = new BuildApplicationOverviewViewUseCase(
+      viewApplicationAdaptor,
+    ),
     buildApplicationHistoryViewUseCase: BuildApplicationHistoryViewUseCase = new BuildApplicationHistoryViewUseCase(),
-    addHistoryNoteUseCase: AddHistoryNoteUseCase = new AddHistoryNoteUseCase(),
+    addHistoryNoteUseCase: AddHistoryNoteUseCase = new AddHistoryNoteUseCase(
+      viewApplicationAdaptor,
+    ),
     addHistoryNoteValidator: AddHistoryNoteValidator = new AddHistoryNoteValidator(),
     getCoronersLetterDocumentUseCase: GetCoronersLetterDocumentUseCase = new GetCoronersLetterDocumentUseCase(
       viewApplicationAdaptor,
@@ -89,8 +93,7 @@ export class ApplicationAdaptor {
     laaReference: string,
     noteState: NoteState = {},
   ): Promise<void> {
-    const { viewApplicationAdaptor, buildApplicationOverviewViewUseCase } =
-      this;
+    const { buildApplicationOverviewViewUseCase } = this;
 
     logger.logInfo({
       functionName: "render_application_page",
@@ -105,7 +108,6 @@ export class ApplicationAdaptor {
     const overviewViewResult =
       await buildApplicationOverviewViewUseCase.execute({
         laaReference,
-        applicationPort: viewApplicationAdaptor,
         accessToken: req.session.user?.accessToken,
       });
 
@@ -347,7 +349,6 @@ export class ApplicationAdaptor {
     const result = await this.addHistoryNoteUseCase.execute({
       laaReference,
       noteText,
-      applicationPort: this.viewApplicationAdaptor,
       accessToken: req.session.user?.accessToken,
     });
 
@@ -363,6 +364,16 @@ export class ApplicationAdaptor {
       });
       return;
     }
+
+    logger.logInfo({
+      functionName: "add_history_note",
+      message: "History note added",
+      request: req,
+      extraContext: {
+        event: "history_note_added",
+        laa_reference: laaReference,
+      },
+    });
 
     this.sessionHelper?.setFlash(req, "history", "note-added");
     res.redirect(`/applications/${laaReference}/overview`);

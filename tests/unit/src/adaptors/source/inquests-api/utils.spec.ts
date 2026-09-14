@@ -3,7 +3,7 @@ import { AxiosError, AxiosHeaders } from "axios";
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { translateInquestsApiError } from "#src/adaptors/source/inquests-api/utils.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -28,23 +28,23 @@ const buildAxiosError = (status: number): AxiosError => {
 describe("translateInquestsApiError", () => {
   it("classifies authentication and authorization failures", () => {
     assert.equal(
-      translateInquestsApiError(buildAxiosError(401), "get_application").kind,
-      APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+      translateInquestsApiError(buildAxiosError(401), "get_application").type,
+      APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
     );
     assert.equal(
-      translateInquestsApiError(buildAxiosError(403), "get_application").kind,
-      APPLICATION_ERROR_KINDS.FORBIDDEN,
+      translateInquestsApiError(buildAxiosError(403), "get_application").type,
+      APPLICATION_ERROR_TYPES.FORBIDDEN,
     );
   });
 
   it("classifies upstream availability and rejection failures", () => {
     assert.equal(
-      translateInquestsApiError(buildAxiosError(500), "get_application").kind,
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      translateInquestsApiError(buildAxiosError(500), "get_application").type,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
     );
     assert.equal(
-      translateInquestsApiError(buildAxiosError(404), "get_application").kind,
-      APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+      translateInquestsApiError(buildAxiosError(404), "get_application").type,
+      APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
     );
   });
 
@@ -55,12 +55,12 @@ describe("translateInquestsApiError", () => {
     );
 
     assert.ok(result instanceof ApplicationError);
-    assert.equal(result.kind, APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE);
+    assert.equal(result.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
   });
 
   it("preserves an existing application error", () => {
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.FORBIDDEN,
+      APPLICATION_ERROR_TYPES.FORBIDDEN,
       "get_application",
       false,
     );

@@ -10,7 +10,7 @@ import {
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import {
@@ -68,14 +68,14 @@ function requireAccessToken(
       operation: metadata.operation,
       upstream_method: metadata.method,
       upstream_route: metadata.route,
-      failure_kind: "missing_credentials",
+      failure_reason: "missing_credentials",
       retryable: false,
       duration_ms: Date.now() - startedAt,
       laa_reference: laaReference,
     },
   });
   throw new ApplicationError(
-    APPLICATION_ERROR_KINDS.AUTHENTICATION_REQUIRED,
+    APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
     metadata.operation,
     false,
   );
@@ -115,7 +115,7 @@ function throwTechnicalFailure(
       throw error;
     }
     throw new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_REJECTED,
+      APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
       metadata.operation,
       false,
     );
@@ -134,14 +134,14 @@ function throwTechnicalFailure(
       upstream_method: metadata.method,
       upstream_route: metadata.route,
       ...getUpstreamStatusContext(failure.status),
-      failure_kind: failure.failureKind,
+      failure_reason: failure.failureReason,
       retryable: failure.retryable,
       duration_ms: Date.now() - startedAt,
       laa_reference: laaReference,
     },
   });
   throw new ApplicationError(
-    failure.kind,
+    failure.type,
     metadata.operation,
     failure.retryable,
   );
@@ -174,14 +174,14 @@ export async function getApplication(
           operation: GET_APPLICATION.operation,
           upstream_method: GET_APPLICATION.method,
           upstream_route: GET_APPLICATION.route,
-          failure_kind: "invalid_response",
+          failure_reason: "invalid_response",
           retryable: false,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
         },
       });
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
         GET_APPLICATION.operation,
         false,
       );
@@ -237,14 +237,14 @@ export async function getApplicationHistory(
           operation: GET_APPLICATION_HISTORY.operation,
           upstream_method: GET_APPLICATION_HISTORY.method,
           upstream_route: GET_APPLICATION_HISTORY.route,
-          failure_kind: "invalid_response",
+          failure_reason: "invalid_response",
           retryable: false,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
         },
       });
       throw new ApplicationError(
-        APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
         GET_APPLICATION_HISTORY.operation,
         false,
       );

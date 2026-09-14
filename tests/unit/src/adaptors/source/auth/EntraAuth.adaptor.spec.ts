@@ -4,7 +4,7 @@ import type { ConfidentialClientApplication } from "@azure/msal-node";
 import { stubInterface } from "ts-sinon";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -52,7 +52,7 @@ describe("EntraAuthAdaptor", () => {
         () => adaptor.getAuthCodeUrl(SCOPES, REDIRECT_URI),
         (error: unknown) =>
           error instanceof ApplicationError &&
-          error.kind === APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE &&
+          error.type === APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE &&
           error.operation === "auth_code_url",
       );
     });
@@ -122,7 +122,7 @@ describe("EntraAuthAdaptor", () => {
         () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
         (error: unknown) =>
           error instanceof ApplicationError &&
-          error.kind === APPLICATION_ERROR_KINDS.INVALID_UPSTREAM_RESPONSE &&
+          error.type === APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE &&
           error.operation === "auth_token_acquisition",
       );
     });
@@ -134,7 +134,7 @@ describe("EntraAuthAdaptor", () => {
         () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
         (error: unknown) =>
           error instanceof ApplicationError &&
-          error.kind === APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE &&
+          error.type === APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE &&
           error.operation === "auth_token_acquisition",
       );
     });

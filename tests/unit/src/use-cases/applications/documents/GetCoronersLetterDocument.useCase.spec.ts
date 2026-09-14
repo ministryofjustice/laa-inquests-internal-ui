@@ -3,7 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 import {
-  APPLICATION_ERROR_KINDS,
+  APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
@@ -45,7 +45,7 @@ describe("GetCoronersLetterDocumentUseCase", () => {
   it("propagates application errors from the port unchanged", async () => {
     const applicationPort = stubInterface<ApplicationPort>();
     const error = new ApplicationError(
-      APPLICATION_ERROR_KINDS.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
       "get_coroners_letter",
       true,
     );

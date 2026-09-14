@@ -5,6 +5,7 @@ import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
 describe("Home adaptor", () => {
   let homeAdaptor: HomeAdaptor;
@@ -18,7 +19,10 @@ describe("Home adaptor", () => {
     requestStub = stubInterface<Request>();
     applicationPortStub = stubInterface<ApplicationPort>();
     sessionHelperStub = stubInterface<SessionHelper>();
-    homeAdaptor = new HomeAdaptor(applicationPortStub, sessionHelperStub);
+    homeAdaptor = new HomeAdaptor(
+      sessionHelperStub,
+      new BuildApplicationsListViewUseCase(applicationPortStub),
+    );
   });
 
   it("renders home page with table rows from all applications", async () => {
@@ -101,9 +105,7 @@ describe("Home adaptor", () => {
 
     await assert.rejects(
       async () => homeAdaptor.renderHomePage(requestStub, responseStub),
-      {
-        message: "Unable to build applications list view",
-      },
+      (thrown: unknown) => thrown instanceof Error && thrown.message === "boom",
     );
   });
 

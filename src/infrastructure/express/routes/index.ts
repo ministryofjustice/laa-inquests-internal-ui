@@ -37,6 +37,7 @@ import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/deci
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications/overview/BuildApplicationOverviewView.useCase.js";
+import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetApplication.useCase.js";
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
@@ -60,6 +61,8 @@ import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications
 import { GetPublicBodiesUseCase } from "#src/use-cases/applications/publicAuthority/GetPublicBodies.useCase.js";
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 import { BuildCheckYourAnswersViewUseCase } from "#src/use-cases/applications/claims/BuildCheckYourAnswersView.useCase.js";
+import { PayInFullClaimUseCase } from "#src/use-cases/applications/claims/PayInFullClaim.useCase.js";
+import { BuildClaimPaidInFullViewUseCase } from "#src/use-cases/applications/claims/BuildClaimPaidInFullView.useCase.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 
 const router = express.Router();
@@ -88,7 +91,7 @@ const viewApplicationAdaptor = new ApplicationAPIAdaptor(
 const reportsApiAdaptor = new ReportsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const claimsAdaptor = new ClaimsAPIAdaptor(axios, config.INQUESTS_API_URL);
 const buildApplicationOverviewViewUseCase =
-  new BuildApplicationOverviewViewUseCase();
+  new BuildApplicationOverviewViewUseCase(viewApplicationAdaptor);
 const buildApplicationClaimsViewUseCase = new BuildApplicationClaimsViewUseCase(
   claimsAdaptor,
 );
@@ -104,7 +107,9 @@ const processCertificateStartDateUseCase =
 const prepareConfirmationViewUseCase = new PrepareConfirmationViewUseCase();
 const submitDecisionUseCase = new RefuseDecisionUseCase(viewApplicationAdaptor);
 const grantDecisionUseCase = new GrantDecisionUseCase(viewApplicationAdaptor);
-const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase();
+const buildApplicationsListViewUseCase = new BuildApplicationsListViewUseCase(
+  viewApplicationAdaptor,
+);
 const buildCertificateViewUseCase = new BuildCertificateViewUseCase(
   viewApplicationAdaptor,
 );
@@ -117,7 +122,7 @@ const applicationDisplayAdaptor = new ApplicationAdaptor(
   new SessionHelper(),
   buildApplicationOverviewViewUseCase,
   undefined,
-  new AddHistoryNoteUseCase(),
+  new AddHistoryNoteUseCase(viewApplicationAdaptor),
   new AddHistoryNoteValidator(),
   getCoronersLetterDocumentUseCase,
 );
@@ -144,9 +149,10 @@ const confirmDisbursementCostsAdaptor = new ConfirmDisbursementCostsAdaptor(
 const checkYourAnswersAdaptor = new CheckYourAnswersAdaptor(
   new SessionHelper(),
   new BuildCheckYourAnswersViewUseCase(claimsAdaptor),
+  new PayInFullClaimUseCase(claimsAdaptor),
+  new BuildClaimPaidInFullViewUseCase(claimsAdaptor),
 );
 const homeAdaptor = new HomeAdaptor(
-  viewApplicationAdaptor,
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
@@ -169,6 +175,7 @@ const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
     prepareConfirmationViewUseCase,
     refuseDecisionUseCase: submitDecisionUseCase,
     grantDecisionUseCase,
+    getApplicationUseCase: new GetApplicationUseCase(viewApplicationAdaptor),
   },
 );
 const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
@@ -184,6 +191,7 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
     confirmPublicAuthorityUpdateUseCase:
       new ConfirmPublicAuthorityUpdateUseCase(viewApplicationAdaptor),
     getPublicBodiesUseCase: new GetPublicBodiesUseCase(viewApplicationAdaptor),
+    getApplicationUseCase: new GetApplicationUseCase(viewApplicationAdaptor),
   },
 );
 const authAdaptor = new AuthAdaptor(
