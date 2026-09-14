@@ -24,12 +24,12 @@ import {
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import { PayInFullValidationErrorSchema } from "#src/adaptors/models/payInFullError.schema.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 
 const REJECT_CLAIM_OPERATION = "reject_claim";
 const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:id/reject";
 const PAY_IN_FULL_CLAIM_OPERATION = "pay_in_full_claim";
 const PAY_IN_FULL_CLAIM_ROUTE = "/applications/:id/claims/:id/pay-in-full";
-const HTTP_BAD_REQUEST = 400;
 
 function extractPayInFullValidationErrorCode(
   error: AxiosError,
