@@ -17,30 +17,26 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const SESSION_NAMESPACE = "claimApproval";
 
+/* eslint-disable @typescript-eslint/prefer-destructuring -- deeply nested constant */
+const {
+  confirmProfitCosts: { validationErrors: profitCostErrors },
+  confirmDisbursementCosts: { validationErrors: disbursementCostErrors },
+} = en.pages.claimAssessment;
+/* eslint-enable @typescript-eslint/prefer-destructuring */
+
 const PAY_IN_FULL_ERROR_MESSAGE_BY_CODE: Record<string, string> = {
-  MISSING_TOTAL_CLAIM_COST:
-    en.pages.claimAssessment.confirmProfitCosts.validationErrors.totalRequired,
-  PROFIT_COST_MIXED_VAT:
-    en.pages.claimAssessment.confirmProfitCosts.validationErrors.vatConflict,
-  MISSING_GROSS_TOTAL_WHEN_NET_ENTERED:
-    en.pages.claimAssessment.confirmProfitCosts.validationErrors.grossMissing,
-  MISSING_NET_TOTAL_WHEN_GROSS_ENTERED:
-    en.pages.claimAssessment.confirmProfitCosts.validationErrors.netMissing,
-  NET_TOTAL_HIGHER_THAN_GROSS_TOTAL:
-    en.pages.claimAssessment.confirmProfitCosts.validationErrors
-      .grossLessThanNet,
-  MISSING_DISBURSEMENT_TOTAL:
-    en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
-      .totalRequired,
+  MISSING_TOTAL_CLAIM_COST: profitCostErrors.totalRequired,
+  PROFIT_COST_MIXED_VAT: profitCostErrors.vatConflict,
+  MISSING_GROSS_TOTAL_WHEN_NET_ENTERED: profitCostErrors.grossMissing,
+  MISSING_NET_TOTAL_WHEN_GROSS_ENTERED: profitCostErrors.netMissing,
+  NET_TOTAL_HIGHER_THAN_GROSS_TOTAL: profitCostErrors.grossLessThanNet,
+  MISSING_DISBURSEMENT_TOTAL: disbursementCostErrors.totalRequired,
   MISSING_DISBURSEMENT_GROSS_WHEN_NET_ENTERED:
-    en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
-      .grossMissing,
+    disbursementCostErrors.grossMissing,
   MISSING_DISBURSEMENT_NET_WHEN_GROSS_ENTERED:
-    en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
-      .netMissing,
+    disbursementCostErrors.netMissing,
   DISBURSEMENT_GROSS_NOT_GREATER_THAN_TOTAL:
-    en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
-      .grossLessThanNet,
+    disbursementCostErrors.grossLessThanNet,
 };
 
 const resolvePayInFullErrorMessage = (errorCode: string): string =>
