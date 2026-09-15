@@ -41,6 +41,7 @@ export class AuthAdaptor {
         userName: user.userName,
         accessToken: user.accessToken,
       },
+      roles: user.roles,
     });
     applySessionExpiry(req.session, user.accessTokenExpiresOn);
     res.redirect("/");

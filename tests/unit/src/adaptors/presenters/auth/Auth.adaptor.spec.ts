@@ -70,7 +70,7 @@ describe("AuthAdaptor", () => {
       req.session.cookie = {} as any;
     });
 
-    it("stores userId, userName and accessToken in session and redirects to /", async () => {
+    it("stores required data in session and redirects to /", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
@@ -95,8 +95,25 @@ describe("AuthAdaptor", () => {
         userName: "Test User",
         accessToken: "access-token-xyz",
       });
+      assert.deepEqual(req.session.roles, ["Inquests - Claims Caseworker"]);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
+    });
+
+    it("stores an empty roles array in session without crashing", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userName: "Test User",
+        accessToken: "access-token-xyz",
+        accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+        roles: [],
+      });
+
+      await adaptor.callback(req, res);
+
+      assert.deepEqual(req.session.roles, []);
+      assert.equal(res.redirect.callCount, 1);
     });
 
     it("sets the session cookie maxAge to the token expiry minus the buffer", async () => {
