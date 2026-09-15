@@ -15,15 +15,14 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
  */
 
 export const INTERNAL_CASEWORKER_ROLES = {
-  APPLICATIONS_CASEWORKER: "Inquests - Internal Applications Caseworker",
-  CLAIMS_CASEWORKER: "Inquests - Internal Claims Caseworker",
-  CUSTOMER_SERVICE_AGENT: "Inquests - Internal Customer Service Agent",
-  ASSURANCE: "Inquests - Internal Assurance",
-  APPLICATION_WORKFLOW_REPORTING:
-    "Inquests - Internal Application Workflow Reporting",
-  CLAIM_WORKFLOW_REPORTING: "Inquests - Internal Claim Workflow Reporting",
-  POLICY: "Inquests - Internal Policy",
-  FINANCE: "Inquests - Internal Finance",
+  APPLICATIONS_CASEWORKER: "Inquests - Applications Caseworker",
+  CLAIMS_CASEWORKER: "Inquests - Claims Caseworker",
+  CUSTOMER_SERVICE_AGENT: "Inquests - Customer Service Agent",
+  ASSURANCE: "Inquests - Assurance",
+  APPLICATION_WORKFLOW_REPORTING: "Inquests - Application Workflow Reporting",
+  CLAIM_WORKFLOW_REPORTING: "Inquests - Claim Workflow Reporting",
+  POLICY: "Inquests - Policy",
+  FINANCE: "Inquests - Finance",
 };
 
 export type CaseworkerRole =
