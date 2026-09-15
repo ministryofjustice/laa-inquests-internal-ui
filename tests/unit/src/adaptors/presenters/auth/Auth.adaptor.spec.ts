@@ -77,6 +77,7 @@ describe("AuthAdaptor", () => {
         userName: "Test User",
         accessToken: "access-token-xyz",
         accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+        roles: ["Inquests - Claims Caseworker"],
       });
 
       await adaptor.callback(req, res);
@@ -105,6 +106,7 @@ describe("AuthAdaptor", () => {
         userName: "Test User",
         accessToken: "access-token-xyz",
         accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+        roles: ["Inquests - Claims Caseworker"],
       });
 
       await adaptor.callback(req, res);
@@ -122,6 +124,7 @@ describe("AuthAdaptor", () => {
         userId: "user-oid-abc",
         accessToken: "access-token-xyz",
         accessTokenExpiresOn: new Date(Date.now() - ONE_HOUR_MS),
+        roles: ["Inquests - Claims Caseworker"],
       });
 
       await adaptor.callback(req, res);
@@ -134,6 +137,7 @@ describe("AuthAdaptor", () => {
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
         accessToken: "access-token-xyz",
+        roles: ["Inquests - Claims Caseworker"],
       });
 
       await assert.rejects(
