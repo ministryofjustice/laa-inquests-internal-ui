@@ -5,6 +5,12 @@ import type {
 } from "@azure/msal-node";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
+import type { CaseworkerRole } from "#src/infrastructure/config/accessControl.js";
+import {
+  ROLE_CLAIM_KEY,
+  normaliseRoles,
+  validateRolesNotEmpty,
+} from "#src/infrastructure/config/accessControl.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   APPLICATION_ERROR_TYPES,
@@ -98,6 +104,7 @@ export class EntraAuthAdaptor implements AuthPort {
       userName: result.account?.name ?? undefined,
       ...this.#getAccessTokenField(result),
       ...this.#getExpiryField(result),
+      roles: this.#extractRoles(result),
     };
   }
 
@@ -117,5 +124,33 @@ export class EntraAuthAdaptor implements AuthPort {
       return { accessToken: result.accessToken };
     }
     return {};
+  }
+
+  #extractRoles(result: AuthenticationResult): CaseworkerRole[] {
+    try {
+      const claims = result.account?.idTokenClaims;
+      const value = claims?.[ROLE_CLAIM_KEY];
+      const rawRoles: unknown[] = Array.isArray(value)
+        ? value
+        : typeof value === "string"
+          ? value.split(",")
+          : [];
+
+      const roles = normaliseRoles(rawRoles);
+      validateRolesNotEmpty(roles);
+      return roles;
+    } catch (error: unknown) {
+      logger.logError({
+        functionName: "entra_auth_adaptor",
+        message: "Role extraction failed",
+        err: error,
+        extraContext: { event: "auth_token_acquisition_failed" },
+      });
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+        "auth_token_acquisition",
+        true,
+      );
+    }
   }
 }
