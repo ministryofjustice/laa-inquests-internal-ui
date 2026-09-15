@@ -5,6 +5,7 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import type { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
+import { RECOGNISED_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 interface RouteLayer {
   route?: {
@@ -59,6 +60,7 @@ describe("createAuthRouter", () => {
         userName: "[MOJUSER] - [INTSILAS] Internal E2E",
         accessToken: "test-access-token",
       });
+      assert.deepEqual(req.session.roles, [...RECOGNISED_ROLES]);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
