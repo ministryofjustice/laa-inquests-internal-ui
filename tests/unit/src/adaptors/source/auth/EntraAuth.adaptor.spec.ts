@@ -65,7 +65,7 @@ describe("EntraAuthAdaptor", () => {
           homeAccountId: "user-oid-123",
           name: "Test User",
           idTokenClaims: {
-            LAA_APP_ROLES: ["Inquests - Applications Caseworker"],
+            LAA_APP_ROLES: ["Inquests - Applications caseworker"],
           },
         },
       } as any);
@@ -79,7 +79,7 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: "Test User",
-        roles: ["Inquests - Applications Caseworker"],
+        roles: ["Inquests - Applications caseworker"],
       });
       assert.ok(
         msalClient.acquireTokenByCode.calledOnceWith({
@@ -95,7 +95,7 @@ describe("EntraAuthAdaptor", () => {
         account: {
           homeAccountId: "user-oid-123",
           idTokenClaims: {
-            LAA_APP_ROLES: ["Inquests - Applications Caseworker"],
+            LAA_APP_ROLES: ["Inquests - Applications caseworker"],
           },
         },
         uniqueId: "user-oid-123",
@@ -110,7 +110,7 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: undefined,
-        roles: ["Inquests - Applications Caseworker"],
+        roles: ["Inquests - Applications caseworker"],
       });
     });
 
@@ -121,7 +121,7 @@ describe("EntraAuthAdaptor", () => {
           homeAccountId: "user-oid-123",
           name: "Test User",
           idTokenClaims: {
-            LAA_APP_ROLES: ["Inquests - Applications Caseworker"],
+            LAA_APP_ROLES: ["Inquests - Applications caseworker"],
           },
         },
         accessToken: "access-token-123",
@@ -144,8 +144,8 @@ describe("EntraAuthAdaptor", () => {
             homeAccountId: "user-oid-123",
             idTokenClaims: {
               LAA_APP_ROLES: [
-                "Inquests - Applications Caseworker",
-                "Inquests - Claims Caseworker",
+                "Inquests - Applications caseworker",
+                "Inquests - Claims caseworker",
               ],
             },
           },
@@ -158,8 +158,8 @@ describe("EntraAuthAdaptor", () => {
         );
 
         assert.deepEqual(result.roles, [
-          "Inquests - Applications Caseworker",
-          "Inquests - Claims Caseworker",
+          "Inquests - Applications caseworker",
+          "Inquests - Claims caseworker",
         ]);
       });
 
@@ -169,7 +169,7 @@ describe("EntraAuthAdaptor", () => {
             homeAccountId: "user-oid-123",
             idTokenClaims: {
               LAA_APP_ROLES:
-                "Inquests - Applications Caseworker , Inquests - Claims Caseworker",
+                "Inquests - Applications caseworker , Inquests - Claims caseworker",
             },
           },
         } as any);
@@ -181,8 +181,8 @@ describe("EntraAuthAdaptor", () => {
         );
 
         assert.deepEqual(result.roles, [
-          "Inquests - Applications Caseworker",
-          "Inquests - Claims Caseworker",
+          "Inquests - Applications caseworker",
+          "Inquests - Claims caseworker",
         ]);
       });
 
@@ -192,8 +192,8 @@ describe("EntraAuthAdaptor", () => {
             homeAccountId: "user-oid-123",
             idTokenClaims: {
               LAA_APP_ROLES: [
-                "Inquests - Applications Caseworker",
-                "Inquests - Applications Caseworker",
+                "Inquests - Applications caseworker",
+                "Inquests - Applications caseworker",
               ],
             },
           },
@@ -205,7 +205,7 @@ describe("EntraAuthAdaptor", () => {
           REDIRECT_URI,
         );
 
-        assert.deepEqual(result.roles, ["Inquests - Applications Caseworker"]);
+        assert.deepEqual(result.roles, ["Inquests - Applications caseworker"]);
       });
 
       it("translates unknown roles in the LAA_APP_ROLES claim into a sanitized ApplicationError", async () => {
@@ -215,7 +215,7 @@ describe("EntraAuthAdaptor", () => {
             idTokenClaims: {
               LAA_APP_ROLES: [
                 "Inquests - Random Role",
-                "Inquests - Claims Caseworker",
+                "Inquests - Claims caseworker",
               ],
             },
           },
