@@ -5,7 +5,7 @@ dotenv.config({ path: "../.env.internal" });
 const DEFAULT_RATE_LIMIT_MAX = 100;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
-const DEFAULT_PORT = 3000;
+const DEFAULT_PORT = 3001;
 const useRedis = process.env.USE_REDIS !== "false";
 
 // Validate required env vars
