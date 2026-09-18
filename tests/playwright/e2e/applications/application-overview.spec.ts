@@ -1,3 +1,4 @@
+import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
 import { test, expect } from "../../fixtures/index.js";
 import {
   validateGovPage,
@@ -38,6 +39,38 @@ test.describe("Application overview page", () => {
     await expect(page.getByRole("tab", { name: "People" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "History" })).toBeVisible();
     await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
+  });
+});
+
+test.describe("Application overview RBAC behaviour", () => {
+  test.afterEach(async ({ page }) => {
+    await page.goto(`/auth/test-login`);
+  });
+
+  test("should have a Claims tab when CLAIMS_CASEWORKER role is present", async ({
+    page,
+  }) => {
+    await page.goto(
+      `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER}`,
+    );
+    await page.goto(`/applications/${laaReference}/overview`);
+    await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
+  });
+
+  test("should not have a Claims tab when CLAIMS_CASEWORKER role is absent", async ({
+    page,
+  }) => {
+    for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+      if (role !== INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER) {
+        await page.goto(
+          `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER}`,
+        );
+        await page.goto(`/applications/${laaReference}/overview`);
+        await expect(
+          page.getByRole("tab", { name: "Claims" }),
+        ).not.toBeVisible();
+      }
+    }
   });
 });
 

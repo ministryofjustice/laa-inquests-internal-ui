@@ -2,6 +2,10 @@ import { test, expect } from "../fixtures/index.js";
 import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 test.describe("User roles page", () => {
+  test.afterEach(async ({ page }) => {
+    await page.goto(`/auth/test-login`);
+  });
+
   test("displays User roles heading and warning", async ({ page }) => {
     await page.goto("/user-roles");
 
@@ -35,7 +39,9 @@ test.describe("User roles page", () => {
   });
 
   test("displays false for unassigned roles", async ({ page }) => {
-    await page.goto(`/auth/test-login?overrideRoles=true`);
+    await page.goto(
+      `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER}`,
+    );
     await page.goto("/user-roles");
 
     const claimsCaseWorkerRole = INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER;

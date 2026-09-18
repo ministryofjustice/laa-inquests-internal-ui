@@ -361,8 +361,8 @@
         </div>
     {% endset %}
 
-    {{ govukTabs({
-        items: [
+    {% set tabItems = 
+        [
             {
                 label: "Application details",
                 id: "application-details",
@@ -377,13 +377,22 @@
                 label: "History",
                 id: "history",
                 panel: { html: historyHtml }
-            },
-            {
+            }
+        ]
+    %}
+    {% if hasRole(appRoles.CLAIMS_CASEWORKER) %}
+        {% set tabItems = tabItems.concat(
+            [{
                 label: t('pages.applicationOverview.claims.tabLabel'),
                 id: "claims",
                 panel: { html: claimsHtml }
-            }
-        ]
+            }]
+            ) %}
+    {% endif %}
+    
+
+    {{ govukTabs({
+        items: tabItems
     }) }}
 
     {% if noteSuccessBanner or errorSummaries %}
