@@ -47,24 +47,32 @@ test.describe("Application overview RBAC behaviour", () => {
     await page.goto(`/auth/test-login`);
   });
 
-  test("should have a Claims tab when CLAIMS_CASEWORKER role is present", async ({
+  test("should have a Claims tab when required roles are present", async ({
     page,
   }) => {
-    await page.goto(
-      `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER}`,
-    );
-    await page.goto(`/applications/${laaReference}/overview`);
-    await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
+    const allowedRoles = [
+      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+    ];
+    for (const role of allowedRoles) {
+      await page.goto(`/auth/test-login?overrideRoles=${role}`);
+      await page.goto(`/applications/${laaReference}/overview`);
+      await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();
+    }
   });
 
-  test("should not have a Claims tab when CLAIMS_CASEWORKER role is absent", async ({
+  test("should not have a Claims tab when required roles are absent", async ({
     page,
   }) => {
+    const allowedRoles = [
+      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+    ];
     for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
-      if (role !== INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER) {
-        await page.goto(
-          `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER}`,
-        );
+      if (!allowedRoles.includes(role)) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
         await page.goto(`/applications/${laaReference}/overview`);
         await expect(
           page.getByRole("tab", { name: "Claims" }),
