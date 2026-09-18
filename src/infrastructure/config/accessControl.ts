@@ -39,7 +39,17 @@ export interface RoutePolicy {
   readonly allowedRoles: readonly CaseworkerRole[];
 }
 
-export const ROUTE_POLICIES: readonly RoutePolicy[] = [];
+export const ROUTE_POLICIES: readonly RoutePolicy[] = [
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
+    allowedRoles: [
+      INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+    ],
+  },
+];
 
 const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
 
@@ -80,7 +90,7 @@ export function matchesPrefix(path: string, prefix: string): boolean {
   if (prefix === "/") {
     return path === "/";
   }
-  return path === prefix || path.startsWith(`${prefix}/`);
+  return path === prefix || path.match(`^${prefix}`) !== null;
 }
 
 export function isPublicPath(path: string): boolean {
