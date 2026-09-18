@@ -1,4 +1,5 @@
 {% extends "base.njk" %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 
 {% set pageTitle = t('pages.nonProduction.heading') %}
 
@@ -12,8 +13,21 @@
     iconFallbackText: t('pages.home.developerBanner.title')
   }) }}
 
-    <p class="govuk-body">
+    {% set appRoleAssignments = [] %}
+    {% for enum, role in appRoles %}
+      {% set appRoleAssignments = appRoleAssignments.concat([[{ text: role }, { text: hasRole(role) }]]) %}
+    {% endfor %}
 
-    </p>
+    {{ govukTable({
+      head: [
+        {
+          text: "Role name"
+        },
+        {
+          text: "Assigned to user"
+        }
+      ],
+      rows: appRoleAssignments
+    }) }}
 
 {% endblock %}
