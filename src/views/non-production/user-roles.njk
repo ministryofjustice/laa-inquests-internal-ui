@@ -1,0 +1,33 @@
+{% extends "base.njk" %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
+{% set pageTitle = t('pages.nonProduction.heading') %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">{{ t('pages.nonProduction.heading') }}</h1>
+
+  {%- from "govuk/components/warning-text/macro.njk" import govukWarningText -%}
+
+  {{ govukWarningText({
+    text: t('pages.home.developerBanner.text'),
+    iconFallbackText: t('pages.home.developerBanner.title')
+  }) }}
+
+    {% set appRoleAssignments = [] %}
+    {% for enum, role in appRoles %}
+      {% set appRoleAssignments = appRoleAssignments.concat([[{ text: role }, { text: hasRole(role) }]]) %}
+    {% endfor %}
+
+    {{ govukTable({
+      head: [
+        {
+          text: "Role name"
+        },
+        {
+          text: "Assigned to user"
+        }
+      ],
+      rows: appRoleAssignments
+    }) }}
+
+{% endblock %}

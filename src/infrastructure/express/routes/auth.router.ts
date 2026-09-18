@@ -82,7 +82,9 @@ export function createAuthRouter(
         userName: "[MOJUSER] - [INTSILAS] Internal E2E",
         accessToken: "test-access-token",
       };
-      req.session.roles = [...RECOGNISED_ROLES];
+      // Optional override of roles for testing rbac behaviour in E2E tests.
+      const overrideRoles = req.query.overrideRoles === "true";
+      req.session.roles = overrideRoles ? [] : [...RECOGNISED_ROLES];
 
       // Optional expiry to exercise session-expiry behaviour in E2E tests.
       const tokenExpirySeconds = Number(req.query.tokenExpirySeconds);
