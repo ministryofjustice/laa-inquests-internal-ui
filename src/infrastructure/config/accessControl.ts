@@ -47,9 +47,10 @@ export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
 
 export const PERMISSIONS = {
   VIEW_CLAIMS_TAB: "viewClaimsTab",
-  MAKE_ASSESSMENT: "makeAssessment",
+  MAKE_APPLICATION_DECISION: "makeAssessment",
   VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
   VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
+  MAKE_CLAIM_DECISION: "makeClaimDecision",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -74,8 +75,11 @@ export const PERMISSION_ROLE_MAP: Readonly<
     INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
     INTERNAL_CASEWORKER_ROLES.ASSURANCE,
   ],
-  [PERMISSIONS.MAKE_ASSESSMENT]: [
+  [PERMISSIONS.MAKE_APPLICATION_DECISION]: [
     INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+  ],
+  [PERMISSIONS.MAKE_CLAIM_DECISION]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
   ],
 };
 
@@ -87,7 +91,22 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
-    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_ASSESSMENT],
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_APPLICATION_DECISION],
+  },
+  {
+    prefix:
+      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/confirm-profit-costs",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
+  },
+  {
+    prefix:
+      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/confirm-disbursement-costs",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
+  },
+  {
+    prefix:
+      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/check-your-answers",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
   },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",

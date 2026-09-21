@@ -216,6 +216,7 @@
       }) }}
   {% endif %}
 
+  {% if hasPermission(permissions.MAKE_CLAIM_DECISION) %}
   {{ govukRadios({
     idPrefix: 'assess-claim',
     name: 'assessClaim',
@@ -260,4 +261,6 @@
     text: t('pages.claimAssessment.continue')
   }) }}
 </form>
+
+{% endif %}
 {% endblock pageContent %}

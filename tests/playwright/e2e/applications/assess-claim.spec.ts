@@ -1,6 +1,7 @@
 import { expect, test } from "../../fixtures/index.js";
 import { validateCSRFToken } from "../../utils/govuk-validators.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 const claimAssessmentLocale = en.pages.claimAssessment;
 const rejectedSuccessLocale = en.pages.claimAssessment.rejectedSuccess;
@@ -647,5 +648,50 @@ test.describe("Assess claim page", () => {
     await expect(page.locator(".govuk-error-summary")).toBeVisible();
 
     await checkAccessibility();
+  });
+
+  test.describe("Assess a claim RBAC behaviour", () => {
+    test.afterEach(async ({ page }) => {
+      await page.goto(`/auth/test-login`);
+    });
+
+    test("should have an assessClaim component when required roles are present", async ({
+      page,
+    }) => {
+      const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/applications/${laaReference}/claims/${claimId}`);
+        await expect(page.getByRole("radio", { name: "Reject" })).toBeVisible();
+        await expect(
+          page.getByRole("radio", { name: "Pay in full" }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole("button", { name: "Continue" }),
+        ).toBeVisible();
+      }
+    });
+
+    test("should not have an assessClaim component when required roles are absent", async ({
+      page,
+    }) => {
+      const deniedRoles = [
+        INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+      ];
+      for (const role of deniedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/applications/${laaReference}/claims/${claimId}`);
+        await expect(
+          page.getByRole("radio", { name: "Reject" }),
+        ).not.toBeVisible();
+        await expect(
+          page.getByRole("radio", { name: "Pay in full" }),
+        ).not.toBeVisible();
+        await expect(
+          page.getByRole("button", { name: "Continue" }),
+        ).not.toBeVisible();
+      }
+    });
   });
 });
