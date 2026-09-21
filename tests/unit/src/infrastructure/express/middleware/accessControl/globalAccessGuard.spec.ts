@@ -247,4 +247,186 @@ describe("globalAccessGuard", () => {
       }
     });
   });
+
+  describe("Only authenticated requests to claims details", () => {
+    beforeEach(() => {
+      setPath("/applications/INQ-123-456/claims/123");
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [
+      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    ];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
+
+  describe("Only authenticated requests to claims decision confirm profit costs", () => {
+    beforeEach(() => {
+      setPath("/applications/INQ-123-456/claims/123/confirm-profit-costs");
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
+
+  describe("Only authenticated requests to claims decision confirm disbursement costs", () => {
+    beforeEach(() => {
+      setPath(
+        "/applications/INQ-123-456/claims/123/confirm-disbursement-costs",
+      );
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
+
+  describe("Only authenticated requests to claims decision check your answers", () => {
+    beforeEach(() => {
+      setPath("/applications/INQ-123-456/claims/123/check-your-answers");
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
 });

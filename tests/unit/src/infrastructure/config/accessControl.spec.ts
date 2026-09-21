@@ -166,6 +166,15 @@ describe("Access Control Configuration", () => {
     it("should return undefined when no policy matches", () => {
       expect(findRoutePolicy("/dashboard")).to.be.undefined;
     });
+
+    it("should return the most specific matching policy", () => {
+      const path = "/applications/INQ-ABC-123/claims/456/detail";
+      const policy = findRoutePolicy(path);
+      expect(policy).to.not.be.undefined;
+      expect(policy?.prefix).to.equal(
+        "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/.+",
+      );
+    });
   });
 
   describe("hasAllowedRole", () => {

@@ -47,8 +47,10 @@ export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
 
 export const PERMISSIONS = {
   VIEW_CLAIMS_TAB: "viewClaimsTab",
-  MAKE_ASSESSMENT: "makeAssessment",
+  MAKE_APPLICATION_DECISION: "makeAssessment",
   VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
+  VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
+  MAKE_CLAIM_DECISION: "makeClaimDecision",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -62,14 +64,22 @@ export const PERMISSION_ROLE_MAP: Readonly<
     INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
     INTERNAL_CASEWORKER_ROLES.ASSURANCE,
   ],
+  [PERMISSIONS.VIEW_CLAIMS_DETAILS]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
   [PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE]: [
     INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
     INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
     INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
     INTERNAL_CASEWORKER_ROLES.ASSURANCE,
   ],
-  [PERMISSIONS.MAKE_ASSESSMENT]: [
+  [PERMISSIONS.MAKE_APPLICATION_DECISION]: [
     INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+  ],
+  [PERMISSIONS.MAKE_CLAIM_DECISION]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
   ],
 };
 
@@ -81,7 +91,15 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
-    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_ASSESSMENT],
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_APPLICATION_DECISION],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/.+",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
   },
 ];
 
@@ -135,7 +153,16 @@ export function isPublicPath(path: string): boolean {
 }
 
 export function findRoutePolicy(path: string): RoutePolicy | undefined {
-  return ROUTE_POLICIES.find((policy) => matchesPrefix(path, policy.prefix));
+  // Pick the most specific (longest prefix) match so sub-routes aren't shadowed by a broader parent policy.
+  return ROUTE_POLICIES.filter((policy) =>
+    matchesPrefix(path, policy.prefix),
+  ).reduce<RoutePolicy | undefined>(
+    (longest, policy) =>
+      longest === undefined || policy.prefix.length > longest.prefix.length
+        ? policy
+        : longest,
+    undefined,
+  );
 }
 
 export function hasAllowedRole(
