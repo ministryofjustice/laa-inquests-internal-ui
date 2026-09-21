@@ -14,6 +14,22 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
  * the Apply policy, while `/application` does not.
  */
 
+export type CaseworkerRole =
+  (typeof INTERNAL_CASEWORKER_ROLES)[keyof typeof INTERNAL_CASEWORKER_ROLES];
+
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+export interface RoutePolicy {
+  readonly prefix: string;
+  readonly allowedRoles: readonly CaseworkerRole[];
+}
+
+export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
+
+const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
+
+const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
+
 export const INTERNAL_CASEWORKER_ROLES = {
   APPLICATIONS_CASEWORKER: "Inquests - Applications caseworker",
   CLAIMS_CASEWORKER: "Inquests - Claims caseworker",
@@ -25,28 +41,56 @@ export const INTERNAL_CASEWORKER_ROLES = {
   FINANCE: "Inquests - Finance",
 };
 
-export type CaseworkerRole =
-  (typeof INTERNAL_CASEWORKER_ROLES)[keyof typeof INTERNAL_CASEWORKER_ROLES];
-
 export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
   INTERNAL_CASEWORKER_ROLES,
 );
 
-export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
+export const PERMISSIONS = {
+  VIEW_CLAIMS_TAB: "viewClaimsTab",
+  MAKE_ASSESSMENT: "makeAssessment",
+  VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
+};
 
-export interface RoutePolicy {
-  readonly prefix: string;
-  readonly allowedRoles: readonly CaseworkerRole[];
-}
+const RECOGNISED_PERMISSIONS: readonly Permission[] =
+  Object.values(PERMISSIONS);
 
-export const ROUTE_POLICIES: readonly RoutePolicy[] = [];
+export const PERMISSION_ROLE_MAP: Readonly<
+  Record<Permission, readonly CaseworkerRole[]>
+> = {
+  [PERMISSIONS.VIEW_CLAIMS_TAB]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
+  [PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
+  [PERMISSIONS.MAKE_ASSESSMENT]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+  ],
+};
 
-const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
-
-const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
+export const ROUTE_POLICIES: readonly RoutePolicy[] = [
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
+    allowedRoles:
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_ASSESSMENT],
+  },
+];
 
 export function isRecognisedRole(value: unknown): value is CaseworkerRole {
   return typeof value === "string" && RECOGNISED_ROLES.includes(value);
+}
+
+export function isPermission(value: unknown): value is Permission {
+  return typeof value === "string" && RECOGNISED_PERMISSIONS.includes(value);
 }
 
 export function normaliseRoles(values: readonly unknown[]): CaseworkerRole[] {
@@ -80,7 +124,7 @@ export function matchesPrefix(path: string, prefix: string): boolean {
   if (prefix === "/") {
     return path === "/";
   }
-  return path === prefix || path.startsWith(`${prefix}/`);
+  return path === prefix || path.match(`^${prefix}`) !== null;
 }
 
 export function isPublicPath(path: string): boolean {
@@ -99,6 +143,19 @@ export function hasAllowedRole(
   policy: RoutePolicy,
 ): boolean {
   return userRoles.some((role) => policy.allowedRoles.includes(role));
+}
+
+export function hasPermission(
+  userRoles: readonly CaseworkerRole[],
+  permission: unknown,
+): boolean {
+  if (!isPermission(permission)) {
+    return false;
+  }
+
+  return userRoles.some((role) =>
+    PERMISSION_ROLE_MAP[permission].includes(role),
+  );
 }
 
 export function validateRolesNotEmpty(roles: readonly CaseworkerRole[]): void {

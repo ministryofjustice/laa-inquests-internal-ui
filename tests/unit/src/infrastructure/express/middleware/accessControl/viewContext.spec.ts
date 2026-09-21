@@ -3,7 +3,10 @@ import sinon from "sinon";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response, NextFunction } from "express";
 import { viewContext } from "#src/infrastructure/express/middleware/accessControl/viewContext.js";
-import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
+import {
+  INTERNAL_CASEWORKER_ROLES,
+  PERMISSIONS,
+} from "#src/infrastructure/config/accessControl.js";
 
 describe("viewContext", () => {
   let req: StubbedInstance<Request>;
@@ -42,6 +45,12 @@ describe("viewContext", () => {
     viewContext(req, res, next as NextFunction);
 
     assert.deepEqual(res.locals.appRoles, INTERNAL_CASEWORKER_ROLES);
+  });
+
+  it("sets res.locals.permissions to the permission constants", () => {
+    viewContext(req, res, next as NextFunction);
+
+    assert.deepEqual(res.locals.permissions, PERMISSIONS);
   });
 
   describe("hasRole", () => {

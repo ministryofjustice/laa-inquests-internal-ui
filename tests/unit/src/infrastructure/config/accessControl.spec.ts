@@ -8,6 +8,9 @@ import {
   isPublicPath,
   findRoutePolicy,
   hasAllowedRole,
+  hasPermission,
+  isPermission,
+  PERMISSIONS,
   validateRolesNotEmpty,
 } from "#src/infrastructure/config/accessControl.js";
 
@@ -199,6 +202,50 @@ describe("Access Control Configuration", () => {
       };
 
       expect(hasAllowedRole(userRoles, policy)).to.be.false;
+    });
+  });
+
+  describe("isPermission", () => {
+    it("should return true for recognised permission strings", () => {
+      expect(isPermission(PERMISSIONS.VIEW_CLAIMS_TAB)).to.be.true;
+    });
+
+    it("should return false for unrecognised permission strings", () => {
+      expect(isPermission("viewSomethingElse")).to.be.false;
+    });
+
+    it("should return false for non-string values", () => {
+      expect(isPermission(123)).to.be.false;
+      expect(isPermission(null)).to.be.false;
+      expect(isPermission(undefined)).to.be.false;
+    });
+  });
+
+  describe("hasPermission", () => {
+    it("should return true when the user has a role granted the permission", () => {
+      const userRoles: CaseworkerRole[] = [
+        INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      ];
+
+      expect(hasPermission(userRoles, PERMISSIONS.VIEW_CLAIMS_TAB)).to.be.true;
+    });
+
+    it("should return false when no user role is granted the permission", () => {
+      const userRoles: CaseworkerRole[] = [INTERNAL_CASEWORKER_ROLES.FINANCE];
+
+      expect(hasPermission(userRoles, PERMISSIONS.VIEW_CLAIMS_TAB)).to.be.false;
+    });
+
+    it("should return false for empty user roles", () => {
+      expect(hasPermission([], PERMISSIONS.VIEW_CLAIMS_TAB)).to.be.false;
+    });
+
+    it("should return false for an unrecognised permission", () => {
+      const userRoles: CaseworkerRole[] = [
+        INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      ];
+
+      expect(hasPermission(userRoles, "viewSomethingElse")).to.be.false;
     });
   });
 

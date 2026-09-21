@@ -5,6 +5,7 @@ import type { Request, Response, NextFunction } from "express";
 import { globalAccessGuard } from "#src/infrastructure/express/middleware/accessControl/globalAccessGuard.js";
 import {
   INTERNAL_CASEWORKER_ROLES,
+  RECOGNISED_ROLES,
   ROUTE_POLICIES,
   type RoutePolicy,
 } from "#src/infrastructure/config/accessControl.js";
@@ -146,6 +147,104 @@ describe("globalAccessGuard", () => {
 
       assert.equal(next.callCount, 1);
       assert.equal(res.status.callCount, 0);
+    });
+  });
+
+  describe("Only authenticated requests to applications overview", () => {
+    beforeEach(() => {
+      setPath("/applications/INQ-123-456/overview");
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    it("denies access when no session role satisfies the policy", () => {
+      const deniedRoles = [
+        INTERNAL_CASEWORKER_ROLES.POLICY,
+        INTERNAL_CASEWORKER_ROLES.FINANCE,
+        INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+        INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+      ];
+
+      for (const role of deniedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      const allowedRoles = [
+        INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+        INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+        INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+      ];
+
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
+
+  describe("Only authenticated requests to applications decision", () => {
+    beforeEach(() => {
+      setPath("/applications/INQ-123-456/decision");
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
     });
   });
 });
