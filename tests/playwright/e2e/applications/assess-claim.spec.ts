@@ -10,12 +10,12 @@ const claimReference = "INQC-0010-0010";
 const assessClaimPage = `/applications/${laaReference}/claims/${claimReference}`;
 const rejectedSuccessPage = `/applications/${laaReference}/claims/${claimReference}/rejected`;
 const applicationOverviewPage = `/applications/${laaReference}/overview`;
-const claimWithoutEvidenceId = "11";
-const assessClaimNoEvidencePage = `/applications/${laaReference}/claims/${claimWithoutEvidenceId}`;
-const claimVatZeroOnlyId = "12";
-const assessClaimVatZeroOnlyPage = `/applications/${laaReference}/claims/${claimVatZeroOnlyId}`;
-const finalBillClaimId = "13";
-const assessFinalBillClaimPage = `/applications/${laaReference}/claims/${finalBillClaimId}`;
+const claimWithoutEvidenceReference = "INQC-0011-0011";
+const assessClaimNoEvidencePage = `/applications/${laaReference}/claims/${claimWithoutEvidenceReference}`;
+const claimVatZeroOnlyReference = "INQC-0012-0012";
+const assessClaimVatZeroOnlyPage = `/applications/${laaReference}/claims/${claimVatZeroOnlyReference}`;
+const finalBillClaimReference = "INQC-0013-0013";
+const assessFinalBillClaimPage = `/applications/${laaReference}/claims/${finalBillClaimReference}`;
 const finalBillRejectedSuccessPage = `${assessFinalBillClaimPage}/rejected`;
 
 const rejectedPanelText = (claimType: string): string =>
@@ -186,12 +186,12 @@ test.describe("Assess claim page", () => {
     const claimsPanel = page.locator("#claims");
     const vatZeroClaimTable = claimsPanel.locator("table", {
       has: page.locator(
-        `a[href="/applications/${laaReference}/claims/${claimVatZeroOnlyId}"]`,
+        `a[href="/applications/${laaReference}/claims/${claimVatZeroOnlyReference}"]`,
       ),
     });
     const vatZeroClaimRow = vatZeroClaimTable.locator("tbody tr", {
       has: page.locator(
-        `a[href="/applications/${laaReference}/claims/${claimVatZeroOnlyId}"]`,
+        `a[href="/applications/${laaReference}/claims/${claimVatZeroOnlyReference}"]`,
       ),
     });
 
