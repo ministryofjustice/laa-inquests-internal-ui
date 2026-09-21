@@ -47,22 +47,12 @@ export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
 
 export const PERMISSIONS = {
   VIEW_CLAIMS_TAB: "viewClaimsTab",
+  MAKE_ASSESSMENT: "makeAssessment",
+  VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
   Object.values(PERMISSIONS);
-
-export const ROUTE_POLICIES: readonly RoutePolicy[] = [
-  {
-    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
-    allowedRoles: [
-      INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
-      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
-      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
-      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
-    ],
-  },
-];
 
 export const PERMISSION_ROLE_MAP: Readonly<
   Record<Permission, readonly CaseworkerRole[]>
@@ -72,7 +62,28 @@ export const PERMISSION_ROLE_MAP: Readonly<
     INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
     INTERNAL_CASEWORKER_ROLES.ASSURANCE,
   ],
+  [PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
+  [PERMISSIONS.MAKE_ASSESSMENT]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+  ],
 };
+
+export const ROUTE_POLICIES: readonly RoutePolicy[] = [
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
+    allowedRoles:
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_ASSESSMENT],
+  },
+];
 
 export function isRecognisedRole(value: unknown): value is CaseworkerRole {
   return typeof value === "string" && RECOGNISED_ROLES.includes(value);

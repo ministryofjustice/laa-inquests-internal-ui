@@ -80,6 +80,34 @@ test.describe("Application overview RBAC behaviour", () => {
       }
     }
   });
+
+  test("should have a Make assessment button when required roles are present", async ({
+    page,
+  }) => {
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
+    for (const role of allowedRoles) {
+      await page.goto(`/auth/test-login?overrideRoles=${role}`);
+      await page.goto(`/applications/${laaReference}/overview`);
+      await expect(
+        page.getByRole("button", { name: "Make assessment" }),
+      ).toBeVisible();
+    }
+  });
+
+  test("should not have a Make assessment button when required roles are absent", async ({
+    page,
+  }) => {
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
+    for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+      if (!allowedRoles.includes(role)) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/applications/${laaReference}/overview`);
+        await expect(
+          page.getByRole("button", { name: "Make assessment" }),
+        ).not.toBeVisible();
+      }
+    }
+  });
 });
 
 test.describe("Application details tab", () => {

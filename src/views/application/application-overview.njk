@@ -115,10 +115,12 @@
                 }
             ]
         }) }}
+        {% if hasPermission(permissions.MAKE_ASSESSMENT) %}
         {{ govukButton({
             text: "Make assessment",
             href: "/applications/" ~ application.laaReference ~ "/decision"
         }) }}
+        {% endif %}
     {% endset %}
 
     {% set peopleHtml %}
