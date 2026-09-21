@@ -24,7 +24,7 @@ export interface ClaimsPort {
   ) => Promise<ClaimSummary[]>;
   getClaimById: (
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     accessToken: string | undefined,
   ) => Promise<ClaimDetail | undefined>;
   getClaimEvidence: (
@@ -41,13 +41,13 @@ export interface ClaimsPort {
   >;
   rejectClaim: (
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     justification: string,
     accessToken: string | undefined,
   ) => Promise<void>;
   payInFullClaim: (
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     data: PayInFullClaimData,
     accessToken: string | undefined,
   ) => Promise<PayInFullClaimResult>;

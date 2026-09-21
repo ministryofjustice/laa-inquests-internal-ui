@@ -19,7 +19,7 @@ describe("createCheckYourAnswersRouter", () => {
     const route = router.stack.find(
       (layer) =>
         layer.route?.path ===
-        "/:laaReference/claims/:claimId/check-your-answers",
+        "/:laaReference/claims/:claimReference/check-your-answers",
     );
     const handler = route?.route?.stack[0].handle as (
       req: Request,
@@ -29,7 +29,7 @@ describe("createCheckYourAnswersRouter", () => {
     const request = stubInterface<Request>();
     const response = stubInterface<Response>();
     const next = sinon.stub();
-    request.params = { laaReference: "123", claimId: "10" };
+    request.params = { laaReference: "123", claimReference: "INQC-0010-0010" };
 
     await handler(request, response, next);
 

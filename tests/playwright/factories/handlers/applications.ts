@@ -256,7 +256,7 @@ const certificate = {
 
 const toBeAssessedClaims = [
   {
-    claimId: 10,
+    claimReference: "INQC-0010-0010",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-10T13:37:56.629563",
     totalProfitCostNet: "1000.00",
@@ -268,7 +268,7 @@ const toBeAssessedClaims = [
     claimDecisionStatus: null,
   },
   {
-    claimId: 12,
+    claimReference: "INQC-0012-0012",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-11T13:37:56.629563",
     totalProfitCostNet: null,
@@ -283,7 +283,7 @@ const toBeAssessedClaims = [
 
 const assessedClaims = [
   {
-    claimId: 20,
+    claimReference: "INQC-0020-0020",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-07-01T09:00:00.000000",
     totalProfitCostNet: "1600.00",
@@ -297,7 +297,7 @@ const assessedClaims = [
 ];
 
 export const claimDetail = {
-  claimId: 10,
+  claimReference: "INQC-0010-0010",
   claimTypeId: "PAYMENT_ON_ACCOUNT",
   submissionDate: "2026-08-10T13:37:56.629563",
   totalProfitCostNet: "1000.00",
@@ -328,13 +328,13 @@ export const claimDetail = {
 
 const claimDetailWithoutEvidence = {
   ...claimDetail,
-  claimId: 11,
+  claimReference: "INQC-0011-0011",
   claimEvidence: [],
 };
 
 const claimDetailVatZeroOnly = {
   ...claimDetail,
-  claimId: 12,
+  claimReference: "INQC-0012-0012",
   totalProfitCostNet: null,
   totalProfitCostGross: null,
   totalProfitCostVatZero: "800.00",
@@ -342,7 +342,7 @@ const claimDetailVatZeroOnly = {
 
 const finalBillClaimDetail = {
   ...claimDetail,
-  claimId: 13,
+  claimReference: "INQC-0013-0013",
   claimTypeId: "FINAL_BILL",
   claimCostTemplateFile: {
     claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -551,21 +551,33 @@ export const applicationHandlers = [
   ),
 
   http.get(
-    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId`,
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimReference`,
     ({ params }) => {
-      if (params.id === "INQ-YYY-005" && params.claimId === "10") {
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0010-0010"
+      ) {
         return HttpResponse.json(claimDetail);
       }
 
-      if (params.id === "INQ-YYY-005" && params.claimId === "11") {
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0011-0011"
+      ) {
         return HttpResponse.json(claimDetailWithoutEvidence);
       }
 
-      if (params.id === "INQ-YYY-005" && params.claimId === "12") {
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0012-0012"
+      ) {
         return HttpResponse.json(claimDetailVatZeroOnly);
       }
 
-      if (params.id === "INQ-YYY-005" && params.claimId === "13") {
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0013-0013"
+      ) {
         return HttpResponse.json(finalBillClaimDetail);
       }
 
@@ -574,12 +586,12 @@ export const applicationHandlers = [
   ),
 
   http.patch(
-    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId/reject`,
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimReference/reject`,
     () => new HttpResponse(null, { status: 204 }),
   ),
 
   http.patch(
-    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimId/pay-in-full`,
+    `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims/:claimReference/pay-in-full`,
     () => new HttpResponse(null, { status: 204 }),
   ),
 

@@ -3,7 +3,7 @@ import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimPaidInFullViewInput {
   laaReference: string;
-  claimId: string;
+  claimReference: string;
   accessToken?: string;
 }
 
@@ -23,13 +23,13 @@ export class BuildClaimPaidInFullViewUseCase {
   async execute(
     input: BuildClaimPaidInFullViewInput,
   ): Promise<BuildClaimPaidInFullViewResult> {
-    if (!input.laaReference || !input.claimId) {
+    if (!input.laaReference || !input.claimReference) {
       return { status: "INVALID_INPUT" };
     }
 
     const claim = await this.claimsPort.getClaimById(
       input.laaReference,
-      input.claimId,
+      input.claimReference,
       input.accessToken,
     );
     if (claim === undefined) return { status: "NOT_FOUND" };

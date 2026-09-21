@@ -3,7 +3,7 @@ import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimRejectionViewInput {
   laaReference: string;
-  claimId: string;
+  claimReference: string;
   accessToken?: string;
 }
 
@@ -23,13 +23,13 @@ export class BuildClaimRejectionViewUseCase {
   async execute(
     input: BuildClaimRejectionViewInput,
   ): Promise<BuildClaimRejectionViewResult> {
-    if (!input.laaReference || !input.claimId) {
+    if (!input.laaReference || !input.claimReference) {
       return { status: "INVALID_INPUT" };
     }
 
     const claim = await this.claimsPort.getClaimById(
       input.laaReference,
-      input.claimId,
+      input.claimReference,
       input.accessToken,
     );
     if (claim === undefined) return { status: "NOT_FOUND" };

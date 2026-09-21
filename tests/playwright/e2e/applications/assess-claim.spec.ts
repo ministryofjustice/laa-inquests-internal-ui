@@ -6,9 +6,9 @@ const claimAssessmentLocale = en.pages.claimAssessment;
 const rejectedSuccessLocale = en.pages.claimAssessment.rejectedSuccess;
 
 const laaReference = "INQ-YYY-005";
-const claimId = "10";
-const assessClaimPage = `/applications/${laaReference}/claims/${claimId}`;
-const rejectedSuccessPage = `/applications/${laaReference}/claims/${claimId}/rejected`;
+const claimReference = "INQC-0010-0010";
+const assessClaimPage = `/applications/${laaReference}/claims/${claimReference}`;
+const rejectedSuccessPage = `/applications/${laaReference}/claims/${claimReference}/rejected`;
 const applicationOverviewPage = `/applications/${laaReference}/overview`;
 const claimWithoutEvidenceId = "11";
 const assessClaimNoEvidencePage = `/applications/${laaReference}/claims/${claimWithoutEvidenceId}`;
@@ -46,7 +46,7 @@ test.describe("Assess claim page", () => {
 
     const claimToAssessRow = claimsPanel.locator("tbody tr", {
       has: page.locator(
-        `a[href="/applications/${laaReference}/claims/${claimId}"]`,
+        `a[href="/applications/${laaReference}/claims/${claimReference}"]`,
       ),
     });
     await claimToAssessRow.getByRole("link", { name: "See details" }).click();

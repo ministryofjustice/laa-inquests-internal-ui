@@ -15,7 +15,7 @@
   }) }}
 {% endif %}
 
-<form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/claims/{{ claimId }}/check-your-answers">
+<form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/claims/{{ claimReference }}/check-your-answers">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
 
   <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.checkYourAnswers.heading') }}</h1>
@@ -37,7 +37,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId,
+              href: "/applications/" + laaReference + "/claims/" + claimReference,
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.finalBillTitle')
             }
@@ -54,7 +54,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.claimDecisionsTitle')
             }
@@ -81,7 +81,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "/confirm-profit-costs?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitZeroVatTitle')
             }
@@ -98,7 +98,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "/confirm-profit-costs?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitNetTotalTitle')
             }
@@ -115,7 +115,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-profit-costs?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "/confirm-profit-costs?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.profitGrossTotalTitle')
             }
@@ -142,7 +142,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "/confirm-disbursement-costs?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementZeroVatTitle')
             }
@@ -159,7 +159,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "/confirm-disbursement-costs?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementNetTotalTitle')
             }
@@ -176,7 +176,7 @@
         actions: {
           items: [
             {
-              href: "/applications/" + laaReference + "/claims/" + claimId + "/confirm-disbursement-costs?from=check-your-answers",
+              href: "/applications/" + laaReference + "/claims/" + claimReference + "/confirm-disbursement-costs?from=check-your-answers",
               text: t('common.change'),
               visuallyHiddenText: t('pages.claimAssessment.checkYourAnswers.disbursementGrossTotalTitle')
             }

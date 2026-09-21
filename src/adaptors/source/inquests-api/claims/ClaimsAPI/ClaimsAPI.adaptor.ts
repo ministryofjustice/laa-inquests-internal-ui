@@ -27,9 +27,10 @@ import { PayInFullValidationErrorSchema } from "#src/adaptors/models/payInFullEr
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 
 const REJECT_CLAIM_OPERATION = "reject_claim";
-const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:id/reject";
+const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:claimReference/reject";
 const PAY_IN_FULL_CLAIM_OPERATION = "pay_in_full_claim";
-const PAY_IN_FULL_CLAIM_ROUTE = "/applications/:id/claims/:id/pay-in-full";
+const PAY_IN_FULL_CLAIM_ROUTE =
+  "/applications/:id/claims/:claimReference/pay-in-full";
 
 function extractPayInFullValidationErrorCode(
   error: AxiosError,
@@ -65,14 +66,14 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
 
   async getClaimById(
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     accessToken: string | undefined,
   ): Promise<ClaimDetail | undefined> {
     return await getClaimById({
       http: this.http,
       baseUrl: this.baseUrl,
       laaReference,
-      claimId,
+      claimReference,
       accessToken,
     });
   }
@@ -100,7 +101,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
 
   async rejectClaim(
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     justification: string,
     accessToken: string | undefined,
   ): Promise<void> {
@@ -114,7 +115,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     }
     try {
       await this.http.patch(
-        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}/reject`,
+        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}/reject`,
         { justification },
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -127,7 +128,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           upstream_method: "PATCH",
           upstream_route: REJECT_CLAIM_ROUTE,
           laa_reference: laaReference,
-          claim_reference: claimId,
+          claim_reference: claimReference,
           duration_ms: Date.now() - startedAt,
         },
       });
@@ -164,7 +165,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           retryable: failure.retryable,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
-          claim_reference: claimId,
+          claim_reference: claimReference,
         },
       });
       throw new ApplicationError(
@@ -177,7 +178,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
 
   async payInFullClaim(
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     data: PayInFullClaimData,
     accessToken: string | undefined,
   ): Promise<PayInFullClaimResult> {
@@ -191,7 +192,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
     }
     try {
       await this.http.patch(
-        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}/pay-in-full`,
+        `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}/pay-in-full`,
         data,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -204,7 +205,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           upstream_method: "PATCH",
           upstream_route: PAY_IN_FULL_CLAIM_ROUTE,
           laa_reference: laaReference,
-          claim_reference: claimId,
+          claim_reference: claimReference,
           duration_ms: Date.now() - startedAt,
         },
       });
@@ -246,7 +247,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
           retryable: failure.retryable,
           duration_ms: Date.now() - startedAt,
           laa_reference: laaReference,
-          claim_reference: claimId,
+          claim_reference: claimReference,
         },
       });
       throw new ApplicationError(

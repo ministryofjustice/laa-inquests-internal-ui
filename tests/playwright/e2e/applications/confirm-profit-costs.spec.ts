@@ -10,8 +10,8 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 const confirmProfitCostsLocale = en.pages.claimAssessment.confirmProfitCosts;
 
 const applicationId = "INQ-YYY-005";
-const claimId = "10";
-const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
+const claimReference = "INQC-0010-0010";
+const assessClaimPage = `/applications/${applicationId}/claims/${claimReference}`;
 const confirmProfitCostsPage = `${assessClaimPage}/confirm-profit-costs`;
 
 test.describe("Confirm the total profit costs page", () => {

@@ -10,20 +10,20 @@ export function createCheckYourAnswersRouter(
   checkYourAnswersAdaptor: CheckYourAnswersAdaptor,
 ): Router {
   checkYourAnswersRouter.get(
-    "/:laaReference/claims/:claimId/check-your-answers",
+    "/:laaReference/claims/:claimReference/check-your-answers",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { laaReference, claimId },
+        params: { laaReference, claimReference },
       } = req;
       const laaReferenceParam = laaReference as string;
-      const claimIdParam = claimId as string;
+      const claimReferenceParam = claimReference as string;
 
       try {
         await checkYourAnswersAdaptor.renderCheckYourAnswersPage(
           req,
           res,
           laaReferenceParam,
-          claimIdParam,
+          claimReferenceParam,
         );
       } catch (err: unknown) {
         next(err);
@@ -32,7 +32,7 @@ export function createCheckYourAnswersRouter(
   );
 
   checkYourAnswersRouter.post(
-    "/:laaReference/claims/:claimId/check-your-answers",
+    "/:laaReference/claims/:claimReference/check-your-answers",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await checkYourAnswersAdaptor.processFinishAssessingClaim(
@@ -46,20 +46,20 @@ export function createCheckYourAnswersRouter(
   );
 
   checkYourAnswersRouter.get(
-    "/:laaReference/claims/:claimId/paid-in-full",
+    "/:laaReference/claims/:claimReference/paid-in-full",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { laaReference, claimId },
+        params: { laaReference, claimReference },
       } = req;
       const laaReferenceParam = laaReference as string;
-      const claimIdParam = claimId as string;
+      const claimReferenceParam = claimReference as string;
 
       try {
         await checkYourAnswersAdaptor.renderClaimPaidInFullSuccessPage(
           req,
           res,
           laaReferenceParam,
-          claimIdParam,
+          claimReferenceParam,
         );
       } catch (err: unknown) {
         next(err);

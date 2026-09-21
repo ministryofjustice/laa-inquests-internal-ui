@@ -72,20 +72,20 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:laaReference/claims/:claimId",
+    "/:laaReference/claims/:claimReference",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { laaReference, claimId },
+        params: { laaReference, claimReference },
       } = req;
       const laaReferenceParam = laaReference as string;
-      const claimIdParam = claimId as string;
+      const claimReferenceParam = claimReference as string;
 
       try {
         await claimAssessmentAdaptor.renderClaimAssessmentPage(
           req,
           res,
           laaReferenceParam,
-          claimIdParam,
+          claimReferenceParam,
         );
       } catch (err: unknown) {
         next(err);
@@ -94,7 +94,7 @@ function createApplicationRouter(
   );
 
   applicationRouter.post(
-    "/:laaReference/claims/:claimId",
+    "/:laaReference/claims/:claimReference",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await claimAssessmentAdaptor.processClaimAssessmentForm(
@@ -108,20 +108,20 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:laaReference/claims/:claimId/rejected",
+    "/:laaReference/claims/:claimReference/rejected",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
-        params: { laaReference, claimId },
+        params: { laaReference, claimReference },
       } = req;
       const laaReferenceParam = laaReference as string;
-      const claimIdParam = claimId as string;
+      const claimReferenceParam = claimReference as string;
 
       try {
         await claimAssessmentAdaptor.renderClaimRejectionSuccessPage(
           req,
           res,
           laaReferenceParam,
-          claimIdParam,
+          claimReferenceParam,
         );
       } catch (err: unknown) {
         next(err);
@@ -130,7 +130,7 @@ function createApplicationRouter(
   );
 
   applicationRouter.get(
-    "/:laaReference/claims/:claimId/evidence/:claimEvidenceId",
+    "/:laaReference/claims/:claimReference/evidence/:claimEvidenceId",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
         params: { claimEvidenceId },

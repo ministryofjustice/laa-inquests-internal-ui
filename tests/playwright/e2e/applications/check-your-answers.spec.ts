@@ -16,8 +16,8 @@ const confirmDisbursementCostsLocale =
 const paidInFullSuccessLocale = en.pages.claimAssessment.paidInFullSuccess;
 
 const applicationId = "INQ-YYY-005";
-const claimId = "10";
-const assessClaimPage = `/applications/${applicationId}/claims/${claimId}`;
+const claimReference = "INQC-0010-0010";
+const assessClaimPage = `/applications/${applicationId}/claims/${claimReference}`;
 const confirmProfitCostsPage = `${assessClaimPage}/confirm-profit-costs`;
 const confirmDisbursementCostsPage = `${assessClaimPage}/confirm-disbursement-costs`;
 const checkYourAnswersPage = `${assessClaimPage}/check-your-answers`;

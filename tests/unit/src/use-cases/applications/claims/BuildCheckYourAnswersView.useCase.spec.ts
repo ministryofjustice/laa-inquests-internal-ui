@@ -9,7 +9,7 @@ import {
 } from "#src/use-cases/common/applicationError.js";
 
 const claim = {
-  claimId: 10,
+  claimReference: "INQC-0010-0010",
   claimTypeId: "FINAL_BILL",
   submissionDate: "2026-08-11",
   totalProfitCostNet: "1000",
@@ -28,7 +28,7 @@ describe("BuildCheckYourAnswersViewUseCase", () => {
 
     const result = await useCase.execute({
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       profitCosts: { netTotal: "300", grossTotal: "360" },
       disbursementCosts: { netTotal: "500", grossTotal: "600" },
     });
@@ -48,7 +48,7 @@ describe("BuildCheckYourAnswersViewUseCase", () => {
     assert.deepEqual(
       await useCase.execute({
         laaReference: "",
-        claimId: "",
+        claimReference: "",
         profitCosts: {},
         disbursementCosts: {},
       }),
@@ -65,7 +65,7 @@ describe("BuildCheckYourAnswersViewUseCase", () => {
     assert.deepEqual(
       await useCase.execute({
         laaReference: "123",
-        claimId: "missing",
+        claimReference: "missing",
         profitCosts: {},
         disbursementCosts: {},
       }),
@@ -86,7 +86,7 @@ describe("BuildCheckYourAnswersViewUseCase", () => {
     await assert.rejects(
       useCase.execute({
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
         profitCosts: {},
         disbursementCosts: {},
       }),

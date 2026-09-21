@@ -55,7 +55,7 @@ export class CheckYourAnswersAdaptor {
     req: Request,
     res: Response,
     laaReference: string,
-    claimId: string,
+    claimReference: string,
   ): Promise<void> {
     logger.logInfo({
       functionName: "render_check_your_answers_page",
@@ -64,18 +64,23 @@ export class CheckYourAnswersAdaptor {
       extraContext: {
         event: "check_your_answers_page_requested",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
-    await this.#renderCheckYourAnswersView(req, res, laaReference, claimId);
+    await this.#renderCheckYourAnswersView(
+      req,
+      res,
+      laaReference,
+      claimReference,
+    );
   }
 
   async #renderCheckYourAnswersView(
     req: Request,
     res: Response,
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     errorSummaries?: { payInFull: { text: string } },
   ): Promise<void> {
     const sessionData = this.sessionHelper.getSessionData(
@@ -85,7 +90,7 @@ export class CheckYourAnswersAdaptor {
 
     const result = await this.buildCheckYourAnswersViewUseCase.execute({
       laaReference,
-      claimId,
+      claimReference,
       accessToken: req.session.user?.accessToken,
       ...this.#buildCostsFromSession(sessionData),
     });
@@ -105,7 +110,7 @@ export class CheckYourAnswersAdaptor {
     }
 
     res.render("application/claims/check-your-answers/index", {
-      backUrl: `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,
+      backUrl: `/applications/${laaReference}/claims/${claimReference}/confirm-disbursement-costs`,
       ...result.data,
       ...(errorSummaries === undefined ? {} : { errorSummaries }),
     });
@@ -142,7 +147,7 @@ export class CheckYourAnswersAdaptor {
     res: Response,
   ): Promise<void> {
     const {
-      params: { laaReference, claimId },
+      params: { laaReference, claimReference },
     } = req;
 
     logger.logInfo({
@@ -152,7 +157,7 @@ export class CheckYourAnswersAdaptor {
       extraContext: {
         event: "finish_assessing_claim_form_submitted",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
@@ -165,7 +170,7 @@ export class CheckYourAnswersAdaptor {
 
     const result = await this.payInFullClaimUseCase.execute({
       laaReference,
-      claimId,
+      claimReference,
       data,
       accessToken: (req as unknown as Request).session.user?.accessToken,
     });
@@ -183,7 +188,7 @@ export class CheckYourAnswersAdaptor {
         req as unknown as Request,
         res,
         laaReference,
-        claimId,
+        claimReference,
         { payInFull: { text: resolvePayInFullErrorMessage(result.errorCode) } },
       );
       return;
@@ -196,12 +201,12 @@ export class CheckYourAnswersAdaptor {
       extraContext: {
         event: "claim_paid_in_full",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
     res.redirect(
-      `/applications/${laaReference}/claims/${claimId}/paid-in-full`,
+      `/applications/${laaReference}/claims/${claimReference}/paid-in-full`,
     );
   }
 
@@ -209,7 +214,7 @@ export class CheckYourAnswersAdaptor {
     req: Request,
     res: Response,
     laaReference: string,
-    claimId: string,
+    claimReference: string,
   ): Promise<void> {
     logger.logInfo({
       functionName: "render_claim_paid_in_full_success_page",
@@ -217,14 +222,14 @@ export class CheckYourAnswersAdaptor {
       extraContext: {
         event: "claim_paid_in_full_success_requested",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
     const claimPaidInFullViewResult =
       await this.buildClaimPaidInFullViewUseCase.execute({
         laaReference,
-        claimId,
+        claimReference,
         accessToken: req.session.user?.accessToken,
       });
 

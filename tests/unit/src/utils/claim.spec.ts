@@ -4,7 +4,7 @@ import { getClaimCost } from "#src/utils/claim.js";
 
 function buildClaim(overrides: Partial<ClaimSummary> = {}): ClaimSummary {
   return {
-    claimId: 1,
+    claimReference: "INQC-0001-0001",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-10T13:37:56.629563",
     totalProfitCostNet: null,
