@@ -23,10 +23,10 @@ ignore:
   "SNYK-JS-HTTPCACHESEMANTICS-19964064":
     - "*":
         reason:
-          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
-          npm releases version with fixed http-cache-semantics."
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          new docker image is released with upgraded npm version"
   "SNYK-JS-HTTPCACHESEMANTICS-19964068":
     - "*":
         reason:
-          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
-          npm releases version with fixed http-cache-semantics."
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          new docker image is released with upgraded npm version"
