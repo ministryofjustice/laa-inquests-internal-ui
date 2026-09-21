@@ -94,22 +94,11 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_APPLICATION_DECISION],
   },
   {
-    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS],
   },
   {
-    prefix:
-      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/confirm-profit-costs",
-    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
-  },
-  {
-    prefix:
-      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/confirm-disbursement-costs",
-    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
-  },
-  {
-    prefix:
-      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/check-your-answers",
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/.+",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
   },
 ];
