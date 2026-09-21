@@ -380,7 +380,7 @@
             }
         ]
     %}
-    {% if hasRole(appRoles.CLAIMS_CASEWORKER) or hasRole(appRoles.CUSTOMER_SERVICE_AGENT) or hasRole(appRoles.ASSURANCE) %}
+    {% if hasPermission(permissions.VIEW_CLAIMS_TAB) %}
         {% set tabItems = tabItems.concat(
             [{
                 label: t('pages.applicationOverview.claims.tabLabel'),

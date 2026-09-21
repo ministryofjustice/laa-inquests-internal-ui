@@ -14,6 +14,22 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
  * the Apply policy, while `/application` does not.
  */
 
+export type CaseworkerRole =
+  (typeof INTERNAL_CASEWORKER_ROLES)[keyof typeof INTERNAL_CASEWORKER_ROLES];
+
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+export interface RoutePolicy {
+  readonly prefix: string;
+  readonly allowedRoles: readonly CaseworkerRole[];
+}
+
+export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
+
+const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
+
+const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
+
 export const INTERNAL_CASEWORKER_ROLES = {
   APPLICATIONS_CASEWORKER: "Inquests - Applications caseworker",
   CLAIMS_CASEWORKER: "Inquests - Claims caseworker",
@@ -25,19 +41,16 @@ export const INTERNAL_CASEWORKER_ROLES = {
   FINANCE: "Inquests - Finance",
 };
 
-export type CaseworkerRole =
-  (typeof INTERNAL_CASEWORKER_ROLES)[keyof typeof INTERNAL_CASEWORKER_ROLES];
-
 export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
   INTERNAL_CASEWORKER_ROLES,
 );
 
-export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
+export const PERMISSIONS = {
+  VIEW_CLAIMS_TAB: "viewClaimsTab",
+};
 
-export interface RoutePolicy {
-  readonly prefix: string;
-  readonly allowedRoles: readonly CaseworkerRole[];
-}
+const RECOGNISED_PERMISSIONS: readonly Permission[] =
+  Object.values(PERMISSIONS);
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
@@ -51,12 +64,22 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   },
 ];
 
-const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
-
-const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
+export const PERMISSION_ROLE_MAP: Readonly<
+  Record<Permission, readonly CaseworkerRole[]>
+> = {
+  [PERMISSIONS.VIEW_CLAIMS_TAB]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
+};
 
 export function isRecognisedRole(value: unknown): value is CaseworkerRole {
   return typeof value === "string" && RECOGNISED_ROLES.includes(value);
+}
+
+export function isPermission(value: unknown): value is Permission {
+  return typeof value === "string" && RECOGNISED_PERMISSIONS.includes(value);
 }
 
 export function normaliseRoles(values: readonly unknown[]): CaseworkerRole[] {
@@ -109,6 +132,19 @@ export function hasAllowedRole(
   policy: RoutePolicy,
 ): boolean {
   return userRoles.some((role) => policy.allowedRoles.includes(role));
+}
+
+export function hasPermission(
+  userRoles: readonly CaseworkerRole[],
+  permission: unknown,
+): boolean {
+  if (!isPermission(permission)) {
+    return false;
+  }
+
+  return userRoles.some((role) =>
+    PERMISSION_ROLE_MAP[permission].includes(role),
+  );
 }
 
 export function validateRolesNotEmpty(roles: readonly CaseworkerRole[]): void {

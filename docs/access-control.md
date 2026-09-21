@@ -60,23 +60,40 @@ globalAccessGuard middleware → request routing (allow-all for now)
 ## Template usage
 
 `viewContext` (`src/infrastructure/express/middleware/accessControl/viewContext.ts`)
-is registered globally in `src/app.ts` and injects three values into
-`res.locals` on every request:
+is registered globally in `src/app.ts` and injects values into `res.locals`
+on every request:
 
 - `{{ userRoles }}` — the current caseworker's roles (`CaseworkerRole[]`,
   empty array if unauthenticated or no roles on session).
 - `{{ appRoles }}` — the full `INTERNAL_CASEWORKER_ROLES` constants object,
   for referencing a specific role by key in a template.
-- `{{ hasRole(role) }}` — a predicate helper for conditional rendering, e.g.:
+- `{{ hasRole(role) }}` — a role introspection predicate. **This exists only
+  for the `/user-roles` developer diagnostics page**
+- `{{ permissions }}` — the `PERMISSIONS` constants object, for referencing a
+  navigational permission by key in a template.
+- `{{ hasPermission(permission) }}` — used for conditional
+  rendering of navigational UI (tabs, nav links), backed by the central
+  `PERMISSION_ROLE_MAP` in `accessControl.ts`, e.g.:
 
   ```njk
-  {% if hasRole(appRoles.FINANCE) %}
-    <a href="/finance-report">Finance report</a>
+  {% if hasPermission(permissions.VIEW_CLAIMS_TAB) %}
+    {# render the Claims tab #}
   {% endif %}
   ```
+
+This controls what server-rendered HTML is sent to the browser.
+Inquests API applies its own permission checks on every call, and those
+remain authoritative for data access and state-changing actions.
 
 ## How to add a new route policy
 
 Adding a new protected top-level route requires adding a corresponding
 entry to the central route policy matrix in `accessControl.ts`. Authenticated
 requests to routes missing from the policy return `403 Forbidden` by design.
+
+## How to add a new navigational permission
+
+1. Add a key to `PERMISSIONS` in `accessControl.ts` (e.g. `VIEW_REPORTS_LINK`).
+2. Add a matching entry to `PERMISSION_ROLE_MAP` listing the roles that grant
+   it.
+3. Use `{{ hasPermission(permissions.YOUR_KEY) }}` in the template.
