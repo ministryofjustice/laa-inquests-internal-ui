@@ -20,3 +20,8 @@ ignore:
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           new docker image is released with npm version using undici@6.28.1."
+  "SNYK-JS-HTTPCACHESEMANTICS-19964064":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          new docker image is released with upgraded npm version"
