@@ -247,4 +247,53 @@ describe("globalAccessGuard", () => {
       }
     });
   });
+
+  describe("Only authenticated requests to claims details", () => {
+    beforeEach(() => {
+      setPath("/applications/INQ-123-456/claims/123");
+      //TODO: Get the claims reference number ticket to update the pattern with the second reference being INQX-XXXX-XXXX
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [
+      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    ];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
 });

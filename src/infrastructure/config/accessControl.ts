@@ -49,6 +49,7 @@ export const PERMISSIONS = {
   VIEW_CLAIMS_TAB: "viewClaimsTab",
   MAKE_ASSESSMENT: "makeAssessment",
   VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
+  VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -58,6 +59,11 @@ export const PERMISSION_ROLE_MAP: Readonly<
   Record<Permission, readonly CaseworkerRole[]>
 > = {
   [PERMISSIONS.VIEW_CLAIMS_TAB]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
+  [PERMISSIONS.VIEW_CLAIMS_DETAILS]: [
     INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
     INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
     INTERNAL_CASEWORKER_ROLES.ASSURANCE,
@@ -82,6 +88,10 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_ASSESSMENT],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS],
   },
 ];
 
