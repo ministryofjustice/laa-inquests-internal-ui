@@ -94,6 +94,10 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_APPLICATION_DECISION],
   },
   {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS],
+  },
+  {
     prefix:
       "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/confirm-profit-costs",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
@@ -107,10 +111,6 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     prefix:
       "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/check-your-answers",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
-  },
-  {
-    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",
-    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS],
   },
 ];
 
@@ -164,7 +164,16 @@ export function isPublicPath(path: string): boolean {
 }
 
 export function findRoutePolicy(path: string): RoutePolicy | undefined {
-  return ROUTE_POLICIES.find((policy) => matchesPrefix(path, policy.prefix));
+  // Pick the most specific (longest prefix) match so sub-routes aren't shadowed by a broader parent policy.
+  return ROUTE_POLICIES.filter((policy) =>
+    matchesPrefix(path, policy.prefix),
+  ).reduce<RoutePolicy | undefined>(
+    (longest, policy) =>
+      longest === undefined || policy.prefix.length > longest.prefix.length
+        ? policy
+        : longest,
+    undefined,
+  );
 }
 
 export function hasAllowedRole(

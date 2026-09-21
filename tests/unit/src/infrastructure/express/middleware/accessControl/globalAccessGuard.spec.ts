@@ -251,7 +251,6 @@ describe("globalAccessGuard", () => {
   describe("Only authenticated requests to claims details", () => {
     beforeEach(() => {
       setPath("/applications/INQ-123-456/claims/123");
-      //TODO: Get the claims reference number ticket to update the pattern with the second reference being INQX-XXXX-XXXX
       req.session.user = { userId: "test-caseworker" };
     });
 
