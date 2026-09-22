@@ -38,7 +38,7 @@ describe("ConfirmDisbursementCostsValidator", () => {
     assert.deepStrictEqual(errors, {});
   });
 
-  it("returns a conflict error on all 3 fields when 0% VAT, net and gross totals are all provided", () => {
+  it("returns no errors when 0% VAT, net and gross totals are all provided", () => {
     const errors = validator.validateConfirmDisbursementCostsForm(
       buildForm({
         "net-total": "300",
@@ -47,14 +47,10 @@ describe("ConfirmDisbursementCostsValidator", () => {
       }),
     );
 
-    assert.deepStrictEqual(errors, {
-      netTotal: { text: validationErrors.vatConflict },
-      grossTotal: { text: validationErrors.vatConflict },
-      zeroVatTotal: { text: validationErrors.vatConflict },
-    });
+    assert.deepStrictEqual(errors, {});
   });
 
-  it("returns a conflict error when the 0% VAT total is 0 alongside net and gross totals", () => {
+  it("returns no errors when the 0% VAT total is 0 alongside net and gross totals", () => {
     const errors = validator.validateConfirmDisbursementCostsForm(
       buildForm({
         "net-total": "300",
@@ -63,11 +59,7 @@ describe("ConfirmDisbursementCostsValidator", () => {
       }),
     );
 
-    assert.deepStrictEqual(errors, {
-      netTotal: { text: validationErrors.vatConflict },
-      grossTotal: { text: validationErrors.vatConflict },
-      zeroVatTotal: { text: validationErrors.vatConflict },
-    });
+    assert.deepStrictEqual(errors, {});
   });
 
   it("returns a field error when the net total is not a valid number", () => {
@@ -138,7 +130,7 @@ describe("ConfirmDisbursementCostsValidator", () => {
     });
   });
 
-  it("does not compare gross against net when the 0% VAT total is provided", () => {
+  it("returns a gross error when gross is not more than net even if the 0% VAT total is provided", () => {
     const errors = validator.validateConfirmDisbursementCostsForm(
       buildForm({
         "net-total": "400",
@@ -148,9 +140,7 @@ describe("ConfirmDisbursementCostsValidator", () => {
     );
 
     assert.deepStrictEqual(errors, {
-      netTotal: { text: validationErrors.vatConflict },
-      grossTotal: { text: validationErrors.vatConflict },
-      zeroVatTotal: { text: validationErrors.vatConflict },
+      grossTotal: { text: validationErrors.grossLessThanNet },
     });
   });
 
