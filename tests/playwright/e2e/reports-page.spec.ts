@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures/index.js";
+import { validateBackButton } from "../utils/govuk-validators.js";
 
 test.describe("Reports page", () => {
   test("displays reports heading and backlog download links", async ({
@@ -19,6 +20,8 @@ test.describe("Reports page", () => {
     const claimsBacklogLink = page.getByRole("link", {
       name: "Download Claims Backlog",
     });
+
+    await validateBackButton(page, "/");
 
     await expect(applicationsBacklogLink).toBeVisible();
     await expect(applicationsBacklogLink).toHaveAttribute(
