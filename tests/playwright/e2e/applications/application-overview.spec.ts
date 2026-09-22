@@ -259,7 +259,7 @@ test.describe("Application people tab RBAC behaviour", () => {
     }
   });
 
-    test("should show Change link for interested parties when application is granted with correct role", async ({
+  test("should show Change link for interested parties when application is granted with correct role", async ({
     page,
   }) => {
     const grantedlaaReference = "INQ-YYY-005";
@@ -288,7 +288,7 @@ test.describe("Application people tab RBAC behaviour", () => {
     );
   });
 
-        test("should not show Change link for interested parties when application is granted with incorrect role", async ({
+  test("should not show Change link for interested parties when application is granted with incorrect role", async ({
     page,
   }) => {
     const grantedlaaReference = "INQ-YYY-005";
@@ -312,7 +312,6 @@ test.describe("Application people tab RBAC behaviour", () => {
 
     await expect(changeLink).not.toBeVisible();
   });
-
 });
 
 test.describe("People tab", () => {
