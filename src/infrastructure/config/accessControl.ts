@@ -52,6 +52,8 @@ export const PERMISSIONS = {
   VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
   MAKE_CLAIM_DECISION: "makeClaimDecision",
   VIEW_REPORTS_PAGE: "viewReportPage",
+  VIEW_APPLICATIONS_REPORTS: "viewApplicationsReports",
+  VIEW_CLAIMS_REPORTS: "viewClaimsReports",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -89,6 +91,12 @@ export const PERMISSION_ROLE_MAP: Readonly<
     INTERNAL_CASEWORKER_ROLES.FINANCE,
     INTERNAL_CASEWORKER_ROLES.POLICY,
   ],
+  [PERMISSIONS.VIEW_APPLICATIONS_REPORTS]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+  ],
+  [PERMISSIONS.VIEW_CLAIMS_REPORTS]: [
+    INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+  ],
 };
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
@@ -112,6 +120,14 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
     prefix: "/reports",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_REPORTS_PAGE],
+  },
+  {
+    prefix: "/reports/applications/backlog",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_REPORTS],
+  },
+  {
+    prefix: "/reports/claims/backlog",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_REPORTS],
   },
 ];
 
