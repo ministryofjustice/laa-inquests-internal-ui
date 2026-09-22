@@ -224,6 +224,97 @@ test.describe("Application details tab", () => {
   });
 });
 
+test.describe("Application people tab RBAC behaviour", () => {
+  test.afterEach(async ({ page }) => {
+    await page.goto(`/auth/test-login`);
+  });
+
+  test("should have a Make assessment button when viewed with correct role", async ({
+    page,
+  }) => {
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
+    for (const role of allowedRoles) {
+      await page.goto(`/auth/test-login?overrideRoles=${role}`);
+      await page.goto(`/applications/${laaReference}/overview`);
+      await page.getByRole("tab", { name: "People" }).click();
+      await expect(
+        page.getByRole("button", { name: "Make assessment" }),
+      ).toBeVisible();
+    }
+  });
+
+  test("should not have a Make assessment button when viewed with incorrect role", async ({
+    page,
+  }) => {
+    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
+    for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+      if (!allowedRoles.includes(role)) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/applications/${laaReference}/overview`);
+        await page.getByRole("tab", { name: "People" }).click();
+        await expect(
+          page.getByRole("button", { name: "Make assessment" }),
+        ).not.toBeVisible();
+      }
+    }
+  });
+
+    test("should show Change link for interested parties when application is granted with correct role", async ({
+    page,
+  }) => {
+    const grantedlaaReference = "INQ-YYY-005";
+    const role = INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER;
+    await page.goto(`/auth/test-login?overrideRoles=${role}`);
+    await page.goto(`/applications/${grantedlaaReference}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const interestedPartiesCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Interested parties",
+        }),
+      });
+    const changeLink = interestedPartiesCard.getByRole("link", {
+      name: "Change",
+    });
+
+    await expect(changeLink).toBeVisible();
+    await expect(changeLink).toHaveAttribute(
+      "href",
+      `/applications/${grantedlaaReference}/public-authorities`,
+    );
+  });
+
+        test("should not show Change link for interested parties when application is granted with incorrect role", async ({
+    page,
+  }) => {
+    const grantedlaaReference = "INQ-YYY-005";
+    const role = INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER;
+    await page.goto(`/auth/test-login?overrideRoles=${role}`);
+    await page.goto(`/applications/${grantedlaaReference}/overview`);
+
+    await page.getByRole("tab", { name: "People" }).click();
+
+    const peoplePanel = page.locator("#people");
+    const interestedPartiesCard = peoplePanel
+      .locator(".govuk-summary-card")
+      .filter({
+        has: page.locator(".govuk-summary-card__title", {
+          hasText: "Interested parties",
+        }),
+      });
+    const changeLink = interestedPartiesCard.getByRole("link", {
+      name: "Change",
+    });
+
+    await expect(changeLink).not.toBeVisible();
+  });
+
+});
+
 test.describe("People tab", () => {
   test("should have the client content", async ({
     page,
