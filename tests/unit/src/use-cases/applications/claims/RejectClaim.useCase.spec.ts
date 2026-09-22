@@ -13,7 +13,7 @@ describe("RejectClaimUseCase", () => {
 
     const result = await new RejectClaimUseCase(claimsPortStub).execute({
       laaReference: "",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       justification: "Not enough supporting evidence provided",
     });
 
@@ -27,7 +27,7 @@ describe("RejectClaimUseCase", () => {
 
     const result = await new RejectClaimUseCase(claimsPortStub).execute({
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       justification: "Not enough supporting evidence provided",
       accessToken: "access-token-123",
     });
@@ -36,7 +36,7 @@ describe("RejectClaimUseCase", () => {
     assert.equal(claimsPortStub.rejectClaim.callCount, 1);
     assert.deepEqual(claimsPortStub.rejectClaim.getCall(0).args, [
       "123",
-      "10",
+      "INQC-0010-0010",
       "Not enough supporting evidence provided",
       "access-token-123",
     ]);
@@ -54,7 +54,7 @@ describe("RejectClaimUseCase", () => {
     await assert.rejects(
       new RejectClaimUseCase(claimsPortStub).execute({
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
         justification: "Not enough supporting evidence provided",
       }),
       (thrown: unknown) => thrown === error,

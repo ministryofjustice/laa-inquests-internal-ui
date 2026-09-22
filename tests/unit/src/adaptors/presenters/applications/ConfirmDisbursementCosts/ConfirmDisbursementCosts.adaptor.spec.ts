@@ -43,7 +43,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       requestStub,
       responseStub,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     assert.equal(responseStub.render.callCount, 1);
@@ -52,9 +52,9 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       "application/claims/confirm-disbursement-costs/index",
     );
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/10/confirm-profit-costs",
+      backUrl: "/applications/123/claims/INQC-0010-0010/confirm-profit-costs",
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       netTotal: "",
       grossTotal: "",
       zeroVatTotal: "",
@@ -72,13 +72,13 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       requestStub,
       responseStub,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/10/confirm-profit-costs",
+      backUrl: "/applications/123/claims/INQC-0010-0010/confirm-profit-costs",
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       netTotal: "300",
       grossTotal: "360",
       zeroVatTotal: "",
@@ -92,14 +92,14 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       requestStub,
       responseStub,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     const renderArgs = responseStub.render.getCall(0)
       .args[1] as unknown as Record<string, unknown>;
     assert.equal(
       renderArgs.backUrl,
-      "/applications/123/claims/10/check-your-answers",
+      "/applications/123/claims/INQC-0010-0010/check-your-answers",
     );
   });
 
@@ -116,7 +116,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       },
       params: {
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
       },
     };
 
@@ -128,9 +128,9 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       "application/claims/confirm-disbursement-costs/index",
     );
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/10/confirm-profit-costs",
+      backUrl: "/applications/123/claims/INQC-0010-0010/confirm-profit-costs",
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       netTotal: "",
       grossTotal: "",
       zeroVatTotal: "",
@@ -156,7 +156,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       },
       params: {
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
       },
     };
 
@@ -189,7 +189,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       },
       params: {
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
       },
     };
 
@@ -209,7 +209,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     assert.equal(
       responseStub.redirect.getCall(0).args[0],
-      "/applications/123/claims/10/check-your-answers",
+      "/applications/123/claims/INQC-0010-0010/check-your-answers",
     );
   });
 });

@@ -46,7 +46,7 @@ export class ConfirmDisbursementCostsAdaptor {
     req: Request,
     res: Response,
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     errorSummaries?: Partial<ConfirmDisbursementCostsFormErrors>,
     formValues?: Partial<ConfirmDisbursementCostsForm>,
   ): void {
@@ -57,7 +57,7 @@ export class ConfirmDisbursementCostsAdaptor {
       extraContext: {
         event: "confirm_disbursement_costs_page_requested",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
@@ -72,11 +72,11 @@ export class ConfirmDisbursementCostsAdaptor {
     res.render("application/claims/confirm-disbursement-costs/index", {
       backUrl: this.navigationHelper.resolveBackLinkUrl(
         req,
-        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
-        `/applications/${laaReference}/claims/${claimId}/confirm-profit-costs`,
+        `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimReference}/confirm-profit-costs`,
       ),
       laaReference,
-      claimId,
+      claimReference,
       ...totals,
       ...(errorSummaries !== undefined && {
         errorSummaries,
@@ -137,7 +137,7 @@ export class ConfirmDisbursementCostsAdaptor {
   ): void {
     const {
       body: formBody,
-      params: { laaReference, claimId },
+      params: { laaReference, claimReference },
     } = req;
 
     logger.logInfo({
@@ -147,7 +147,7 @@ export class ConfirmDisbursementCostsAdaptor {
       extraContext: {
         event: "confirm_disbursement_costs_form_submitted",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
@@ -159,7 +159,7 @@ export class ConfirmDisbursementCostsAdaptor {
         req as unknown as Request,
         res,
         laaReference,
-        claimId,
+        claimReference,
         errorSummaries,
         formBody,
       );
@@ -173,7 +173,7 @@ export class ConfirmDisbursementCostsAdaptor {
     });
 
     res.redirect(
-      `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
+      `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
     );
   }
 }

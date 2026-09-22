@@ -12,7 +12,7 @@
     errorList: errorList
   }) }}
 {% endif %}
-<form data-testid="confirm-disbursement-costs" method="post" action="/applications/{{ laaReference }}/claims/{{ claimId }}/confirm-disbursement-costs">
+<form data-testid="confirm-disbursement-costs" method="post" action="/applications/{{ laaReference }}/claims/{{ claimReference }}/confirm-disbursement-costs">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
 
   <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.confirmDisbursementCosts.heading') }}</h1>

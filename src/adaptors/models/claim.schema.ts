@@ -22,7 +22,7 @@ const ClaimDecisionSchema = z.object({
 });
 
 const BaseClaimSchema = z.object({
-  claimId: z.number(),
+  claimReference: z.string(),
   claimTypeId: z.string(),
   submissionDate: z.string(),
   totalProfitCostNet: z.string().optional().nullable(),

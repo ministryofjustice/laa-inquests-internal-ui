@@ -19,8 +19,8 @@ import {
   HTTP_INTERNAL_SERVER_ERROR,
 } from "#tests/playwright/constants/httpStatus.js";
 
-const claimPath = (claimId: string): string =>
-  `/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimId}`;
+const claimPath = (claimReference: string): string =>
+  `/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimReference}`;
 
 const evidencePath = (evidenceId: string): string =>
   `${claimPath("10")}/evidence/${evidenceId}?disposition=inline`;

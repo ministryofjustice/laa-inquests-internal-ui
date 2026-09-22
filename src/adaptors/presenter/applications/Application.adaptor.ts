@@ -403,7 +403,7 @@ function mapClaimRow(claim: ClaimSummary, laaReference: string): ClaimRow {
     total: formatCurrency(getClaimCost(claim)),
     status: mapClaimStatus(claim.statusId ?? claim.claimDecisionStatus),
     claimType: mapClaimType(claim.claimTypeId),
-    href: `/applications/${laaReference}/claims/${claim.claimId}`,
+    href: `/applications/${laaReference}/claims/${claim.claimReference}`,
   };
 }
 

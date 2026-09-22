@@ -2,7 +2,7 @@ import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/Claims
 
 interface RejectClaimInput {
   laaReference: string;
-  claimId: string;
+  claimReference: string;
   justification: string;
   accessToken?: string;
 }
@@ -13,13 +13,13 @@ export class RejectClaimUseCase {
   async execute(
     input: RejectClaimInput,
   ): Promise<{ status: "SUCCESS" } | { status: "INVALID_INPUT" }> {
-    if (!input.laaReference || !input.claimId) {
+    if (!input.laaReference || !input.claimReference) {
       return { status: "INVALID_INPUT" };
     }
 
     await this.claimsPort.rejectClaim(
       input.laaReference,
-      input.claimId,
+      input.claimReference,
       input.justification,
       input.accessToken,
     );
