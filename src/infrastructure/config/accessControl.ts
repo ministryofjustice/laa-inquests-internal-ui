@@ -47,7 +47,7 @@ export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
 
 export const PERMISSIONS = {
   VIEW_CLAIMS_TAB: "viewClaimsTab",
-  MANAGE_APPLICATION: "makeAssessment",
+  MANAGE_APPLICATION: "manageApplication",
   VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
   VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
   MAKE_CLAIM_DECISION: "makeClaimDecision",
