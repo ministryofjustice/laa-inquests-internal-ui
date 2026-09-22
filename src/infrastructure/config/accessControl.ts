@@ -51,6 +51,7 @@ export const PERMISSIONS = {
   VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
   VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
   MAKE_CLAIM_DECISION: "makeClaimDecision",
+  VIEW_REPORTS_PAGE: "viewReportPage",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -81,6 +82,13 @@ export const PERMISSION_ROLE_MAP: Readonly<
   [PERMISSIONS.MAKE_CLAIM_DECISION]: [
     INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
   ],
+  [PERMISSIONS.VIEW_REPORTS_PAGE]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+    INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+    INTERNAL_CASEWORKER_ROLES.FINANCE,
+    INTERNAL_CASEWORKER_ROLES.POLICY,
+  ],
 };
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
@@ -100,6 +108,10 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/.+",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
+  },
+  {
+    prefix: "/reports",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_REPORTS_PAGE],
   },
 ];
 
