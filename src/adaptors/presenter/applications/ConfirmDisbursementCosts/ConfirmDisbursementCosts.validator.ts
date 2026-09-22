@@ -77,7 +77,6 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
     return (
       this.#checkAllTotalsEmpty(emptiness) ??
       this.#checkMissingPair(emptiness) ??
-      this.#checkVatConflict(emptiness) ??
       this.#checkgrossLessThanNet(totals, emptiness) ??
       {}
     );
@@ -127,29 +126,7 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
         };
   }
 
-  #checkVatConflict(emptiness: {
-    isNetEmpty: boolean;
-    isGrossEmpty: boolean;
-    isZeroVatEmpty: boolean;
-  }): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
-    const { isNetEmpty, isGrossEmpty, isZeroVatEmpty } = emptiness;
-
-    if (isNetEmpty || isGrossEmpty || isZeroVatEmpty) {
-      return undefined;
-    }
-
-    const conflictError = {
-      text: en.pages.claimAssessment.confirmDisbursementCosts.validationErrors
-        .vatConflict,
-    };
-    return {
-      netTotal: conflictError,
-      grossTotal: conflictError,
-      zeroVatTotal: conflictError,
-    };
-  }
-
-  // Gross must exceed net only when the 0% VAT total is blank; a nil (0) gross is allowed.
+  // Gross must exceed net whenever both the net and gross totals are provided; a nil (0) gross is allowed.
   #checkgrossLessThanNet(
     totals: DisbursementCostsTotals,
     emptiness: {
@@ -158,9 +135,9 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
       isZeroVatEmpty: boolean;
     },
   ): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
-    const { isNetEmpty, isGrossEmpty, isZeroVatEmpty } = emptiness;
+    const { isNetEmpty, isGrossEmpty } = emptiness;
 
-    if (isNetEmpty || isGrossEmpty || !isZeroVatEmpty) {
+    if (isNetEmpty || isGrossEmpty) {
       return undefined;
     }
 
