@@ -11,7 +11,7 @@ import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildClaimAssessmentViewUseCase", () => {
   const baseClaim: ClaimDetail = {
-    claimId: 10,
+    claimReference: "INQC-0010-0010",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-11T12:52:29.677Z",
     totalProfitCostNet: "1000.00",
@@ -54,14 +54,14 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       accessToken: "token",
     });
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, {
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       claimStatus: "Reject",
       overview: {
         paymentType: "Payment on account",
@@ -81,9 +81,9 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         {
           fileName: "claim-evidence-1.pdf",
           viewHref:
-            "/applications/5/claims/10/evidence/test_evidence_1?disposition=inline",
+            "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=inline",
           downloadHref:
-            "/applications/5/claims/10/evidence/test_evidence_1?disposition=attachment",
+            "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=attachment",
         },
       ],
     });
@@ -99,7 +99,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     } as any);
     claimsPortStub.getClaimById.resolves({
       ...baseClaim,
-      claimId: 13,
+      claimReference: "INQC-0013-0013",
       claimTypeId: "FINAL_BILL",
       poaTypeId: null,
       claimCostTemplateFile: {
@@ -119,22 +119,22 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "13",
+      claimReference: "INQC-0013-0013",
     });
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data.claimCostBreakdown, {
       fileName: "final_bill_costs.xlsx",
       downloadHref:
-        "/applications/5/claims/13/evidence/test_cost_breakdown?disposition=attachment",
+        "/applications/5/claims/INQC-0013-0013/evidence/test_cost_breakdown?disposition=attachment",
     });
     assert.deepEqual(result.data.supportingEvidence, [
       {
         fileName: "claim-evidence-1.pdf",
         viewHref:
-          "/applications/5/claims/13/evidence/test_evidence_1?disposition=inline",
+          "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=inline",
         downloadHref:
-          "/applications/5/claims/13/evidence/test_evidence_1?disposition=attachment",
+          "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=attachment",
       },
     ]);
   });
@@ -157,7 +157,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -183,7 +183,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -220,7 +220,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -228,17 +228,17 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimCostTemplateFile: {
         fileName: "final_bill_costs.xlsx",
         viewHref:
-          "/applications/5/claims/10/evidence/cost-template-file-id?disposition=inline",
+          "/applications/5/claims/INQC-0010-0010/evidence/cost-template-file-id?disposition=inline",
         downloadHref:
-          "/applications/5/claims/10/evidence/cost-template-file-id?disposition=attachment",
+          "/applications/5/claims/INQC-0010-0010/evidence/cost-template-file-id?disposition=attachment",
       },
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
           viewHref:
-            "/applications/5/claims/10/evidence/test_evidence_1?disposition=inline",
+            "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=inline",
           downloadHref:
-            "/applications/5/claims/10/evidence/test_evidence_1?disposition=attachment",
+            "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=attachment",
         },
       ],
       counsel: {
@@ -286,7 +286,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -305,7 +305,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "",
-      claimId: "",
+      claimReference: "",
     });
 
     assert.deepEqual(result, { status: "INVALID_INPUT" });
@@ -324,7 +324,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "missing",
+      claimReference: "missing",
     });
 
     assert.deepEqual(result, { status: "NOT_FOUND" });
@@ -346,7 +346,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         claimsPortStub,
       ).execute({
         laaReference: "5",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
       }),
       (thrown: unknown) => thrown === error,
     );

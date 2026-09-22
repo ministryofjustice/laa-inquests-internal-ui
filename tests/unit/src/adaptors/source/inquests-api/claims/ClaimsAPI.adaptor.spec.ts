@@ -22,7 +22,7 @@ afterEach(() => {
 
 const expectedClaims: ClaimSummary[] = [
   {
-    claimId: 1,
+    claimReference: "INQC-0001-0001",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-10T13:37:56.629563",
     totalProfitCostNet: "1000.00",
@@ -37,7 +37,7 @@ const expectedClaims: ClaimSummary[] = [
 
 const expectedNoVatClaims: ClaimSummary[] = [
   {
-    claimId: 2,
+    claimReference: "INQC-0002-0002",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-11T13:37:56.629563",
     totalProfitCostNet: null,
@@ -51,7 +51,7 @@ const expectedNoVatClaims: ClaimSummary[] = [
 ];
 
 const expectedClaimDetail: ClaimDetail = {
-  claimId: 10,
+  claimReference: "INQC-0010-0010",
   claimTypeId: "PAYMENT_ON_ACCOUNT",
   submissionDate: "2026-08-11T12:52:29.677Z",
   totalProfitCostNet: "1000.00",
@@ -130,7 +130,7 @@ describe("Test Claims API Adaptor", () => {
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
 
-    axiosGetStub.resolves({ data: [{ claimId: "not-a-number" }] });
+    axiosGetStub.resolves({ data: [{ claimReference: 123 }] });
 
     let thrown: unknown;
     try {
@@ -189,11 +189,11 @@ describe("Test Claims API Adaptor", () => {
 
     axiosGetStub.resolves({ data: expectedClaimDetail });
 
-    await adaptor.getClaimById("123", "10", "access-token-123");
+    await adaptor.getClaimById("123", "INQC-0010-0010", "access-token-123");
 
     assert.isTrue(axiosGetStub.calledOnce);
     const [url] = axiosGetStub.getCall(0).args;
-    assert.equal(url, `${baseUrl}/applications/123/claims/10`);
+    assert.equal(url, `${baseUrl}/applications/123/claims/INQC-0010-0010`);
   });
 
   it("returns parsed claim detail", async () => {
@@ -202,7 +202,11 @@ describe("Test Claims API Adaptor", () => {
 
     axiosGetStub.resolves({ data: expectedClaimDetail });
 
-    const claim = await adaptor.getClaimById("123", "10", "access-token-123");
+    const claim = await adaptor.getClaimById(
+      "123",
+      "INQC-0010-0010",
+      "access-token-123",
+    );
 
     assert.deepEqual(claim, expectedClaimDetail);
   });
@@ -220,7 +224,11 @@ describe("Test Claims API Adaptor", () => {
       ),
     );
 
-    const claim = await adaptor.getClaimById("123", "10", "access-token-123");
+    const claim = await adaptor.getClaimById(
+      "123",
+      "INQC-0010-0010",
+      "access-token-123",
+    );
 
     assert.equal(claim, undefined);
   });
@@ -240,7 +248,7 @@ describe("Test Claims API Adaptor", () => {
 
     let thrown: unknown;
     try {
-      await adaptor.getClaimById("123", "10", "access-token-123");
+      await adaptor.getClaimById("123", "INQC-0010-0010", "access-token-123");
     } catch (error) {
       thrown = error;
     }
@@ -257,12 +265,12 @@ describe("Test Claims API Adaptor", () => {
       event: "outbound_api_request_failed",
       operation: "get_claim",
       upstream_method: "GET",
-      upstream_route: "/applications/:id/claims/:id",
+      upstream_route: "/applications/:id/claims/:claimReference",
       upstream_status_code: 500,
       failure_reason: "upstream_5xx",
       retryable: true,
       laa_reference: "123",
-      claim_reference: "10",
+      claim_reference: "INQC-0010-0010",
     });
     assert.notProperty(logErrorStub.firstCall.args[0].extraContext, "body");
     assert.notProperty(logErrorStub.firstCall.args[0].extraContext, "response");
@@ -274,11 +282,11 @@ describe("Test Claims API Adaptor", () => {
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
     const logInfoStub = sinon.stub(logger, "logInfo");
 
-    axiosGetStub.resolves({ data: { claimId: "not-a-number" } });
+    axiosGetStub.resolves({ data: { claimReference: 123 } });
 
     let thrown: unknown;
     try {
-      await adaptor.getClaimById("123", "10", "access-token-123");
+      await adaptor.getClaimById("123", "INQC-0010-0010", "access-token-123");
     } catch (error) {
       thrown = error;
     }
@@ -439,14 +447,17 @@ describe("Test Claims API Adaptor", () => {
 
     await adaptor.rejectClaim(
       "123",
-      "10",
+      "INQC-0010-0010",
       "Not enough supporting evidence provided",
       "access-token-123",
     );
 
     assert.isTrue(axiosPatchStub.calledOnce);
     const [url, body, config] = axiosPatchStub.getCall(0).args;
-    assert.equal(url, `${baseUrl}/applications/123/claims/10/reject`);
+    assert.equal(
+      url,
+      `${baseUrl}/applications/123/claims/INQC-0010-0010/reject`,
+    );
     assert.deepEqual(body, {
       justification: "Not enough supporting evidence provided",
     });
@@ -459,7 +470,7 @@ describe("Test Claims API Adaptor", () => {
 
     let thrown: unknown;
     try {
-      await adaptor.rejectClaim("123", "10", "reason", undefined);
+      await adaptor.rejectClaim("123", "INQC-0010-0010", "reason", undefined);
     } catch (error) {
       thrown = error;
     }
@@ -484,7 +495,12 @@ describe("Test Claims API Adaptor", () => {
 
     let thrown: unknown;
     try {
-      await adaptor.rejectClaim("123", "10", "reason", "access-token-123");
+      await adaptor.rejectClaim(
+        "123",
+        "INQC-0010-0010",
+        "reason",
+        "access-token-123",
+      );
     } catch (error) {
       thrown = error;
     }
@@ -501,7 +517,7 @@ describe("Test Claims API Adaptor", () => {
       event: "outbound_api_request_failed",
       operation: "reject_claim",
       upstream_method: "PATCH",
-      upstream_route: "/applications/:id/claims/:id/reject",
+      upstream_route: "/applications/:id/claims/:claimReference/reject",
       upstream_status_code: 500,
       failure_reason: "upstream_5xx",
       retryable: true,
@@ -518,14 +534,17 @@ describe("Test Claims API Adaptor", () => {
 
     await adaptor.payInFullClaim(
       "123",
-      "10",
+      "INQC-0010-0010",
       { profitCostNet: 1000, disbursementNet: 100 },
       "access-token-123",
     );
 
     assert.isTrue(axiosPatchStub.calledOnce);
     const [url, body, config] = axiosPatchStub.getCall(0).args;
-    assert.equal(url, `${baseUrl}/applications/123/claims/10/pay-in-full`);
+    assert.equal(
+      url,
+      `${baseUrl}/applications/123/claims/INQC-0010-0010/pay-in-full`,
+    );
     assert.deepEqual(body, { profitCostNet: 1000, disbursementNet: 100 });
     assert.equal(config?.headers?.Authorization, "Bearer access-token-123");
     sinon.assert.calledOnce(logInfoStub);
@@ -541,7 +560,7 @@ describe("Test Claims API Adaptor", () => {
 
     const result = await adaptor.payInFullClaim(
       "123",
-      "10",
+      "INQC-0010-0010",
       { profitCostNet: 1000 },
       "access-token-123",
     );
@@ -575,7 +594,7 @@ describe("Test Claims API Adaptor", () => {
 
     const result = await adaptor.payInFullClaim(
       "123",
-      "10",
+      "INQC-0010-0010",
       { profitCostNet: 1000 },
       "access-token-123",
     );
@@ -609,7 +628,7 @@ describe("Test Claims API Adaptor", () => {
     try {
       await adaptor.payInFullClaim(
         "123",
-        "10",
+        "INQC-0010-0010",
         { profitCostNet: 1000 },
         "access-token-123",
       );
@@ -635,7 +654,7 @@ describe("Test Claims API Adaptor", () => {
     try {
       await adaptor.payInFullClaim(
         "123",
-        "10",
+        "INQC-0010-0010",
         { profitCostNet: 1000 },
         undefined,
       );
@@ -672,7 +691,7 @@ describe("Test Claims API Adaptor", () => {
     try {
       await adaptor.payInFullClaim(
         "123",
-        "10",
+        "INQC-0010-0010",
         { profitCostNet: 1000 },
         "access-token-123",
       );
@@ -692,7 +711,7 @@ describe("Test Claims API Adaptor", () => {
       event: "outbound_api_request_failed",
       operation: "pay_in_full_claim",
       upstream_method: "PATCH",
-      upstream_route: "/applications/:id/claims/:id/pay-in-full",
+      upstream_route: "/applications/:id/claims/:claimReference/pay-in-full",
       upstream_status_code: 500,
       failure_kind: "upstream_5xx",
       retryable: true,

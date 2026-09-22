@@ -6,7 +6,7 @@ import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildClaimRejectionViewUseCase", () => {
   const baseClaim: ClaimDetail = {
-    claimId: 10,
+    claimReference: "INQC-0010-0010",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-11T12:52:29.677Z",
     totalProfitCostNet: "1000.00",
@@ -26,7 +26,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       accessToken: "token",
     });
 
@@ -45,7 +45,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "13",
+      claimReference: "INQC-0013-0013",
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -63,7 +63,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
     });
 
     assert.deepEqual(result, { status: "INVALID_CLAIM_TYPE" });
@@ -76,7 +76,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
       claimsPortStub,
     ).execute({
       laaReference: "",
-      claimId: "",
+      claimReference: "",
     });
 
     assert.deepEqual(result, { status: "INVALID_INPUT" });
@@ -89,7 +89,7 @@ describe("BuildClaimRejectionViewUseCase", () => {
     await assert.rejects(
       new BuildClaimRejectionViewUseCase(claimsPortStub).execute({
         laaReference: "5",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
       }),
     );
   });

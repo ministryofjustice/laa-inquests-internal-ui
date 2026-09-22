@@ -6,7 +6,7 @@ import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildApplicationClaimsViewUseCase", () => {
   const toBeAssessedClaim: ClaimSummary = {
-    claimId: 10,
+    claimReference: "INQC-0010-0010",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-10T13:37:56.629563",
     totalProfitCostNet: "1000.00",
@@ -19,7 +19,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
   };
 
   const assessedClaim: ClaimSummary = {
-    claimId: 20,
+    claimReference: "INQC-0020-0020",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-07-01T09:00:00.000000",
     totalProfitCostNet: "1600.00",
@@ -57,12 +57,12 @@ describe("BuildApplicationClaimsViewUseCase", () => {
   it("orders each claim list by submission date descending", async () => {
     const olderClaim: ClaimSummary = {
       ...assessedClaim,
-      claimId: 30,
+      claimReference: "INQC-0030-0030",
       submissionDate: "2026-05-01T09:00:00.000000",
     };
     const newerClaim: ClaimSummary = {
       ...assessedClaim,
-      claimId: 40,
+      claimReference: "INQC-0040-0040",
       submissionDate: "2026-09-15T09:00:00.000000",
     };
     const claimsPortStub = stubInterface<ClaimsPort>();
@@ -80,8 +80,8 @@ describe("BuildApplicationClaimsViewUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(
-      result.data.assessedClaims.map((claim) => claim.claimId),
-      [40, 20, 30],
+      result.data.assessedClaims.map((claim) => claim.claimReference),
+      ["INQC-0040-0040", "INQC-0020-0020", "INQC-0030-0030"],
     );
   });
 
@@ -154,11 +154,31 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.withArgs("123", false, undefined).resolves([]);
     claimsPortStub.getClaims.withArgs("123", true, undefined).resolves([
-      { ...assessedClaim, claimId: 1, statusId: "PAY_IN_FULL" },
-      { ...assessedClaim, claimId: 2, statusId: "ACCEPTED" },
-      { ...assessedClaim, claimId: 3, statusId: "REJECTED" },
-      { ...assessedClaim, claimId: 4, statusId: "REJECTED_WITH_AMENDMENT" },
-      { ...assessedClaim, claimId: 5, statusId: "SUBMITTED" },
+      {
+        ...assessedClaim,
+        claimReference: "INQC-0001-0001",
+        statusId: "PAY_IN_FULL",
+      },
+      {
+        ...assessedClaim,
+        claimReference: "INQC-0002-0002",
+        statusId: "ACCEPTED",
+      },
+      {
+        ...assessedClaim,
+        claimReference: "INQC-0003-0003",
+        statusId: "REJECTED",
+      },
+      {
+        ...assessedClaim,
+        claimReference: "INQC-0004-0004",
+        statusId: "REJECTED_WITH_AMENDMENT",
+      },
+      {
+        ...assessedClaim,
+        claimReference: "INQC-0005-0005",
+        statusId: "SUBMITTED",
+      },
     ]);
 
     const result = await new BuildApplicationClaimsViewUseCase(

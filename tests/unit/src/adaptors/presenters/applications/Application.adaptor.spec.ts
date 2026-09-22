@@ -502,7 +502,7 @@ describe("Application adaptor", () => {
 
   describe("renderApplicationPage Claims tab", () => {
     const toBeAssessedClaim = {
-      claimId: 10,
+      claimReference: "INQC-0010-0010",
       claimTypeId: "PAYMENT_ON_ACCOUNT",
       submissionDate: "2026-08-10T13:37:56.629563",
       totalProfitCostNet: "1000.00",
@@ -515,7 +515,7 @@ describe("Application adaptor", () => {
     };
 
     const assessedClaim = {
-      claimId: 20,
+      claimReference: "INQC-0020-0020",
       claimTypeId: "PAYMENT_ON_ACCOUNT",
       submissionDate: "2026-07-01T09:00:00.000000",
       totalProfitCostNet: "1600.00",
@@ -558,7 +558,7 @@ describe("Application adaptor", () => {
               total: "£1,200",
               status: "Submitted",
               claimType: "Payment on account",
-              href: "/applications/123/claims/10",
+              href: "/applications/123/claims/INQC-0010-0010",
             },
           ],
           assessed: [
@@ -567,7 +567,7 @@ describe("Application adaptor", () => {
               total: "£2,000",
               status: "Pay in full",
               claimType: "Payment on account",
-              href: "/applications/123/claims/20",
+              href: "/applications/123/claims/INQC-0020-0020",
             },
           ],
         },

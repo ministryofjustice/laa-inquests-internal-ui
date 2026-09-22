@@ -11,25 +11,25 @@ export function createConfirmProfitCostsRouter(
   confirmProfitCostsAdaptor: ConfirmProfitCostsAdaptor,
 ): Router {
   confirmProfitCostsRouter.get(
-    "/:laaReference/claims/:claimId/confirm-profit-costs",
+    "/:laaReference/claims/:claimReference/confirm-profit-costs",
     (req: Request, res: Response): void => {
       const {
-        params: { laaReference, claimId },
+        params: { laaReference, claimReference },
       } = req;
       const laaReferenceParam = laaReference as string;
-      const claimIdParam = claimId as string;
+      const claimReferenceParam = claimReference as string;
 
       confirmProfitCostsAdaptor.renderConfirmProfitCostsPage(
         req,
         res,
         laaReferenceParam,
-        claimIdParam,
+        claimReferenceParam,
       );
     },
   );
 
   confirmProfitCostsRouter.post(
-    "/:laaReference/claims/:claimId/confirm-profit-costs",
+    "/:laaReference/claims/:claimReference/confirm-profit-costs",
     (req: Request, res: Response): void => {
       confirmProfitCostsAdaptor.processConfirmProfitCostsForm(
         req as unknown as TypedRequest<ConfirmProfitCostsForm, ClaimIdParams>,

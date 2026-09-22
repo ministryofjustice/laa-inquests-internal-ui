@@ -12,5 +12,5 @@ export interface IdParams {
 }
 
 export interface ClaimIdParams extends IdParams {
-  claimId: string;
+  claimReference: string;
 }

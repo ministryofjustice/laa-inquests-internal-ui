@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 import { ClaimDetailSchema } from "#src/adaptors/models/claim.schema.js";
 
 const baseClaim = {
-  claimId: 10,
+  claimReference: "INQC-0010-0010",
   claimTypeId: "PAYMENT_ON_ACCOUNT",
   submissionDate: "2026-08-11T12:52:29.677Z",
   totalProfitCostNet: "1000.00",

@@ -60,7 +60,7 @@ describe("ClaimAssessmentAdaptor", () => {
       status: "SUCCESS",
       data: {
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
         claimStatus: "Reject",
         overview: {
           paymentType: "Payment on account",
@@ -113,7 +113,7 @@ describe("ClaimAssessmentAdaptor", () => {
       requestStub,
       responseStub,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     assert.equal(buildClaimAssessmentViewUseCaseStub.execute.callCount, 1);
@@ -121,7 +121,7 @@ describe("ClaimAssessmentAdaptor", () => {
       buildClaimAssessmentViewUseCaseStub.execute.getCall(0).args[0],
       {
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
         accessToken: "test-access-token",
       },
     );
@@ -134,7 +134,7 @@ describe("ClaimAssessmentAdaptor", () => {
     assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
       backUrl: "/applications/123/overview",
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       claimStatus: "Reject",
       claimCostBreakdown: {
         fileName: "final_bill_costs.xlsx",
@@ -151,7 +151,7 @@ describe("ClaimAssessmentAdaptor", () => {
       requestStub,
       responseStub,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
@@ -169,7 +169,7 @@ describe("ClaimAssessmentAdaptor", () => {
       requestStub,
       responseStub,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     assert.equal(sessionHelperStub.clearSessionData.callCount, 0);
@@ -188,7 +188,7 @@ describe("ClaimAssessmentAdaptor", () => {
         },
         params: {
           laaReference: "123",
-          claimId: "10",
+          claimReference: "INQC-0010-0010",
         },
       } as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>;
     }
@@ -205,7 +205,7 @@ describe("ClaimAssessmentAdaptor", () => {
       );
 
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/claims/10/confirm-profit-costs",
+        "/applications/123/claims/INQC-0010-0010/confirm-profit-costs",
       ]);
       assert.equal(responseStub.render.callCount, 0);
       assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);
@@ -234,7 +234,7 @@ describe("ClaimAssessmentAdaptor", () => {
         rejectClaimUseCaseStub.execute.getCall(0).args[0],
         {
           laaReference: "123",
-          claimId: "10",
+          claimReference: "INQC-0010-0010",
           justification: "Not enough supporting evidence provided",
           accessToken: "test-access-token",
         },
@@ -248,7 +248,7 @@ describe("ClaimAssessmentAdaptor", () => {
         1,
       );
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/claims/10/rejected",
+        "/applications/123/claims/INQC-0010-0010/rejected",
       ]);
     });
 
@@ -310,7 +310,7 @@ describe("ClaimAssessmentAdaptor", () => {
         requestStub,
         responseStub,
         "123",
-        "10",
+        "INQC-0010-0010",
       );
 
       assert.equal(buildClaimRejectionViewUseCaseStub.execute.callCount, 1);
@@ -318,7 +318,7 @@ describe("ClaimAssessmentAdaptor", () => {
         buildClaimRejectionViewUseCaseStub.execute.getCall(0).args[0],
         {
           laaReference: "123",
-          claimId: "10",
+          claimReference: "INQC-0010-0010",
           accessToken: "test-access-token",
         },
       );
@@ -347,7 +347,7 @@ describe("ClaimAssessmentAdaptor", () => {
           requestStub,
           responseStub,
           "123",
-          "10",
+          "INQC-0010-0010",
         ),
         (thrown: unknown) => thrown === error,
       );

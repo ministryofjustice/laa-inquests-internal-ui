@@ -11,25 +11,25 @@ export function createConfirmDisbursementCostsRouter(
   confirmDisbursementCostsAdaptor: ConfirmDisbursementCostsAdaptor,
 ): Router {
   confirmDisbursementCostsRouter.get(
-    "/:laaReference/claims/:claimId/confirm-disbursement-costs",
+    "/:laaReference/claims/:claimReference/confirm-disbursement-costs",
     (req: Request, res: Response): void => {
       const {
-        params: { laaReference, claimId },
+        params: { laaReference, claimReference },
       } = req;
       const laaReferenceParam = laaReference as string;
-      const claimIdParam = claimId as string;
+      const claimReferenceParam = claimReference as string;
 
       confirmDisbursementCostsAdaptor.renderConfirmDisbursementCostsPage(
         req,
         res,
         laaReferenceParam,
-        claimIdParam,
+        claimReferenceParam,
       );
     },
   );
 
   confirmDisbursementCostsRouter.post(
-    "/:laaReference/claims/:claimId/confirm-disbursement-costs",
+    "/:laaReference/claims/:claimReference/confirm-disbursement-costs",
     (req: Request, res: Response): void => {
       confirmDisbursementCostsAdaptor.processConfirmDisbursementCostsForm(
         req as unknown as TypedRequest<

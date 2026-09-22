@@ -13,7 +13,7 @@ describe("PayInFullClaimUseCase", () => {
 
     const result = await new PayInFullClaimUseCase(claimsPortStub).execute({
       laaReference: "",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       data: { profitCostNet: 1000 },
     });
 
@@ -27,7 +27,7 @@ describe("PayInFullClaimUseCase", () => {
 
     const result = await new PayInFullClaimUseCase(claimsPortStub).execute({
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       data: { profitCostNet: 1000, disbursementNet: 100 },
       accessToken: "access-token-123",
     });
@@ -36,7 +36,7 @@ describe("PayInFullClaimUseCase", () => {
     assert.equal(claimsPortStub.payInFullClaim.callCount, 1);
     assert.deepEqual(claimsPortStub.payInFullClaim.getCall(0).args, [
       "123",
-      "10",
+      "INQC-0010-0010",
       { profitCostNet: 1000, disbursementNet: 100 },
       "access-token-123",
     ]);
@@ -51,7 +51,7 @@ describe("PayInFullClaimUseCase", () => {
 
     const result = await new PayInFullClaimUseCase(claimsPortStub).execute({
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       data: { profitCostNet: 1000 },
       accessToken: "access-token-123",
     });
@@ -74,7 +74,7 @@ describe("PayInFullClaimUseCase", () => {
     await assert.rejects(
       new PayInFullClaimUseCase(claimsPortStub).execute({
         laaReference: "123",
-        claimId: "10",
+        claimReference: "INQC-0010-0010",
         data: { profitCostNet: 1000 },
       }),
       (thrown: unknown) => thrown === error,

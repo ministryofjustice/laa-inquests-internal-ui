@@ -5,7 +5,7 @@ import type {
 
 interface PayInFullClaimInput {
   laaReference: string;
-  claimId: string;
+  claimReference: string;
   data: PayInFullClaimData;
   accessToken?: string;
 }
@@ -20,13 +20,13 @@ export class PayInFullClaimUseCase {
     | { status: "INVALID_INPUT" }
     | { status: "VALIDATION_ERROR"; errorCode: string }
   > {
-    if (!input.laaReference || !input.claimId) {
+    if (!input.laaReference || !input.claimReference) {
       return { status: "INVALID_INPUT" };
     }
 
     const result = await this.claimsPort.payInFullClaim(
       input.laaReference,
-      input.claimId,
+      input.claimReference,
       input.data,
       input.accessToken,
     );

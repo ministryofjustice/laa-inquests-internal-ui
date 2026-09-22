@@ -37,7 +37,7 @@ const GET_CLAIMS = {
 
 const GET_CLAIM = {
   operation: "get_claim",
-  route: "/applications/:id/claims/:id",
+  route: "/applications/:id/claims/:claimReference",
 };
 
 const GET_CLAIM_EVIDENCE = {
@@ -183,13 +183,13 @@ export async function getClaims(
 }
 
 export async function getClaimById(
-  request: ClaimsApiRequest & { laaReference: string; claimId: string },
+  request: ClaimsApiRequest & { laaReference: string; claimReference: string },
 ): Promise<ClaimDetail | undefined> {
-  const { http, baseUrl, laaReference, claimId } = request;
+  const { http, baseUrl, laaReference, claimReference } = request;
   const startedAt = Date.now();
   const identifiers = {
     laa_reference: laaReference,
-    claim_reference: claimId,
+    claim_reference: claimReference,
   };
   const accessToken = requireAccessToken(
     request.accessToken,
@@ -199,7 +199,7 @@ export async function getClaimById(
   );
   try {
     const { data }: AxiosResponse<ClaimDetail> = await http.get(
-      `${baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimId)}`,
+      `${baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     const result = ClaimDetailSchema.safeParse(data);

@@ -45,7 +45,9 @@ test.describe("Claims tab - with claims", () => {
     ).toBeVisible();
 
     const table = claimsPanel.locator("table", {
-      has: page.locator(`a[href="/applications/${laaReference}/claims/10"]`),
+      has: page.locator(
+        `a[href="/applications/${laaReference}/claims/INQC-0010-0010"]`,
+      ),
     });
 
     const headers = table.locator("thead th");
@@ -56,7 +58,9 @@ test.describe("Claims tab - with claims", () => {
     await expect(headers.nth(4)).toHaveText("View");
 
     const row = table.locator("tbody tr", {
-      has: page.locator(`a[href="/applications/${laaReference}/claims/10"]`),
+      has: page.locator(
+        `a[href="/applications/${laaReference}/claims/INQC-0010-0010"]`,
+      ),
     });
     await expect(row).toContainText("10 August 2026");
     await expect(row).toContainText("£1,200");
@@ -64,7 +68,10 @@ test.describe("Claims tab - with claims", () => {
     await expect(row).toContainText("Payment on account");
     await expect(
       row.getByRole("link", { name: "See details" }),
-    ).toHaveAttribute("href", `/applications/${laaReference}/claims/10`);
+    ).toHaveAttribute(
+      "href",
+      `/applications/${laaReference}/claims/INQC-0010-0010`,
+    );
   });
 
   test("should show the assessed claims table", async ({ page }) => {
@@ -80,7 +87,9 @@ test.describe("Claims tab - with claims", () => {
     ).toBeVisible();
 
     const table = claimsPanel.locator("table", {
-      has: page.locator(`a[href="/applications/${laaReference}/claims/20"]`),
+      has: page.locator(
+        `a[href="/applications/${laaReference}/claims/INQC-0020-0020"]`,
+      ),
     });
 
     const headers = table.locator("thead th");
@@ -97,7 +106,10 @@ test.describe("Claims tab - with claims", () => {
     await expect(row).toContainText("Payment on account");
     await expect(
       row.getByRole("link", { name: "See details" }),
-    ).toHaveAttribute("href", `/applications/${laaReference}/claims/20`);
+    ).toHaveAttribute(
+      "href",
+      `/applications/${laaReference}/claims/INQC-0020-0020`,
+    );
   });
 });
 

@@ -14,7 +14,7 @@ export interface CheckYourAnswersCostTotals {
 
 interface BuildCheckYourAnswersViewInput {
   laaReference: string;
-  claimId: string;
+  claimReference: string;
   accessToken?: string;
   profitCosts: CheckYourAnswersCostTotals;
   disbursementCosts: CheckYourAnswersCostTotals;
@@ -28,7 +28,7 @@ export interface CheckYourAnswersFormattedCostTotals {
 
 export interface CheckYourAnswersViewData {
   laaReference: string;
-  claimId: string;
+  claimReference: string;
   finalBill: string;
   claimDecision: string;
   profitCosts: CheckYourAnswersFormattedCostTotals;
@@ -46,13 +46,13 @@ export class BuildCheckYourAnswersViewUseCase {
   async execute(
     input: BuildCheckYourAnswersViewInput,
   ): Promise<BuildCheckYourAnswersViewResult> {
-    if (!input.laaReference || !input.claimId) {
+    if (!input.laaReference || !input.claimReference) {
       return { status: "INVALID_INPUT" };
     }
 
     const claim = await this.claimsPort.getClaimById(
       input.laaReference,
-      input.claimId,
+      input.claimReference,
       input.accessToken,
     );
     if (claim === undefined) return { status: "NOT_FOUND" };
@@ -61,7 +61,7 @@ export class BuildCheckYourAnswersViewUseCase {
       status: "SUCCESS",
       data: {
         laaReference: input.laaReference,
-        claimId: input.claimId,
+        claimReference: input.claimReference,
         finalBill: formatAmount(getPaymentAmountRaw(claim)),
         claimDecision: CLAIM_DECISION_STATUSES.PAY_IN_FULL,
         profitCosts: formatCostTotals(input.profitCosts),

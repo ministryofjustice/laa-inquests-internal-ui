@@ -49,7 +49,7 @@ describe("CheckYourAnswersAdaptor", () => {
     processRequest.session.user = { userId: "user", accessToken: "token" };
     (processRequest as unknown as { params: ClaimIdParams }).params = {
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
     };
     return processRequest as unknown as TypedRequest<
       Record<string, never>,
@@ -60,7 +60,12 @@ describe("CheckYourAnswersAdaptor", () => {
   it("renders 404 for a missing claim", async () => {
     useCase.execute.resolves({ status: "NOT_FOUND" });
 
-    await adaptor.renderCheckYourAnswersPage(request, response, "123", "10");
+    await adaptor.renderCheckYourAnswersPage(
+      request,
+      response,
+      "123",
+      "INQC-0010-0010",
+    );
 
     assert.deepEqual(response.status.firstCall.args, [404]);
     assert.equal(response.render.firstCall.args[0], "application/error");
@@ -72,7 +77,12 @@ describe("CheckYourAnswersAdaptor", () => {
       data: {} as never,
     });
 
-    await adaptor.renderCheckYourAnswersPage(request, response, "123", "10");
+    await adaptor.renderCheckYourAnswersPage(
+      request,
+      response,
+      "123",
+      "INQC-0010-0010",
+    );
 
     const [view, locals] = response.render.firstCall.args as unknown as [
       string,
@@ -81,7 +91,7 @@ describe("CheckYourAnswersAdaptor", () => {
     assert.equal(view, "application/claims/check-your-answers/index");
     assert.equal(
       locals.backUrl,
-      "/applications/123/claims/10/confirm-disbursement-costs",
+      "/applications/123/claims/INQC-0010-0010/confirm-disbursement-costs",
     );
   });
 
@@ -94,7 +104,12 @@ describe("CheckYourAnswersAdaptor", () => {
     useCase.execute.rejects(error);
 
     await assert.rejects(
-      adaptor.renderCheckYourAnswersPage(request, response, "123", "10"),
+      adaptor.renderCheckYourAnswersPage(
+        request,
+        response,
+        "123",
+        "INQC-0010-0010",
+      ),
       (thrown: unknown) => thrown === error,
     );
     assert.equal(response.render.callCount, 0);
@@ -117,7 +132,7 @@ describe("CheckYourAnswersAdaptor", () => {
     assert.equal(payInFullClaimUseCase.execute.callCount, 1);
     assert.deepEqual(payInFullClaimUseCase.execute.firstCall.args[0], {
       laaReference: "123",
-      claimId: "10",
+      claimReference: "INQC-0010-0010",
       data: {
         profitCostNet: 1000,
         profitCostGross: 1200,
@@ -127,7 +142,7 @@ describe("CheckYourAnswersAdaptor", () => {
       accessToken: "token",
     });
     assert.deepEqual(response.redirect.firstCall.args, [
-      "/applications/123/claims/10/paid-in-full",
+      "/applications/123/claims/INQC-0010-0010/paid-in-full",
     ]);
   });
 
@@ -212,7 +227,7 @@ describe("CheckYourAnswersAdaptor", () => {
       request,
       response,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     const [view, locals] = response.render.firstCall.args as unknown as [
@@ -233,7 +248,7 @@ describe("CheckYourAnswersAdaptor", () => {
       request,
       response,
       "123",
-      "10",
+      "INQC-0010-0010",
     );
 
     assert.deepEqual(response.status.firstCall.args, [404]);

@@ -46,7 +46,7 @@ export class ConfirmProfitCostsAdaptor {
     req: Request,
     res: Response,
     laaReference: string,
-    claimId: string,
+    claimReference: string,
     errorSummaries?: Partial<ConfirmProfitCostsFormErrors>,
     formValues?: Partial<ConfirmProfitCostsForm>,
   ): void {
@@ -57,7 +57,7 @@ export class ConfirmProfitCostsAdaptor {
       extraContext: {
         event: "confirm_profit_costs_page_requested",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
@@ -72,11 +72,11 @@ export class ConfirmProfitCostsAdaptor {
     res.render("application/claims/confirm-profit-costs/index", {
       backUrl: this.navigationHelper.resolveBackLinkUrl(
         req,
-        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
-        `/applications/${laaReference}/claims/${claimId}`,
+        `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimReference}`,
       ),
       laaReference,
-      claimId,
+      claimReference,
       ...totals,
       ...(errorSummaries !== undefined && {
         errorSummaries,
@@ -137,7 +137,7 @@ export class ConfirmProfitCostsAdaptor {
   ): void {
     const {
       body: formBody,
-      params: { laaReference, claimId },
+      params: { laaReference, claimReference },
     } = req;
 
     logger.logInfo({
@@ -147,7 +147,7 @@ export class ConfirmProfitCostsAdaptor {
       extraContext: {
         event: "confirm_profit_costs_form_submitted",
         laa_reference: laaReference,
-        claim_reference: claimId,
+        claim_reference: claimReference,
       },
     });
 
@@ -159,7 +159,7 @@ export class ConfirmProfitCostsAdaptor {
         req as unknown as Request,
         res,
         laaReference,
-        claimId,
+        claimReference,
         errorSummaries,
         formBody,
       );
@@ -175,8 +175,8 @@ export class ConfirmProfitCostsAdaptor {
     res.redirect(
       this.navigationHelper.resolveContinueUrl(
         req as unknown as Request,
-        `/applications/${laaReference}/claims/${claimId}/check-your-answers`,
-        `/applications/${laaReference}/claims/${claimId}/confirm-disbursement-costs`,
+        `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+        `/applications/${laaReference}/claims/${claimReference}/confirm-disbursement-costs`,
       ),
     );
   }
