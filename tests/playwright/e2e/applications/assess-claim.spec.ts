@@ -661,7 +661,9 @@ test.describe("Assess claim page", () => {
       const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
       for (const role of allowedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto(`/applications/${laaReference}/claims/${claimId}`);
+        await page.goto(
+          `/applications/${laaReference}/claims/${claimReference}`,
+        );
         await expect(page.getByRole("radio", { name: "Reject" })).toBeVisible();
         await expect(
           page.getByRole("radio", { name: "Pay in full" }),
@@ -681,7 +683,9 @@ test.describe("Assess claim page", () => {
       ];
       for (const role of deniedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto(`/applications/${laaReference}/claims/${claimId}`);
+        await page.goto(
+          `/applications/${laaReference}/claims/${claimReference}`,
+        );
         await expect(
           page.getByRole("radio", { name: "Reject" }),
         ).not.toBeVisible();
