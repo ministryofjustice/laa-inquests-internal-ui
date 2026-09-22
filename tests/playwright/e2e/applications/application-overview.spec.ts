@@ -437,6 +437,27 @@ test.describe("History tab", () => {
     expect(cellBox!.width).toBeLessThanOrEqual(panelBox!.width);
   });
 
+  test("renders the claim reference as a hyperlink in a claim history event", async ({
+    page,
+  }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    await page.getByRole("tab", { name: "History" }).click();
+
+    const historyPanel = page.locator("#history");
+    await expect(historyPanel).toContainText(
+      "Payment on account claim received:",
+    );
+
+    const claimLink = historyPanel.getByRole("link", {
+      name: "INQC-0010-0010",
+    });
+    await expect(claimLink).toHaveAttribute(
+      "href",
+      `/applications/${laaReference}/claims/INQC-0010-0010`,
+    );
+  });
+
   test.describe("Free note submission", () => {
     test("should prevent double submission of the note form", async ({
       page,
