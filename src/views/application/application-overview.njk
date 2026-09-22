@@ -115,7 +115,7 @@
                 }
             ]
         }) }}
-        {% if hasPermission(permissions.MAKE_APPLICATION_DECISION) %}
+        {% if hasPermission(permissions.MANAGE_APPLICATION) %}
         {{ govukButton({
             text: "Make assessment",
             href: "/applications/" ~ application.laaReference ~ "/decision"
@@ -242,14 +242,14 @@
                       text: "Change"
                     }
                   ]
-                } if application.overallDecision == "GRANTED"
+                } if application.overallDecision == "GRANTED" and hasPermission(permissions.MANAGE_APPLICATION)
             },
             rows: publicBodyRows
         }) }}
         {{ govukButton({
             text: "Make assessment",
             href: "/applications/" ~ application.laaReference ~ "/decision"
-        }) }}
+        }) if hasPermission(permissions.MANAGE_APPLICATION) }}
     {% endset %}
 
     {% set claimsHtml %}
