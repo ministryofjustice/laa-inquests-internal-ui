@@ -36,7 +36,10 @@ describe("Reports adaptor", () => {
     reportsAdaptor.renderReportsPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
-    assert.deepEqual(responseStub.render.firstCall.args, ["reports/index"]);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "reports/index",
+      { backUrl: "/" },
+    ]);
   });
 
   it("downloads applications backlog report with attachment headers", async () => {

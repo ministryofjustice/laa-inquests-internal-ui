@@ -1,4 +1,6 @@
 import { test, expect } from "../fixtures/index.js";
+import { validateBackButton } from "../utils/govuk-validators.js";
+import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 test.describe("Reports page", () => {
   test("displays reports heading and backlog download links", async ({
@@ -19,6 +21,8 @@ test.describe("Reports page", () => {
     const claimsBacklogLink = page.getByRole("link", {
       name: "Download Claims Backlog",
     });
+
+    await validateBackButton(page, "/");
 
     await expect(applicationsBacklogLink).toBeVisible();
     await expect(applicationsBacklogLink).toHaveAttribute(
@@ -76,5 +80,67 @@ test.describe("Reports page", () => {
     expect(claimsBacklogResponse.headers()["content-disposition"]).toContain(
       "attachment",
     );
+  });
+
+  test.describe("RBAC behaviour", () => {
+    test("displays applications backlog download link only to permitted roles", async ({
+      page,
+    }) => {
+      const allowedRoles = [
+        INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+      ];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/reports`);
+        await expect(
+          page.getByRole("link", { name: "Download Applications Backlog" }),
+        ).toBeVisible();
+      }
+    });
+
+    test("displays claims backlog download link only to permitted roles", async ({
+      page,
+    }) => {
+      const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/reports`);
+        await expect(
+          page.getByRole("link", { name: "Download Claims Backlog" }),
+        ).toBeVisible();
+      }
+    });
+
+    test("does not display applications backlog download link to unauthorised roles", async ({
+      page,
+    }) => {
+      const allowedRoles = [
+        INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+      ];
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+        if (!allowedRoles.includes(role)) {
+          await page.goto(`/auth/test-login?overrideRoles=${role}`);
+          await page.goto(`/reports`);
+          await expect(
+            page.getByRole("link", { name: "Download Applications Backlog" }),
+          ).not.toBeVisible();
+        }
+      }
+    });
+
+    test("does not display claims backlog download link to unauthorised roles", async ({
+      page,
+    }) => {
+      const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING];
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+        if (!allowedRoles.includes(role)) {
+          await page.goto(`/auth/test-login?overrideRoles=${role}`);
+          await page.goto(`/reports`);
+          await expect(
+            page.getByRole("link", { name: "Download Claims Backlog" }),
+          ).not.toBeVisible();
+        }
+      }
+    });
   });
 });

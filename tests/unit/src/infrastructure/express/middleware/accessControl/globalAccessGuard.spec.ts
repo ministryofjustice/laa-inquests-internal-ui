@@ -37,7 +37,7 @@ describe("globalAccessGuard", () => {
     (req as unknown as { path: string }).path = path;
   };
 
-  describe("public paths", () => {
+  describe("Public paths", () => {
     for (const path of [
       "/health",
       "/status",
@@ -55,7 +55,7 @@ describe("globalAccessGuard", () => {
     }
   });
 
-  describe("unauthenticated requests to non-public paths", () => {
+  describe("Unauthenticated requests to non-public paths", () => {
     it("calls next() and defers to requireAuth", () => {
       setPath("/applications");
 
@@ -75,7 +75,7 @@ describe("globalAccessGuard", () => {
     });
   });
 
-  describe("authenticated requests", () => {
+  describe("Authenticated requests", () => {
     beforeEach(() => {
       req.session.user = { userId: "test-caseworker" };
     });
@@ -108,7 +108,7 @@ describe("globalAccessGuard", () => {
     });
   });
 
-  describe("authenticated requests to a policy-protected dummy test route", () => {
+  describe("Only authenticated requests to a policy-protected dummy test route", () => {
     // Allows adding a test policy to the otherwise readonly ROUTE_POLICIES array.
     const mutableRoutePolicies = ROUTE_POLICIES as RoutePolicy[];
     const testPolicy: RoutePolicy = {
@@ -393,6 +393,56 @@ describe("globalAccessGuard", () => {
     });
 
     const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
+
+    it("denies access when no session role satisfies the policy", () => {
+      for (const role of RECOGNISED_ROLES.filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 0);
+        assert.equal(res.status.callCount, 1);
+        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+        assert.deepEqual(res.render.firstCall.args, [
+          "main/error",
+          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+        ]);
+        next.resetHistory();
+        res.status.resetHistory();
+        res.render.resetHistory();
+      }
+    });
+
+    it("allows access when a session role satisfies the policy", () => {
+      for (const role of allowedRoles) {
+        req.session.roles = [role];
+
+        globalAccessGuard(req, res, next as NextFunction);
+
+        assert.equal(next.callCount, 1);
+        assert.equal(res.status.callCount, 0);
+
+        next.resetHistory();
+        res.status.resetHistory();
+      }
+    });
+  });
+
+  describe("Only authenticated requests to reports page", () => {
+    beforeEach(() => {
+      setPath("/reports");
+      req.session.user = { userId: "test-caseworker" };
+    });
+
+    const allowedRoles = [
+      INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+      INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+      INTERNAL_CASEWORKER_ROLES.FINANCE,
+      INTERNAL_CASEWORKER_ROLES.POLICY,
+    ];
 
     it("denies access when no session role satisfies the policy", () => {
       for (const role of RECOGNISED_ROLES.filter(
