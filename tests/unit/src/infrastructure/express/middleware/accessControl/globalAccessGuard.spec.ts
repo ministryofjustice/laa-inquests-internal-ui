@@ -298,7 +298,9 @@ describe("globalAccessGuard", () => {
 
   describe("Only authenticated requests to claims decision confirm profit costs", () => {
     beforeEach(() => {
-      setPath("/applications/INQ-123-456/claims/INQC-1234-5678/confirm-profit-costs");
+      setPath(
+        "/applications/INQ-123-456/claims/INQC-1234-5678/confirm-profit-costs",
+      );
       req.session.user = { userId: "test-caseworker" };
     });
 
@@ -344,7 +346,6 @@ describe("globalAccessGuard", () => {
     beforeEach(() => {
       setPath(
         "/applications/INQ-123-456/claims/INQC-1234-5678/confirm-disbursement-costs",
-
       );
       req.session.user = { userId: "test-caseworker" };
     });
@@ -389,7 +390,9 @@ describe("globalAccessGuard", () => {
 
   describe("Only authenticated requests to claims decision check your answers", () => {
     beforeEach(() => {
-      setPath("/applications/INQ-123-456/claims/INQC-1234-5678/check-your-answers");
+      setPath(
+        "/applications/INQ-123-456/claims/INQC-1234-5678/check-your-answers",
+      );
       req.session.user = { userId: "test-caseworker" };
     });
 
