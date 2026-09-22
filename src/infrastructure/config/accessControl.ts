@@ -110,11 +110,13 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MANAGE_APPLICATION],
   },
   {
-    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+",
+    prefix:
+      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS],
   },
   {
-    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/[0-9]+/.+",
+    prefix:
+      "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/.+",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MAKE_CLAIM_DECISION],
   },
   {
