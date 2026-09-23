@@ -10,7 +10,7 @@ services:
       REDIS_HOST_NAME: redis
       REDIS_AUTH_TOKEN: ""
     ports:
-      - "3000:3000"
+      - "3001:3001"
     depends_on:
       redis:
         condition: service_healthy

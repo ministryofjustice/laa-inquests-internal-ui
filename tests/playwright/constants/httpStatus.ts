@@ -3,6 +3,7 @@ export {
   HTTP_UNAUTHORIZED,
   HTTP_FORBIDDEN,
   HTTP_NOT_FOUND,
+  HTTP_UNPROCESSABLE_ENTITY,
   HTTP_INTERNAL_SERVER_ERROR,
 } from "#src/infrastructure/express/constants.js";
 
