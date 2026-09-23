@@ -416,6 +416,15 @@ const applicationHistory = [
     eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_X_001,
     eventData: { noteText: "A".repeat(1000) },
   },
+  {
+    timestamp: "2026-05-21T09:00:00.000000",
+    actor: "System",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001,
+    eventData: {
+      claimType: "PAYMENT_ON_ACCOUNT",
+      claimReference: "INQC-0010-0010",
+    },
+  },
 ];
 
 export const applicationHandlers = [

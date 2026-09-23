@@ -1027,6 +1027,7 @@ describe("Application adaptor", () => {
           eventData: {
             claimType: "FINAL_BILL",
             claimDecision: "REJECTED",
+            claimReference: "INQC-0010-0010",
             decisionJustification: "Test justification",
           },
         },
@@ -1045,7 +1046,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        "<strong>Final bill claim rejected</strong>",
+        '<strong>Final bill claim rejected: <a href="/applications/123/claims/INQC-0010-0010">INQC-0010-0010</a></strong>',
       );
     });
 

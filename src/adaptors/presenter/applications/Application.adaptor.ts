@@ -246,7 +246,10 @@ export class ApplicationAdaptor {
       return { historyRows: [], historyError: true };
     }
 
-    const historyRows = formatHistoryRows(historyViewResult.data.history);
+    const historyRows = formatHistoryRows(
+      historyViewResult.data.history,
+      laaReference,
+    );
 
     return { historyRows, historyError: false };
   }

@@ -8,7 +8,10 @@ import type { HistoryEvent } from "#src/adaptors/models/application.types.js";
  * Event formatters take optional eventData and return a heading (always bold) and an
  * optional detail (rendered below the heading, not bold).
  */
-export type EventFormatter = (eventData?: Record<string, unknown> | null) => {
+export type EventFormatter = (
+  eventData: Record<string, unknown> | null | undefined,
+  laaReference: string,
+) => {
   heading: string;
   detail?: string;
 };
@@ -73,25 +76,31 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       heading: "Caseworker note added",
       detail: formatCaseworkerNote(eventData?.noteText),
     }),
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData) => {
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001]: (eventData, laaReference) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
-      return { heading: `${claimType} claim received` };
+      const claimReference = claimReferenceLink(
+        laaReference,
+        eventData?.claimReference,
+      );
+      return { heading: `${claimType} claim received: ${claimReference}` };
     },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData) => {
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002]: (eventData, laaReference) => {
       const claimType = formatEnum(escapeHtmlValue(eventData?.claimType));
       const decision = formatEnum(
         escapeHtmlValue(eventData?.claimDecision),
       ).toLowerCase();
-      return { heading: `${claimType} claim ${decision}` };
+      const claimReference = claimReferenceLink(
+        laaReference,
+        eventData?.claimReference,
+      );
+      return { heading: `${claimType} claim ${decision}: ${claimReference}` };
     },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData) => {
-      const claimReference = escapeHtmlValue(eventData?.claimReference);
-      return { heading: `POA claim ${claimReference} auto-approved` };
-    },
-    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_004]: (eventData) => {
-      const claimReference = escapeHtmlValue(eventData?.claimReference);
-      return { heading: `POA claim ${claimReference} auto-rejected` };
-    },
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_003]: (eventData, laaReference) => ({
+      heading: `POA claim ${claimReferenceLink(laaReference, eventData?.claimReference)} auto-approved`,
+    }),
+    [HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_004]: (eventData, laaReference) => ({
+      heading: `POA claim ${claimReferenceLink(laaReference, eventData?.claimReference)} auto-rejected`,
+    }),
 
     [HISTORY_EVENT_REFERENCE.EVT_COM_APP_001]: () => ({
       heading: "Application submission confirmation sent",
@@ -129,6 +138,15 @@ function escapeHtmlValue(value: unknown): string {
   throw new Error(`Couldn't format history event eventData`);
 }
 
+function claimReferenceLink(
+  laaReference: string,
+  claimReference: unknown,
+): string {
+  const escapedClaimReference = escapeHtmlValue(claimReference);
+  const escapedLaaReference = escapeHtml(laaReference);
+  return `<a href="/applications/${escapedLaaReference}/claims/${escapedClaimReference}">${escapedClaimReference}</a>`;
+}
+
 function formatCaseworkerNote(noteText: unknown): string {
   return escapeHtmlValue(noteText).replaceAll(/\r\n|\r|\n/gv, "<br />");
 }
@@ -143,13 +161,14 @@ function formatEnum(enumValue: string): string {
 function formatHistoryEventUpdate(
   eventReference: string,
   eventData: Record<string, unknown> | null | undefined,
+  laaReference: string,
 ): string {
   // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Dynamic property access requires bracket notation
   const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
 
   try {
     const { heading, detail } = formatter
-      ? formatter(eventData)
+      ? formatter(eventData, laaReference)
       : { heading: escapeHtml(eventReference) };
 
     return `<strong>${heading}</strong>${detail ? `<br />${detail}` : ""}`;
@@ -164,12 +183,14 @@ function formatHistoryEventUpdate(
 
 export function formatHistoryRows(
   history: HistoryEvent[],
+  laaReference: string,
 ): Array<Array<{ text?: string; html?: string }>> {
   return history.map((event) => {
     const timestamp = formatDateTime(event.timestamp);
     const update = formatHistoryEventUpdate(
       event.eventReference,
       event.eventData,
+      laaReference,
     );
 
     // event.actor is rendered via a "text:" table field, which nunjucks auto-escapes on render, so we don't need to escape it here.
