@@ -8,7 +8,7 @@ interface BuildApplicationClaimsViewInput {
   substantiveCertificate: number;
   accessToken?: string;
 }
-
+//test
 interface BuildApplicationClaimsViewData {
   toBeAssessedClaims: ClaimSummary[];
   assessedClaims: ClaimSummary[];
