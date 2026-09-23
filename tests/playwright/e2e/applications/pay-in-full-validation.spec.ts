@@ -7,6 +7,10 @@ import {
   CLAIM_APPLICATION_REFERENCE,
   PAY_IN_FULL_MIXED_VAT_CLAIM_ID,
   PAY_IN_FULL_UNKNOWN_CODE_CLAIM_ID,
+  PAY_IN_FULL_DISBURSEMENT_GROSS_CLAIM_ID,
+  PAY_IN_FULL_DISBURSEMENT_GROSS_UPSTREAM_MESSAGE,
+  PAY_IN_FULL_422_UNKNOWN_CODE_CLAIM_ID,
+  PAY_IN_FULL_422_UNKNOWN_CODE_UPSTREAM_MESSAGE,
 } from "#tests/playwright/factories/handlers/claimErrors.js";
 
 const confirmProfitCostsLocale = en.pages.claimAssessment.confirmProfitCosts;
@@ -141,6 +145,104 @@ test.describe
       sharedPage.getByText(
         "An upstream validation message we should not surface",
       ),
+    ).toHaveCount(0);
+  });
+});
+
+test.describe
+  .serial("Pay in full 422 validation errors on the check your answers page", () => {
+  let sharedContext: BrowserContext;
+  let sharedPage: Page;
+
+  test.beforeAll(async ({ browser }) => {
+    sharedContext = await browser.newContext({
+      baseURL: TEST_CONFIG.BASE_URL,
+    });
+    sharedPage = await sharedContext.newPage();
+  });
+
+  test.afterEach(async ({ checkPageAccessibility }) => {
+    await checkPageAccessibility(sharedPage);
+  });
+
+  test.afterAll(async () => {
+    await sharedContext.close();
+  });
+
+  test("shows the mapped message for a 422 error code and never surfaces the upstream message", async () => {
+    const assessClaimPage = `/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${PAY_IN_FULL_DISBURSEMENT_GROSS_CLAIM_ID}`;
+    const checkYourAnswersPage = `${assessClaimPage}/check-your-answers`;
+
+    await walkToCheckYourAnswers(sharedPage, assessClaimPage);
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+
+    const form = sharedPage.getByTestId("check-your-answers");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(
+      errorSummary.getByRole("heading", { name: errorSummaryTitle }),
+    ).toBeVisible();
+    await expect(
+      errorSummary.getByText(
+        confirmDisbursementCostsLocale.validationErrors.grossLessThanNet,
+      ),
+    ).toBeVisible();
+
+    await expect(
+      sharedPage.getByText(PAY_IN_FULL_DISBURSEMENT_GROSS_UPSTREAM_MESSAGE),
+    ).toHaveCount(0);
+    await expect(
+      sharedPage.getByRole("heading", {
+        name: checkYourAnswersLocale.heading,
+      }),
+    ).toBeVisible();
+  });
+});
+
+test.describe
+  .serial("Pay in full 422 validation errors with an unmapped error code", () => {
+  let sharedContext: BrowserContext;
+  let sharedPage: Page;
+
+  test.beforeAll(async ({ browser }) => {
+    sharedContext = await browser.newContext({
+      baseURL: TEST_CONFIG.BASE_URL,
+    });
+    sharedPage = await sharedContext.newPage();
+  });
+
+  test.afterEach(async ({ checkPageAccessibility }) => {
+    await checkPageAccessibility(sharedPage);
+  });
+
+  test.afterAll(async () => {
+    await sharedContext.close();
+  });
+
+  test("shows the generic submission error for a 422 and never surfaces the upstream message", async () => {
+    const assessClaimPage = `/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${PAY_IN_FULL_422_UNKNOWN_CODE_CLAIM_ID}`;
+    const checkYourAnswersPage = `${assessClaimPage}/check-your-answers`;
+
+    await walkToCheckYourAnswers(sharedPage, assessClaimPage);
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+
+    const form = sharedPage.getByTestId("check-your-answers");
+    await continueToNextPage(form, sharedPage);
+
+    await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+
+    const errorSummary = sharedPage.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(
+      errorSummary.getByText(checkYourAnswersLocale.submissionError),
+    ).toBeVisible();
+
+    await expect(
+      sharedPage.getByText(PAY_IN_FULL_422_UNKNOWN_CODE_UPSTREAM_MESSAGE),
     ).toHaveCount(0);
   });
 });

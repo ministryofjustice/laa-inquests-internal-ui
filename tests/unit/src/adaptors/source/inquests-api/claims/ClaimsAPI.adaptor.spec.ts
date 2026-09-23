@@ -607,6 +607,44 @@ describe("Test Claims API Adaptor", () => {
     logErrorStub.restore();
   });
 
+  it("returns a VALIDATION_ERROR outcome and does not throw when pay in full returns a 422 validation body", async () => {
+    const fakeAxios = { patch: axiosPatchStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logErrorStub = sinon.stub(logger, "logError");
+    axiosPatchStub.rejects(
+      new axios.AxiosError(
+        "Unprocessable Entity",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        {
+          status: 422,
+          data: {
+            detail: {
+              errorCode: "DISBURSEMENT_GROSS_NOT_GREATER_THAN_TOTAL",
+              message:
+                "The gross total must be greater than the 0% VAT and net total combined",
+            },
+          },
+        } as any,
+      ),
+    );
+
+    const result = await adaptor.payInFullClaim(
+      "123",
+      "INQC-0010-0010",
+      { disbursementNet: 500, disbursementGross: 400 },
+      "access-token-123",
+    );
+
+    assert.deepEqual(result, {
+      status: "VALIDATION_ERROR",
+      errorCode: "DISBURSEMENT_GROSS_NOT_GREATER_THAN_TOTAL",
+    });
+    sinon.assert.notCalled(logErrorStub);
+    logErrorStub.restore();
+  });
+
   it("throws a sanitized error when pay in full returns a 400 without a recognisable validation body", async () => {
     const fakeAxios = { patch: axiosPatchStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);

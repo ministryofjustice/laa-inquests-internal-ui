@@ -24,22 +24,30 @@ import {
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import { PayInFullValidationErrorSchema } from "#src/adaptors/models/payInFullError.schema.js";
-import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_UNPROCESSABLE_ENTITY,
+} from "#src/infrastructure/express/constants.js";
 
 const REJECT_CLAIM_OPERATION = "reject_claim";
 const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:claimReference/reject";
 const PAY_IN_FULL_CLAIM_OPERATION = "pay_in_full_claim";
 const PAY_IN_FULL_CLAIM_ROUTE =
   "/applications/:id/claims/:claimReference/pay-in-full";
+const PAY_IN_FULL_VALIDATION_STATUSES = new Set([
+  HTTP_BAD_REQUEST,
+  HTTP_UNPROCESSABLE_ENTITY,
+]);
 
 function extractPayInFullValidationErrorCode(
   error: AxiosError,
 ): string | undefined {
-  if (error.response?.status !== HTTP_BAD_REQUEST) {
+  const status = error.response?.status;
+  if (status === undefined || !PAY_IN_FULL_VALIDATION_STATUSES.has(status)) {
     return undefined;
   }
   const validation = PayInFullValidationErrorSchema.safeParse(
-    error.response.data,
+    error.response?.data,
   );
   return validation.success ? validation.data.detail.errorCode : undefined;
 }
