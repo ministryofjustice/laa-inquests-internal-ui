@@ -129,6 +129,7 @@ jobs:
         uses: ./.github/actions/deploy
         with:
           app-environment: dev
+          allow-list: ${{ secrets.ALLOW_LIST }}
           auth_client_id: ${{ vars.AUTH_CLIENT_ID }}
           auth_client_secret: ${{ vars.AUTH_CLIENT_SECRET }}
           auth_directory_url: ${{ vars.AUTH_DIRECTORY_URL }}

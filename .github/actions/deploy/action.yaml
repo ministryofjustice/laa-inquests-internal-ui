@@ -1,6 +1,9 @@
 name: "Deploy"
 description: "Deploy docker image to namespace"
 inputs:
+  allow-list:
+    description: "IP allow list"
+    required: true
   auth_directory_url:
     description: "Entra Authority URL"
   auth_client_id:
@@ -118,6 +121,7 @@ runs:
       shell: bash
       run: ./deploy/scripts/deploy.sh "$APP_ENVIRONMENT"
       env:
+        ALLOW_LIST: ${{ inputs.allow-list }}
         APP_ENVIRONMENT: ${{ inputs.app-environment }}
         REGISTRY: ${{ inputs.ecr-registry_url }}
         REPOSITORY: ${{ inputs.ecr-repository }}
