@@ -8,7 +8,7 @@ on:
 permissions:
   contents: write
   packages: write
-  actions: write
+  actions: read
 
 jobs:
   delete_dev_job:

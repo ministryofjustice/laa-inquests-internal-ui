@@ -27,7 +27,7 @@ on:
 permissions:
   contents: write
   packages: write
-  actions: write
+  actions: read
 
 jobs:
   code-linting:
