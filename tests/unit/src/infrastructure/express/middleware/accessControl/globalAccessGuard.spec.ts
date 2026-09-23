@@ -209,6 +209,17 @@ describe("globalAccessGuard", () => {
         ],
       },
       {
+        description:
+          "Only authenticated requests to applications certificate page",
+        path: "/applications/INQ-123-456/overview",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        ],
+      },
+      {
         description: "Only authenticated requests to applications decision",
         path: "/applications/INQ-123-456/decision",
         allowedRoles: [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER],

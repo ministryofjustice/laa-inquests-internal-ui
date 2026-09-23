@@ -106,6 +106,11 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
       PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
   },
   {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/certificate",
+    allowedRoles:
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
+  },
+  {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MANAGE_APPLICATION],
   },
