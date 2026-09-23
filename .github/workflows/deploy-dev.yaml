@@ -24,6 +24,10 @@ on:
         options:
           - dev
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   code-linting:
     name: Code Linting

@@ -21,6 +21,10 @@ on:
           - success
           - failure
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   notify-slack-test:
     name: Send test Slack notification

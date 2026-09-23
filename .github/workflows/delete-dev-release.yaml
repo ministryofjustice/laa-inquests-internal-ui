@@ -5,6 +5,10 @@ on:
     types:
       - closed
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   delete_dev_job:
     runs-on: ubuntu-latest
