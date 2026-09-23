@@ -203,7 +203,7 @@ test.describe("Confirm the total disbursement costs page", () => {
     await expect(page).toHaveURL(checkYourAnswersPage);
   });
 
-  test("shows the VAT conflict error when net, gross and 0% VAT totals are all filled in", async ({
+  test("continues to the check your answers page when net, gross and 0% VAT totals are all filled in", async ({
     page,
   }) => {
     await page.goto(confirmDisbursementCostsPage);
@@ -212,12 +212,7 @@ test.describe("Confirm the total disbursement costs page", () => {
     await setTotals(form, { net: "300", gross: "360", zeroVat: "100" });
     await submitForm(form, page);
 
-    await expect(page).toHaveURL(confirmDisbursementCostsPage);
-    await expect(
-      page
-        .locator(".govuk-error-summary")
-        .getByRole("link", { name: validationErrors.vatConflict }),
-    ).toHaveAttribute("href", "#net-total");
+    await expect(page).toHaveURL(checkYourAnswersPage);
   });
 
   test("retains entered values when validation fails", async ({ page }) => {

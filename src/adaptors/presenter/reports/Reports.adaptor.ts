@@ -20,7 +20,7 @@ export class ReportsAdaptor {
         event: "reports_page_requested",
       },
     });
-    res.render("reports/index");
+    res.render("reports/index", { backUrl: "/" });
   }
 
   async downloadApplicationsBacklog(

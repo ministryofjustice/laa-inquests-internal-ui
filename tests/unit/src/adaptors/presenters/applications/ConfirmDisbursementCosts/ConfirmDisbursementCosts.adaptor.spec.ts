@@ -143,7 +143,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 0);
   });
 
-  it("shows the VAT conflict message only once in errorList when all totals conflict", () => {
+  it("stores all three totals and redirects when 0% VAT, net and gross are all provided", () => {
     const requestWithBody: TypedRequest<
       ConfirmDisbursementCostsForm,
       ClaimIdParams
@@ -162,18 +162,22 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
 
     adaptor.processConfirmDisbursementCostsForm(requestWithBody, responseStub);
 
-    const renderArgs = responseStub.render.getCall(0)
-      .args[1] as unknown as Record<string, unknown>;
-    assert.deepStrictEqual(renderArgs.errorSummaries, {
-      netTotal: { text: validationErrors.vatConflict },
-      grossTotal: { text: validationErrors.vatConflict },
-      zeroVatTotal: { text: validationErrors.vatConflict },
-    });
-    assert.deepStrictEqual(renderArgs.errorList, [
-      { text: validationErrors.vatConflict, href: "#net-total" },
+    assert.equal(responseStub.render.callCount, 0);
+    assert.equal(sessionHelperStub.storeSessionData.callCount, 1);
+    assert.deepStrictEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+      requestWithBody,
+      "claimApproval",
+      {
+        disbursementNetTotal: "300",
+        disbursementGrossTotal: "360",
+        disbursementZeroVatTotal: "100",
+      },
     ]);
-    assert.equal(sessionHelperStub.storeSessionData.callCount, 0);
-    assert.equal(responseStub.redirect.callCount, 0);
+    assert.equal(responseStub.redirect.callCount, 1);
+    assert.equal(
+      responseStub.redirect.getCall(0).args[0],
+      "/applications/123/claims/INQC-0010-0010/check-your-answers",
+    );
   });
 
   it("stores the validated totals in session and redirects to the check your answers page when the form is valid", () => {
