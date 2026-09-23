@@ -21,11 +21,11 @@ on:
           - success
           - failure
 
-permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
-  packages: write
+#permissions:
+#  id-token: write
+#  contents: write
+#  pull-requests: write
+#  packages: write
 
 jobs:
   notify-slack-test:

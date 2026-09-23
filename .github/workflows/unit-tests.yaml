@@ -3,11 +3,11 @@ on:
   workflow_dispatch: # Allow manual triggering only
   workflow_call: # Allow this workflow to be called by other workflows
 
-permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
-  packages: write
+#permissions:
+#  id-token: write
+#  contents: write
+#  pull-requests: write
+#  packages: write
 
 jobs:
   mocha-unit-tests:
