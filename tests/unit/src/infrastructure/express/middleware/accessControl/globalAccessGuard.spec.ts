@@ -134,10 +134,7 @@ describe("globalAccessGuard", () => {
       assert.equal(next.callCount, 0);
       assert.equal(res.status.callCount, 1);
       assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-      assert.deepEqual(res.render.firstCall.args, [
-        "main/error",
-        { status: HTTP_FORBIDDEN, error: "Forbidden" },
-      ]);
+      assert.deepEqual(res.render.firstCall.args, ["main/error-unauthorised"]);
     });
 
     it("allows access when a session role satisfies the policy", () => {
@@ -173,8 +170,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
@@ -224,8 +220,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
@@ -272,8 +267,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
@@ -318,8 +312,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
@@ -364,8 +357,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
@@ -410,8 +402,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
@@ -460,8 +451,7 @@ describe("globalAccessGuard", () => {
         assert.equal(res.status.callCount, 1);
         assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
         assert.deepEqual(res.render.firstCall.args, [
-          "main/error",
-          { status: HTTP_FORBIDDEN, error: "Forbidden" },
+          "main/error-unauthorised",
         ]);
         next.resetHistory();
         res.status.resetHistory();
