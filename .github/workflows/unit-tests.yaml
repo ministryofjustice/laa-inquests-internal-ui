@@ -5,8 +5,7 @@ on:
 
 permissions:
   id-token: write
-  contents: read
-  checks: write
+  contents: write
 
 jobs:
   mocha-unit-tests:

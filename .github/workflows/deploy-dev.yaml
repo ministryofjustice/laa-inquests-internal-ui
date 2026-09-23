@@ -26,8 +26,8 @@ on:
 
 permissions:
   id-token: write
-  contents: read
-  checks: write
+  contents: write
+
 
 jobs:
   code-linting:
