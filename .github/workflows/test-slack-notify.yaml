@@ -22,10 +22,10 @@ on:
           - failure
 
 permissions:
-  id-token: write
   contents: write
   pull-requests: write
   actions: write
+  packages: read
 
 jobs:
   notify-slack-test:
