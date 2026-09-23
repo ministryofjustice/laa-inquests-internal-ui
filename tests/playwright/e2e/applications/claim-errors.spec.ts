@@ -48,8 +48,12 @@ test.describe("Claim errors", () => {
     page,
   }) => {
     const response = await page.goto(claimPath(FORBIDDEN_CLAIM_ID));
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
     await expect(
       page.getByRole("heading", { name: "You cannot access this page" }),
     ).toBeVisible();

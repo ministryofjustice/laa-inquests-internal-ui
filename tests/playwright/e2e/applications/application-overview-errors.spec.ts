@@ -74,8 +74,12 @@ test.describe("Application overview errors", () => {
     page,
   }) => {
     const response = await page.goto(overviewPath(FORBIDDEN_HISTORY_REFERENCE));
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
     await expect(
       page.getByRole("heading", { name: "You cannot access this page" }),
     ).toBeVisible();
@@ -108,8 +112,12 @@ test.describe("Application overview errors", () => {
     const response = await page.goto(
       coronersLetterPath(FORBIDDEN_CORONERS_LETTER_REFERENCE),
     );
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
     await expect(
       page.getByRole("heading", { name: "You cannot access this page" }),
     ).toBeVisible();

@@ -234,8 +234,12 @@ test.describe("View certificate page", () => {
     const response = await page.goto(
       `/applications/${FORBIDDEN_CERTIFICATE_REFERENCE}/certificate`,
     );
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
     await expect(
       page.getByRole("heading", { name: "You cannot access this page" }),
     ).toBeVisible();

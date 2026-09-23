@@ -78,8 +78,12 @@ test.describe("API auth errors", () => {
     const response = await page.goto(
       overviewPath(FORBIDDEN_APPLICATION_REFERENCE),
     );
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "You cannot access this page",
     );
