@@ -51,11 +51,11 @@ test.describe("Claims tab - with claims", () => {
     });
 
     const headers = table.locator("thead th");
-    await expect(headers.nth(0)).toHaveText("Date");
+    await expect(headers.nth(0)).toHaveText("Claim reference");
     await expect(headers.nth(1)).toHaveText("Total amount");
     await expect(headers.nth(2)).toHaveText("Status");
     await expect(headers.nth(3)).toHaveText("Type of claim");
-    await expect(headers.nth(4)).toHaveText("View");
+    await expect(headers.nth(4)).toHaveText("Date");
 
     const row = table.locator("tbody tr", {
       has: page.locator(
@@ -67,7 +67,7 @@ test.describe("Claims tab - with claims", () => {
     await expect(row).toContainText("Submitted");
     await expect(row).toContainText("Payment on account");
     await expect(
-      row.getByRole("link", { name: "See details" }),
+      row.getByRole("link", { name: "INQC-0010-0010" }),
     ).toHaveAttribute(
       "href",
       `/applications/${laaReference}/claims/INQC-0010-0010`,
@@ -93,11 +93,11 @@ test.describe("Claims tab - with claims", () => {
     });
 
     const headers = table.locator("thead th");
-    await expect(headers.nth(0)).toHaveText("Date");
+    await expect(headers.nth(0)).toHaveText("Claim reference");
     await expect(headers.nth(1)).toHaveText("Total amount");
     await expect(headers.nth(2)).toHaveText("Status");
     await expect(headers.nth(3)).toHaveText("Type of claim");
-    await expect(headers.nth(4)).toHaveText("View");
+    await expect(headers.nth(4)).toHaveText("Date");
 
     const row = table.locator("tbody tr").first();
     await expect(row).toContainText("01 July 2026");
@@ -105,7 +105,7 @@ test.describe("Claims tab - with claims", () => {
     await expect(row).toContainText("Pay in full");
     await expect(row).toContainText("Payment on account");
     await expect(
-      row.getByRole("link", { name: "See details" }),
+      row.getByRole("link", { name: "INQC-0020-0020" }),
     ).toHaveAttribute(
       "href",
       `/applications/${laaReference}/claims/INQC-0020-0020`,

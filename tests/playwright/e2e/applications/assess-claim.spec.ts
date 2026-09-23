@@ -50,7 +50,7 @@ test.describe("Assess claim page", () => {
         `a[href="/applications/${laaReference}/claims/${claimReference}"]`,
       ),
     });
-    await claimToAssessRow.getByRole("link", { name: "See details" }).click();
+    await claimToAssessRow.getByRole("link", { name: claimReference }).click();
 
     await expect(page).toHaveURL(assessClaimPage);
 
@@ -197,7 +197,9 @@ test.describe("Assess claim page", () => {
     });
 
     await expect(vatZeroClaimRow).toContainText("£800");
-    await vatZeroClaimRow.getByRole("link", { name: "See details" }).click();
+    await vatZeroClaimRow
+      .getByRole("link", { name: claimVatZeroOnlyReference })
+      .click();
 
     await expect(page).toHaveURL(assessClaimVatZeroOnlyPage);
 
