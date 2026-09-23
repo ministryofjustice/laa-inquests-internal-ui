@@ -74,9 +74,15 @@ test.describe("Application overview errors", () => {
     page,
   }) => {
     const response = await page.goto(overviewPath(FORBIDDEN_HISTORY_REFERENCE));
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
-    await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
+    await expect(
+      page.getByRole("heading", { name: "You cannot access this page" }),
+    ).toBeVisible();
   });
 
   test("shows the generic error page when history retrieval fails", async ({
@@ -106,9 +112,15 @@ test.describe("Application overview errors", () => {
     const response = await page.goto(
       coronersLetterPath(FORBIDDEN_CORONERS_LETTER_REFERENCE),
     );
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
-    await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
+    await expect(
+      page.getByRole("heading", { name: "You cannot access this page" }),
+    ).toBeVisible();
   });
 
   test("shows an accessible not-found page when the coroner letter does not exist", async ({

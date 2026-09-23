@@ -234,10 +234,15 @@ test.describe("View certificate page", () => {
     const response = await page.goto(
       `/applications/${FORBIDDEN_CERTIFICATE_REFERENCE}/certificate`,
     );
+    const returnToHonePageButton = page.getByRole("button", {
+      name: "Return to home page",
+    });
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
-    await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
-    await expect(page.getByText(en.pages.error.forbidden)).toBeVisible();
+    await expect(returnToHonePageButton).toHaveAttribute("href", "/");
+    await expect(
+      page.getByRole("heading", { name: "You cannot access this page" }),
+    ).toBeVisible();
   });
 
   test("shows the generic error page when the certificate API returns 500", async ({

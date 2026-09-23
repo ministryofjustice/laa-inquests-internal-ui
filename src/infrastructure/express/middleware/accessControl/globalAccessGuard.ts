@@ -6,7 +6,6 @@ import {
   type CaseworkerRole,
 } from "#src/infrastructure/config/accessControl.js";
 import { HTTP_FORBIDDEN } from "#src/infrastructure/express/constants.js";
-import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 type DenyReason = "insufficient_role";
@@ -67,8 +66,5 @@ function denyAccess(req: Request, res: Response, reason: DenyReason): void {
     },
   });
 
-  res.status(HTTP_FORBIDDEN).render("main/error", {
-    status: HTTP_FORBIDDEN,
-    error: t("pages.error.forbidden"),
-  });
+  res.status(HTTP_FORBIDDEN).render("main/error-unauthorised");
 }

@@ -72,10 +72,7 @@ const handleApiAuthErrors = (
 
   if (failure === APPLICATION_ERROR_TYPES.FORBIDDEN) {
     logAuthFailure("api_forbidden", HTTP_FORBIDDEN);
-    res.status(HTTP_FORBIDDEN).render("main/error", {
-      status: HTTP_FORBIDDEN,
-      error: t("pages.error.forbidden"),
-    });
+    res.status(HTTP_FORBIDDEN).render("main/error-unauthorised");
   } else if (
     failure === APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED &&
     req.query[SESSION_EXPIRED_QUERY_FLAG] === undefined
