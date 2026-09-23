@@ -50,7 +50,9 @@ test.describe("Claim errors", () => {
     const response = await page.goto(claimPath(FORBIDDEN_CLAIM_ID));
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
-    await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "You cannot access this page" }),
+    ).toBeVisible();
   });
 
   test("shows an accessible not-found page when the claim does not exist", async ({

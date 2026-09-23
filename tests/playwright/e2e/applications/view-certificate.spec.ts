@@ -236,8 +236,9 @@ test.describe("View certificate page", () => {
     );
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
-    await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
-    await expect(page.getByText(en.pages.error.forbidden)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "You cannot access this page" }),
+    ).toBeVisible();
   });
 
   test("shows the generic error page when the certificate API returns 500", async ({

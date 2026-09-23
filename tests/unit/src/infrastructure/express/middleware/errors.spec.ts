@@ -185,13 +185,7 @@ describe("error middleware", () => {
 
       assert.equal(res.status.callCount, 1);
       assert.equal(res.status.firstCall.args[0], 403);
-      assert.deepEqual(res.render.firstCall.args, [
-        "main/error",
-        {
-          status: 403,
-          error: "Forbidden",
-        },
-      ]);
+      assert.deepEqual(res.render.firstCall.args, ["main/error-unauthorised"]);
       assert.equal(res.redirect.callCount, 0);
       assert.equal(destroy.callCount, 0);
       assert.equal(next.callCount, 0);
@@ -208,13 +202,7 @@ describe("error middleware", () => {
 
       assert.equal(res.status.callCount, 1);
       assert.equal(res.status.firstCall.args[0], 403);
-      assert.deepEqual(res.render.firstCall.args, [
-        "main/error",
-        {
-          status: 403,
-          error: "Forbidden",
-        },
-      ]);
+      assert.deepEqual(res.render.firstCall.args, ["main/error-unauthorised"]);
       assert.equal(res.redirect.callCount, 0);
       assert.equal(destroy.callCount, 0);
       assert.equal(next.callCount, 0);

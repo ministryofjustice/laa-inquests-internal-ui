@@ -80,8 +80,9 @@ test.describe("API auth errors", () => {
     );
 
     expect(response?.status()).toBe(HTTP_FORBIDDEN);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("403");
-    await expect(page.getByText("Forbidden")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "You cannot access this page",
+    );
     expect(page.url()).toContain(overviewPath(FORBIDDEN_APPLICATION_REFERENCE));
   });
 
