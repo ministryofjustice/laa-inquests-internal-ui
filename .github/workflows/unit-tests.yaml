@@ -3,9 +3,6 @@ on:
   workflow_dispatch: # Allow manual triggering only
   workflow_call: # Allow this workflow to be called by other workflows
 
-permissions:
-  contents: read
-
 jobs:
   mocha-unit-tests:
     name: Mocha Unit Tests
