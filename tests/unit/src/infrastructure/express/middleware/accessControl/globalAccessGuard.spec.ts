@@ -251,6 +251,11 @@ describe("globalAccessGuard", () => {
           INTERNAL_CASEWORKER_ROLES.POLICY,
         ],
       },
+      {
+        description: "Only authenticated requests to public authorities page",
+        path: "/applications/INQ-123-456/public-authorities",
+        allowedRoles: [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER],
+      },
     ];
 
     for (const test of policyTests) {

@@ -131,6 +131,10 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     prefix: "/reports/claims/backlog",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_REPORTS],
   },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/public-authorities",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MANAGE_APPLICATION],
+  },
 ];
 
 export function isRecognisedRole(value: unknown): value is CaseworkerRole {
