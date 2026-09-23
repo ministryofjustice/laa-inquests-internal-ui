@@ -5,6 +5,9 @@ on:
     types:
       - closed
 
+permissions:
+  contents: read
+
 jobs:
   delete_dev_job:
     runs-on: ubuntu-latest

@@ -24,6 +24,9 @@ on:
         options:
           - dev
 
+permissions:
+  contents: read
+
 jobs:
   code-linting:
     name: Code Linting
