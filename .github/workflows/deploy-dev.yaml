@@ -25,8 +25,7 @@ on:
           - dev
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
   actions: write
   packages: read
 

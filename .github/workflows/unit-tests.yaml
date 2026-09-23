@@ -4,8 +4,7 @@ on:
   workflow_call: # Allow this workflow to be called by other workflows
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
   actions: write
   packages: read
 
