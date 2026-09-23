@@ -23,9 +23,8 @@ on:
 
 permissions:
   id-token: write
-  contents: write
+  contents: read
   pull-requests: write
-  packages: write
   actions: write
 
 jobs:
