@@ -37,6 +37,55 @@ describe("globalAccessGuard", () => {
     (req as unknown as { path: string }).path = path;
   };
 
+  const testPolicyProtectedRoute = (
+    description: string,
+    path: string,
+    allowedRoles: string[],
+  ) => {
+    describe(description, () => {
+      beforeEach(() => {
+        setPath(path);
+        req.session.user = { userId: "test-caseworker" };
+      });
+
+      it("denies access when no session role satisfies the policy", () => {
+        const deniedRoles = RECOGNISED_ROLES.filter(
+          (r) => !allowedRoles.includes(r),
+        );
+
+        for (const role of deniedRoles) {
+          req.session.roles = [role];
+
+          globalAccessGuard(req, res, next as NextFunction);
+
+          assert.equal(next.callCount, 0);
+          assert.equal(res.status.callCount, 1);
+          assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+          assert.deepEqual(res.render.firstCall.args, [
+            "main/error-unauthorised",
+          ]);
+          next.resetHistory();
+          res.status.resetHistory();
+          res.render.resetHistory();
+        }
+      });
+
+      it("allows access when a session role satisfies the policy", () => {
+        for (const role of allowedRoles) {
+          req.session.roles = [role];
+
+          globalAccessGuard(req, res, next as NextFunction);
+
+          assert.equal(next.callCount, 1);
+          assert.equal(res.status.callCount, 0);
+
+          next.resetHistory();
+          res.status.resetHistory();
+        }
+      });
+    });
+  };
+
   describe("Public paths", () => {
     for (const path of [
       "/health",
@@ -147,330 +196,65 @@ describe("globalAccessGuard", () => {
     });
   });
 
-  describe("Only authenticated requests to applications overview", () => {
-    beforeEach(() => {
-      setPath("/applications/INQ-123-456/overview");
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    it("denies access when no session role satisfies the policy", () => {
-      const deniedRoles = [
-        INTERNAL_CASEWORKER_ROLES.POLICY,
-        INTERNAL_CASEWORKER_ROLES.FINANCE,
-        INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
-        INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
-      ];
-
-      for (const role of deniedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      const allowedRoles = [
-        INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
-        INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
-        INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
-        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
-      ];
-
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
-  });
-
-  describe("Only authenticated requests to applications decision", () => {
-    beforeEach(() => {
-      setPath("/applications/INQ-123-456/decision");
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
-
-    it("denies access when no session role satisfies the policy", () => {
-      for (const role of RECOGNISED_ROLES.filter(
-        (r) => !allowedRoles.includes(r),
-      )) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
-  });
-
-  describe("Only authenticated requests to claims details", () => {
-    beforeEach(() => {
-      setPath("/applications/INQ-123-456/claims/INQC-1234-5678");
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    const allowedRoles = [
-      INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
-      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
-      INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+  describe("Parameterized tests for policy-protected routes", () => {
+    const policyTests = [
+      {
+        description: "Only authenticated requests to applications overview",
+        path: "/applications/INQ-123-456/overview",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        ],
+      },
+      {
+        description: "Only authenticated requests to applications decision",
+        path: "/applications/INQ-123-456/decision",
+        allowedRoles: [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER],
+      },
+      {
+        description: "Only authenticated requests to claims details",
+        path: "/applications/INQ-123-456/claims/INQC-1234-5678",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+          INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+        ],
+      },
+      {
+        description:
+          "Only authenticated requests to claims decision confirm profit costs",
+        path: "/applications/INQ-123-456/claims/INQC-1234-5678/confirm-profit-costs",
+        allowedRoles: [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER],
+      },
+      {
+        description:
+          "Only authenticated requests to claims decision confirm disbursement costs",
+        path: "/applications/INQ-123-456/claims/INQC-1234-5678/confirm-disbursement-costs",
+        allowedRoles: [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER],
+      },
+      {
+        description:
+          "Only authenticated requests to claims decision check your answers",
+        path: "/applications/INQ-123-456/claims/INQC-1234-5678/check-your-answers",
+        allowedRoles: [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER],
+      },
+      {
+        description: "Only authenticated requests to reports page",
+        path: "/reports",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+          INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+          INTERNAL_CASEWORKER_ROLES.FINANCE,
+          INTERNAL_CASEWORKER_ROLES.POLICY,
+        ],
+      },
     ];
 
-    it("denies access when no session role satisfies the policy", () => {
-      for (const role of RECOGNISED_ROLES.filter(
-        (r) => !allowedRoles.includes(r),
-      )) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
-  });
-
-  describe("Only authenticated requests to claims decision confirm profit costs", () => {
-    beforeEach(() => {
-      setPath(
-        "/applications/INQ-123-456/claims/INQC-1234-5678/confirm-profit-costs",
-      );
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
-
-    it("denies access when no session role satisfies the policy", () => {
-      for (const role of RECOGNISED_ROLES.filter(
-        (r) => !allowedRoles.includes(r),
-      )) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
-  });
-
-  describe("Only authenticated requests to claims decision confirm disbursement costs", () => {
-    beforeEach(() => {
-      setPath(
-        "/applications/INQ-123-456/claims/INQC-1234-5678/confirm-disbursement-costs",
-      );
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
-
-    it("denies access when no session role satisfies the policy", () => {
-      for (const role of RECOGNISED_ROLES.filter(
-        (r) => !allowedRoles.includes(r),
-      )) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
-  });
-
-  describe("Only authenticated requests to claims decision check your answers", () => {
-    beforeEach(() => {
-      setPath(
-        "/applications/INQ-123-456/claims/INQC-1234-5678/check-your-answers",
-      );
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    const allowedRoles = [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER];
-
-    it("denies access when no session role satisfies the policy", () => {
-      for (const role of RECOGNISED_ROLES.filter(
-        (r) => !allowedRoles.includes(r),
-      )) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
-  });
-
-  describe("Only authenticated requests to reports page", () => {
-    beforeEach(() => {
-      setPath("/reports");
-      req.session.user = { userId: "test-caseworker" };
-    });
-
-    const allowedRoles = [
-      INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
-      INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
-      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
-      INTERNAL_CASEWORKER_ROLES.FINANCE,
-      INTERNAL_CASEWORKER_ROLES.POLICY,
-    ];
-
-    it("denies access when no session role satisfies the policy", () => {
-      for (const role of RECOGNISED_ROLES.filter(
-        (r) => !allowedRoles.includes(r),
-      )) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 0);
-        assert.equal(res.status.callCount, 1);
-        assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
-        assert.deepEqual(res.render.firstCall.args, [
-          "main/error-unauthorised",
-        ]);
-        next.resetHistory();
-        res.status.resetHistory();
-        res.render.resetHistory();
-      }
-    });
-
-    it("allows access when a session role satisfies the policy", () => {
-      for (const role of allowedRoles) {
-        req.session.roles = [role];
-
-        globalAccessGuard(req, res, next as NextFunction);
-
-        assert.equal(next.callCount, 1);
-        assert.equal(res.status.callCount, 0);
-
-        next.resetHistory();
-        res.status.resetHistory();
-      }
-    });
+    for (const test of policyTests) {
+      testPolicyProtectedRoute(test.description, test.path, test.allowedRoles);
+    }
   });
 });
