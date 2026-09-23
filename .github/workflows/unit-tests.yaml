@@ -3,18 +3,17 @@ on:
   workflow_dispatch: # Allow manual triggering only
   workflow_call: # Allow this workflow to be called by other workflows
 
-#permissions:
-#  id-token: write
-#  contents: write
-#  pull-requests: write
-#  packages: write
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  packages: write
+  actions: write
 
 jobs:
   mocha-unit-tests:
     name: Mocha Unit Tests
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98

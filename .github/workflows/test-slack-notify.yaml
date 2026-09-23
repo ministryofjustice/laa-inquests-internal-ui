@@ -21,18 +21,17 @@ on:
           - success
           - failure
 
-#permissions:
-#  id-token: write
-#  contents: write
-#  pull-requests: write
-#  packages: write
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  packages: write
+  actions: write
 
 jobs:
   notify-slack-test:
     name: Send test Slack notification
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
