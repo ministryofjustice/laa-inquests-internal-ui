@@ -388,6 +388,7 @@ interface ClaimRow {
   total: string;
   status: string;
   claimType: string;
+  claimReference: string;
   href: string;
 }
 
@@ -406,6 +407,7 @@ function mapClaimRow(claim: ClaimSummary, laaReference: string): ClaimRow {
     total: formatCurrency(getClaimCost(claim)),
     status: mapClaimStatus(claim.statusId ?? claim.claimDecisionStatus),
     claimType: mapClaimType(claim.claimTypeId),
+    claimReference: claim.claimReference,
     href: `/applications/${laaReference}/claims/${claim.claimReference}`,
   };
 }

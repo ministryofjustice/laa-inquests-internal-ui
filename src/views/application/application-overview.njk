@@ -259,11 +259,11 @@
             <p class="govuk-body">{{ t('pages.applicationOverview.claims.noClaims') }}</p>
         {% else %}
             {% set claimsTableHead = [
-                { text: t('pages.applicationOverview.claims.table.date') },
+                { text: t('pages.applicationOverview.claims.table.claimReference') },
                 { text: t('pages.applicationOverview.claims.table.totalAmount') },
                 { text: t('pages.applicationOverview.claims.table.status') },
                 { text: t('pages.applicationOverview.claims.table.typeOfClaim') },
-                { text: t('pages.applicationOverview.claims.table.view') }
+                { text: t('pages.applicationOverview.claims.table.date') }
             ] %}
 
             <h2 class="govuk-heading-m">{{ t('pages.applicationOverview.claims.totalHeading') }}</h2>
@@ -275,11 +275,11 @@
                 {% set toBeAssessedRows = [] %}
                 {% for claim in claims.toBeAssessed %}
                     {% set toBeAssessedRows = toBeAssessedRows.concat([[
-                        { text: claim.date },
+                        { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ claim.claimReference ~ '</a>' },
                         { text: claim.total },
                         { text: claim.status },
                         { text: claim.claimType },
-                        { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ t('pages.applicationOverview.claims.table.viewLink') ~ '</a>' }
+                        { text: claim.date }
                     ]]) %}
                 {% endfor %}
                 {{ govukTable({
@@ -293,11 +293,11 @@
                 {% set assessedRows = [] %}
                 {% for claim in claims.assessed %}
                     {% set assessedRows = assessedRows.concat([[
-                        { text: claim.date },
+                        { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ claim.claimReference ~ '</a>' },
                         { text: claim.total },
                         { text: claim.status },
                         { text: claim.claimType },
-                        { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ t('pages.applicationOverview.claims.table.viewLink') ~ '</a>' }
+                        { text: claim.date }
                     ]]) %}
                 {% endfor %}
                 {{ govukTable({

@@ -132,12 +132,11 @@
         "toBeAssessedHeading": "Claims to be assessed",
         "assessedHeading": "Assessed claims",
         "table": {
+          "claimReference": "Claim reference",
           "date": "Date",
           "totalAmount": "Total amount",
           "status": "Status",
-          "typeOfClaim": "Type of claim",
-          "view": "View",
-          "viewLink": "See details"
+          "typeOfClaim": "Type of claim"
         }
       }
     },
