@@ -21,12 +21,11 @@ on:
           - success
           - failure
 
-permissions:
-  contents: read
-
 jobs:
   notify-slack-test:
     name: Send test Slack notification
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
