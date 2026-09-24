@@ -11,7 +11,6 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     permissions:
       # required for all workflows
       security-events: write
@@ -22,6 +21,7 @@ jobs:
       # only required for workflows in private repositories
       actions: read
       contents: read
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
 
     strategy:
       fail-fast: false
@@ -52,10 +52,10 @@ jobs:
 
   semgrep:
     name: Semgrep Analysis
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98

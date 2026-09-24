@@ -17,11 +17,11 @@ on:
 jobs:
   playwright:
     name: Playwright Tests
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
     # Mark this job as required for PR checks
     outputs:
       status: ${{ job.status }}
