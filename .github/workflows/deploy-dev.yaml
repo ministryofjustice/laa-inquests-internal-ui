@@ -24,19 +24,12 @@ on:
         options:
           - dev
 
-# Need these here somewhere
-
-# This is a standard set of permissions we found to be sufficient for most workflows in general
-# We set these to narrow permissions as advised by https://codeql.github.com/codeql-query-help/actions/actions-missing-workflow-permissions/
-# If you want to be more restrictive, you can try changing these permissions here, or assigning permissions per job in a workflow file
-permissions:
-  contents: read
-  packages: read
-
 jobs:
   code-linting:
     name: Code Linting
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -50,6 +43,8 @@ jobs:
   code-security-audit:
     name: Code Security Audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -63,6 +58,8 @@ jobs:
   snyk:
     name: Snyk scan docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -109,10 +106,15 @@ jobs:
   unit-tests:
     name: Mocha Unit Tests
     uses: ./.github/workflows/unit-tests.yaml
+    permissions:
+      contents: read
 
   e2e-tests:
     name: Playwright Tests
     uses: ./.github/workflows/e2e-tests.yaml
+    permissions:
+      contents: read
+      packages: read
     secrets:
       E2E_AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
       E2E_AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
@@ -164,6 +166,8 @@ jobs:
     environment: dev
     needs: deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: always() && github.ref_name == 'main'
     steps:
       - name: Checkout Code
