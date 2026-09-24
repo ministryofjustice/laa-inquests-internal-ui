@@ -5,6 +5,7 @@
   {%- elif upperValue == "GRANTED" -%}
     <strong class="govuk-tag govuk-tag--green">Granted</strong>
   {%- else -%}
-    <strong class="govuk-tag govuk-tag--blue">Pending decision</strong>
+    {# TODO(IDDS-727): covers both PENDING and SUBMITTED; remove PENDING once the API only returns SUBMITTED #}
+    <strong class="govuk-tag govuk-tag--blue">Submitted</strong>
   {%- endif -%}
 {% endmacro %}

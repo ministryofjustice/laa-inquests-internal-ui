@@ -38,6 +38,7 @@ export class PrepareDecisionFormUseCase {
         input.application.proceeding.certificateType,
       ),
       meritsDecision: toTitleCase(
+        // TODO(IDDS-727): remove PENDING fallback once the API only returns SUBMITTED.
         input.application.overallDecision ?? "PENDING",
       ),
     };

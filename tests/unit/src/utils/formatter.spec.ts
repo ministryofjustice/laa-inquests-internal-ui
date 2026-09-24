@@ -1,5 +1,9 @@
 import { expect } from "chai";
-import { formatCurrency, toTitleCase } from "#src/utils/formatter.js";
+import {
+  formatCurrency,
+  isPendingDecision,
+  toTitleCase,
+} from "#src/utils/formatter.js";
 
 describe("formatCurrency()", () => {
   it("formats a whole number as GBP currency", () => {
@@ -38,5 +42,26 @@ describe("toTitleCase()", () => {
 
   it("handles a single character", () => {
     expect(toTitleCase("a")).to.equal("A");
+  });
+});
+
+describe("isPendingDecision()", () => {
+  it("returns true when the value is PENDING", () => {
+    expect(isPendingDecision("PENDING")).to.equal(true);
+  });
+
+  // TODO(IDDS-727): remove this test once the API only returns SUBMITTED (no PENDING backwards compatibility needed).
+  it("returns true when the value is SUBMITTED", () => {
+    expect(isPendingDecision("SUBMITTED")).to.equal(true);
+  });
+
+  it("returns true when the value is missing", () => {
+    expect(isPendingDecision(undefined)).to.equal(true);
+    expect(isPendingDecision(null)).to.equal(true);
+  });
+
+  it("returns false for a decided value", () => {
+    expect(isPendingDecision("GRANTED")).to.equal(false);
+    expect(isPendingDecision("REFUSED")).to.equal(false);
   });
 });

@@ -461,6 +461,23 @@ describe("Application adaptor", () => {
       });
     });
 
+    // TODO(IDDS-727): remove this test once the API only returns SUBMITTED (no PENDING backwards compatibility needed).
+    it("renders grey 'Awaiting assessment' tag when overallDecision is SUBMITTED", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        overallDecision: "SUBMITTED",
+      });
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.partialDeepStrictEqual(renderArgs[1], {
+        statusTag: { text: "Awaiting assessment", classes: "govuk-tag--grey" },
+      });
+    });
+
     it("renders green 'Assessment complete' tag when overallDecision is not PENDING", async () => {
       viewApplicationAdaptorStub.getApplication.resolves({
         ...application,

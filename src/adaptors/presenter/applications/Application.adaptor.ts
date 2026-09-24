@@ -6,7 +6,7 @@ import { BuildApplicationOverviewViewUseCase } from "#src/use-cases/applications
 import type { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildApplicationHistoryViewUseCase } from "#src/use-cases/applications/history/BuildApplicationHistoryView.useCase.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
-import { formatCurrency } from "#src/utils/formatter.js";
+import { formatCurrency, isPendingDecision } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
 import { CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
@@ -135,10 +135,7 @@ export class ApplicationAdaptor {
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
       getCorrespondenceDisplay(application, clientHomeAddressDisplay);
 
-    const isPending =
-      !application.overallDecision ||
-      application.overallDecision.toUpperCase() === "PENDING";
-    const statusTag = isPending
+    const statusTag = isPendingDecision(application.overallDecision)
       ? { text: "Awaiting assessment", classes: "govuk-tag--grey" }
       : { text: "Assessment complete", classes: "govuk-tag--green" };
 

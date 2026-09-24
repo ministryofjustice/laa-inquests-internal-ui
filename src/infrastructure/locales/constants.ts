@@ -6,7 +6,10 @@ export const EMPTY_ARR_LENGTH = 0;
 
 export const GRANTED_DECISION = "GRANTED";
 export const REFUSED_DECISION = "REFUSED";
+// TODO(IDDS-727): the API is moving from PENDING to SUBMITTED for application overallDecision.
+// Remove PENDING_DECISION once the API only returns SUBMITTED.
 export const PENDING_DECISION = "PENDING";
+export const SUBMITTED_DECISION = "SUBMITTED";
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
