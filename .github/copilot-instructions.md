@@ -118,4 +118,6 @@ Each journey step must cover:
 - CSRF (if a form page)
 - Accessibility tests with `checkAccessibility`
 
+**Any new route or view must include or update a Playwright spec that runs `checkAccessibility`.**
+
 Develop utility functions per step (e.g. functions in `form-validation-utils.js`).

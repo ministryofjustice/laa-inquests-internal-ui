@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/index.js";
 import { HTTP_FOUND } from "#tests/playwright/constants/httpStatus.js";
 
 const BUFFER_SECONDS = 60;
@@ -12,6 +12,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
 test.describe("Session expiry", () => {
   test("redirects to the login route once the session cookie has expired", async ({
     page,
+    checkAccessibility,
   }) => {
     // Seed the test session with a short expiry (buffer + a small effective window).
     await page.goto(
@@ -19,6 +20,7 @@ test.describe("Session expiry", () => {
     );
     await page.waitForURL("/");
     await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+    await checkAccessibility();
 
     await page.waitForTimeout(
       (EFFECTIVE_SECONDS + 1) * MILLISECONDS_IN_A_SECOND,

@@ -5,6 +5,7 @@ import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessCont
 test.describe("Reports page", () => {
   test("displays reports heading and backlog download links", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/reports");
 
@@ -34,6 +35,8 @@ test.describe("Reports page", () => {
       "href",
       "/reports/claims/backlog",
     );
+
+    await checkAccessibility();
   });
 
   test("download link returns csv attachment response", async ({ page }) => {
