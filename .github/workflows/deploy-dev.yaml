@@ -24,17 +24,11 @@ on:
         options:
           - dev
 
-# This is a standard set of permissions we found to be sufficient for most workflows in general
-# We set these to narrow permissions as advised by https://codeql.github.com/codeql-query-help/actions/actions-missing-workflow-permissions/
-# If you want to be more restrictive, you can try changing these permissions here, or assigning permissions per job in a workflow file
-permissions:
-  contents: read
-  actions: read
-  packages: read
-
 jobs:
   code-linting:
     name: Code Linting
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -48,6 +42,8 @@ jobs:
 
   code-security-audit:
     name: Code Security Audit
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -61,6 +57,8 @@ jobs:
 
   snyk:
     name: Snyk scan docker image
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -107,10 +105,15 @@ jobs:
 
   unit-tests:
     name: Mocha Unit Tests
+    permissions:
+      contents: read
     uses: ./.github/workflows/unit-tests.yaml
 
   e2e-tests:
     name: Playwright Tests
+    permissions:
+      contents: read
+      packages: read
     uses: ./.github/workflows/e2e-tests.yaml
     secrets:
       E2E_AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
@@ -120,12 +123,12 @@ jobs:
       E2E_INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
 
   deploy:
-    if: ${{ !contains(github.actor, '[bot]') }}
-    runs-on: ubuntu-latest
-    environment: dev
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
+    if: ${{ !contains(github.actor, '[bot]') }}
+    runs-on: ubuntu-latest
+    environment: dev
     needs:
       - e2e-tests
       - unit-tests
@@ -160,6 +163,8 @@ jobs:
           ratewindow_ms: ${{ vars.RATE_WINDOW_MS }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
   notify-slack:
+    permissions:
+      contents: read
     environment: dev
     needs: deploy
     runs-on: ubuntu-latest

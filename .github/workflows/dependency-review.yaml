@@ -14,9 +14,9 @@ permissions: {}
 jobs:
   dependency-review:
     name: Dependency Review
-    runs-on: ubuntu-latest
     permissions:
       contents: read
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         id: checkout
