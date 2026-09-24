@@ -83,6 +83,9 @@ export const DISPOSITION = {
 
 export type Disposition = (typeof DISPOSITION)[keyof typeof DISPOSITION];
 
+// Served until the Inquests API payment extract endpoint exists.
+export const PAYMENT_EXTRACT_PLACEHOLDER_CSV = "payment extract placeholder\n";
+
 export enum HISTORY_EVENT_REFERENCE {
   EVT_BUS_X_001 = "EVT-BUS-X-001",
 

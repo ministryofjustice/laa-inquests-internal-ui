@@ -55,6 +55,7 @@ import { createUserRolesRouter } from "#src/infrastructure/express/routes/userRo
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
 import { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
+import { PaymentExtractValidator } from "#src/adaptors/presenter/reports/PaymentExtract/PaymentExtract.validator.js";
 import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/publicAuthority/PreparePublicAuthorityForm.useCase.js";
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
@@ -158,13 +159,16 @@ const homeAdaptor = new HomeAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
-const reportsAdaptor = new ReportsAdaptor({
-  downloadApplicationsBacklogReportUseCase:
-    new DownloadApplicationsBacklogReportUseCase(reportsApiAdaptor),
-  downloadClaimsBacklogReportUseCase: new DownloadClaimsBacklogReportUseCase(
-    reportsApiAdaptor,
-  ),
-});
+const reportsAdaptor = new ReportsAdaptor(
+  {
+    downloadApplicationsBacklogReportUseCase:
+      new DownloadApplicationsBacklogReportUseCase(reportsApiAdaptor),
+    downloadClaimsBacklogReportUseCase: new DownloadClaimsBacklogReportUseCase(
+      reportsApiAdaptor,
+    ),
+  },
+  new PaymentExtractValidator(),
+);
 const userRolesAdaptor = new UserRolesAdaptor();
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,

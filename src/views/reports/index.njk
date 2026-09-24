@@ -1,8 +1,18 @@
 {% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = t('pages.reports.heading') %}
 
 {% block content %}
+    {% if errorSummaries %}
+      {{ govukErrorSummary({
+        titleText: t('common.errorSummaryTitle'),
+        errorList: errorList
+      }) }}
+    {% endif %}
+
     <h1 class="govuk-heading-xl">{{ t('pages.reports.heading') }}</h1>
 
   {%- from "govuk/components/warning-text/macro.njk" import govukWarningText -%}
@@ -21,5 +31,57 @@
         <p class="govuk-body">
           <a class="govuk-link" href="/reports/claims/backlog">{{ t('pages.reports.downloadClaimsBacklogLink') }}</a>
         </p>
+    {% endif %}
+
+    {% if hasPermission(permissions.VIEW_PAYMENT_EXTRACT_REPORT) %}
+        {% set formValues = formValues or {} %}
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+        <h2 class="govuk-heading-m">{{ t('pages.reports.paymentExtract.heading') }}</h2>
+        <p class="govuk-body">{{ t('pages.reports.paymentExtract.description') }}</p>
+
+        <form method="get" action="/reports/payment-extract" novalidate>
+          {% set fromErrorClass = " govuk-input--error" if errorSummaries.fromDate else "" %}
+          {{ govukDateInput({
+            id: "from-date",
+            namePrefix: "from-date",
+            fieldset: {
+              legend: {
+                text: t('pages.reports.paymentExtract.fromLegend'),
+                classes: "govuk-fieldset__legend--s"
+              }
+            },
+            hint: { text: t('pages.reports.paymentExtract.fromHint') },
+            errorMessage: errorSummaries.fromDate,
+            items: [
+              { name: "day", classes: "govuk-input--width-2" + fromErrorClass, value: formValues["from-date-day"] },
+              { name: "month", classes: "govuk-input--width-2" + fromErrorClass, value: formValues["from-date-month"] },
+              { name: "year", classes: "govuk-input--width-4" + fromErrorClass, value: formValues["from-date-year"] }
+            ]
+          }) }}
+
+          {% set toErrorClass = " govuk-input--error" if errorSummaries.toDate else "" %}
+          {{ govukDateInput({
+            id: "to-date",
+            namePrefix: "to-date",
+            fieldset: {
+              legend: {
+                text: t('pages.reports.paymentExtract.toLegend'),
+                classes: "govuk-fieldset__legend--s"
+              }
+            },
+            hint: { text: t('pages.reports.paymentExtract.toHint') },
+            errorMessage: errorSummaries.toDate,
+            items: [
+              { name: "day", classes: "govuk-input--width-2" + toErrorClass, value: formValues["to-date-day"] },
+              { name: "month", classes: "govuk-input--width-2" + toErrorClass, value: formValues["to-date-month"] },
+              { name: "year", classes: "govuk-input--width-4" + toErrorClass, value: formValues["to-date-year"] }
+            ]
+          }) }}
+
+          {{ govukButton({
+            text: t('pages.reports.paymentExtract.button'),
+            type: "submit"
+          }) }}
+        </form>
     {% endif %}
 {% endblock %}

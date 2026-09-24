@@ -53,7 +53,25 @@
     "reports": {
       "heading": "Reports",
       "downloadApplicationsBacklogLink": "Download Applications Backlog",
-      "downloadClaimsBacklogLink": "Download Claims Backlog"
+      "downloadClaimsBacklogLink": "Download Claims Backlog",
+      "paymentExtract": {
+        "heading": "Payment extract",
+        "description": "Download a CSV of a payment extract within a date range.",
+        "fromLegend": "From",
+        "fromHint": "For example, 1 4 2026",
+        "toLegend": "To",
+        "toHint": "For example, 30 4 2026",
+        "button": "Download CSV",
+        "validationErrors": {
+          "fromMissing": "Enter the start date",
+          "fromInvalid": "Start date must be a real date",
+          "fromFuture": "Start date must be today or in the past",
+          "toMissing": "Enter the end date",
+          "toInvalid": "End date must be a real date",
+          "toFuture": "End date must be today or in the past",
+          "toBeforeFrom": "End date must be the same as or after the start date"
+        }
+      }
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
