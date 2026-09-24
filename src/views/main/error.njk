@@ -1,6 +1,6 @@
 {% extends "base.njk" %}
 
-{% block pageTitle %}{{ t('pages.error.pageTitle') }}{% endblock %}
+{% block pageTitle %}{{ t('pages.error.pageTitle', { SERVICE_NAME: config.SERVICE_NAME }) }}{% endblock %}
 
 {% set mainClasses = "govuk-main-wrapper--l" %}
 
