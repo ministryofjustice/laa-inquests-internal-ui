@@ -21,6 +21,11 @@ on:
           - success
           - failure
 
+permissions:
+  contents: read
+  actions: read
+  packages: read
+
 jobs:
   notify-slack-test:
     name: Send test Slack notification
