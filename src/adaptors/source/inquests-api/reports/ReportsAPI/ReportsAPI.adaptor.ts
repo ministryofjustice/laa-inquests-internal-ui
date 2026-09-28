@@ -83,4 +83,52 @@ export class ReportsAPIAdaptor implements ReportsPort {
       throw translateReportApiFailure(error);
     }
   }
+
+  async getPaymentExtractReport(
+    from: string,
+    to: string,
+    accessToken: string | undefined,
+  ): Promise<{
+    data: Buffer;
+    contentType: string;
+    contentDisposition: string | undefined;
+  }> {
+    const startedAt = Date.now();
+    try {
+      const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: "/reports/payment-extract",
+        accessToken,
+        axiosConfig: { responseType: "arraybuffer", params: { from, to } },
+      });
+
+      logger.logInfo({
+        functionName: "reports_api_adaptor",
+        message: "Payment extract report requested upstream",
+        extraContext: {
+          event: "outbound_api_call",
+          route: "/reports/payment-extract",
+          duration_ms: Date.now() - startedAt,
+        },
+      });
+
+      const { headers, data } = response;
+      const {
+        "content-type": contentType,
+        "content-disposition": contentDisposition,
+      } = headers;
+
+      return {
+        data: Buffer.from(data),
+        contentType: typeof contentType === "string" ? contentType : "text/csv",
+        contentDisposition:
+          typeof contentDisposition === "string"
+            ? contentDisposition
+            : undefined,
+      };
+    } catch (error) {
+      throw translateReportApiFailure(error);
+    }
+  }
 }

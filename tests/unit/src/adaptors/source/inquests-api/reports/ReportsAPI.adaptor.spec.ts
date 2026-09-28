@@ -1,6 +1,30 @@
 import sinon from "sinon";
 import { assert } from "chai";
+import { AxiosError, AxiosHeaders } from "axios";
+import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
+import {
+  APPLICATION_ERROR_TYPES,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
+
+const buildAxiosError = (status: number): AxiosError => {
+  const config: InternalAxiosRequestConfig = { headers: new AxiosHeaders() };
+
+  return new AxiosError(
+    "Request failed",
+    AxiosError.ERR_BAD_RESPONSE,
+    config,
+    undefined,
+    {
+      status,
+      statusText: "",
+      data: {},
+      headers: new AxiosHeaders(),
+      config,
+    } as AxiosResponse,
+  );
+};
 
 const axiosGetStub = sinon.stub();
 
@@ -125,5 +149,124 @@ describe("Test Reports API Adaptor", () => {
 
     assert.deepEqual(result.data, mockBuffer);
     assert.equal(result.contentType, "text/csv");
+  });
+
+  it("calls axios.get with the date range as query params for the payment extract", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: Buffer.from("col1,col2\n1,2"),
+      headers: { "content-type": "text/csv" },
+    });
+
+    await adaptor.getPaymentExtractReport(
+      "2026-09-01",
+      "2026-09-25",
+      "access-token-123",
+    );
+
+    sinon.assert.calledOnce(axiosGetStub);
+    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/reports/payment-extract`, {
+      responseType: "arraybuffer",
+      params: { from: "2026-09-01", to: "2026-09-25" },
+      headers: {
+        Authorization: "Bearer access-token-123",
+      },
+    });
+  });
+
+  it("returns buffer, content-type and content-disposition for the payment extract", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+
+    const mockBuffer = Buffer.from("col1,col2\n1,2");
+    axiosGetStub.resolves({
+      data: mockBuffer,
+      headers: {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition":
+          "attachment; filename=payment_extract_2026-09-01_2026-09-25.csv",
+      },
+    });
+
+    const result = await adaptor.getPaymentExtractReport(
+      "2026-09-01",
+      "2026-09-25",
+      "access-token-123",
+    );
+
+    assert.deepEqual(result.data, mockBuffer);
+    assert.equal(result.contentType, "text/csv; charset=utf-8");
+    assert.equal(
+      result.contentDisposition,
+      "attachment; filename=payment_extract_2026-09-01_2026-09-25.csv",
+    );
+  });
+
+  it("defaults content-type and leaves content-disposition undefined for the payment extract when headers are missing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({ data: Buffer.from("csv"), headers: {} });
+
+    const result = await adaptor.getPaymentExtractReport(
+      "2026-09-01",
+      "2026-09-25",
+      "access-token-123",
+    );
+
+    assert.equal(result.contentType, "text/csv");
+    assert.isUndefined(result.contentDisposition);
+  });
+
+  it("throws a sanitised application error when the payment extract request fails", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+    const axiosError = buildAxiosError(500);
+
+    axiosGetStub.rejects(axiosError);
+
+    try {
+      await adaptor.getPaymentExtractReport(
+        "2026-09-01",
+        "2026-09-25",
+        "access-token-123",
+      );
+      assert.fail("Expected getPaymentExtractReport to throw");
+    } catch (error) {
+      assert.instanceOf(error, ApplicationError);
+      assert.equal(
+        (error as ApplicationError).type,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+      );
+      assert.notStrictEqual((error as Error).cause, axiosError);
+    }
+  });
+
+  it("throws an authentication error without calling the api when the payment extract access token is missing", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+
+    try {
+      await adaptor.getPaymentExtractReport(
+        "2026-09-01",
+        "2026-09-25",
+        undefined,
+      );
+      assert.fail("Expected getPaymentExtractReport to throw");
+    } catch (error) {
+      assert.instanceOf(error, ApplicationError);
+      assert.equal(
+        (error as ApplicationError).type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+      );
+    }
+    sinon.assert.notCalled(axiosGetStub);
   });
 });

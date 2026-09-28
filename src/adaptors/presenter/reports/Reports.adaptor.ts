@@ -2,20 +2,19 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import type { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
+import type { DownloadPaymentExtractReportUseCase } from "#src/use-cases/reports/DownloadPaymentExtractReport.useCase.js";
 import type { PaymentExtractValidator } from "./PaymentExtract/PaymentExtract.validator.js";
 import type {
   PaymentExtractForm,
   PaymentExtractFormErrors,
 } from "./PaymentExtract/models/form.types.js";
-import {
-  EMPTY_ARR_LENGTH,
-  PAYMENT_EXTRACT_PLACEHOLDER_CSV,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 
 interface ReportUseCases {
   downloadApplicationsBacklogReportUseCase: DownloadApplicationsBacklogReportUseCase;
   downloadClaimsBacklogReportUseCase: DownloadClaimsBacklogReportUseCase;
+  downloadPaymentExtractReportUseCase: DownloadPaymentExtractReportUseCase;
 }
 
 const PAYMENT_EXTRACT_ERROR_HREFS: Array<{
@@ -93,7 +92,7 @@ export class ReportsAdaptor {
     res.send(data);
   }
 
-  downloadPaymentExtract(req: Request, res: Response): void {
+  async downloadPaymentExtract(req: Request, res: Response): Promise<void> {
     logger.logInfo({
       functionName: "download_payment_extract_report",
       message: "Payment extract report requested",
@@ -122,12 +121,20 @@ export class ReportsAdaptor {
 
     const from = this.#isoDate(form, "from");
     const to = this.#isoDate(form, "to");
-    res.setHeader("Content-Type", "text/csv");
+    const { data, contentType, contentDisposition } =
+      await this.useCases.downloadPaymentExtractReportUseCase.execute(
+        from,
+        to,
+        req.session.user?.accessToken,
+      );
+
+    res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="payment-extract-${from}-to-${to}.csv"`,
+      contentDisposition ??
+        `attachment; filename="payment-extract-${from}-to-${to}.csv"`,
     );
-    res.send(PAYMENT_EXTRACT_PLACEHOLDER_CSV);
+    res.send(data);
   }
 
   #readPaymentExtractForm({ query }: Request): PaymentExtractForm {

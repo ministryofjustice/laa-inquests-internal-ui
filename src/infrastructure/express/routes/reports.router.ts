@@ -40,9 +40,9 @@ export function createReportsRouter(
 
   reportsRouter.get(
     "/payment-extract",
-    (req: Request, res: Response, next: NextFunction): void => {
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        reportsAdaptor.downloadPaymentExtract(req, res);
+        await reportsAdaptor.downloadPaymentExtract(req, res);
       } catch (err: unknown) {
         next(err);
       }

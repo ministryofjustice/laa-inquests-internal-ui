@@ -5,4 +5,13 @@ export interface ReportsPort {
   getClaimsBacklogReport: (
     accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
+  getPaymentExtractReport: (
+    from: string,
+    to: string,
+    accessToken: string | undefined,
+  ) => Promise<{
+    data: Buffer;
+    contentType: string;
+    contentDisposition: string | undefined;
+  }>;
 }

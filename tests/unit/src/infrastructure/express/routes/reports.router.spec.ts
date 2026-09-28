@@ -230,7 +230,7 @@ describe("createReportsRouter", () => {
     assert.equal(next.firstCall.args[0], error);
   });
 
-  it("delegates GET /payment-extract handler to reports adaptor", () => {
+  it("delegates GET /payment-extract handler to reports adaptor", async () => {
     const reportsAdaptor = stubInterface<ReportsAdaptor>();
     const router = createReportsRouter(express.Router(), reportsAdaptor);
     const route = (
@@ -239,7 +239,11 @@ describe("createReportsRouter", () => {
           route?: {
             path: string;
             stack: Array<{
-              handle: (req: Request, res: Response, next: NextFunction) => void;
+              handle: (
+                req: Request,
+                res: Response,
+                next: NextFunction,
+              ) => Promise<void>;
             }>;
           };
         }>;
@@ -249,7 +253,7 @@ describe("createReportsRouter", () => {
     const res = stubInterface<Response>();
     const next = sinon.stub();
 
-    route?.stack[0].handle(req, res, next);
+    await route?.stack[0].handle(req, res, next);
 
     assert.equal(reportsAdaptor.downloadPaymentExtract.callCount, 1);
     assert.deepEqual(reportsAdaptor.downloadPaymentExtract.firstCall.args, [
@@ -259,7 +263,7 @@ describe("createReportsRouter", () => {
     assert.equal(next.callCount, 0);
   });
 
-  it("calls next when payment extract handler throws", () => {
+  it("calls next when payment extract handler throws", async () => {
     const reportsAdaptor = stubInterface<ReportsAdaptor>();
     const router = createReportsRouter(express.Router(), reportsAdaptor);
     const route = (
@@ -268,7 +272,11 @@ describe("createReportsRouter", () => {
           route?: {
             path: string;
             stack: Array<{
-              handle: (req: Request, res: Response, next: NextFunction) => void;
+              handle: (
+                req: Request,
+                res: Response,
+                next: NextFunction,
+              ) => Promise<void>;
             }>;
           };
         }>;
@@ -279,9 +287,9 @@ describe("createReportsRouter", () => {
     const next = sinon.stub();
     const error = new Error("payment extract failed");
 
-    reportsAdaptor.downloadPaymentExtract.throws(error);
+    reportsAdaptor.downloadPaymentExtract.rejects(error);
 
-    route?.stack[0].handle(req, res, next);
+    await route?.stack[0].handle(req, res, next);
 
     assert.equal(next.callCount, 1);
     assert.equal(next.firstCall.args[0], error);

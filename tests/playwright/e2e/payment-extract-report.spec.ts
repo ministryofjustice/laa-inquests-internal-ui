@@ -4,9 +4,13 @@ import { validateBackButton } from "../utils/govuk-validators.js";
 import {
   HTTP_BAD_REQUEST,
   HTTP_FORBIDDEN,
+  HTTP_INTERNAL_SERVER_ERROR,
   HTTP_OK,
 } from "../constants/httpStatus.js";
 import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { PAYMENT_EXTRACT_CSV } from "#tests/playwright/factories/handlers/applications.js";
+import { FAILED_PAYMENT_EXTRACT_FROM } from "#tests/playwright/factories/handlers/reportErrors.js";
 
 interface DateParts {
   day: string;
@@ -127,9 +131,44 @@ test.describe("Payment extract report", () => {
 
     expect(response.status()).toBe(HTTP_OK);
     expect(response.headers()["content-type"]).toContain("text/csv");
-    expect(response.headers()["content-disposition"]).toContain(
-      'attachment; filename="payment-extract-2025-04-01-to-2025-04-30.csv"',
+    expect(response.headers()["content-disposition"]).toBe(
+      "attachment; filename=payment_extract_2025-04-01_2025-04-30.csv",
     );
+  });
+
+  test("returns the csv provided by the inquests api", async ({ page }) => {
+    const query = new URLSearchParams({
+      "from-date-day": VALID_FROM.day,
+      "from-date-month": VALID_FROM.month,
+      "from-date-year": VALID_FROM.year,
+      "to-date-day": VALID_TO.day,
+      "to-date-month": VALID_TO.month,
+      "to-date-year": VALID_TO.year,
+    });
+
+    const response = await page.request.get(
+      `${PAYMENT_EXTRACT_PATH}?${query.toString()}`,
+    );
+
+    expect(response.status()).toBe(HTTP_OK);
+    expect(await response.text()).toBe(PAYMENT_EXTRACT_CSV);
+  });
+
+  test("shows the generic error page when the inquests api fails", async ({
+    page,
+  }) => {
+    const [year, month, day] = FAILED_PAYMENT_EXTRACT_FROM.split("-");
+    await page.goto("/reports");
+    await fillDate(page, "From", { day, month, year });
+    await fillDate(page, "To", VALID_TO);
+
+    const response = await submitPaymentExtract(page);
+
+    expect(response.status()).toBe(HTTP_INTERNAL_SERVER_ERROR);
+    await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
+    await expect(
+      page.getByText(en.pages.error.internalServerError),
+    ).toBeVisible();
   });
 
   test("accepts a single day range where the end date equals the start date", async ({
