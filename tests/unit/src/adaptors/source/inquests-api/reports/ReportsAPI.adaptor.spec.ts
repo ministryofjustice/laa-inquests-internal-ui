@@ -168,13 +168,17 @@ describe("Test Reports API Adaptor", () => {
     );
 
     sinon.assert.calledOnce(axiosGetStub);
-    sinon.assert.calledWith(axiosGetStub, `${baseUrl}/reports/payment-extract`, {
-      responseType: "arraybuffer",
-      params: { from: "2026-09-01", to: "2026-09-25" },
-      headers: {
-        Authorization: "Bearer access-token-123",
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/reports/payment-extract`,
+      {
+        responseType: "arraybuffer",
+        params: { from: "2026-09-01", to: "2026-09-25" },
+        headers: {
+          Authorization: "Bearer access-token-123",
+        },
       },
-    });
+    );
   });
 
   it("returns buffer, content-type and content-disposition for the payment extract", async () => {
