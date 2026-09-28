@@ -47,7 +47,8 @@ export interface Config {
   INQUESTS_API_URL: string;
   RATELIMIT_HEADERS_ENABLED: string | undefined;
   RATELIMIT_STORAGE_URI: string | undefined;
-  RATE_LIMIT_MAX: number | string;
+  RATE_LIMIT_GLOBAL_MAX: number;
+  RATE_LIMIT_IP_MAX: number;
   RATE_WINDOW_MS: number;
   SERVICE_NAME: string | undefined;
   LOG_LEVEL: string | undefined;
