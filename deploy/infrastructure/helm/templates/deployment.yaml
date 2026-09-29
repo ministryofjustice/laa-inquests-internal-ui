@@ -109,8 +109,10 @@ spec:
               value: "{{ .Values.env.RATELIMIT_HEADERS_ENABLED }}"
             - name: RATELIMIT_STORAGE_URI
               value: "{{ .Values.env.RATELIMIT_STORAGE_URI }}"
-            - name: RATE_LIMIT_MAX
-              value: "{{ .Values.env.RATE_LIMIT_MAX }}"
+            - name: RATE_LIMIT_GLOBAL_MAX
+              value: "{{ .Values.env.RATE_LIMIT_GLOBAL_MAX }}"
+            - name: RATE_LIMIT_IP_MAX
+              value: "{{ .Values.env.RATE_LIMIT_IP_MAX }}"
             - name: RATE_WINDOW_MS
               value: "{{ .Values.env.RATE_WINDOW_MS }}"
             - name: NODE_ENV
