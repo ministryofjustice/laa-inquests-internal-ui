@@ -21,6 +21,11 @@ import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHi
 import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/AddHistoryNote.validator.js";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import {
+  INTERNAL_CASEWORKER_ROLES,
+  PERMISSION_ROLE_MAP,
+  PERMISSIONS,
+} from "#src/infrastructure/config/accessControl.js";
 
 describe("Application adaptor", () => {
   let applicationAdaptor: ApplicationAdaptor;
@@ -186,6 +191,9 @@ describe("Application adaptor", () => {
       userId: "test-user-id",
       accessToken: "test-access-token",
     };
+    requestStub.session.roles = [
+      ...PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB],
+    ];
   });
 
   afterEach(() => {
@@ -588,6 +596,63 @@ describe("Application adaptor", () => {
         buildApplicationClaimsViewUseCaseStub.execute.getCall(0).args[0];
       assert.equal(executeArgs.laaReference, "123");
       assert.equal(executeArgs.substantiveCertificate, 10000);
+    });
+
+    const claimsTabRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB];
+
+    for (const role of claimsTabRoles) {
+      it(`requests claims when the user has the ${role} role`, async () => {
+        viewApplicationAdaptorStub.getApplication.resolves(application);
+        requestStub.session.roles = [role];
+
+        await applicationAdaptor.renderApplicationPage(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(
+          buildApplicationClaimsViewUseCaseStub.execute.callCount,
+          1,
+        );
+      });
+    }
+
+    for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
+      (r) => !claimsTabRoles.includes(r),
+    )) {
+      it(`does not request claims when the user only has the ${role} role`, async () => {
+        viewApplicationAdaptorStub.getApplication.resolves(application);
+        requestStub.session.roles = [role];
+
+        await applicationAdaptor.renderApplicationPage(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(
+          buildApplicationClaimsViewUseCaseStub.execute.callCount,
+          0,
+        );
+        const viewModel = responseStub.render.getCall(0).args[1] as unknown as {
+          claims?: unknown;
+        };
+        assert.equal(viewModel.claims, undefined);
+      });
+    }
+
+    it("does not request claims when the session has no roles", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+      requestStub.session.roles = undefined;
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(buildApplicationClaimsViewUseCaseStub.execute.callCount, 0);
     });
 
     it("propagates claims retrieval errors without rendering or duplicate logging", async () => {
