@@ -28,15 +28,23 @@ function isDateRangeRejection(error: unknown): boolean {
   if (response?.status !== HTTP_UNPROCESSABLE_ENTITY) {
     return false;
   }
+  let body: unknown;
   try {
     // The body is an ArrayBuffer because the request uses responseType "arraybuffer".
-    const body: unknown = JSON.parse(
-      Buffer.from(response.data).toString("utf8"),
-    );
-    return PaymentExtractDateRangeErrorSchema.safeParse(body).success;
+    body = JSON.parse(Buffer.from(response.data).toString("utf8"));
   } catch {
+    logger.logWarn({
+      functionName: "reports_api_adaptor",
+      message: "Payment extract 422 response body was not valid JSON",
+      extraContext: {
+        event: "outbound_api_response_unparseable",
+        route: PAYMENT_EXTRACT_ROUTE,
+        upstream_status_code: HTTP_UNPROCESSABLE_ENTITY,
+      },
+    });
     return false;
   }
+  return PaymentExtractDateRangeErrorSchema.safeParse(body).success;
 }
 
 export class ReportsAPIAdaptor implements ReportsPort {

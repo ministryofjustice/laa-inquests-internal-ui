@@ -7,6 +7,7 @@ import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 const buildAxiosError = (status: number, data: unknown = {}): AxiosError => {
   const config: InternalAxiosRequestConfig = { headers: new AxiosHeaders() };
@@ -281,6 +282,40 @@ describe("Test Reports API Adaptor", () => {
     );
 
     assert.deepEqual(result, { status: "DATE_RANGE_TOO_LONG" });
+  });
+
+  it("logs a warning and throws a sanitised application error when the payment extract 422 body is not valid JSON", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+    const logWarnStub = sinon.stub(logger, "logWarn");
+
+    axiosGetStub.rejects(
+      buildAxiosError(422, Buffer.from("<html>Unprocessable</html>")),
+    );
+
+    try {
+      await adaptor.getPaymentExtractReport(
+        "2025-01-01",
+        "2025-04-30",
+        "access-token-123",
+      );
+      assert.fail("Expected getPaymentExtractReport to throw");
+    } catch (error) {
+      assert.instanceOf(error, ApplicationError);
+      sinon.assert.calledOnce(logWarnStub);
+      assert.deepInclude(logWarnStub.firstCall.args[0], {
+        functionName: "reports_api_adaptor",
+        message: "Payment extract 422 response body was not valid JSON",
+        extraContext: {
+          event: "outbound_api_response_unparseable",
+          route: "/reports/payment-extract",
+          upstream_status_code: 422,
+        },
+      });
+    } finally {
+      logWarnStub.restore();
+    }
   });
 
   it("throws an authentication error without calling the api when the payment extract access token is missing", async () => {
