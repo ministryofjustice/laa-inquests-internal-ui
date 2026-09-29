@@ -66,6 +66,10 @@
         "body_1": "Your account does not have permission to view this page. Go to the home page to see the pages and actions available to your role.",
         "body_2": "If you think you should have access, contact your account administrator.",
         "button": "Return to home page"
+      },
+      "rateLimitError": {
+        "globalLimitMessage": "Our service is currently under heavy load. Please try again later",
+        "IpLimitMessage": "Too many requests, please try again later."
       }
     },
     "applicationOverview": {
