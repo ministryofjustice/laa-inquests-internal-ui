@@ -1,6 +1,7 @@
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
 import type { Config } from "#src/infrastructure/config/config.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
@@ -18,8 +19,8 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
         functionName: "app",
         message: "Rate limit has been exceeded for global use",
       });
-      res.status(429).render("main/error.njk", {
-        status: 429,
+      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error.njk", {
+        status: HTTP_TOO_MANY_REQUESTS,
         error: en.pages.error.rateLimitError.globalLimitMessage,
         config: { SERVICE_NAME: process.env.SERVICE_NAME },
       });
@@ -38,8 +39,8 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
         functionName: "app",
         message: "Rate limit has been exceeded per Ip by user",
       });
-      res.status(429).render("main/error.njk", {
-        status: 429,
+      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error.njk", {
+        status: HTTP_TOO_MANY_REQUESTS,
         error: en.pages.error.rateLimitError.IpLimitMessage,
         config: { SERVICE_NAME: process.env.SERVICE_NAME },
       });
