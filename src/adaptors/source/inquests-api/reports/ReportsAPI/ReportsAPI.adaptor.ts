@@ -28,10 +28,12 @@ function isDateRangeRejection(error: unknown): boolean {
   if (response?.status !== HTTP_UNPROCESSABLE_ENTITY) {
     return false;
   }
-  let body: unknown;
   try {
     // The body is an ArrayBuffer because the request uses responseType "arraybuffer".
-    body = JSON.parse(Buffer.from(response.data).toString("utf8"));
+    const body: unknown = JSON.parse(
+      Buffer.from(response.data).toString("utf8"),
+    );
+    return PaymentExtractDateRangeErrorSchema.safeParse(body).success;
   } catch {
     logger.logWarn({
       functionName: "reports_api_adaptor",
@@ -44,7 +46,6 @@ function isDateRangeRejection(error: unknown): boolean {
     });
     return false;
   }
-  return PaymentExtractDateRangeErrorSchema.safeParse(body).success;
 }
 
 export class ReportsAPIAdaptor implements ReportsPort {
