@@ -105,10 +105,6 @@ spec:
               value: "{{ .Values.env.SESSION_SECRET }}"
             - name: SESSION_NAME
               value: "{{ .Values.env.SESSION_NAME }}"
-            - name: RATELIMIT_HEADERS_ENABLED
-              value: "{{ .Values.env.RATELIMIT_HEADERS_ENABLED }}"
-            - name: RATELIMIT_STORAGE_URI
-              value: "{{ .Values.env.RATELIMIT_STORAGE_URI }}"
             - name: RATE_LIMIT_GLOBAL_MAX
               value: "{{ .Values.env.RATE_LIMIT_GLOBAL_MAX }}"
             - name: RATE_LIMIT_IP_MAX

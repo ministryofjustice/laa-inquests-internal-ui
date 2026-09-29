@@ -148,7 +148,6 @@ jobs:
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
           INQUESTS_API_URL: "http://127.0.0.1:8027"
           SERVICE_URL: "https://www.gov.uk/legal-aid"
-          RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "100"
           RATE_WINDOW_MS: "900000"
           # Auth and API secrets are not required — auth is faked and the API
