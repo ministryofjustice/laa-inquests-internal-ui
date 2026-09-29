@@ -97,7 +97,8 @@ runs:
         AUTH_DIRECTORY_URL: ${{ inputs.auth_directory_url || '' }}
         AUTH_POST_LOGOUT_URI: ${{ inputs.auth_post_logout_uri || '' }}
         AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
-        RATE_LIMIT_MAX: ${{ inputs.ratelimit_max || '100' }}
+        RATE_LIMIT_GLOBAL_MAX: ${{ inputs.ratelimit_max || '600' }}
+        RATE_LIMIT_IP_MAX: ${{ inputs.ratelimit_ip_max || '900' }}
         RATE_WINDOW_MS: ${{ inputs.ratewindow_ms || '900000' }}
         INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
@@ -110,7 +111,8 @@ runs:
         echo "AUTH_POST_LOGOUT_URI=$AUTH_POST_LOGOUT_URI" >> "$GITHUB_ENV"
         echo "AUTH_REDIRECT_URI=$AUTH_REDIRECT_URI" >> "$GITHUB_ENV"
         echo "NODE_ENV=production" >> "$GITHUB_ENV"
-        echo "RATE_LIMIT_MAX=$RATE_LIMIT_MAX" >> "$GITHUB_ENV"
+        echo "RATE_LIMIT_GLOBAL_MAX=$RATE_LIMIT_GLOBAL_MAX" >> "$GITHUB_ENV"
+        echo "RATE_LIMIT_IP_MAX=$RATE_LIMIT_IP_MAX" >> "$GITHUB_ENV"
         echo "RATE_WINDOW_MS=$RATE_WINDOW_MS" >> "$GITHUB_ENV"
         echo "INQUESTS_API_URL=$INQUESTS_API_URL" >> "$GITHUB_ENV"
         echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
