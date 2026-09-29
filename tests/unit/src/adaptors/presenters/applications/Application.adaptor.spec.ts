@@ -1017,7 +1017,7 @@ describe("Application adaptor", () => {
       );
     });
 
-    it("formats claim decision with claimDecision substitution", async () => {
+    it("formats claim rejection with its decision justification", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       viewApplicationAdaptorStub.getApplicationHistory.resolves([
         {
@@ -1046,7 +1046,7 @@ describe("Application adaptor", () => {
       >;
       assert.equal(
         historyRows[0][2].html,
-        '<strong>Final bill claim rejected: <a href="/applications/123/claims/INQC-0010-0010">INQC-0010-0010</a></strong>',
+        '<strong>Final bill claim rejected</strong><p class="govuk-body govuk-!-margin-top-2">Test justification</p>',
       );
     });
 

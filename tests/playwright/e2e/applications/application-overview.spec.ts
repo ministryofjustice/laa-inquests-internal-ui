@@ -548,6 +548,30 @@ test.describe("History tab", () => {
     );
   });
 
+  test("renders the rejection reason instead of the claim reference for a rejected claim", async ({
+    page,
+  }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    await page.getByRole("tab", { name: "History" }).click();
+
+    const historyPanel = page.locator("#history");
+    const rejectedClaimRow = historyPanel
+      .locator("tr")
+      .filter({ hasText: "Insufficient supporting information" });
+    await expect(rejectedClaimRow.locator("strong")).toHaveText(
+      "Final bill claim rejected",
+    );
+    const rejectionReason = rejectedClaimRow.locator("p.govuk-body");
+    await expect(rejectionReason).toHaveText(
+      "Insufficient supporting information",
+    );
+    await expect(rejectionReason).toHaveCSS("margin-top", "10px");
+    await expect(
+      historyPanel.getByRole("link", { name: "INQC-0020-0020" }),
+    ).toHaveCount(0);
+  });
+
   test.describe("Free note submission", () => {
     test("should prevent double submission of the note form", async ({
       page,
