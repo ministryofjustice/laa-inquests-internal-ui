@@ -1,6 +1,7 @@
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
 import type { Config } from "#src/infrastructure/config/config.types.js";
-import en from "#src/infrastructure/locales/en.json" with {type: "json"}
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
   /**
@@ -13,8 +14,18 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
     keyGenerator: () => "service",
     skip: () => process.env.NODE_ENV === "test",
     handler: (req, res) => {
-      res.status(429).render("main/error.njk", {status: 429, error: en.pages.error.rateLimitError.globalLimitMessage, config:{SERVICE_NAME: process.env.SERVICE_NAME}})
-    }
+      logger.logError({
+        functionName: "app",
+        message: "Rate limit has been exceeded for global use",
+      });
+      res
+        .status(429)
+        .render("main/error.njk", {
+          status: 429,
+          error: en.pages.error.rateLimitError.globalLimitMessage,
+          config: { SERVICE_NAME: process.env.SERVICE_NAME },
+        });
+    },
   });
   /**
    * Rate limiter for general routes.
@@ -25,8 +36,18 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
     max: config.RATE_LIMIT_IP_MAX,
     skip: () => process.env.NODE_ENV === "test",
     handler: (req, res) => {
-      res.status(429).render("main/error.njk", {status: 429, error: en.pages.error.rateLimitError.IpLimitMessage, config:{SERVICE_NAME: process.env.SERVICE_NAME}})
-    }
+      logger.logError({
+        functionName: "app",
+        message: "Rate limit has been exceeded per Ip by user",
+      });
+      res
+        .status(429)
+        .render("main/error.njk", {
+          status: 429,
+          error: en.pages.error.rateLimitError.IpLimitMessage,
+          config: { SERVICE_NAME: process.env.SERVICE_NAME },
+        });
+    },
   });
 
   // Apply the global and per Ip limiter to service requests
