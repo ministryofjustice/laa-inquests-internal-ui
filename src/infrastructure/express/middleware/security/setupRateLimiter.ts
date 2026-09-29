@@ -18,13 +18,11 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
         functionName: "app",
         message: "Rate limit has been exceeded for global use",
       });
-      res
-        .status(429)
-        .render("main/error.njk", {
-          status: 429,
-          error: en.pages.error.rateLimitError.globalLimitMessage,
-          config: { SERVICE_NAME: process.env.SERVICE_NAME },
-        });
+      res.status(429).render("main/error.njk", {
+        status: 429,
+        error: en.pages.error.rateLimitError.globalLimitMessage,
+        config: { SERVICE_NAME: process.env.SERVICE_NAME },
+      });
     },
   });
   /**
@@ -40,13 +38,11 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
         functionName: "app",
         message: "Rate limit has been exceeded per Ip by user",
       });
-      res
-        .status(429)
-        .render("main/error.njk", {
-          status: 429,
-          error: en.pages.error.rateLimitError.IpLimitMessage,
-          config: { SERVICE_NAME: process.env.SERVICE_NAME },
-        });
+      res.status(429).render("main/error.njk", {
+        status: 429,
+        error: en.pages.error.rateLimitError.IpLimitMessage,
+        config: { SERVICE_NAME: process.env.SERVICE_NAME },
+      });
     },
   });
 
