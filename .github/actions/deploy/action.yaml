@@ -99,7 +99,7 @@ runs:
         AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
         RATE_LIMIT_GLOBAL_MAX: ${{ inputs.ratelimit_max || '600' }}
         RATE_LIMIT_IP_MAX: ${{ inputs.ratelimit_ip_max || '900' }}
-        RATE_WINDOW_MS: ${{ inputs.ratewindow_ms || '900000' }}
+        RATE_WINDOW_MS: ${{ inputs.ratewindow_ms || '800000' }}
         INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
