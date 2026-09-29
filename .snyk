@@ -30,3 +30,8 @@ ignore:
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
           new docker image is released with upgraded npm version"
+  "SNYK-JS-BRACEEXPANSION-20244948":
+    - "*":
+        reason:
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          new docker image is released with upgraded npm version"
