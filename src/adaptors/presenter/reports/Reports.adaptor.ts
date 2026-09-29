@@ -10,6 +10,17 @@ import type {
 } from "./PaymentExtract/models/form.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const {
+  pages: {
+    reports: {
+      paymentExtract: {
+        validationErrors: { dateRangeTooLong },
+      },
+    },
+  },
+} = en;
 
 interface ReportUseCases {
   downloadApplicationsBacklogReportUseCase: DownloadApplicationsBacklogReportUseCase;
@@ -107,27 +118,27 @@ export class ReportsAdaptor {
       this.paymentExtractValidator.validatePaymentExtractForm(form);
 
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
-      res.status(HTTP_BAD_REQUEST).render("reports/index", {
-        backUrl: "/",
-        formValues: form,
-        errorSummaries: errors,
-        errorList: PAYMENT_EXTRACT_ERROR_HREFS.flatMap(({ field, href }) => {
-          const { [field]: error } = errors;
-          return error === undefined ? [] : [{ text: error.text, href }];
-        }),
-      });
+      this.#renderPaymentExtractErrors(res, form, errors);
       return;
     }
 
     const from = this.#isoDate(form, "from");
     const to = this.#isoDate(form, "to");
-    const { data, contentType, contentDisposition } =
+    const result =
       await this.useCases.downloadPaymentExtractReportUseCase.execute(
         from,
         to,
         req.session.user?.accessToken,
       );
 
+    if (result.status === "DATE_RANGE_TOO_LONG") {
+      this.#renderPaymentExtractErrors(res, form, {
+        toDate: { text: dateRangeTooLong },
+      });
+      return;
+    }
+
+    const { data, contentType, contentDisposition } = result;
     res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Content-Disposition",
@@ -135,6 +146,22 @@ export class ReportsAdaptor {
         `attachment; filename="payment-extract-${from}-to-${to}.csv"`,
     );
     res.send(data);
+  }
+
+  #renderPaymentExtractErrors(
+    res: Response,
+    form: PaymentExtractForm,
+    errors: Partial<PaymentExtractFormErrors>,
+  ): void {
+    res.status(HTTP_BAD_REQUEST).render("reports/index", {
+      backUrl: "/",
+      formValues: form,
+      errorSummaries: errors,
+      errorList: PAYMENT_EXTRACT_ERROR_HREFS.flatMap(({ field, href }) => {
+        const { [field]: error } = errors;
+        return error === undefined ? [] : [{ text: error.text, href }];
+      }),
+    });
   }
 
   #readPaymentExtractForm({ query }: Request): PaymentExtractForm {

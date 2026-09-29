@@ -314,6 +314,30 @@ test.describe("Payment extract report", () => {
 
       await checkAccessibility();
     });
+
+    test("shows an error summary when the inquests api rejects a date range over 90 days", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      const longRangeFrom = { day: "1", month: "1", year: "2024" };
+      await page.goto("/reports");
+      await fillDate(page, "From", longRangeFrom);
+      await fillDate(page, "To", VALID_TO);
+
+      const response = await submitPaymentExtract(page);
+
+      expect(response.status()).toBe(HTTP_BAD_REQUEST);
+      await expectValidationError(page, {
+        message: "Date range must be 90 days or less",
+        href: "#to-date-day",
+        legend: "To",
+      });
+      await expectDateValues(page, "From", longRangeFrom);
+      await expectDateValues(page, "To", VALID_TO);
+      await validateBackButton(page, "/");
+
+      await checkAccessibility();
+    });
   });
 
   test.describe("RBAC behaviour", () => {

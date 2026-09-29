@@ -1,3 +1,12 @@
+export type PaymentExtractReportResult =
+  | {
+      status: "SUCCESS";
+      data: Buffer;
+      contentType: string;
+      contentDisposition: string | undefined;
+    }
+  | { status: "DATE_RANGE_TOO_LONG" };
+
 export interface ReportsPort {
   getApplicationsBacklogReport: (
     accessToken: string | undefined,
@@ -9,9 +18,5 @@ export interface ReportsPort {
     from: string,
     to: string,
     accessToken: string | undefined,
-  ) => Promise<{
-    data: Buffer;
-    contentType: string;
-    contentDisposition: string | undefined;
-  }>;
+  ) => Promise<PaymentExtractReportResult>;
 }

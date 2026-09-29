@@ -7,6 +7,7 @@ import type { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/
 import type { DownloadPaymentExtractReportUseCase } from "#src/use-cases/reports/DownloadPaymentExtractReport.useCase.js";
 import type { PaymentExtractValidator } from "#src/adaptors/presenter/reports/PaymentExtract/PaymentExtract.validator.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const VALID_PAYMENT_EXTRACT_QUERY = {
   "from-date-day": "1",
@@ -153,6 +154,7 @@ describe("Reports adaptor", () => {
     requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
     paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
     downloadPaymentExtractReportUseCaseStub.execute.resolves({
+      status: "SUCCESS",
       data: mockBuffer,
       contentType: "text/csv; charset=utf-8",
       contentDisposition:
@@ -185,6 +187,7 @@ describe("Reports adaptor", () => {
     requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
     paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
     downloadPaymentExtractReportUseCaseStub.execute.resolves({
+      status: "SUCCESS",
       data: Buffer.from("csv"),
       contentType: "text/csv",
       contentDisposition: undefined,
@@ -209,6 +212,32 @@ describe("Reports adaptor", () => {
       (thrown: unknown) => thrown === error,
     );
 
+    assert.equal(responseStub.setHeader.callCount, 0);
+    assert.equal(responseStub.send.callCount, 0);
+  });
+
+  it("re-renders the reports page with a date range error when the api rejects the range as too long", async () => {
+    requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
+    paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
+    downloadPaymentExtractReportUseCaseStub.execute.resolves({
+      status: "DATE_RANGE_TOO_LONG",
+    });
+    const toDate = {
+      text: en.pages.reports.paymentExtract.validationErrors.dateRangeTooLong,
+    };
+
+    await reportsAdaptor.downloadPaymentExtract(requestStub, responseStub);
+
+    assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "reports/index",
+      {
+        backUrl: "/",
+        formValues: VALID_PAYMENT_EXTRACT_QUERY,
+        errorSummaries: { toDate },
+        errorList: [{ text: toDate.text, href: "#to-date-day" }],
+      },
+    ]);
     assert.equal(responseStub.setHeader.callCount, 0);
     assert.equal(responseStub.send.callCount, 0);
   });

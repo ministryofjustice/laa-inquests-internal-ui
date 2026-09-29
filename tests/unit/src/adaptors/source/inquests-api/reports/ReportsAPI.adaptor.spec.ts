@@ -8,7 +8,7 @@ import {
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 
-const buildAxiosError = (status: number): AxiosError => {
+const buildAxiosError = (status: number, data: unknown = {}): AxiosError => {
   const config: InternalAxiosRequestConfig = { headers: new AxiosHeaders() };
 
   return new AxiosError(
@@ -19,7 +19,7 @@ const buildAxiosError = (status: number): AxiosError => {
     {
       status,
       statusText: "",
-      data: {},
+      data,
       headers: new AxiosHeaders(),
       config,
     } as AxiosResponse,
@@ -202,12 +202,13 @@ describe("Test Reports API Adaptor", () => {
       "access-token-123",
     );
 
-    assert.deepEqual(result.data, mockBuffer);
-    assert.equal(result.contentType, "text/csv; charset=utf-8");
-    assert.equal(
-      result.contentDisposition,
-      "attachment; filename=payment_extract_2026-09-01_2026-09-25.csv",
-    );
+    assert.deepEqual(result, {
+      status: "SUCCESS",
+      data: mockBuffer,
+      contentType: "text/csv; charset=utf-8",
+      contentDisposition:
+        "attachment; filename=payment_extract_2026-09-01_2026-09-25.csv",
+    });
   });
 
   it("defaults content-type and leaves content-disposition undefined for the payment extract when headers are missing", async () => {
@@ -223,8 +224,12 @@ describe("Test Reports API Adaptor", () => {
       "access-token-123",
     );
 
-    assert.equal(result.contentType, "text/csv");
-    assert.isUndefined(result.contentDisposition);
+    assert.deepEqual(result, {
+      status: "SUCCESS",
+      data: Buffer.from("csv"),
+      contentType: "text/csv",
+      contentDisposition: undefined,
+    });
   });
 
   it("throws a sanitised application error when the payment extract request fails", async () => {
@@ -250,6 +255,32 @@ describe("Test Reports API Adaptor", () => {
       );
       assert.notStrictEqual((error as Error).cause, axiosError);
     }
+  });
+
+  it("returns a DATE_RANGE_TOO_LONG outcome when the payment extract api rejects the date range with a 422", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ReportsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.rejects(
+      buildAxiosError(
+        422,
+        Buffer.from(
+          JSON.stringify({
+            detail:
+              "Invalid date range: The date range must not exceed 90 days.",
+          }),
+        ),
+      ),
+    );
+
+    const result = await adaptor.getPaymentExtractReport(
+      "2025-01-01",
+      "2025-04-30",
+      "access-token-123",
+    );
+
+    assert.deepEqual(result, { status: "DATE_RANGE_TOO_LONG" });
   });
 
   it("throws an authentication error without calling the api when the payment extract access token is missing", async () => {

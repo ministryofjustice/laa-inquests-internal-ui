@@ -69,7 +69,8 @@
           "toMissing": "Enter the end date",
           "toInvalid": "End date must be a real date",
           "toFuture": "End date must be today or in the past",
-          "toBeforeFrom": "End date must be the same as or after the start date"
+          "toBeforeFrom": "End date must be the same as or after the start date",
+          "dateRangeTooLong": "Date range must be 90 days or less"
         }
       }
     },

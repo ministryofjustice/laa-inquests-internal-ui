@@ -1,8 +1,43 @@
-import axios, { type AxiosResponse, type AxiosStatic } from "axios";
-import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
+import axios, {
+  type AxiosError,
+  type AxiosResponse,
+  type AxiosStatic,
+} from "axios";
+import type {
+  PaymentExtractReportResult,
+  ReportsPort,
+} from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
 import { getInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { translateReportApiFailure } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/reportApiFailure.js";
+import { PaymentExtractDateRangeErrorSchema } from "#src/adaptors/models/paymentExtractError.schema.js";
+import { HTTP_UNPROCESSABLE_ENTITY } from "#src/infrastructure/express/constants.js";
+import {
+  APPLICATION_ERROR_TYPES,
+  ApplicationError,
+} from "#src/use-cases/common/applicationError.js";
+
+const PAYMENT_EXTRACT_OPERATION = "report_download";
+const PAYMENT_EXTRACT_ROUTE = "/reports/payment-extract";
+
+function isDateRangeRejection(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+  const { response } = error as AxiosError<ArrayBuffer>;
+  if (response?.status !== HTTP_UNPROCESSABLE_ENTITY) {
+    return false;
+  }
+  try {
+    // The body is an ArrayBuffer because the request uses responseType "arraybuffer".
+    const body: unknown = JSON.parse(
+      Buffer.from(response.data).toString("utf8"),
+    );
+    return PaymentExtractDateRangeErrorSchema.safeParse(body).success;
+  } catch {
+    return false;
+  }
+}
 
 export class ReportsAPIAdaptor implements ReportsPort {
   constructor(
@@ -88,20 +123,25 @@ export class ReportsAPIAdaptor implements ReportsPort {
     from: string,
     to: string,
     accessToken: string | undefined,
-  ): Promise<{
-    data: Buffer;
-    contentType: string;
-    contentDisposition: string | undefined;
-  }> {
+  ): Promise<PaymentExtractReportResult> {
     const startedAt = Date.now();
+    if (typeof accessToken !== "string" || accessToken === "") {
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+        PAYMENT_EXTRACT_OPERATION,
+        false,
+      );
+    }
     try {
-      const response: AxiosResponse<ArrayBuffer> = await getInquestsApi({
-        http: this.http,
-        baseUrl: this.baseUrl,
-        path: "/reports/payment-extract",
-        accessToken,
-        axiosConfig: { responseType: "arraybuffer", params: { from, to } },
-      });
+      // Called directly rather than via getInquestsApi so the 422 body is still available.
+      const response = await this.http.get<ArrayBuffer>(
+        `${this.baseUrl}${PAYMENT_EXTRACT_ROUTE}`,
+        {
+          responseType: "arraybuffer",
+          params: { from, to },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
 
       logger.logInfo({
         functionName: "reports_api_adaptor",
@@ -120,6 +160,7 @@ export class ReportsAPIAdaptor implements ReportsPort {
       } = headers;
 
       return {
+        status: "SUCCESS",
         data: Buffer.from(data),
         contentType: typeof contentType === "string" ? contentType : "text/csv",
         contentDisposition:
@@ -128,6 +169,31 @@ export class ReportsAPIAdaptor implements ReportsPort {
             : undefined,
       };
     } catch (error) {
+      if (isDateRangeRejection(error)) {
+        logger.logWarn({
+          functionName: "reports_api_adaptor",
+          message: "Payment extract date range rejected upstream",
+          extraContext: {
+            event: "outbound_api_validation_rejected",
+            route: "/reports/payment-extract",
+            upstream_status_code: HTTP_UNPROCESSABLE_ENTITY,
+            duration_ms: Date.now() - startedAt,
+          },
+        });
+        return { status: "DATE_RANGE_TOO_LONG" };
+      }
+      logger.logError({
+        functionName: "reports_api_adaptor",
+        message: "Payment extract report request failed",
+        err: error,
+        extraContext: {
+          event: "outbound_api_request_failed",
+          operation: PAYMENT_EXTRACT_OPERATION,
+          method: "GET",
+          route: PAYMENT_EXTRACT_ROUTE,
+          duration_ms: Date.now() - startedAt,
+        },
+      });
       throw translateReportApiFailure(error);
     }
   }

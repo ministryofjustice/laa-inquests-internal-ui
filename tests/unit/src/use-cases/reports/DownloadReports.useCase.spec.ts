@@ -33,6 +33,7 @@ describe("Report download use cases", () => {
   it("downloads the payment extract for a date range through the reports port", async () => {
     const reportsPort = stubInterface<ReportsPort>();
     const report = {
+      status: "SUCCESS" as const,
       data: Buffer.from("csv"),
       contentType: "text/csv",
       contentDisposition: "attachment; filename=payment_extract.csv",
