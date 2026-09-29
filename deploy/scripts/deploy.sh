@@ -44,8 +44,6 @@ deploy_branch() {
                 --set env.SESSION_NAME="$SESSION_NAME" \
                 --set env.RATELIMIT_HEADERS_ENABLED="$RATELIMIT_HEADERS_ENABLED" \
                 --set env.RATELIMIT_STORAGE_URI="$RATELIMIT_STORAGE_URI" \
-                --set env.RATE_LIMIT_MAX="$RATE_LIMIT_MAX" \
-                --set env.RATE_WINDOW_MS="$RATE_WINDOW_MS" \
                 --set env.NODE_ENV="$NODE_ENV"
 }
 
@@ -81,8 +79,6 @@ deploy_main() {
                           --set env.SESSION_NAME="$SESSION_NAME" \
                           --set env.RATELIMIT_HEADERS_ENABLED="$RATELIMIT_HEADERS_ENABLED" \
                           --set env.RATELIMIT_STORAGE_URI="$RATELIMIT_STORAGE_URI" \
-                          --set env.RATE_LIMIT_MAX="$RATE_LIMIT_MAX" \
-                          --set env.RATE_WINDOW_MS="$RATE_WINDOW_MS" \
                           --set env.NODE_ENV="$NODE_ENV"
 }
 
