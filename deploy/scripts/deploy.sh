@@ -42,8 +42,6 @@ deploy_branch() {
                 --set env.SERVICE_URL="$SERVICE_URL" \
                 --set env.SESSION_SECRET="$SESSION_SECRET" \
                 --set env.SESSION_NAME="$SESSION_NAME" \
-                --set env.RATELIMIT_HEADERS_ENABLED="$RATELIMIT_HEADERS_ENABLED" \
-                --set env.RATELIMIT_STORAGE_URI="$RATELIMIT_STORAGE_URI" \
                 --set env.NODE_ENV="$NODE_ENV"
 }
 
@@ -77,8 +75,6 @@ deploy_main() {
                           --set env.SERVICE_URL="$SERVICE_URL" \
                           --set env.SESSION_SECRET="$SESSION_SECRET" \
                           --set env.SESSION_NAME="$SESSION_NAME" \
-                          --set env.RATELIMIT_HEADERS_ENABLED="$RATELIMIT_HEADERS_ENABLED" \
-                          --set env.RATELIMIT_STORAGE_URI="$RATELIMIT_STORAGE_URI" \
                           --set env.NODE_ENV="$NODE_ENV"
 }
 
