@@ -12,6 +12,10 @@ import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
 import { CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
+import {
+  hasPermission,
+  PERMISSIONS,
+} from "#src/infrastructure/config/accessControl.js";
 import { formatHistoryRows } from "#src/adaptors/presenter/applications/History.formatter.js";
 import {
   getHomeAddressDisplay,
@@ -181,8 +185,12 @@ export class ApplicationAdaptor {
     req: Request,
     laaReference: string,
     substantiveCertificate: number,
-  ): Promise<ClaimsViewModel> {
+  ): Promise<ClaimsViewModel | undefined> {
     const { buildApplicationClaimsViewUseCase } = this;
+
+    if (!hasPermission(req.session.roles ?? [], PERMISSIONS.VIEW_CLAIMS_TAB)) {
+      return undefined;
+    }
 
     const claimsViewResult = await buildApplicationClaimsViewUseCase.execute({
       laaReference,
