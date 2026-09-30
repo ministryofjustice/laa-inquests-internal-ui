@@ -38,5 +38,16 @@ export function createReportsRouter(
     },
   );
 
+  reportsRouter.get(
+    "/payment-extract",
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        await reportsAdaptor.downloadPaymentExtract(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return reportsRouter;
 }

@@ -54,6 +54,7 @@ export const PERMISSIONS = {
   VIEW_REPORTS_PAGE: "viewReportPage",
   VIEW_APPLICATIONS_REPORTS: "viewApplicationsReports",
   VIEW_CLAIMS_REPORTS: "viewClaimsReports",
+  VIEW_PAYMENT_EXTRACT_REPORT: "viewPaymentExtractReport",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -97,6 +98,9 @@ export const PERMISSION_ROLE_MAP: Readonly<
   [PERMISSIONS.VIEW_CLAIMS_REPORTS]: [
     INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
   ],
+  [PERMISSIONS.VIEW_PAYMENT_EXTRACT_REPORT]: [
+    INTERNAL_CASEWORKER_ROLES.FINANCE,
+  ],
 };
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
@@ -135,6 +139,10 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
     prefix: "/reports/claims/backlog",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_REPORTS],
+  },
+  {
+    prefix: "/reports/payment-extract",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_PAYMENT_EXTRACT_REPORT],
   },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/public-authorities",

@@ -3,6 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { ReportsPort } from "#src/ports/inquests-api/reports/ReportsAPI/ReportsAPI.port.js";
 import { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
+import { DownloadPaymentExtractReportUseCase } from "#src/use-cases/reports/DownloadPaymentExtractReport.useCase.js";
 
 describe("Report download use cases", () => {
   it("downloads the applications backlog through the reports port", async () => {
@@ -25,6 +26,28 @@ describe("Report download use cases", () => {
 
     assert.deepEqual(await useCase.execute("token"), report);
     assert.deepEqual(reportsPort.getClaimsBacklogReport.firstCall.args, [
+      "token",
+    ]);
+  });
+
+  it("downloads the payment extract for a date range through the reports port", async () => {
+    const reportsPort = stubInterface<ReportsPort>();
+    const report = {
+      status: "SUCCESS" as const,
+      data: Buffer.from("csv"),
+      contentType: "text/csv",
+      contentDisposition: "attachment; filename=payment_extract.csv",
+    };
+    reportsPort.getPaymentExtractReport.resolves(report);
+    const useCase = new DownloadPaymentExtractReportUseCase(reportsPort);
+
+    assert.deepEqual(
+      await useCase.execute("2026-09-01", "2026-09-25", "token"),
+      report,
+    );
+    assert.deepEqual(reportsPort.getPaymentExtractReport.firstCall.args, [
+      "2026-09-01",
+      "2026-09-25",
       "token",
     ]);
   });

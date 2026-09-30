@@ -427,6 +427,10 @@ const applicationHistory = [
   },
 ];
 
+export const PAYMENT_EXTRACT_CSV =
+  "Claim Reference,Firm Account Number,Amount,Paid Date\n" +
+  "INQC-0001-0001,1473,1200.00,2025-04-10\n";
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -637,6 +641,23 @@ export const applicationHandlers = [
       },
     });
   }),
+
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/reports/payment-extract`,
+    ({ request }) => {
+      const { searchParams } = new URL(request.url);
+      const from = searchParams.get("from") ?? "";
+      const to = searchParams.get("to") ?? "";
+
+      return new HttpResponse(Buffer.from(PAYMENT_EXTRACT_CSV), {
+        status: 200,
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": `attachment; filename=payment_extract_${from}_${to}.csv`,
+        },
+      });
+    },
+  ),
 
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/claims`,

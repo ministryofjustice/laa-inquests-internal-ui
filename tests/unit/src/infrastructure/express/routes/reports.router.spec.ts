@@ -229,4 +229,69 @@ describe("createReportsRouter", () => {
     assert.equal(next.callCount, 1);
     assert.equal(next.firstCall.args[0], error);
   });
+
+  it("delegates GET /payment-extract handler to reports adaptor", async () => {
+    const reportsAdaptor = stubInterface<ReportsAdaptor>();
+    const router = createReportsRouter(express.Router(), reportsAdaptor);
+    const route = (
+      router as unknown as {
+        stack: Array<{
+          route?: {
+            path: string;
+            stack: Array<{
+              handle: (
+                req: Request,
+                res: Response,
+                next: NextFunction,
+              ) => Promise<void>;
+            }>;
+          };
+        }>;
+      }
+    ).stack.find((layer) => layer.route?.path === "/payment-extract")?.route;
+    const req = stubInterface<Request>();
+    const res = stubInterface<Response>();
+    const next = sinon.stub();
+
+    await route?.stack[0].handle(req, res, next);
+
+    assert.equal(reportsAdaptor.downloadPaymentExtract.callCount, 1);
+    assert.deepEqual(reportsAdaptor.downloadPaymentExtract.firstCall.args, [
+      req,
+      res,
+    ]);
+    assert.equal(next.callCount, 0);
+  });
+
+  it("calls next when payment extract handler throws", async () => {
+    const reportsAdaptor = stubInterface<ReportsAdaptor>();
+    const router = createReportsRouter(express.Router(), reportsAdaptor);
+    const route = (
+      router as unknown as {
+        stack: Array<{
+          route?: {
+            path: string;
+            stack: Array<{
+              handle: (
+                req: Request,
+                res: Response,
+                next: NextFunction,
+              ) => Promise<void>;
+            }>;
+          };
+        }>;
+      }
+    ).stack.find((layer) => layer.route?.path === "/payment-extract")?.route;
+    const req = stubInterface<Request>();
+    const res = stubInterface<Response>();
+    const next = sinon.stub();
+    const error = new Error("payment extract failed");
+
+    reportsAdaptor.downloadPaymentExtract.rejects(error);
+
+    await route?.stack[0].handle(req, res, next);
+
+    assert.equal(next.callCount, 1);
+    assert.equal(next.firstCall.args[0], error);
+  });
 });

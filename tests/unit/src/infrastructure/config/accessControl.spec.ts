@@ -175,6 +175,13 @@ describe("Access Control Configuration", () => {
         "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/.+",
       );
     });
+
+    it("restricts the payment extract download to finance", () => {
+      const policy = findRoutePolicy("/reports/payment-extract");
+      expect(policy?.allowedRoles).to.deep.equal([
+        INTERNAL_CASEWORKER_ROLES.FINANCE,
+      ]);
+    });
   });
 
   describe("hasAllowedRole", () => {
@@ -255,6 +262,19 @@ describe("Access Control Configuration", () => {
       ];
 
       expect(hasPermission(userRoles, "viewSomethingElse")).to.be.false;
+    });
+
+    it("grants the payment extract report permission only to finance", () => {
+      const permission = PERMISSIONS.VIEW_PAYMENT_EXTRACT_REPORT;
+
+      expect(hasPermission([INTERNAL_CASEWORKER_ROLES.FINANCE], permission)).to
+        .be.true;
+      expect(
+        hasPermission(
+          [INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING],
+          permission,
+        ),
+      ).to.be.false;
     });
   });
 
