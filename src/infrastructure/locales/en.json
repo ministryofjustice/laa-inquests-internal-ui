@@ -186,13 +186,6 @@
         "substantiveCertificate": "Substantive certificate",
         "totalRemaining": "Total remaining"
       },
-      "details": {
-        "title": "Details of the claim",
-        "instructedCounsel": "Instructed counsel on the case",
-        "lastWorkingDate": "Last working date",
-        "outcomeOfInquest": "Outcome of inquest",
-        "alternateFunding": "Has the matter progressed to alternate funding?"
-      },
       "finalOrNilBill": {
         "evidence": {
           "heading": "Evidence",

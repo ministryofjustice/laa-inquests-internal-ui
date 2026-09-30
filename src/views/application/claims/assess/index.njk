@@ -93,50 +93,6 @@
     ]
   }) }}
 
-  {% if not finalOrNilBillDetails %}
-  {{ govukSummaryList({
-    card: {
-      title: {
-        text: t('pages.claimAssessment.details.title')
-      }
-    },
-    rows: [
-      {
-        key: {
-          text: t('pages.claimAssessment.details.instructedCounsel')
-        },
-        value: {
-          text: details.instructedCounsel
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.details.lastWorkingDate')
-        },
-        value: {
-          text: details.lastWorkingDate
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.details.outcomeOfInquest')
-        },
-        value: {
-          text: details.outcomeOfInquest
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.details.alternateFunding')
-        },
-        value: {
-          text: details.alternateFundingProgressed
-        }
-      }
-    ]
-  }) }}
-  {% endif %}
-
   {% if finalOrNilBillDetails %}
     {% if finalOrNilBillDetails.counsel %}
       {{ govukSummaryList({ card: { title: { text: t('pages.claimAssessment.finalOrNilBill.counsel.heading') } }, rows: [

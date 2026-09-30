@@ -68,12 +68,6 @@ describe("ClaimAssessmentAdaptor", () => {
           substantiveCertificate: "£10,000",
           totalRemaining: "£10,000",
         },
-        details: {
-          instructedCounsel: "-",
-          lastWorkingDate: "-",
-          outcomeOfInquest: "-",
-          alternateFundingProgressed: "-",
-        },
         claimCostBreakdown: {
           fileName: "final_bill_costs.xlsx",
           downloadHref: "#",
