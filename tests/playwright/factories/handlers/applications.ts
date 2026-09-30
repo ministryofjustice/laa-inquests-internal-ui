@@ -425,6 +425,17 @@ const applicationHistory = [
       claimReference: "INQC-0010-0010",
     },
   },
+  {
+    timestamp: "2026-05-22T09:00:00.000000",
+    actor: "Caseworker",
+    eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002,
+    eventData: {
+      claimType: "FINAL_BILL",
+      claimDecision: "REJECTED",
+      claimReference: "INQC-0020-0020",
+      decisionJustification: "Insufficient supporting information",
+    },
+  },
 ];
 
 export const PAYMENT_EXTRACT_CSV =

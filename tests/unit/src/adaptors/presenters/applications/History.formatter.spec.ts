@@ -228,6 +228,29 @@ describe("HistoryFormatter", () => {
       );
     });
 
+    it("renders the rejection reason instead of the claim reference for a rejected claim", () => {
+      const [row] = formatHistoryRows(
+        [
+          {
+            timestamp: "2026-08-17T08:35:24.110277Z",
+            actor: "Caseworker",
+            eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_002,
+            eventData: {
+              claimType: "FINAL_BILL",
+              claimDecision: "REJECTED",
+              claimReference: "INQC-0010-0010",
+              decisionJustification: "Insufficient supporting information",
+            },
+          },
+        ],
+        laaReference,
+      );
+
+      expect(row?.[2]?.html).to.equal(
+        '<strong>Final bill claim rejected</strong><p class="govuk-body govuk-!-margin-top-2">Insufficient supporting information</p>',
+      );
+    });
+
     it("renders the claim reference as a hyperlink in the POA auto-rejected message", () => {
       const [row] = formatHistoryRows(
         [

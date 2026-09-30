@@ -14,6 +14,7 @@ export type EventFormatter = (
 ) => {
   heading: string;
   detail?: string;
+  detailIsParagraph?: boolean;
 };
 
 /**
@@ -89,6 +90,17 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       const decision = formatEnum(
         escapeHtmlValue(eventData?.claimDecision),
       ).toLowerCase();
+      const rejectionReason = formatClaimRejectionReason(
+        eventData?.decisionJustification,
+      );
+      if (decision === "rejected" && rejectionReason !== undefined) {
+        return {
+          heading: `${claimType} claim ${decision}`,
+          detail: rejectionReason,
+          detailIsParagraph: true,
+        };
+      }
+
       const claimReference = claimReferenceLink(
         laaReference,
         eventData?.claimReference,
@@ -125,6 +137,14 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       heading: "Claim rejected email sent",
     }),
   };
+
+function formatClaimRejectionReason(reason: unknown): string | undefined {
+  if (typeof reason !== "string" || reason.trim().length === 0) {
+    return undefined;
+  }
+
+  return escapeHtml(reason);
+}
 
 function escapeHtmlValue(value: unknown): string {
   if (typeof value === "string") {
@@ -167,11 +187,17 @@ function formatHistoryEventUpdate(
   const formatter = HISTORY_EVENT_FORMATTERS[eventReference];
 
   try {
-    const { heading, detail } = formatter
+    const { heading, detail, detailIsParagraph } = formatter
       ? formatter(eventData, laaReference)
       : { heading: escapeHtml(eventReference) };
 
-    return `<strong>${heading}</strong>${detail ? `<br />${detail}` : ""}`;
+    const detailHtml = detail
+      ? detailIsParagraph === true
+        ? `<p class="govuk-body govuk-!-margin-top-2">${detail}</p>`
+        : `<br />${detail}`
+      : "";
+
+    return `<strong>${heading}</strong>${detailHtml}`;
   } catch (error) {
     console.error(
       `Error formatting history event for reference ${eventReference}:`,
