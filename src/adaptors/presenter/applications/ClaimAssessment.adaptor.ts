@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import type { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import type { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import type { ProcessNilBillPayInFullDecisionUseCase } from "#src/use-cases/applications/claims/ProcessNilBillPayInFullDecision.useCase.js";
 import type { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
 import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
@@ -37,6 +38,7 @@ export class ClaimAssessmentAdaptor {
     private readonly rejectClaimUseCase: RejectClaimUseCase,
     private readonly buildClaimRejectionViewUseCase: BuildClaimRejectionViewUseCase,
     private readonly getClaimEvidenceUseCase: GetClaimEvidenceUseCase,
+    private readonly processNilBillPayInFullDecisionUseCase: ProcessNilBillPayInFullDecisionUseCase,
     private readonly validator: ClaimAssessmentValidator = new ClaimAssessmentValidator(),
     private readonly processClaimAssessmentUseCase: ProcessClaimAssessmentUseCase = new ProcessClaimAssessmentUseCase(),
   ) {
@@ -166,6 +168,47 @@ export class ClaimAssessmentAdaptor {
 
       res.redirect(
         `/applications/${laaReference}/claims/${claimReference}/rejected`,
+      );
+      return;
+    }
+
+    const nilBillDecisionResult =
+      await this.processNilBillPayInFullDecisionUseCase.execute({
+        laaReference,
+        claimReference,
+        accessToken: req.session.user?.accessToken,
+      });
+
+    if (nilBillDecisionResult.status === "NOT_FOUND") {
+      res.status(HTTP_NOT_FOUND).render("application/error", {
+        status: HTTP_NOT_FOUND,
+        error: en.pages.claimAssessment.notFound,
+      });
+      return;
+    }
+
+    if (nilBillDecisionResult.status === "VALIDATION_ERROR") {
+      res.status(HTTP_BAD_REQUEST).render("application/error", {
+        status: HTTP_BAD_REQUEST,
+        error: en.pages.claimAssessment.invalidRequest,
+      });
+      return;
+    }
+
+    if (nilBillDecisionResult.status === "SUCCESS") {
+      logger.logInfo({
+        functionName: "process_claim_assessment_form",
+        message: "Claim paid in full",
+        request: req as unknown as Request,
+        extraContext: {
+          event: "claim_paid_in_full",
+          laa_reference: laaReference,
+          claim_reference: claimReference,
+        },
+      });
+
+      res.redirect(
+        `/applications/${laaReference}/claims/${claimReference}/paid-in-full`,
       );
       return;
     }
