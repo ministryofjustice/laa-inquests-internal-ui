@@ -4,7 +4,9 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
-export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
+export const setupReportRateLimiter = (
+  config: Config,
+): RateLimitRequestHandler => {
   /**
    * Rate limiter for report downloads.
    * Limits each IP to a configurable number of requests per time window.

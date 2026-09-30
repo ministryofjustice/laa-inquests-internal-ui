@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
+import { setupReportRateLimiter } from "../middleware/security/setupReportsRateLimiter.js";
+import config from "#src/infrastructure/config/config.js";
 
 export function createReportsRouter(
   reportsRouter: Router,
@@ -18,6 +20,7 @@ export function createReportsRouter(
 
   reportsRouter.get(
     "/applications/backlog",
+    setupReportRateLimiter(config),
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await reportsAdaptor.downloadApplicationsBacklog(req, res);
