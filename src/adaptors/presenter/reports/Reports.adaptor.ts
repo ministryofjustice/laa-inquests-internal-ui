@@ -58,6 +58,7 @@ export class ReportsAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    // Rate limit?
     logger.logInfo({
       functionName: "download_applications_backlog_report",
       message: "Applications backlog report requested",

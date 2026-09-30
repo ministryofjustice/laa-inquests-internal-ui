@@ -22,7 +22,7 @@ import { helmetConfig } from "./infrastructure/config/helmet.js";
 import { setupLocaleData } from "./infrastructure/express/middleware/nunjucks/setupLocaleData.js";
 import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setupNunjucks.js";
 import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsrf.js";
-import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
+import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupGeneralRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
 import { logger } from "#src/infrastructure/logging/logger.js";
