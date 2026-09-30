@@ -39,7 +39,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     },
   };
 
-    const poaBaseClaim: ClaimDetail = {
+  const poaBaseClaim: ClaimDetail = {
     claimReference: "INQC-0011-0011",
     claimTypeId: "PAYMENT_ON_ACCOUNT",
     submissionDate: "2026-08-11T12:52:29.677Z",

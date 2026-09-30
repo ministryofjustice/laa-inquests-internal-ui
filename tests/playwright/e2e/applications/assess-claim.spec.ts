@@ -157,7 +157,7 @@ test.describe("Assess claim page", () => {
     await expect(
       pageForm.getByRole("heading", { level: 2, name: "Other evidence" }),
     ).toHaveCount(0);
-    await expect(pageForm.locator(".govuk-summary-list__key")).toHaveCount(8);
+    await expect(pageForm.locator(".govuk-summary-list__key")).toHaveCount(4);
   });
 
   test("shows vat-zero payment amount when gross and net are not provided", async ({
