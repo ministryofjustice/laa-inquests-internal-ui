@@ -82,24 +82,6 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByText("£10,000")).toHaveCount(1);
     await expect(pageForm.getByText("£8,800")).toBeVisible();
 
-    await expect(pageForm.getByText("Details of the claim")).toBeVisible();
-    await expect(
-      pageForm.getByText("Instructed counsel on the case"),
-    ).toBeVisible();
-    await expect(pageForm.getByText("2", { exact: true })).toBeVisible();
-    await expect(pageForm.getByText("Last working date")).toBeVisible();
-    await expect(
-      pageForm.getByText("10 August 2026", { exact: true }),
-    ).toBeVisible();
-    await expect(pageForm.getByText("Outcome of inquest")).toBeVisible();
-    await expect(
-      pageForm.getByText("Unlawful or lawful killing", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      pageForm.getByText("Has the matter progressed to alternate funding"),
-    ).toBeVisible();
-    await expect(pageForm.getByText("No", { exact: true })).toBeVisible();
-
     await expect(
       page.getByRole("heading", { level: 3, name: "Supporting evidence" }),
     ).toBeVisible();
@@ -342,7 +324,7 @@ test.describe("Assess claim page", () => {
     );
   });
 
-  test("does not show the claim cost breakdown card for a payment on account claim", async ({
+  test("does not show the claim cost breakdown, counsel, inquest outcome or alternate funding details for a payment on account claim", async ({
     page,
   }) => {
     await page.goto(assessClaimPage);
@@ -353,6 +335,18 @@ test.describe("Assess claim page", () => {
       pageForm.getByRole("heading", {
         level: 2,
         name: "Claim cost breakdown",
+      }),
+    ).toHaveCount(0);
+    await expect(
+      pageForm.getByRole("heading", {
+        level: 2,
+        name: "Counsel",
+      }),
+    ).toHaveCount(0);
+    await expect(
+      pageForm.getByRole("heading", {
+        level: 2,
+        name: "Other claim details",
       }),
     ).toHaveCount(0);
   });

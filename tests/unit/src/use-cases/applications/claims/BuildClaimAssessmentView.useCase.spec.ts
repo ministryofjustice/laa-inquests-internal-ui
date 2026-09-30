@@ -10,9 +10,9 @@ import {
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 
 describe("BuildClaimAssessmentViewUseCase", () => {
-  const baseClaim: ClaimDetail = {
+  const finalBillBaseClaim: ClaimDetail = {
     claimReference: "INQC-0010-0010",
-    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    claimTypeId: "FINAL_BILL",
     submissionDate: "2026-08-11T12:52:29.677Z",
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
@@ -39,6 +39,32 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     },
   };
 
+    const poaBaseClaim: ClaimDetail = {
+    claimReference: "INQC-0011-0011",
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-08-11T12:52:29.677Z",
+    totalProfitCostNet: "1000.00",
+    totalProfitCostGross: "1200.00",
+    totalProfitCostVatZero: null,
+    totalFundsRemainingAfterClaim: "8800.00",
+    poaTypeId: "PROFIT_COST",
+    statusId: "SUBMITTED",
+    substantiveCostLimitation: 10000,
+    claimEvidence: [
+      {
+        claimEvidenceId: "test_evidence_1",
+        fileName: "claim-evidence-1.pdf",
+      },
+    ],
+    claimDecision: {
+      claimDecisionId: 88,
+      decision: "REJECT",
+      decisionReasons: [
+        { reasonCode: "MANUAL_REJECTION", justification: "reject" },
+      ],
+    },
+  };
+
   it("builds claim assessment data using claimDecision decision for status", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();
@@ -47,21 +73,21 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       laaReference: "5",
       proceeding: { substantiveCostLimitation: 9999 },
     } as any);
-    claimsPortStub.getClaimById.resolves(baseClaim);
+    claimsPortStub.getClaimById.resolves(poaBaseClaim);
 
     const result = await new BuildClaimAssessmentViewUseCase(
       applicationPortStub,
       claimsPortStub,
     ).execute({
       laaReference: "5",
-      claimReference: "INQC-0010-0010",
+      claimReference: "INQC-0011-0011",
       accessToken: "token",
     });
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, {
       laaReference: "5",
-      claimReference: "INQC-0010-0010",
+      claimReference: "INQC-0011-0011",
       claimStatus: "Reject",
       overview: {
         paymentType: "Payment on account",
@@ -69,21 +95,14 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         substantiveCertificate: "£10,000",
         totalRemaining: "£8,800",
       },
-      details: {
-        instructedCounsel: "2",
-        lastWorkingDate: "11 August 2026",
-        outcomeOfInquest:
-          "Accident or misadventure, Unlawful or lawful killing",
-        alternateFundingProgressed: "No",
-      },
       claimCostBreakdown: null,
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
           viewHref:
-            "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=inline",
+            "/applications/5/claims/INQC-0011-0011/evidence/test_evidence_1?disposition=inline",
           downloadHref:
-            "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=attachment",
+            "/applications/5/claims/INQC-0011-0011/evidence/test_evidence_1?disposition=attachment",
         },
       ],
     });
@@ -98,7 +117,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({
-      ...baseClaim,
+      ...finalBillBaseClaim,
       claimReference: "INQC-0013-0013",
       claimTypeId: "FINAL_BILL",
       poaTypeId: null,
@@ -148,7 +167,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({
-      ...baseClaim,
+      ...finalBillBaseClaim,
       claimCostTemplateFile: null,
     });
 
@@ -173,7 +192,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({
-      ...baseClaim,
+      ...finalBillBaseClaim,
       totalProfitCostGross: "1200.00",
       totalProfitCostVatZero: "700.00",
     });
@@ -199,7 +218,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({
-      ...baseClaim,
+      ...finalBillBaseClaim,
       claimTypeId: "FINAL_BILL",
       claimCostTemplateFile: {
         claimCostTemplateFileId: "cost-template-file-id",
@@ -273,7 +292,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       proceeding: { substantiveCostLimitation: 10000 },
     } as any);
     claimsPortStub.getClaimById.resolves({
-      ...baseClaim,
+      ...finalBillBaseClaim,
       claimTypeId: "FINAL_BILL",
       hasAlternativeFunding: false,
       hasRecoveryCostsAwarded: false,
@@ -292,6 +311,47 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     assert.equal(result.status, "SUCCESS");
     assert.equal(
       result.data.finalOrNilBillDetails?.alternativeFundingDetails,
+      undefined,
+    );
+  });
+
+  it("omits Final bill details for POA claims", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: 5,
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...poaBaseClaim,
+    });
+
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
+      laaReference: "5",
+      claimReference: "INQC-0011-0011",
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.equal(
+      result.data.finalOrNilBillDetails?.claimCostTemplateFile,
+      undefined,
+    );
+    assert.equal(
+      result.data.finalOrNilBillDetails?.supportingEvidence,
+      undefined,
+    );
+    assert.equal(result.data.finalOrNilBillDetails?.counsel, undefined);
+    assert.equal(result.data.finalOrNilBillDetails?.inquestDetails, undefined);
+    assert.equal(
+      result.data.finalOrNilBillDetails?.alternativeFundingDetails,
+      undefined,
+    );
+    assert.equal(
+      result.data.finalOrNilBillDetails?.financialRecoveryCosts,
       undefined,
     );
   });

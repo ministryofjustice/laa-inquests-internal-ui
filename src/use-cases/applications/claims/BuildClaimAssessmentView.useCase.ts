@@ -63,12 +63,6 @@ export interface ClaimAssessmentViewData {
     substantiveCertificate: string;
     totalRemaining: string;
   };
-  details: {
-    instructedCounsel: string;
-    lastWorkingDate: string;
-    outcomeOfInquest: string;
-    alternateFundingProgressed: string;
-  };
   claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
   finalOrNilBillDetails?: ClaimAssessmentFinalOrNilBillDetails;
@@ -120,16 +114,6 @@ export class BuildClaimAssessmentViewUseCase {
           paymentAmount: formatAmount(getPaymentAmountRaw(claim)),
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
-        },
-        details: {
-          instructedCounsel: formatCounselCount(
-            claim.numberOfCounselInstructed,
-          ),
-          lastWorkingDate: formatDate(claim.submissionDate),
-          outcomeOfInquest: formatInquestOutcomes(claim.inquestOutcomes),
-          alternateFundingProgressed: formatBoolean(
-            claim.hasAlternativeFunding,
-          ),
         },
         claimCostBreakdown: mapClaimCostBreakdown(
           claim,
