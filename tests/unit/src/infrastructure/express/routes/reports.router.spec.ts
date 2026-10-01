@@ -188,7 +188,7 @@ describe("createReportsRouter", () => {
     const res = stubInterface<Response>();
     const next = sinon.stub();
 
-    await route?.stack[0].handle(req, res, next);
+    await route?.stack.at(-1)?.handle(req, res, next);
 
     assert.equal(reportsAdaptor.downloadClaimsBacklog.callCount, 1);
     assert.deepEqual(reportsAdaptor.downloadClaimsBacklog.firstCall.args, [
@@ -224,7 +224,7 @@ describe("createReportsRouter", () => {
 
     reportsAdaptor.downloadClaimsBacklog.rejects(error);
 
-    await route?.stack[0].handle(req, res, next);
+    await route?.stack.at(-1)?.handle(req, res, next);
 
     assert.equal(next.callCount, 1);
     assert.equal(next.firstCall.args[0], error);
@@ -253,7 +253,7 @@ describe("createReportsRouter", () => {
     const res = stubInterface<Response>();
     const next = sinon.stub();
 
-    await route?.stack[0].handle(req, res, next);
+    await route?.stack.at(-1)?.handle(req, res, next);
 
     assert.equal(reportsAdaptor.downloadPaymentExtract.callCount, 1);
     assert.deepEqual(reportsAdaptor.downloadPaymentExtract.firstCall.args, [
@@ -289,7 +289,7 @@ describe("createReportsRouter", () => {
 
     reportsAdaptor.downloadPaymentExtract.rejects(error);
 
-    await route?.stack[0].handle(req, res, next);
+    await route?.stack.at(-1)?.handle(req, res, next);
 
     assert.equal(next.callCount, 1);
     assert.equal(next.firstCall.args[0], error);
