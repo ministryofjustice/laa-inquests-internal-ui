@@ -1,11 +1,12 @@
-import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
-import type { Config } from "#src/infrastructure/config/config.types.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
-import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
+import rateLimit, {type RateLimitRequestHandler} from "express-rate-limit";
+import type {Config} from "#src/infrastructure/config/config.types.js";
+import en from "#src/infrastructure/locales/en.json" with {type: "json"};
+import {HTTP_TOO_MANY_REQUESTS} from "#src/infrastructure/express/constants.js";
+import {logger} from "#src/infrastructure/logging/logger.js";
 
 export const setupReportRateLimiter = (
   config: Config,
+  reportType: string
 ): RateLimitRequestHandler => {
   /**
    * Rate limiter for report downloads.
@@ -18,12 +19,13 @@ export const setupReportRateLimiter = (
     handler: (req, res) => {
       logger.logError({
         functionName: "app",
-        message: "Report rate limit has been exceeded by user",
+        message: `${reportType} report download rate limit has been exceeded by user`,
       });
       res.status(HTTP_TOO_MANY_REQUESTS).render("main/error.njk", {
         status: HTTP_TOO_MANY_REQUESTS,
         error: en.pages.error.rateLimitError.reportLimitMessage,
-        config: { SERVICE_NAME: process.env.SERVICE_NAME },
+        backUrl: "/reports",
+        config: config
       });
     },
   });

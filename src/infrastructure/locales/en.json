@@ -89,7 +89,7 @@
       "rateLimitError": {
         "globalLimitMessage": "Our service is currently under heavy load. Please try again later",
         "IpLimitMessage": "Too many requests, please try again later.",
-        "reportLimitMessage": "Too many report requests, please try again later."
+        "reportLimitMessage": "Please do not attempt to download reports too quickly"
       }
     },
     "applicationOverview": {

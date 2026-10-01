@@ -20,7 +20,7 @@ export function createReportsRouter(
 
   reportsRouter.get(
     "/applications/backlog",
-    setupReportRateLimiter(config),
+    setupReportRateLimiter(config, "Applications"),
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await reportsAdaptor.downloadApplicationsBacklog(req, res);
@@ -32,6 +32,7 @@ export function createReportsRouter(
 
   reportsRouter.get(
     "/claims/backlog",
+    setupReportRateLimiter(config, "Claims"),
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await reportsAdaptor.downloadClaimsBacklog(req, res);

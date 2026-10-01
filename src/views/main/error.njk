@@ -9,6 +9,11 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ status }}</h1>
             <p class="govuk-body">{{ error }}</p>
+            {% if backUrl %}
+                <a href="{{ backUrl }}" class="govuk-button">
+                    Back
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
