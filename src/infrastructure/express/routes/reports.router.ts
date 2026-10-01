@@ -44,6 +44,7 @@ export function createReportsRouter(
 
   reportsRouter.get(
     "/payment-extract",
+    setupReportRateLimiter(config, "Payment extract"),
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await reportsAdaptor.downloadPaymentExtract(req, res);

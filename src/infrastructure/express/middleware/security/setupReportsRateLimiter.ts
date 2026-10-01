@@ -1,12 +1,12 @@
-import rateLimit, {type RateLimitRequestHandler} from "express-rate-limit";
-import type {Config} from "#src/infrastructure/config/config.types.js";
-import en from "#src/infrastructure/locales/en.json" with {type: "json"};
-import {HTTP_TOO_MANY_REQUESTS} from "#src/infrastructure/express/constants.js";
-import {logger} from "#src/infrastructure/logging/logger.js";
+import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
+import type { Config } from "#src/infrastructure/config/config.types.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export const setupReportRateLimiter = (
   config: Config,
-  reportType: string
+  reportType: string,
 ): RateLimitRequestHandler => {
   /**
    * Rate limiter for report downloads.
@@ -25,7 +25,7 @@ export const setupReportRateLimiter = (
         status: HTTP_TOO_MANY_REQUESTS,
         error: en.pages.error.rateLimitError.reportLimitMessage,
         backUrl: "/reports",
-        config: config
+        config,
       });
     },
   });
