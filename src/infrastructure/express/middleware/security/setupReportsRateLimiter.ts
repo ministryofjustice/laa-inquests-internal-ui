@@ -21,10 +21,10 @@ export const setupReportRateLimiter = (
         functionName: "app",
         message: `${reportType} report download rate limit has been exceeded by user`,
       });
-      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error.njk", {
-        status: HTTP_TOO_MANY_REQUESTS,
-        error: en.pages.error.rateLimitError.reportLimitMessage,
-        backUrl: "/reports",
+      res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
+        backUrl: "/",
+        errorSummaries: true,
+        errorList: [{ text: en.pages.error.rateLimitError.reportLimitMessage }],
         config,
       });
     },
