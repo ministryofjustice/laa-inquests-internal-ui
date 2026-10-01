@@ -1,25 +1,21 @@
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 
-interface ProcessNilBillPayInFullDecisionInput {
+interface ProcessNilBillAndPOAPayInFullDecisionInput {
   laaReference: string;
   claimReference: string;
   accessToken?: string;
 }
 
-const NIL_BILL_CLAIM_TYPE_ID = "NIL_BILL";
-
 /**
- * Fast-tracks a "Pay in full" decision for a Nil bill claim: a Nil bill has
- * no profit cost or disbursement amounts to confirm, so this submits the
- * decision immediately instead of sending the caseworker through the
- * confirm-profit-costs / confirm-disbursement-costs / check-your-answers
- * pages. Claims of any other type leave the existing journey untouched.
+ * Processes "Pay in full" for Nil bills and payment-on-account claims.
+ * Neither needs the caseworker to confirm costs before submitting a decision.
+ * Final bills retain the existing cost-confirmation journey.
  */
-export class ProcessNilBillPayInFullDecisionUseCase {
+export class ProcessNilBillAndPOAPayInFullDecisionUseCase {
   constructor(private readonly claimsPort: ClaimsPort) {}
 
   async execute(
-    input: ProcessNilBillPayInFullDecisionInput,
+    input: ProcessNilBillAndPOAPayInFullDecisionInput,
   ): Promise<
     | { status: "NOT_FOUND" }
     | { status: "CONTINUE_JOURNEY" }
@@ -36,7 +32,10 @@ export class ProcessNilBillPayInFullDecisionUseCase {
       return { status: "NOT_FOUND" };
     }
 
-    if (claim.claimTypeId !== NIL_BILL_CLAIM_TYPE_ID) {
+    if (
+      claim.claimTypeId !== "NIL_BILL" &&
+      claim.claimTypeId !== "PAYMENT_ON_ACCOUNT"
+    ) {
       return { status: "CONTINUE_JOURNEY" };
     }
 

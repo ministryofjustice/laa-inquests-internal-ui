@@ -10,7 +10,7 @@ import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/cla
 import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { ClaimAssessmentValidator } from "#src/adaptors/presenter/applications/ClaimAssessment.validator.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
-import { ProcessNilBillPayInFullDecisionUseCase } from "#src/use-cases/applications/claims/ProcessNilBillPayInFullDecision.useCase.js";
+import { ProcessNilBillAndPOAPayInFullDecisionUseCase } from "#src/use-cases/applications/claims/ProcessNilBillAndPOAPayInFullDecision.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import {
   APPLICATION_ERROR_TYPES,
@@ -34,7 +34,7 @@ describe("ClaimAssessmentAdaptor", () => {
   let buildClaimAssessmentViewUseCaseStub: StubbedInstance<BuildClaimAssessmentViewUseCase>;
   let validatorStub: StubbedInstance<ClaimAssessmentValidator>;
   let processClaimAssessmentUseCaseStub: StubbedInstance<ProcessClaimAssessmentUseCase>;
-  let processNilBillPayInFullDecisionUseCaseStub: StubbedInstance<ProcessNilBillPayInFullDecisionUseCase>;
+  let processNilBillAndPOAPayInFullDecisionUseCaseStub: StubbedInstance<ProcessNilBillAndPOAPayInFullDecisionUseCase>;
   let rejectClaimUseCaseStub: StubbedInstance<RejectClaimUseCase>;
   let buildClaimRejectionViewUseCaseStub: StubbedInstance<BuildClaimRejectionViewUseCase>;
 
@@ -49,8 +49,8 @@ describe("ClaimAssessmentAdaptor", () => {
     validatorStub = stubInterface<ClaimAssessmentValidator>();
     processClaimAssessmentUseCaseStub =
       stubInterface<ProcessClaimAssessmentUseCase>();
-    processNilBillPayInFullDecisionUseCaseStub =
-      stubInterface<ProcessNilBillPayInFullDecisionUseCase>();
+    processNilBillAndPOAPayInFullDecisionUseCaseStub =
+      stubInterface<ProcessNilBillAndPOAPayInFullDecisionUseCase>();
     rejectClaimUseCaseStub = stubInterface<RejectClaimUseCase>();
     buildClaimRejectionViewUseCaseStub =
       stubInterface<BuildClaimRejectionViewUseCase>();
@@ -97,7 +97,7 @@ describe("ClaimAssessmentAdaptor", () => {
       rejectClaimUseCaseStub,
       buildClaimRejectionViewUseCaseStub,
       new GetClaimEvidenceUseCase(claimsPortStub),
-      processNilBillPayInFullDecisionUseCaseStub,
+      processNilBillAndPOAPayInFullDecisionUseCaseStub,
       validatorStub,
       processClaimAssessmentUseCaseStub,
     );
@@ -192,12 +192,12 @@ describe("ClaimAssessmentAdaptor", () => {
       } as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>;
     }
 
-    it("redirects to the confirm profit costs page when validation passes and the claim is not a Nil bill", async () => {
+    it("redirects to the confirm profit costs page when validation passes for a final bill", async () => {
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: { assessClaim: "Pay in full", rejectionReason: "" },
       });
-      processNilBillPayInFullDecisionUseCaseStub.execute.resolves({
+      processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.resolves({
         status: "CONTINUE_JOURNEY",
       });
 
@@ -207,11 +207,12 @@ describe("ClaimAssessmentAdaptor", () => {
       );
 
       assert.equal(
-        processNilBillPayInFullDecisionUseCaseStub.execute.callCount,
+        processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.callCount,
         1,
       );
       assert.deepStrictEqual(
-        processNilBillPayInFullDecisionUseCaseStub.execute.getCall(0).args[0],
+        processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.getCall(0)
+          .args[0],
         {
           laaReference: "123",
           claimReference: "INQC-0010-0010",
@@ -231,7 +232,7 @@ describe("ClaimAssessmentAdaptor", () => {
         status: "SUCCESS",
         data: { assessClaim: "Pay in full", rejectionReason: "" },
       });
-      processNilBillPayInFullDecisionUseCaseStub.execute.resolves({
+      processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.resolves({
         status: "SUCCESS",
       });
 
@@ -254,13 +255,13 @@ describe("ClaimAssessmentAdaptor", () => {
       );
     });
 
-    it("renders a not found error page when the Nil bill claim cannot be found", async () => {
+    it("renders a not found error page when the Nil bill or POA claim cannot be found", async () => {
       responseStub.status.returns(responseStub);
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: { assessClaim: "Pay in full", rejectionReason: "" },
       });
-      processNilBillPayInFullDecisionUseCaseStub.execute.resolves({
+      processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.resolves({
         status: "NOT_FOUND",
       });
 
@@ -274,13 +275,13 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.equal(responseStub.render.getCall(0).args[0], "application/error");
     });
 
-    it("renders an error page when the Nil bill pay-in-full submission fails validation", async () => {
+    it("renders an error page when the Nil bill or POA submission fails validation", async () => {
       responseStub.status.returns(responseStub);
       processClaimAssessmentUseCaseStub.execute.returns({
         status: "SUCCESS",
         data: { assessClaim: "Pay in full", rejectionReason: "" },
       });
-      processNilBillPayInFullDecisionUseCaseStub.execute.resolves({
+      processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.resolves({
         status: "VALIDATION_ERROR",
         errorCode: "MISSING_TOTAL_CLAIM_COST",
       });
