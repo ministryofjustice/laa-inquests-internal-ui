@@ -146,4 +146,51 @@ test.describe("Reports page", () => {
       }
     });
   });
+
+  // test.describe("Rate limiting behaviour", () => {
+  //   test("downloads applications backlog only once when attempted multiple times", async ({
+  //     page,
+  //   }) => {
+  //     await page.goto("/reports");
+
+  //   const backlogResponsePromise = page.waitForResponse(
+  //     (response) =>
+  //       response.url().endsWith("/reports/applications/backlog") &&
+  //       response.request().method() === "GET",
+  //   );
+
+  //   await page
+  //     .getByRole("link", { name: "Download Applications Backlog" })
+  //     .click();
+
+  //   const backlogResponse = await backlogResponsePromise;
+
+  //   expect(backlogResponse.status()).toBe(200);
+  //   expect(backlogResponse.headers()["content-type"]).toContain("text/csv");
+  //   expect(backlogResponse.headers()["content-disposition"]).toContain(
+  //     "attachment",
+  //   );
+
+  //   // Attempt to download the applications backlog a second time
+  //   const secondBacklogResponsePromise = page.waitForResponse(
+  //     (response) =>
+  //       response.url().endsWith("/reports/applications/backlog") &&
+  //       response.request().method() === "GET",
+  //   );
+
+  //   await page
+  //     .getByRole("link", { name: "Download Applications Backlog" })
+  //     .click();
+
+  //   const secondBacklogResponse = await secondBacklogResponsePromise;
+
+  //   expect(secondBacklogResponse.status()).toBe(429);
+  //   expect(secondBacklogResponse.headers()["content-type"]).not.toContain("text/csv");
+  //   expect(secondBacklogResponse.headers()["content-disposition"]).not.toContain(
+  //     "attachment",
+  //   );
+
+  //   // Check for errors in the error summary component
+
+  // });
 });

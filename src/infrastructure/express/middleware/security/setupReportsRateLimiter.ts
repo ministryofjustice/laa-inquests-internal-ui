@@ -7,12 +7,12 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 export const setupReportRateLimiter = (
   config: Config,
   reportType: string,
-): RateLimitRequestHandler => {
+): RateLimitRequestHandler[] => {
   /**
    * Rate limiter for report downloads.
    * Limits each IP to a configurable number of requests per time window.
    */
-  const reportLimiter = rateLimit({
+  const firstClickReportLimiter = rateLimit({
     windowMs: config.RATE_WINDOW_PER_REPORT_MS,
     max: 1,
     skip: () => process.env.NODE_ENV === "test",
@@ -29,6 +29,22 @@ export const setupReportRateLimiter = (
       });
     },
   });
+  const doubleClickReportLimiter = rateLimit({
+    windowMs: 1000,
+    max: 1,
+    skip: () => process.env.NODE_ENV === "test",
+    handler: (req, res) => {
+      logger.logError({
+        functionName: "app",
+        message: `${reportType} report download rate limit has been exceeded by user: error displayed`,
+      });
+      // To do: Can we avoid returning user to the top of the page?
+      res.render("reports/index", {
+        backUrl: "/",
+        config,
+      });
+    },
+  });
 
-  return reportLimiter;
+  return [doubleClickReportLimiter, firstClickReportLimiter];
 };
