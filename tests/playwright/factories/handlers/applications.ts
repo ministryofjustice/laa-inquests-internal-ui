@@ -368,6 +368,33 @@ const finalBillClaimDetail = {
   payingParty: "Ministry of Justice",
 };
 
+const nilBillClaimDetail = {
+  ...claimDetail,
+  claimReference: "INQC-0014-0014",
+  claimTypeId: "NIL_BILL",
+  totalProfitCostNet: null,
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: null,
+  claimCostTemplateFile: {
+    claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    claimCostTemplateFileName: "nil_bill_costs.xlsx",
+  },
+  claimEvidence: [
+    {
+      claimEvidenceId: "test_evidence_1",
+      fileName: "claim-evidence-1.pdf",
+    },
+  ],
+  hasCounselBeenPaid: true,
+  hasAlternativeFunding: false,
+  hasRecoveryCostsAwarded: false,
+  financialRecoveryPreviousPreCertificateCosts: null,
+  financialRecoveryCost: null,
+  financialRecoveryDamages: null,
+  financialRecoveryInterest: null,
+  payingParty: null,
+};
+
 /**
  * Public bodies reference data returned by GET /applications/public-bodies.
  */
@@ -603,6 +630,13 @@ export const applicationHandlers = [
         params.claimReference === "INQC-0013-0013"
       ) {
         return HttpResponse.json(finalBillClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0014-0014"
+      ) {
+        return HttpResponse.json(nilBillClaimDetail);
       }
 
       return new HttpResponse(null, { status: 404 });

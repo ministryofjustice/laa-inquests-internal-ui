@@ -41,6 +41,7 @@ import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetA
 import { BuildApplicationClaimsViewUseCase } from "#src/use-cases/applications/claims/BuildApplicationClaimsView.useCase.js";
 import { BuildClaimAssessmentViewUseCase } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
 import { ProcessClaimAssessmentUseCase } from "#src/use-cases/applications/claims/ProcessClaimAssessment.useCase.js";
+import { ProcessNilBillPayInFullDecisionUseCase } from "#src/use-cases/applications/claims/ProcessNilBillPayInFullDecision.useCase.js";
 import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectClaim.useCase.js";
 import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { GetClaimEvidenceUseCase } from "#src/use-cases/applications/claims/GetClaimEvidence.useCase.js";
@@ -136,6 +137,7 @@ const claimAssessmentAdaptor = new ClaimAssessmentAdaptor(
   new RejectClaimUseCase(claimsAdaptor),
   new BuildClaimRejectionViewUseCase(claimsAdaptor),
   new GetClaimEvidenceUseCase(claimsAdaptor),
+  new ProcessNilBillPayInFullDecisionUseCase(claimsAdaptor),
   new ClaimAssessmentValidator(),
   new ProcessClaimAssessmentUseCase(),
 );

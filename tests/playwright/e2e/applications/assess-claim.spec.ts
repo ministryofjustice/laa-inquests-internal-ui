@@ -18,9 +18,17 @@ const assessClaimVatZeroOnlyPage = `/applications/${laaReference}/claims/${claim
 const finalBillClaimReference = "INQC-0013-0013";
 const assessFinalBillClaimPage = `/applications/${laaReference}/claims/${finalBillClaimReference}`;
 const finalBillRejectedSuccessPage = `${assessFinalBillClaimPage}/rejected`;
+const nilBillClaimReference = "INQC-0014-0014";
+const assessNilBillClaimPage = `/applications/${laaReference}/claims/${nilBillClaimReference}`;
+const nilBillPaidInFullPage = `${assessNilBillClaimPage}/paid-in-full`;
 
 const rejectedPanelText = (claimType: string): string =>
   rejectedSuccessLocale.panel.replace("{claimType}", claimType);
+const paidInFullPanelText = (claimType: string): string =>
+  claimAssessmentLocale.paidInFullSuccess.panel.replace(
+    "{claimType}",
+    claimType,
+  );
 
 test.describe("Assess claim page", () => {
   test("opens a specific claim from the claims tab and shows that claim's data", async ({
@@ -536,6 +544,24 @@ test.describe("Assess claim page", () => {
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page).toHaveURL(`${assessClaimPage}/confirm-profit-costs`);
+  });
+
+  test("redirects straight to the paid in full confirmation page when Pay in full is selected for a Nil bill claim", async ({
+    page,
+  }) => {
+    await page.goto(assessNilBillClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Pay in full" }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(nilBillPaidInFullPage);
+    await expect(
+      page.locator(".govuk-panel__title", {
+        hasText: paidInFullPanelText("Nil bill"),
+      }),
+    ).toBeVisible();
   });
 
   test("shows the rejection success page when Reject is selected with a valid reason", async ({
