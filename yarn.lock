@@ -48,13 +48,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/msal-node@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "@azure/msal-node@npm:6.0.1"
+"@azure/msal-node@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@azure/msal-node@npm:7.0.0"
   dependencies:
     "@azure/msal-common": "npm:16.14.1"
     jsonwebtoken: "npm:^9.0.0"
-  checksum: 10c0/feab144530e708b3d9c7e50a30e3339a460fc4d9879c8841795ffea49bab78395963c0740235a9e585d8c81587291ed286ff6b99fdd5236748ff662e2aea75c8
+  checksum: 10c0/27ea9b56e89b21ac55fdcb3a4b167b0344b937a3a878f8b69ae5178881131758f8efa2e0f57a144e91814d7263eb0d1189fdd77668850b0eaab1aa5676349fff
   languageName: node
   linkType: hard
 
@@ -3605,7 +3605,7 @@ __metadata:
   resolution: "laa-express-typescript-template@workspace:."
   dependencies:
     "@axe-core/playwright": "npm:^4.13.0"
-    "@azure/msal-node": "npm:^6.0.0"
+    "@azure/msal-node": "npm:^7.0.0"
     "@eslint/js": "npm:^10.0.1"
     "@ministryofjustice/frontend": "npm:^11.1.0"
     "@playwright/test": "npm:^1.63.0"

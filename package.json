@@ -29,7 +29,7 @@
     "node": "26.10.0"
   },
   "dependencies": {
-    "@azure/msal-node": "^6.0.0",
+    "@azure/msal-node": "^7.0.0",
     "@ministryofjustice/frontend": "^11.1.0",
     "@redis/client": "^6.2.1",
     "axios": "^1.20.0",
