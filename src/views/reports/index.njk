@@ -80,7 +80,8 @@
 
           {{ govukButton({
             text: t('pages.reports.paymentExtract.button'),
-            type: "submit"
+            type: "submit",
+            preventDoubleClick: true
           }) }}
         </form>
     {% endif %}

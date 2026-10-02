@@ -122,13 +122,13 @@ export class ReportsAdaptor {
       this.#renderPaymentExtractErrors(res, form, errors);
       return;
     }
-
     if (res.locals.rateLimit === true) {
       this.#renderPaymentExtractErrors(res, form, {
         rateLimit: { text: en.pages.error.rateLimitError.reportLimitMessage },
       });
       return;
     }
+
     const from = this.#isoDate(form, "from");
     const to = this.#isoDate(form, "to");
     const result =
