@@ -26,7 +26,7 @@ import { ProcessCertificateStartDateUseCase } from "#src/use-cases/applications/
 import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/decision/PrepareConfirmationView.useCase.js";
 import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetApplication.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import * as decisionConstants from "#src/infrastructure/locales/constants.js";
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import type { GrantDecisionResult } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import type { RefuseDecisionResult } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
@@ -207,6 +207,8 @@ export class ApplicationDecisionAdaptor {
       laaReference,
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
+      justificationMaxCharacterLength:
+        decisionConstants.JUSTIFICATION_MAX_CHARACTER_LENGTH,
       ...(errorSummaries && { errorSummaries }),
     });
   }
@@ -345,7 +347,7 @@ export class ApplicationDecisionAdaptor {
       "decision",
     ) as DecisionSessionData | null;
     const backUrl =
-      sessionData?.overallDecision === GRANTED_DECISION
+      sessionData?.overallDecision === decisionConstants.GRANTED_DECISION
         ? `/applications/${laaReference}/decision/certificate-start-date`
         : `/applications/${laaReference}/decision/justification`;
     const prepareConfirmationViewResult: ReturnType<
@@ -391,7 +393,7 @@ export class ApplicationDecisionAdaptor {
       "decision",
     ) as DecisionSessionData | null;
 
-    if (sessionData?.overallDecision === GRANTED_DECISION) {
+    if (sessionData?.overallDecision === decisionConstants.GRANTED_DECISION) {
       const grantDecisionResult = await this.#processGrantDecision(
         req,
         res,
