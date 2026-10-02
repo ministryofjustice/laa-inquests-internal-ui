@@ -34,6 +34,8 @@ export const FAILED_EVIDENCE_ID = "evidence-500";
 const claimUrl = (claimReference: string): string =>
   `${TEST_CONFIG.INQUESTS_API_URL}/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimReference}`;
 
+const finalBillClaimDetail = { ...claimDetail, claimTypeId: "FINAL_BILL" };
+
 export const claimErrorHandlers = [
   http.get(
     claimUrl(UNAUTHORISED_CLAIM_ID),
@@ -66,7 +68,7 @@ export const claimErrorHandlers = [
   ),
   http.get(claimUrl(PAY_IN_FULL_MIXED_VAT_CLAIM_ID), () =>
     HttpResponse.json({
-      ...claimDetail,
+      ...finalBillClaimDetail,
       claimReference: PAY_IN_FULL_MIXED_VAT_CLAIM_ID,
     }),
   ),
@@ -84,7 +86,7 @@ export const claimErrorHandlers = [
   ),
   http.get(claimUrl(PAY_IN_FULL_UNKNOWN_CODE_CLAIM_ID), () =>
     HttpResponse.json({
-      ...claimDetail,
+      ...finalBillClaimDetail,
       claimReference: PAY_IN_FULL_UNKNOWN_CODE_CLAIM_ID,
     }),
   ),
@@ -101,7 +103,7 @@ export const claimErrorHandlers = [
   ),
   http.get(claimUrl(PAY_IN_FULL_DISBURSEMENT_GROSS_CLAIM_ID), () =>
     HttpResponse.json({
-      ...claimDetail,
+      ...finalBillClaimDetail,
       claimReference: PAY_IN_FULL_DISBURSEMENT_GROSS_CLAIM_ID,
     }),
   ),
@@ -120,7 +122,7 @@ export const claimErrorHandlers = [
   ),
   http.get(claimUrl(PAY_IN_FULL_422_UNKNOWN_CODE_CLAIM_ID), () =>
     HttpResponse.json({
-      ...claimDetail,
+      ...finalBillClaimDetail,
       claimReference: PAY_IN_FULL_422_UNKNOWN_CODE_CLAIM_ID,
     }),
   ),

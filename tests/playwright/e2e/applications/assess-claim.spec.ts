@@ -21,6 +21,9 @@ const finalBillRejectedSuccessPage = `${assessFinalBillClaimPage}/rejected`;
 const nilBillClaimReference = "INQC-0014-0014";
 const assessNilBillClaimPage = `/applications/${laaReference}/claims/${nilBillClaimReference}`;
 const nilBillPaidInFullPage = `${assessNilBillClaimPage}/paid-in-full`;
+const submittedPoaClaimReference = "INQC-0015-0015";
+const assessSubmittedPoaClaimPage = `/applications/${laaReference}/claims/${submittedPoaClaimReference}`;
+const submittedPoaPaidInFullPage = `${assessSubmittedPoaClaimPage}/paid-in-full`;
 
 const rejectedPanelText = (claimType: string): string =>
   rejectedSuccessLocale.panel.replace("{claimType}", claimType);
@@ -533,17 +536,19 @@ test.describe("Assess claim page", () => {
     ).toBeVisible();
   });
 
-  test("redirects to the confirm profit costs page when Pay in full is selected", async ({
+  test("redirects to the confirm profit costs page when Pay in full is selected for a final bill", async ({
     page,
   }) => {
-    await page.goto(assessClaimPage);
+    await page.goto(assessFinalBillClaimPage);
     const form = page.getByTestId("assess-claim");
 
     await form.getByRole("radio", { name: "Pay in full" }).check();
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page).toHaveURL(`${assessClaimPage}/confirm-profit-costs`);
+    await expect(page).toHaveURL(
+      `${assessFinalBillClaimPage}/confirm-profit-costs`,
+    );
   });
 
   test("redirects straight to the paid in full confirmation page when Pay in full is selected for a Nil bill claim", async ({
@@ -560,6 +565,24 @@ test.describe("Assess claim page", () => {
     await expect(
       page.locator(".govuk-panel__title", {
         hasText: paidInFullPanelText("Nil bill"),
+      }),
+    ).toBeVisible();
+  });
+
+  test("redirects straight to the paid in full confirmation page when Pay in full is selected for a submitted POA claim", async ({
+    page,
+  }) => {
+    await page.goto(assessSubmittedPoaClaimPage);
+    const form = page.getByTestId("assess-claim");
+
+    await form.getByRole("radio", { name: "Pay in full" }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page).toHaveURL(submittedPoaPaidInFullPage);
+    await expect(
+      page.locator(".govuk-panel__title", {
+        hasText: paidInFullPanelText("Payment on account"),
       }),
     ).toBeVisible();
   });

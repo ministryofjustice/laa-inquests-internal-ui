@@ -395,6 +395,13 @@ const nilBillClaimDetail = {
   payingParty: null,
 };
 
+const submittedPoaClaimDetail = {
+  ...claimDetail,
+  claimReference: "INQC-0015-0015",
+  statusId: "SUBMITTED",
+  claimDecision: null,
+};
+
 /**
  * Public bodies reference data returned by GET /applications/public-bodies.
  */
@@ -637,6 +644,13 @@ export const applicationHandlers = [
         params.claimReference === "INQC-0014-0014"
       ) {
         return HttpResponse.json(nilBillClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0015-0015"
+      ) {
+        return HttpResponse.json(submittedPoaClaimDetail);
       }
 
       return new HttpResponse(null, { status: 404 });

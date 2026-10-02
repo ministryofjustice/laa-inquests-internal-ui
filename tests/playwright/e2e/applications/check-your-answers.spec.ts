@@ -16,7 +16,7 @@ const confirmDisbursementCostsLocale =
 const paidInFullSuccessLocale = en.pages.claimAssessment.paidInFullSuccess;
 
 const applicationId = "INQ-YYY-005";
-const claimReference = "INQC-0010-0010";
+const claimReference = "INQC-0013-0013";
 const assessClaimPage = `/applications/${applicationId}/claims/${claimReference}`;
 const confirmProfitCostsPage = `${assessClaimPage}/confirm-profit-costs`;
 const confirmDisbursementCostsPage = `${assessClaimPage}/confirm-disbursement-costs`;
@@ -318,7 +318,7 @@ test.describe.serial("Check your answers page", () => {
       sharedPage.getByRole("heading", {
         name: paidInFullSuccessLocale.panel.replace(
           "{claimType}",
-          "Payment on account",
+          "Final bill",
         ),
       }),
     ).toBeVisible();
