@@ -12,15 +12,21 @@ export const setupReportRateLimiter = (
    * Rate limiter for report downloads.
    * Limits each IP to a configurable number of requests per time window.
    */
-  const firstClickReportLimiter = rateLimit({
+  const reportRateLimiter = rateLimit({
     windowMs: config.RATE_WINDOW_PER_REPORT_MS,
     max: 1,
     skip: () => process.env.NODE_ENV === "test",
-    handler: (req, res) => {
+    handler: (req, res, next) => {
       logger.logError({
         functionName: "app",
         message: `${reportType} report download rate limit has been exceeded by user`,
       });
+      if (reportType === "Payment extract") {
+        // Additional handling for Payment extract report rate limit exceeded
+        req.query.rateLimitExceeded = "yes";
+        next(req);
+        return;
+      }
       res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
         backUrl: "/",
         errorSummaries: true,
@@ -29,15 +35,11 @@ export const setupReportRateLimiter = (
       });
     },
   });
-  const doubleClickReportLimiter = rateLimit({
+  const debouncer = rateLimit({
     windowMs: 1000,
     max: 1,
     skip: () => process.env.NODE_ENV === "test",
     handler: (req, res) => {
-      logger.logError({
-        functionName: "app",
-        message: `${reportType} report download rate limit has been exceeded by user: error displayed`,
-      });
       // To do: Can we avoid returning user to the top of the page?
       res.render("reports/index", {
         backUrl: "/",
@@ -46,5 +48,5 @@ export const setupReportRateLimiter = (
     },
   });
 
-  return [doubleClickReportLimiter, firstClickReportLimiter];
+  return [debouncer, reportRateLimiter];
 };

@@ -121,7 +121,10 @@ export class ReportsAdaptor {
       this.#renderPaymentExtractErrors(res, form, errors);
       return;
     }
-
+    console.log(req.query);
+    if (req.query.rateLimitExceeded === "yes") {
+      return;
+    }
     const from = this.#isoDate(form, "from");
     const to = this.#isoDate(form, "to");
     const result =
