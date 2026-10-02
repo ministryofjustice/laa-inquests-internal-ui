@@ -3,6 +3,7 @@ import type { Config } from "#src/infrastructure/config/config.types.js";
 dotenv.config({ path: "../.env.internal" });
 
 const DEFAULT_RATE_LIMIT_MAX = 100;
+const DEFAULT_RATE_WINDOW_PER_REPORT_MS = 5000;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
 const DEFAULT_PORT = 3000;
@@ -83,6 +84,9 @@ const config: Config = {
   ),
   RATE_LIMIT_IP_MAX: Number(
     process.env.RATE_LIMIT_IP_MAX ?? DEFAULT_RATE_LIMIT_MAX,
+  ),
+  RATE_WINDOW_PER_REPORT_MS: Number(
+    process.env.RATE_WINDOW_PER_REPORT_MS ?? DEFAULT_RATE_WINDOW_PER_REPORT_MS,
   ),
   // Default rate window: 15 minutes in milliseconds
   RATE_WINDOW_MS: Number(
