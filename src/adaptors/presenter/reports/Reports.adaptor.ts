@@ -34,6 +34,7 @@ const PAYMENT_EXTRACT_ERROR_HREFS: Array<{
 }> = [
   { field: "fromDate", href: "#from-date-day" },
   { field: "toDate", href: "#to-date-day" },
+  { field: "rateLimit", href: "" },
 ];
 
 export class ReportsAdaptor {
@@ -121,8 +122,11 @@ export class ReportsAdaptor {
       this.#renderPaymentExtractErrors(res, form, errors);
       return;
     }
-    console.log(req.query);
-    if (req.query.rateLimitExceeded === "yes") {
+
+    if (res.locals.rateLimit === true) {
+      this.#renderPaymentExtractErrors(res, form, {
+        rateLimit: { text: en.pages.error.rateLimitError.reportLimitMessage },
+      });
       return;
     }
     const from = this.#isoDate(form, "from");

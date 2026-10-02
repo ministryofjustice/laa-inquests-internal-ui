@@ -22,9 +22,8 @@ export const setupReportRateLimiter = (
         message: `${reportType} report download rate limit has been exceeded by user`,
       });
       if (reportType === "Payment extract") {
-        // Additional handling for Payment extract report rate limit exceeded
-        req.query.rateLimitExceeded = "yes";
-        next(req);
+        res.locals.rateLimit = true;
+        next();
         return;
       }
       res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
