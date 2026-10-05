@@ -40,3 +40,13 @@ ignore:
           reason:
             "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
             new docker image is released with upgraded npm version"
+  "SNYK-JS-POSTCSSSELECTORPARSER-20510276":
+      - "*":
+          reason:
+            "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+            new docker image is released with upgraded npm version"
+  "SNYK-JS-ZOD-20510278":
+      - "*":
+          reason:
+            "Temp ignore as there is no fixed version for zod"
+  

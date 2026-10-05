@@ -47,6 +47,7 @@ export interface Config {
   INQUESTS_API_URL: string;
   RATE_LIMIT_GLOBAL_MAX: number;
   RATE_LIMIT_IP_MAX: number;
+  RATE_WINDOW_PER_REPORT_MS: number;
   RATE_WINDOW_MS: number;
   SERVICE_NAME: string | undefined;
   LOG_LEVEL: string | undefined;
