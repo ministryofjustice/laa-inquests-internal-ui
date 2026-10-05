@@ -1,4 +1,5 @@
 import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { test, expect } from "../../fixtures/index.js";
 import {
   validateGovPage,
@@ -573,6 +574,206 @@ test.describe("History tab", () => {
   });
 
   test.describe("Free note submission", () => {
+    test.describe("stale note errors", () => {
+      test.beforeEach(async ({ page }) => {
+        await page.goto(`/applications/${laaReference}/overview`);
+        await page.getByRole("tab", { name: "History", exact: true }).click();
+        await page
+          .locator("#history")
+          .getByRole("button", { name: "Add to application history" })
+          .click();
+
+        await expect(page.locator(".govuk-error-summary")).toContainText(
+          en.pages.applicationOverview.history.validationErrors.empty,
+        );
+        await expect(page.locator("#note-text-error")).toBeVisible();
+        await expect(
+          page.getByRole("tab", { name: "History", exact: true }),
+        ).toHaveAttribute("aria-selected", "true");
+      });
+
+      for (const tabName of ["Application details", "People", "Claims"]) {
+        test(`clears the note error when switching to ${tabName}`, async ({
+          page,
+          checkAccessibility,
+        }) => {
+          const noteTextarea = page.locator("#note-text");
+          await page
+            .locator('.govuk-error-summary a[href="#note-text"]')
+            .click();
+          await expect(noteTextarea).toBeFocused();
+          await noteTextarea.fill("Draft note retained when changing tabs");
+          await expect(page.locator(".govuk-error-summary")).toBeVisible();
+
+          await page.getByRole("tab", { name: tabName, exact: true }).click();
+
+          await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+          await checkAccessibility();
+
+          await page.getByRole("tab", { name: "History", exact: true }).click();
+          await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+          await expect(page.locator("#note-text-error")).toHaveCount(0);
+          await expect(noteTextarea).not.toHaveClass(/govuk-textarea--error/);
+          await expect(noteTextarea).not.toHaveAttribute(
+            "aria-describedby",
+            /note-text-error/,
+          );
+          await expect(noteTextarea).toHaveValue(
+            "Draft note retained when changing tabs",
+          );
+          await checkAccessibility();
+
+          await noteTextarea.fill("");
+          await page
+            .locator("#history")
+            .getByRole("button", { name: "Add to application history" })
+            .click();
+          await expect(page.locator(".govuk-error-summary")).toContainText(
+            en.pages.applicationOverview.history.validationErrors.empty,
+          );
+          await expect(page.locator("#note-text-error")).toBeVisible();
+        });
+      }
+
+      test("clears the note error when switching tabs with the keyboard", async ({
+        page,
+        checkAccessibility,
+      }) => {
+        await page.getByRole("tab", { name: "History", exact: true }).focus();
+        await page.keyboard.press("ArrowLeft");
+
+        await expect(
+          page.getByRole("tab", { name: "People", exact: true }),
+        ).toBeFocused();
+        await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+        await checkAccessibility();
+
+        await page.keyboard.press("ArrowRight");
+        await expect(page.locator("#note-text")).toBeVisible();
+        await expect(page.locator("#note-text-error")).toHaveCount(0);
+        await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+        await checkAccessibility();
+      });
+
+      test("clears the note error when navigating tabs with browser history", async ({
+        page,
+        checkAccessibility,
+      }) => {
+        await page.getByRole("tab", { name: "People", exact: true }).click();
+        await page.goBack();
+
+        await expect(
+          page.getByRole("tab", { name: "History", exact: true }),
+        ).toHaveAttribute("aria-selected", "true");
+        await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+        await expect(page.locator("#note-text-error")).toHaveCount(0);
+        await checkAccessibility();
+
+        await page.goForward();
+
+        await expect(
+          page.getByRole("tab", { name: "People", exact: true }),
+        ).toHaveAttribute("aria-selected", "true");
+        await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+        await checkAccessibility();
+      });
+    });
+
+    test.describe("stale note success banners", () => {
+      const noteSuccessText =
+        en.pages.applicationOverview.history.noteSuccessBanner;
+
+      test.beforeEach(async ({ page }) => {
+        await page.goto(`/applications/${laaReference}/overview`);
+        await page.getByRole("tab", { name: "History", exact: true }).click();
+        await page
+          .locator("#note-text")
+          .fill("Note added before changing tabs");
+        await page
+          .locator("#history")
+          .getByRole("button", { name: "Add to application history" })
+          .click();
+
+        await expect(
+          page
+            .locator(".govuk-notification-banner--success")
+            .filter({ hasText: noteSuccessText }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole("tab", { name: "History", exact: true }),
+        ).toHaveAttribute("aria-selected", "true");
+      });
+
+      for (const tabName of ["Application details", "People", "Claims"]) {
+        test(`clears the note success banner when switching to ${tabName}`, async ({
+          page,
+          checkAccessibility,
+        }) => {
+          const noteSuccessBanner = page
+            .locator(".govuk-notification-banner--success")
+            .filter({ hasText: noteSuccessText });
+
+          await page.getByRole("tab", { name: "History", exact: true }).click();
+          await expect(noteSuccessBanner).toBeVisible();
+          await page.getByRole("tab", { name: tabName, exact: true }).click();
+
+          await expect(noteSuccessBanner).toHaveCount(0);
+          await checkAccessibility();
+
+          await page.getByRole("tab", { name: "History", exact: true }).click();
+          await expect(noteSuccessBanner).toHaveCount(0);
+          await expect(page.locator("#note-text")).toBeVisible();
+          await checkAccessibility();
+        });
+      }
+
+      test("clears the note success banner when switching tabs with the keyboard", async ({
+        page,
+        checkAccessibility,
+      }) => {
+        const noteSuccessBanner = page
+          .locator(".govuk-notification-banner--success")
+          .filter({ hasText: noteSuccessText });
+
+        await page.getByRole("tab", { name: "History", exact: true }).focus();
+        await page.keyboard.press("ArrowLeft");
+        await expect(
+          page.getByRole("tab", { name: "People", exact: true }),
+        ).toBeFocused();
+        await expect(noteSuccessBanner).toHaveCount(0);
+        await checkAccessibility();
+
+        await page.keyboard.press("ArrowRight");
+        await expect(page.locator("#note-text")).toBeVisible();
+        await expect(noteSuccessBanner).toHaveCount(0);
+        await checkAccessibility();
+      });
+
+      test("clears the note success banner when navigating tabs with browser history", async ({
+        page,
+        checkAccessibility,
+      }) => {
+        const noteSuccessBanner = page
+          .locator(".govuk-notification-banner--success")
+          .filter({ hasText: noteSuccessText });
+
+        await page.getByRole("tab", { name: "People", exact: true }).click();
+        await page.goBack();
+        await expect(
+          page.getByRole("tab", { name: "History", exact: true }),
+        ).toHaveAttribute("aria-selected", "true");
+        await expect(noteSuccessBanner).toHaveCount(0);
+        await checkAccessibility();
+
+        await page.goForward();
+        await expect(
+          page.getByRole("tab", { name: "People", exact: true }),
+        ).toHaveAttribute("aria-selected", "true");
+        await expect(noteSuccessBanner).toHaveCount(0);
+        await checkAccessibility();
+      });
+    });
+
     test("should prevent double submission of the note form", async ({
       page,
     }) => {
