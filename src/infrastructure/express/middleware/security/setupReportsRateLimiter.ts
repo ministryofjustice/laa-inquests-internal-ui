@@ -15,7 +15,9 @@ export const setupReportRateLimiter = (
   const reportRateLimiter = rateLimit({
     windowMs: config.RATE_WINDOW_PER_REPORT_MS,
     max: 1,
-    skip: (req, res) => process.env.NODE_ENV === "test",
+    skip: (req, res) =>
+      process.env.NODE_ENV === "test" &&
+      req.headers["x-test-enable-report-rate-limit"] !== "true",
     handler: (req, res, next) => {
       logger.logError({
         functionName: "app",
