@@ -27,6 +27,7 @@ import { PrepareConfirmationViewUseCase } from "#src/use-cases/applications/deci
 import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetApplication.useCase.js";
 import { RefuseDecisionUseCase } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
+import { JUSTIFICATION_MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import type { GrantDecisionResult } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import type { RefuseDecisionResult } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
@@ -207,6 +208,7 @@ export class ApplicationDecisionAdaptor {
       laaReference,
       refusalReason: sessionData?.refusalReason,
       justification: sessionData?.justification,
+      justificationMaxCharacterLength: JUSTIFICATION_MAX_CHARACTER_LENGTH,
       ...(errorSummaries && { errorSummaries }),
     });
   }

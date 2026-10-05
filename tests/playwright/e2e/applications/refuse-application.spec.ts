@@ -153,6 +153,9 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       form.getByLabel(justificationLocale.textarea.label),
     ).toBeVisible();
+    await expect(form.locator(".govuk-character-count__status")).toHaveText(
+      "You have 1,500 characters remaining",
+    );
   });
 
   test("caseworker sees validation errors when no reason selected and justification not provided", async () => {
@@ -181,6 +184,31 @@ test.describe.serial("Refuse application journey", () => {
       hasText: justificationLocale.textarea.validationErrors.notEmpty,
     });
     await expect(textareaErrorMessage).toBeVisible();
+  });
+
+  test("caseworker sees a validation error when the justification exceeds 1500 characters", async () => {
+    const form = sharedPage.getByTestId("select-reason-for-refusal");
+    await form
+      .getByRole("radio", { name: justificationLocale.radio.notInScope })
+      .check();
+    await form
+      .getByLabel(justificationLocale.textarea.label)
+      .fill("a".repeat(1540));
+
+    await expect(form.locator(".govuk-character-count__status")).toHaveText(
+      "You have 40 characters too many",
+    );
+
+    await continueToNextPage(form, sharedPage);
+    await expect(sharedPage).toHaveURL(justificationPage);
+
+    const errorText = justificationLocale.textarea.validationErrors.tooLong;
+    await expect(
+      sharedPage.getByRole("link", { name: errorText }),
+    ).toHaveAttribute("href", "#justification");
+    await expect(
+      form.locator(".govuk-error-message", { hasText: errorText }),
+    ).toBeVisible();
   });
 
   test("caseworker selects a reason and continues to confirmation page", async () => {

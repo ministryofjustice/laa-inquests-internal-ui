@@ -49,4 +49,3 @@ ignore:
       - "*":
           reason:
             "Temp ignore as there is no fixed version for zod"
-  
