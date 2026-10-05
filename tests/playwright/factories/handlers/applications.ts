@@ -296,6 +296,39 @@ const assessedClaims = [
   },
 ];
 
+/**
+ * IDDS-918 regression fixture: an assessed disbursement claim submitted with
+ * only a zero-rated VAT total (gross/net left null by the now-fixed API).
+ * Isolated on its own application id so it cannot affect other applications'
+ * claims totals.
+ */
+export const DISBURSEMENT_VAT_ZERO_APPLICATION_REFERENCE = "INQ-YYY-009";
+export const DISBURSEMENT_VAT_ZERO_CLAIM_ID = "INQC-0026-0026";
+
+const disbursementVatZeroClaim = {
+  claimReference: DISBURSEMENT_VAT_ZERO_CLAIM_ID,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-08-20T09:00:00.000000",
+  totalProfitCostNet: null,
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: "150.00",
+  totalFundsRemainingAfterClaim: "9850.00",
+  poaTypeId: "NON_EXPERT_DISBURSEMENT",
+  statusId: "PAY_IN_FULL",
+  claimDecisionStatus: "PAY_IN_FULL",
+};
+
+const disbursementVatZeroClaimDetail = {
+  ...disbursementVatZeroClaim,
+  substantiveCostLimitation: 10000,
+  claimEvidence: [],
+  claimDecision: {
+    claimDecisionId: 456,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+  },
+};
+
 export const claimDetail = {
   claimReference: "INQC-0010-0010",
   claimTypeId: "PAYMENT_ON_ACCOUNT",
@@ -653,6 +686,13 @@ export const applicationHandlers = [
         return HttpResponse.json(submittedPoaClaimDetail);
       }
 
+      if (
+        params.id === DISBURSEMENT_VAT_ZERO_APPLICATION_REFERENCE &&
+        params.claimReference === DISBURSEMENT_VAT_ZERO_CLAIM_ID
+      ) {
+        return HttpResponse.json(disbursementVatZeroClaimDetail);
+      }
+
       return new HttpResponse(null, { status: 404 });
     },
   ),
@@ -742,6 +782,11 @@ export const applicationHandlers = [
       // id 8: only assessed claims (nothing to be assessed).
       if (params.id === "INQ-YYY-008") {
         return HttpResponse.json(assessed ? assessedClaims : []);
+      }
+
+      // id 9: single assessed VAT-zero-only disbursement claim (IDDS-918 regression).
+      if (params.id === DISBURSEMENT_VAT_ZERO_APPLICATION_REFERENCE) {
+        return HttpResponse.json(assessed ? [disbursementVatZeroClaim] : []);
       }
 
       // Default (e.g. id 5): both lists populated.

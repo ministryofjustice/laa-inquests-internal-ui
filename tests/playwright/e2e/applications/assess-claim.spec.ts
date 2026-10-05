@@ -2,6 +2,10 @@ import { expect, test } from "../../fixtures/index.js";
 import { validateCSRFToken } from "../../utils/govuk-validators.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
+import {
+  DISBURSEMENT_VAT_ZERO_APPLICATION_REFERENCE,
+  DISBURSEMENT_VAT_ZERO_CLAIM_ID,
+} from "#tests/playwright/factories/handlers/applications.js";
 
 const claimAssessmentLocale = en.pages.claimAssessment;
 const rejectedSuccessLocale = en.pages.claimAssessment.rejectedSuccess;
@@ -24,6 +28,8 @@ const nilBillPaidInFullPage = `${assessNilBillClaimPage}/paid-in-full`;
 const submittedPoaClaimReference = "INQC-0015-0015";
 const assessSubmittedPoaClaimPage = `/applications/${laaReference}/claims/${submittedPoaClaimReference}`;
 const submittedPoaPaidInFullPage = `${assessSubmittedPoaClaimPage}/paid-in-full`;
+const disbursementVatZeroApplicationOverviewPage = `/applications/${DISBURSEMENT_VAT_ZERO_APPLICATION_REFERENCE}/overview`;
+const assessDisbursementVatZeroClaimPage = `/applications/${DISBURSEMENT_VAT_ZERO_APPLICATION_REFERENCE}/claims/${DISBURSEMENT_VAT_ZERO_CLAIM_ID}`;
 
 const rejectedPanelText = (claimType: string): string =>
   rejectedSuccessLocale.panel.replace("{claimType}", claimType);
@@ -204,6 +210,35 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByText("Payment amount")).toBeVisible();
     await expect(pageForm.getByText("£800")).toBeVisible();
     await expect(pageForm.getByText("£1,200")).toHaveCount(0);
+  });
+
+  test("shows the correct total and payment amount, and reduces total remaining, for a VAT-zero-only disbursement claim (IDDS-918)", async ({
+    page,
+  }) => {
+    await page.goto(disbursementVatZeroApplicationOverviewPage);
+    await page.getByRole("tab", { name: "Claims" }).click();
+
+    const claimsPanel = page.locator("#claims");
+    await expect(
+      claimsPanel.locator("p", { hasText: "Total remaining:" }),
+    ).toContainText("£9,850");
+
+    const disbursementClaimRow = claimsPanel.locator("tbody tr", {
+      has: page.locator(`a[href="${assessDisbursementVatZeroClaimPage}"]`),
+    });
+    await expect(disbursementClaimRow).toContainText("£150");
+    await expect(disbursementClaimRow).not.toContainText("£0.00");
+
+    await disbursementClaimRow
+      .getByRole("link", { name: DISBURSEMENT_VAT_ZERO_CLAIM_ID })
+      .click();
+
+    await expect(page).toHaveURL(assessDisbursementVatZeroClaimPage);
+
+    const pageForm = page.getByTestId("assess-claim");
+    await expect(pageForm.getByText("Payment amount")).toBeVisible();
+    await expect(pageForm.getByText("£150")).toBeVisible();
+    await expect(pageForm.getByText("£0.00")).toHaveCount(0);
   });
 
   test("shows final bill claim details when provided", async ({ page }) => {
