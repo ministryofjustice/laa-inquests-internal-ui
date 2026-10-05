@@ -363,6 +363,7 @@ describe("ApplicationDecisionAdaptor", () => {
         laaReference: laaReference,
         refusalReason: "not-in-scope",
         justification: "some justification",
+        justificationMaxCharacterLength: 1500,
       });
     });
 
@@ -388,6 +389,7 @@ describe("ApplicationDecisionAdaptor", () => {
         laaReference: laaReference,
         refusalReason: "not-in-scope",
         justification: "some justification",
+        justificationMaxCharacterLength: 1500,
         errorSummaries,
       });
     });
@@ -415,6 +417,7 @@ describe("ApplicationDecisionAdaptor", () => {
         laaReference: laaReference,
         refusalReason: "not-in-scope",
         justification: "some justification",
+        justificationMaxCharacterLength: 1500,
       });
     });
   });

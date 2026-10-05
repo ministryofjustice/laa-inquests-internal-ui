@@ -87,8 +87,11 @@
         "button": "Return to home page"
       },
       "rateLimitError": {
-        "globalLimitMessage": "Our service is currently under heavy load. Please try again later",
-        "IpLimitMessage": "Too many requests, please try again later."
+        "globalLimitMessage": "The service is currently under heavy load, so access is limited. We have not saved your answers.",
+        "tryAgainMessageGlobal": "Try again later.",
+        "IpLimitMessage": "We received too many requests from your network or device in a short space of time. Your access has been paused to protect the service. We have not saved your answers. When the service is available, you will have to start again.",
+        "tryAgainMessageIp": "Try again in 15 minutes.",
+        "reportLimitMessage": "Please do not attempt to download reports too quickly"
       }
     },
     "applicationOverview": {

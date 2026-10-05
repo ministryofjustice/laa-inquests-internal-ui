@@ -4,7 +4,9 @@ import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
-export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
+export const setupGeneralRateLimiter = (
+  config: Config,
+): RateLimitRequestHandler[] => {
   /**
    * Rate limiter for general routes.
    * Limits globally to configurable number of requests per time window.
@@ -19,10 +21,10 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
         functionName: "app",
         message: "Rate limit has been exceeded for global use",
       });
-      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error.njk", {
-        status: HTTP_TOO_MANY_REQUESTS,
-        error: en.pages.error.rateLimitError.globalLimitMessage,
-        config: { SERVICE_NAME: process.env.SERVICE_NAME },
+      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error-rate-limit.njk", {
+        tryAgainMessage: en.pages.error.rateLimitError.tryAgainMessageGlobal,
+        rateLimitMessage: en.pages.error.rateLimitError.globalLimitMessage,
+        config,
       });
     },
   });
@@ -39,10 +41,10 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
         functionName: "app",
         message: "Rate limit has been exceeded per Ip by user",
       });
-      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error.njk", {
-        status: HTTP_TOO_MANY_REQUESTS,
-        error: en.pages.error.rateLimitError.IpLimitMessage,
-        config: { SERVICE_NAME: process.env.SERVICE_NAME },
+      res.status(HTTP_TOO_MANY_REQUESTS).render("main/error-rate-limit.njk", {
+        tryAgainMessage: en.pages.error.rateLimitError.tryAgainMessageIp,
+        rateLimitMessage: en.pages.error.rateLimitError.IpLimitMessage,
+        config,
       });
     },
   });

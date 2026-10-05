@@ -12,4 +12,5 @@ export interface PaymentExtractForm {
 export interface PaymentExtractFormErrors {
   fromDate?: FormErrorMessage;
   toDate?: FormErrorMessage;
+  rateLimit?: FormErrorMessage;
 }

@@ -34,6 +34,7 @@ const PAYMENT_EXTRACT_ERROR_HREFS: Array<{
 }> = [
   { field: "fromDate", href: "#from-date-day" },
   { field: "toDate", href: "#to-date-day" },
+  { field: "rateLimit", href: "" },
 ];
 
 export class ReportsAdaptor {
@@ -119,6 +120,12 @@ export class ReportsAdaptor {
 
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
       this.#renderPaymentExtractErrors(res, form, errors);
+      return;
+    }
+    if (res.locals.rateLimit === true) {
+      this.#renderPaymentExtractErrors(res, form, {
+        rateLimit: { text: en.pages.error.rateLimitError.reportLimitMessage },
+      });
       return;
     }
 

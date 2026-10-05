@@ -1,0 +1,47 @@
+{% extends "govuk/template.njk" %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{%- from "moj/components/header/macro.njk" import mojHeader -%}
+
+{% block pageTitle %}{{ t('pages.error.pageTitle', { SERVICE_NAME: config.SERVICE_NAME }) }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/css/{{getAsset('main','css')}}">
+  <meta name="description" content="{{config.SERVICE_NAME}}">
+  <meta name="keywords" content="GOV.UK, govuk, gov, government, uk, frontend, ui, user interface, jinja, python, flask, port, template, templating, macro, component, design system, html, forms, wtf, wtforms, widget, widgets, demo, example">
+  <meta name="author" content="{{config.DEPARTMENT_NAME}}">
+{% endblock %}
+
+{% block bodyStart %}
+  <script nonce="{{ cspNonce }}">document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
+  {# cookie policy #}
+{% endblock %}
+
+{% block govukHeader %}
+  {{ mojHeader({
+    organisationLabel: {
+      text: t('navigation.header.organisationLabel'),
+      href: "/"
+    },
+    serviceLabel: {
+      text: t('navigation.header.serviceLabel'),
+      href: "/"
+    }
+  }) }}
+{% endblock %}
+
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script type="module" nonce="{{ cspNonce }}" src="/js/{{getAsset('frontend-packages','min.js')}}"></script>
+{% endblock %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>
+            <p class="govuk-body">{{ tryAgainMessage }}</p>
+            <p class="govuk-body">{{ rateLimitMessage }}</p>
+        </div>
+    </div>
+{% endblock %}
