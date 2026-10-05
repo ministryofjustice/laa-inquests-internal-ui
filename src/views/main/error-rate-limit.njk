@@ -2,8 +2,6 @@
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 
-{% block pageTitle %}{{ (pageTitle + " – Inquests – GOV.UK") if pageTitle else "Inquests – GOV.UK" }}{% endblock %}
-
 {% block head %}
   <link rel="stylesheet" href="/css/{{getAsset('main','css')}}">
   <meta name="description" content="{{config.SERVICE_NAME}}">
@@ -35,6 +33,8 @@
 {% endblock %}
 
 {% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block pageTitle %}{{ t('pages.error.pageTitle', { SERVICE_NAME: config.SERVICE_NAME }) }}{% endblock %}
 
 {% block content %}
     <div class="govuk-grid-row">
