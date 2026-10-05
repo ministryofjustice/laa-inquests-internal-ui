@@ -22,7 +22,6 @@ export const setupGeneralRateLimiter = (
         message: "Rate limit has been exceeded for global use",
       });
       res.status(HTTP_TOO_MANY_REQUESTS).render("main/error-rate-limit.njk", {
-        status: HTTP_TOO_MANY_REQUESTS,
         tryAgainMessage: en.pages.error.rateLimitError.tryAgainMessageGlobal,
         rateLimitMessage: en.pages.error.rateLimitError.globalLimitMessage,
         config,
@@ -43,7 +42,6 @@ export const setupGeneralRateLimiter = (
         message: "Rate limit has been exceeded per Ip by user",
       });
       res.status(HTTP_TOO_MANY_REQUESTS).render("main/error-rate-limit.njk", {
-        status: HTTP_TOO_MANY_REQUESTS,
         tryAgainMessage: en.pages.error.rateLimitError.tryAgainMessageIp,
         rateLimitMessage: en.pages.error.rateLimitError.IpLimitMessage,
         config,
