@@ -151,7 +151,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       ...requestStub,
       body: {
         "net-total": "300",
-        "gross-total": "360",
+        "gross-total": "460",
         "zero-vat-total": "100",
       },
       params: {
@@ -169,7 +169,7 @@ describe("ConfirmDisbursementCostsAdaptor", () => {
       "claimApproval",
       {
         disbursementNetTotal: "300",
-        disbursementGrossTotal: "360",
+        disbursementGrossTotal: "460",
         disbursementZeroVatTotal: "100",
       },
     ]);

@@ -280,7 +280,8 @@
           "totalRequired": "Enter the total of the claim to continue",
           "netMissing": "Enter the net total of the claim",
           "grossMissing": "Enter the gross total of the claim",
-          "grossLessThanNet": "Gross total must be more than the net disbursement costs"
+          "grossLessThanNet": "Gross total must be more than the net disbursement costs",
+          "grossLessThanNetAndZeroVat": "The gross total must be greater than the 0% VAT and net total combined"
         }
       },
       "checkYourAnswers": {
