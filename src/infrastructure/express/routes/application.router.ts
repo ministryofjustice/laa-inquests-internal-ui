@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response, Router } from "express";
 import type { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
 import type { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
+import type { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication.adaptor.js";
 import type {
   ClaimIdParams,
   TypedRequest,
@@ -13,7 +14,19 @@ function createApplicationRouter(
   applicationDisplayAdaptor: ApplicationAdaptor,
   claimAssessmentAdaptor: ClaimAssessmentAdaptor,
   certificateDisplayAdaptor: CertificateAdaptor,
+  searchApplicationAdaptor: SearchApplicationAdaptor,
 ): Router {
+  applicationRouter.get(
+    "/search",
+    (req: Request, res: Response, next: NextFunction): void => {
+      try {
+        searchApplicationAdaptor.renderSearchApplicationPage(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   applicationRouter.get(
     "/:laaReference/overview",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {

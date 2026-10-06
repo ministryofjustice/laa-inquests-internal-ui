@@ -171,6 +171,10 @@
       "notFound": "The certificate for this application could not be found.",
       "invalidRequest": "Invalid certificate request."
     },
+    "applicationSearch": {
+      "pageTitle": "Search for Application",
+      "pageHeading": "Search for an application or certificate"
+    },
     "claimAssessment": {
       "invalidRequest": "Invalid claim request.",
       "notFound": "The claim could not be found.",
