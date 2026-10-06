@@ -838,9 +838,9 @@ test.describe("History tab", () => {
       await expect(page.locator(".govuk-character-count__status")).toHaveText(
         "You have 5 characters too many",
       );
-      await expect(
-        page.locator(".govuk-character-count__status"),
-      ).toHaveCount(1);
+      await expect(page.locator(".govuk-character-count__status")).toHaveCount(
+        1,
+      );
 
       const errorSummary = page.locator(".govuk-error-summary");
       await expect(errorSummary).toContainText(
