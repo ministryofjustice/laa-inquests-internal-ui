@@ -1,4 +1,7 @@
 {% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
 
 
 {% set pageTitle = t('pages.applicationSearch.pageTitle') %}
@@ -6,4 +9,27 @@
 
 {% block pageContent %}
     <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}
+    <form data-testid="application-search-form">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            {{ govukInput({
+              label: {
+                text: t('pages.applicationSearch.legalAidReferenceLabel'),
+                classes: "govuk-label--s"
+              },
+              id: "application-reference",
+              name: "application-reference"
+            }) }}
+          </div>
+          <div class="govuk-grid-column-one-third govuk-!-padding-top-5 govuk-!-margin-top-7">
+            {{ govukButton({
+              text: t('pages.applicationSearch.continueButton'),
+              type: "submit"
+            }) }}
+          </div>
+        </div>
+      </form>
+
+
 {% endblock %}

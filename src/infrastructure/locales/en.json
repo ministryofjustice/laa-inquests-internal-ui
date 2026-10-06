@@ -173,7 +173,9 @@
     },
     "applicationSearch": {
       "pageTitle": "Search for Application",
-      "pageHeading": "Search for an application or certificate"
+      "pageHeading": "Search for an application or certificate",
+      "legalAidReferenceLabel": "Enter a legal aid reference",
+      "continueButton": "Continue"
     },
     "claimAssessment": {
       "invalidRequest": "Invalid claim request.",
