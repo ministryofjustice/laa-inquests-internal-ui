@@ -8,7 +8,7 @@
 {% set backUrl = "/" %}
 
 {% block pageContent %}
-    <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}
+    <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}</h1>
     <form data-testid="application-search-form">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         <div class="govuk-grid-row">
@@ -17,6 +17,9 @@
               label: {
                 text: t('pages.applicationSearch.legalAidReferenceLabel'),
                 classes: "govuk-label--s"
+              },
+              hint: {
+                text: t('pages.applicationSearch.legalAidReferenceHint')
               },
               id: "application-reference",
               name: "application-reference"

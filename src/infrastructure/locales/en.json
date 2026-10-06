@@ -175,7 +175,8 @@
       "pageTitle": "Search for Application",
       "pageHeading": "Search for an application or certificate",
       "legalAidReferenceLabel": "Enter a legal aid reference",
-      "continueButton": "Continue"
+      "continueButton": "Continue",
+      "legalAidReferenceHint": "For example: INQ-Y68-B7G"
     },
     "claimAssessment": {
       "invalidRequest": "Invalid claim request.",

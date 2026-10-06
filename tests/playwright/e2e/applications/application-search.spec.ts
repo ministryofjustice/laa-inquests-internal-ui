@@ -25,6 +25,7 @@ test.describe("Application Search", () => {
 
     await expect(form).toBeVisible();
     await expect(form.getByLabel("Enter a legal aid reference")).toBeVisible();
+    await expect(page.getByText("For example: INQ-Y68-B7G")).toBeVisible();
   });
 
   test("renders continue button to the right of the input", async ({
