@@ -38,7 +38,9 @@ test.describe("Application Search", () => {
     await expect(continueButton).toHaveAttribute("type", "submit");
   });
 
-  test("moves to correct application page when reference is searched", async ({ page }) => {
+  test("moves to correct application page when reference is searched", async ({
+    page,
+  }) => {
     const form = page.getByTestId("application-search-form");
     const input = form.getByLabel("Enter a legal aid reference");
 
@@ -49,7 +51,8 @@ test.describe("Application Search", () => {
 
     ///applications/INQ-REA-ELW/overview
 
-    await expect(page).toHaveURL("/applications/INQ-REA-ELW/overview",{timeout: 5000});
-
+    await expect(page).toHaveURL("/applications/INQ-REA-ELW/overview", {
+      timeout: 5000,
+    });
   });
 });

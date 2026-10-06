@@ -1,8 +1,8 @@
-import { TypedRequestBody } from "#src/infrastructure/express/api.types.js";
+import type { TypedRequestBody } from "#src/infrastructure/express/api.types.js";
 import type { Request, Response } from "express";
 
 interface SearchApplicationReferenceForm {
-  'application-reference': string;
+  "application-reference": string;
 }
 
 export class SearchApplicationAdaptor {
@@ -10,9 +10,12 @@ export class SearchApplicationAdaptor {
     res.render("application/search");
   }
 
-  processSearchApplicationPage(req: TypedRequestBody<SearchApplicationReferenceForm>, res: Response): void {
+  processSearchApplicationPage(
+    req: TypedRequestBody<SearchApplicationReferenceForm>,
+    res: Response,
+  ): void {
     const {
-      body: { 'application-reference': reference }
+      body: { "application-reference": reference },
     } = req;
 
     res.redirect(`/applications/${reference}/overview`);

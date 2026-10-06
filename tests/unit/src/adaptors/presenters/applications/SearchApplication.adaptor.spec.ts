@@ -16,7 +16,6 @@ describe("SearchApplicationAdaptor", () => {
   });
 
   describe("renderSearchApplicationPage", () => {
-
     it("calls res.render with correct arguements", () => {
       const adaptor = new SearchApplicationAdaptor();
       adaptor.renderSearchApplicationPage(requestStub, responseStub);
@@ -24,14 +23,12 @@ describe("SearchApplicationAdaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "application/search");
     });
-
   });
 
   describe("processSearchApplicationPage", () => {
-
     beforeEach(() => {
-      requestStub.body = { 'application-reference': 'INQ-REA-ELW' };
-    })
+      requestStub.body = { "application-reference": "INQ-REA-ELW" };
+    });
 
     it("calls res.redirect with correct arguements", () => {
       const adaptor = new SearchApplicationAdaptor();
