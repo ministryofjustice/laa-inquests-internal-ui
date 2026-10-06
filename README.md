@@ -132,6 +132,18 @@ Prerequisites, Docker Desktop
   docker stop {container_id}
   ```
 
+## Application History Notes
+
+Submitting an empty note on the application overview displays an error summary
+and an inline error on the History tab. Selecting History or following the error
+summary link keeps those errors visible. Switching to another overview tab clears
+the note errors, including their error-related accessibility references, without
+discarding draft text. Returning to History does not restore the cleared errors;
+submitting another invalid note displays fresh validation errors.
+
+The note-added success banner also clears when leaving History and does not
+reappear when returning to the tab. Other success banners are unaffected.
+
 ## GitHub Actions
 
 - These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.

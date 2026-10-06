@@ -28,6 +28,7 @@
     {% if noteSuccessBanner %}
       {{ govukNotificationBanner({
         type: "success",
+                attributes: { id: "history-note-success-banner" },
         titleText: "Success",
         html: '<h3 class="govuk-notification-banner__heading">' + t('pages.applicationOverview.history.noteSuccessBanner') + '</h3>'
       }) }}
@@ -36,6 +37,7 @@
     {% if errorSummaries %}
       {{ govukErrorSummary({
         titleText: t('common.errorSummaryTitle'),
+                attributes: { id: "history-note-error-summary" },
         errorList: errorSummaries
       }) }}
     {% endif %}
@@ -349,7 +351,7 @@
                     }) }}
 
                     {% if excessCount %}
-                        <p class="govuk-body govuk-error-message">
+                        <p class="govuk-body govuk-error-message" data-history-note-error>
                             You have {{ excessCount }} character{{ "s" if excessCount != 1 }} too many
                         </p>
                     {% endif %}
@@ -394,6 +396,7 @@
     
 
     {{ govukTabs({
+        id: "application-overview-tabs",
         items: tabItems
     }) }}
 
