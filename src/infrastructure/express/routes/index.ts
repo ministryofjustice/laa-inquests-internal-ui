@@ -70,6 +70,7 @@ import { PayInFullClaimUseCase } from "#src/use-cases/applications/claims/PayInF
 import { BuildClaimPaidInFullViewUseCase } from "#src/use-cases/applications/claims/BuildClaimPaidInFullView.useCase.js";
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 import { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication.adaptor.js";
+import { SearchApplicationValidator } from "#src/adaptors/presenter/applications/SearchApplication.validator.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -267,7 +268,7 @@ router.use("/applications", requireAuth, [
     applicationDisplayAdaptor,
     claimAssessmentAdaptor,
     certificateDisplayAdaptor,
-    new SearchApplicationAdaptor(),
+    new SearchApplicationAdaptor(new SearchApplicationValidator()),
   ),
   createConfirmProfitCostsRouter(express.Router(), confirmProfitCostsAdaptor),
   createConfirmDisbursementCostsRouter(
