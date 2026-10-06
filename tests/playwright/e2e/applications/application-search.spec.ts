@@ -49,8 +49,6 @@ test.describe("Application Search", () => {
 
     await continueButton.click();
 
-    ///applications/INQ-REA-ELW/overview
-
     await expect(page).toHaveURL("/applications/INQ-REA-ELW/overview", {
       timeout: 5000,
     });

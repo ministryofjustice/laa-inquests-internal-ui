@@ -25,3 +25,7 @@ export interface AddHistoryNoteValidationResult {
   errors: Partial<AddHistoryNoteFormErrors>;
   excessCount?: number;
 }
+
+export interface SearchApplicationReferenceErrors {
+  applicationReference: FormErrorMessage;
+}
