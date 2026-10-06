@@ -42,7 +42,6 @@ const {
 interface NoteState {
   errorSummaries?: Array<{ text: string; href: string }>;
   noteText?: string;
-  excessCount?: number;
   noteSuccessBanner?: boolean;
 }
 
@@ -350,7 +349,6 @@ export class ApplicationAdaptor {
       await this.renderApplicationPage(req, res, laaReference, {
         errorSummaries,
         noteText: form["note-text"],
-        excessCount: validationResult.excessCount,
       });
       return;
     }
