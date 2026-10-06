@@ -9,7 +9,7 @@
 
 {% block pageContent %}
     <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}</h1>
-    <form data-testid="application-search-form">
+    <form data-testid="application-search-form" method="post" action="/applications/search">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-two-thirds">

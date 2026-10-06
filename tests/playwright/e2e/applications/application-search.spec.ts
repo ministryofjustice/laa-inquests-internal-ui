@@ -37,4 +37,19 @@ test.describe("Application Search", () => {
     await expect(continueButton).toBeVisible();
     await expect(continueButton).toHaveAttribute("type", "submit");
   });
+
+  test("moves to correct application page when reference is searched", async ({ page }) => {
+    const form = page.getByTestId("application-search-form");
+    const input = form.getByLabel("Enter a legal aid reference");
+
+    await input.fill("INQ-REA-ELW");
+    const continueButton = form.getByRole("button", { name: "Continue" });
+
+    await continueButton.click();
+
+    ///applications/INQ-REA-ELW/overview
+
+    await expect(page).toHaveURL("/applications/INQ-REA-ELW/overview",{timeout: 5000});
+
+  });
 });

@@ -27,6 +27,17 @@ function createApplicationRouter(
     },
   );
 
+  applicationRouter.post(
+    "/search",
+    (req: Request, res: Response, next: NextFunction): void => {
+      try {
+        searchApplicationAdaptor.processSearchApplicationPage(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   applicationRouter.get(
     "/:laaReference/overview",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
