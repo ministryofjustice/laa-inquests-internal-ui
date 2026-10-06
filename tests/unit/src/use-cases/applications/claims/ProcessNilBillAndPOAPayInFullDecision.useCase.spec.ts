@@ -8,6 +8,7 @@ const baseClaim: ClaimDetail = {
   claimReference: "INQC-0010-0010",
   claimTypeId: "FINAL_BILL",
   submissionDate: "2026-08-11T12:52:29.677Z",
+  totalAmount: "1200.00",
   totalFundsRemainingAfterClaim: "8800.00",
 };
 

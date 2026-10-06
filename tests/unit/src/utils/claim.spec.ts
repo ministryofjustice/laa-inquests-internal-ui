@@ -1,6 +1,8 @@
 import { expect } from "chai";
 import type { ClaimSummary } from "#src/adaptors/models/claim.types.js";
 import { getClaimCost } from "#src/utils/claim.js";
+import { formatAmount } from "#src/use-cases/applications/claims/BuildClaimAssessmentView.useCase.js";
+import { formatCurrency } from "#src/utils/formatter.js";
 
 function buildClaim(overrides: Partial<ClaimSummary> = {}): ClaimSummary {
   return {
@@ -10,6 +12,7 @@ function buildClaim(overrides: Partial<ClaimSummary> = {}): ClaimSummary {
     totalProfitCostNet: null,
     totalProfitCostGross: null,
     totalProfitCostVatZero: null,
+    totalAmount: "0.00",
     totalFundsRemainingAfterClaim: "0.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
@@ -19,53 +22,61 @@ function buildClaim(overrides: Partial<ClaimSummary> = {}): ClaimSummary {
 }
 
 describe("getClaimCost()", () => {
-  it("uses the gross total for a 20% VAT claim", () => {
-    const claim = buildClaim({
-      totalProfitCostNet: "1000.00",
-      totalProfitCostGross: "1200.00",
-    });
+  it("parses the resolved total amount", () => {
+    const claim = buildClaim({ totalAmount: "1200.00" });
 
     expect(getClaimCost(claim)).to.equal(1200);
   });
 
-  it("uses the vat zero total for a 0% VAT claim", () => {
-    const claim = buildClaim({
-      totalProfitCostGross: null,
-      totalProfitCostVatZero: "800.00",
-    });
-
-    expect(getClaimCost(claim)).to.equal(800);
-  });
-
-  it("prefers the gross total when both gross and vat zero total are present", () => {
-    const claim = buildClaim({
-      totalProfitCostGross: "1200.00",
-      totalProfitCostVatZero: "800.00",
-    });
-
-    expect(getClaimCost(claim)).to.equal(1200);
-  });
-
-  it("never uses the net total on its own", () => {
-    const claim = buildClaim({
-      totalProfitCostNet: "1000.00",
-      totalProfitCostGross: null,
-      totalProfitCostVatZero: null,
-    });
+  it("returns 0 when the total amount is unparsable", () => {
+    const claim = buildClaim({ totalAmount: "not-a-number" });
 
     expect(getClaimCost(claim)).to.equal(0);
   });
 
-  it("returns 0 when no cost fields are present", () => {
-    expect(getClaimCost(buildClaim())).to.equal(0);
-  });
+  it("returns 0 when the total amount is an empty string", () => {
+    const claim = buildClaim({ totalAmount: "" });
 
-  it("treats empty string cost values as absent", () => {
-    const claim = buildClaim({
-      totalProfitCostGross: "",
+    expect(getClaimCost(claim)).to.equal(0);
+  });
+});
+
+describe("Claims tab total and Assess page payment amount parity", () => {
+  const scenarios = [
+    {
+      name: "VAT-zero only",
       totalProfitCostVatZero: "800.00",
-    });
+      totalProfitCostGross: null,
+      totalAmount: "800.00",
+    },
+    {
+      name: "VAT-zero plus gross 0.00",
+      totalProfitCostVatZero: "800.00",
+      totalProfitCostGross: "0.00",
+      totalAmount: "800.00",
+    },
+    {
+      name: "VAT-zero plus gross 1320.00",
+      totalProfitCostVatZero: "800.00",
+      totalProfitCostGross: "1320.00",
+      totalAmount: "1320.00",
+    },
+    {
+      name: "net plus gross",
+      totalProfitCostNet: "1000.00",
+      totalProfitCostGross: "1200.00",
+      totalAmount: "1200.00",
+    },
+  ];
 
-    expect(getClaimCost(claim)).to.equal(800);
-  });
+  for (const scenario of scenarios) {
+    it(`matches for ${scenario.name}`, () => {
+      const claim = buildClaim(scenario);
+
+      const claimsTabTotal = formatCurrency(getClaimCost(claim));
+      const assessPagePaymentAmount = formatAmount(claim.totalAmount);
+
+      expect(claimsTabTotal).to.equal(assessPagePaymentAmount);
+    });
+  }
 });

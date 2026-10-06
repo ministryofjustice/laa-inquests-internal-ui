@@ -17,6 +17,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalAmount: "1200.00",
     totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
@@ -46,6 +47,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalAmount: "1200.00",
     totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
@@ -183,7 +185,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     assert.equal(result.data.claimCostBreakdown, null);
   });
 
-  it("prefers vat zero amount over gross when both are present", async () => {
+  it("uses the resolved total amount for the payment amount", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();
 
@@ -195,6 +197,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       ...finalBillBaseClaim,
       totalProfitCostGross: "1200.00",
       totalProfitCostVatZero: "700.00",
+      totalAmount: "700.00",
     });
 
     const result = await new BuildClaimAssessmentViewUseCase(

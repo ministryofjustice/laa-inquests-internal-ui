@@ -262,6 +262,7 @@ const toBeAssessedClaims = [
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalAmount: "1200.00",
     totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
@@ -274,6 +275,7 @@ const toBeAssessedClaims = [
     totalProfitCostNet: null,
     totalProfitCostGross: null,
     totalProfitCostVatZero: "800.00",
+    totalAmount: "800.00",
     totalFundsRemainingAfterClaim: "9200.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
@@ -289,6 +291,7 @@ const assessedClaims = [
     totalProfitCostNet: "1600.00",
     totalProfitCostGross: "2000.00",
     totalProfitCostVatZero: null,
+    totalAmount: "2000.00",
     totalFundsRemainingAfterClaim: "8000.00",
     poaTypeId: "PROFIT_COST",
     statusId: "PAY_IN_FULL",
@@ -303,6 +306,7 @@ export const claimDetail = {
   totalProfitCostNet: "1000.00",
   totalProfitCostGross: "1200.00",
   totalProfitCostVatZero: null,
+  totalAmount: "1200.00",
   totalFundsRemainingAfterClaim: "8800.00",
   poaTypeId: "PROFIT_COST",
   substantiveCostLimitation: 10000,
@@ -338,6 +342,7 @@ const claimDetailVatZeroOnly = {
   totalProfitCostNet: null,
   totalProfitCostGross: null,
   totalProfitCostVatZero: "800.00",
+  totalAmount: "800.00",
 };
 
 const finalBillClaimDetail = {
@@ -375,6 +380,7 @@ const nilBillClaimDetail = {
   totalProfitCostNet: null,
   totalProfitCostGross: null,
   totalProfitCostVatZero: null,
+  totalAmount: "0.00",
   claimCostTemplateFile: {
     claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     claimCostTemplateFileName: "nil_bill_costs.xlsx",
