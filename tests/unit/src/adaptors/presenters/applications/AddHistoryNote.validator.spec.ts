@@ -46,15 +46,16 @@ describe("AddHistoryNoteValidator", () => {
       assert.deepInclude(result.errors, {
         noteText: { text: historyLocale.validationErrors.tooLong },
       });
-      assert.equal(result.excessCount, 1);
     });
 
-    it("returns the correct excess count for notes far exceeding the limit", () => {
+    it("returns a tooLong error for notes far exceeding the limit", () => {
       const form: AddHistoryNoteForm = { "note-text": "a".repeat(10500) };
 
       const result = validator.validateAddHistoryNoteForm(form);
 
-      assert.equal(result.excessCount, 500);
+      assert.deepInclude(result.errors, {
+        noteText: { text: historyLocale.validationErrors.tooLong },
+      });
     });
 
     it("returns no errors when the note is exactly 10,000 characters", () => {
@@ -63,7 +64,6 @@ describe("AddHistoryNoteValidator", () => {
       const result = validator.validateAddHistoryNoteForm(form);
 
       assert.deepEqual(result.errors, {});
-      assert.isUndefined(result.excessCount);
     });
 
     it("returns no errors when the note contains valid text", () => {
@@ -74,7 +74,6 @@ describe("AddHistoryNoteValidator", () => {
       const result = validator.validateAddHistoryNoteForm(form);
 
       assert.deepEqual(result.errors, {});
-      assert.isUndefined(result.excessCount);
     });
 
     it("returns no errors when the note contains special characters", () => {

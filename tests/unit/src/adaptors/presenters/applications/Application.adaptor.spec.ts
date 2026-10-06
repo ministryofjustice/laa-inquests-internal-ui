@@ -1248,7 +1248,7 @@ describe("Application adaptor", () => {
         assert.equal(viewData.noteText, "   ");
       });
 
-      it("re-renders with validation error and excess count when note exceeds 10,000 characters", async () => {
+      it("re-renders with validation error when note exceeds 10,000 characters", async () => {
         requestStub.body = { "note-text": "a".repeat(10005) };
 
         await applicationAdaptor.submitHistoryNote(
@@ -1265,7 +1265,6 @@ describe("Application adaptor", () => {
             href: "#note-text",
           },
         ]);
-        assert.equal(viewData.excessCount, 5);
         assert.equal(viewData.noteText, "a".repeat(10005));
       });
 

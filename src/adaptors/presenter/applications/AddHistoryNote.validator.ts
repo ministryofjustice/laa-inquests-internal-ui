@@ -31,7 +31,6 @@ export class AddHistoryNoteValidator extends FormValidator {
       result.errors.noteText = {
         text: validationErrors.tooLong,
       };
-      result.excessCount = noteText.length - NOTE_MAX_CHARACTER_LENGTH;
     }
 
     return result;
