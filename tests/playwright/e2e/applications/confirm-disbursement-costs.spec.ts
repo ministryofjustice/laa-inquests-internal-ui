@@ -167,6 +167,41 @@ test.describe("Confirm the total disbursement costs page", () => {
     ).toBeVisible();
   });
 
+  for (const { scenario, gross } of [
+    { scenario: "less than", gross: "20" },
+    { scenario: "equal to", gross: "40" },
+  ]) {
+    test(`shows a gross error and retains all values when gross is ${scenario} the net and 0% VAT totals combined`, async ({
+      page,
+    }) => {
+      await page.goto(confirmDisbursementCostsPage);
+      const form = page.getByTestId("confirm-disbursement-costs");
+      const errorMessage = validationErrors.grossLessThanNetAndZeroVat;
+
+      await setTotals(form, { net: "10", gross, zeroVat: "30" });
+      await submitForm(form, page);
+
+      await expect(page).toHaveURL(confirmDisbursementCostsPage);
+      await expect(
+        page
+          .locator(".govuk-error-summary")
+          .getByRole("link", { name: errorMessage }),
+      ).toHaveAttribute("href", "#gross-total");
+      await expect(
+        form.locator(".govuk-error-message", { hasText: errorMessage }),
+      ).toBeVisible();
+      await expect(
+        form.getByLabel(confirmDisbursementCostsLocale.netLabel),
+      ).toHaveValue("10");
+      await expect(
+        form.getByLabel(confirmDisbursementCostsLocale.grossLabel),
+      ).toHaveValue(gross);
+      await expect(
+        form.getByLabel(confirmDisbursementCostsLocale.zeroLabel),
+      ).toHaveValue("30");
+    });
+  }
+
   test("redirects to the check your answers page when net and gross totals are valid", async ({
     page,
   }) => {
@@ -209,7 +244,7 @@ test.describe("Confirm the total disbursement costs page", () => {
     await page.goto(confirmDisbursementCostsPage);
     const form = page.getByTestId("confirm-disbursement-costs");
 
-    await setTotals(form, { net: "300", gross: "360", zeroVat: "100" });
+    await setTotals(form, { net: "300", gross: "460", zeroVat: "100" });
     await submitForm(form, page);
 
     await expect(page).toHaveURL(checkYourAnswersPage);

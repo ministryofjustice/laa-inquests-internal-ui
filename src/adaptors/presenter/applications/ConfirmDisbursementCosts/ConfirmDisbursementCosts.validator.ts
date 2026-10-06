@@ -13,6 +13,7 @@ interface DisbursementCostsTotals {
 }
 
 const NIL_TOTAL = 0;
+const PENCE_PER_POUND = 100;
 
 export class ConfirmDisbursementCostsValidator extends FormValidator {
   validateConfirmDisbursementCostsForm(
@@ -78,6 +79,7 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
       this.#checkAllTotalsEmpty(emptiness) ??
       this.#checkMissingPair(emptiness) ??
       this.#checkgrossLessThanNet(totals, emptiness) ??
+      this.#checkGrossNotGreaterThanNetAndZeroVat(totals, emptiness) ??
       {}
     );
   }
@@ -124,6 +126,43 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
               .validationErrors.grossMissing,
           },
         };
+  }
+
+  #checkGrossNotGreaterThanNetAndZeroVat(
+    totals: DisbursementCostsTotals,
+    emptiness: {
+      isNetEmpty: boolean;
+      isGrossEmpty: boolean;
+      isZeroVatEmpty: boolean;
+    },
+  ): Partial<ConfirmDisbursementCostsFormErrors> | undefined {
+    const { isNetEmpty, isGrossEmpty, isZeroVatEmpty } = emptiness;
+
+    if (isNetEmpty || isGrossEmpty || isZeroVatEmpty) {
+      return undefined;
+    }
+
+    const grossValue = Number(totals.grossTotal);
+    if (grossValue === NIL_TOTAL) {
+      return undefined;
+    }
+
+    const grossPence = Math.round(grossValue * PENCE_PER_POUND);
+    const netPence = Math.round(Number(totals.netTotal) * PENCE_PER_POUND);
+    const zeroVatPence = Math.round(
+      Number(totals.zeroVatTotal) * PENCE_PER_POUND,
+    );
+
+    if (grossPence <= netPence + zeroVatPence) {
+      return {
+        grossTotal: {
+          text: en.pages.claimAssessment.confirmDisbursementCosts
+            .validationErrors.grossLessThanNetAndZeroVat,
+        },
+      };
+    }
+
+    return undefined;
   }
 
   // Gross must exceed net whenever both the net and gross totals are provided; a nil (0) gross is allowed.
