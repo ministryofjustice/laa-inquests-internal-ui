@@ -350,12 +350,6 @@
                         errorMessage: errorSummaries[0] if errorSummaries
                     }) }}
 
-                    {% if excessCount %}
-                        <p class="govuk-body govuk-error-message" data-history-note-error>
-                            You have {{ excessCount }} character{{ "s" if excessCount != 1 }} too many
-                        </p>
-                    {% endif %}
-
                     {{ govukButton({
                         text: t('pages.applicationOverview.history.addNoteButton'),
                         preventDoubleClick: true

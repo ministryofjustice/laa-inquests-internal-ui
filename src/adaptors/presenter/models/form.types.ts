@@ -23,5 +23,4 @@ export interface AddHistoryNoteFormErrors {
 
 export interface AddHistoryNoteValidationResult {
   errors: Partial<AddHistoryNoteFormErrors>;
-  excessCount?: number;
 }
