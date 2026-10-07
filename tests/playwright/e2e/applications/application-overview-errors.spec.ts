@@ -10,6 +10,7 @@ import {
   MISSING_CORONERS_LETTER_REFERENCE,
   UNAUTHORISED_CORONERS_LETTER_REFERENCE,
   UNAUTHORISED_HISTORY_REFERENCE,
+  MISSING_APPLICATION_REFERENCE,
 } from "#tests/playwright/factories/handlers/applicationOverviewErrors.js";
 import {
   HTTP_FOUND,
@@ -153,5 +154,39 @@ test.describe("Application overview errors", () => {
     await expect(
       page.getByText(en.pages.error.internalServerError),
     ).toBeVisible();
+  });
+
+  test("shows application not found error page when application not found", async ({
+    page,
+  }) => {
+    const response = await page.goto(
+      overviewPath(MISSING_APPLICATION_REFERENCE),
+    );
+
+    expect(response?.status()).toBe(HTTP_NOT_FOUND);
+    await expect(
+      page.getByRole("heading", { name: "Application not found" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "We could not find an application with the reference number you entered.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Check the reference number and try again."),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "If you believe the application exists, contact your team administrator for assistance.",
+      ),
+    ).toBeVisible();
+
+    const searchAgainButton = page.getByRole("button", {
+      name: "Search again",
+    });
+    await expect(searchAgainButton).toHaveAttribute(
+      "href",
+      "/applications/search",
+    );
   });
 });

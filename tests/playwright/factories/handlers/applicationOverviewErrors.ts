@@ -16,6 +16,7 @@ export const UNAUTHORISED_CORONERS_LETTER_REFERENCE = "INQ-LETTER-401";
 export const FORBIDDEN_CORONERS_LETTER_REFERENCE = "INQ-LETTER-403";
 export const MISSING_CORONERS_LETTER_REFERENCE = "INQ-LETTER-404";
 export const FAILED_CORONERS_LETTER_REFERENCE = "INQ-LETTER-500";
+export const MISSING_APPLICATION_REFERENCE = "INQ-APPLICATION-404";
 
 const applicationUrl = (laaReference: string): string =>
   `${TEST_CONFIG.INQUESTS_API_URL}/applications/${laaReference}`;
@@ -33,6 +34,10 @@ export const applicationOverviewErrorHandlers = [
   ),
   http.get(applicationUrl(INVALID_APPLICATION_REFERENCE), () =>
     HttpResponse.json({ laaReference: INVALID_APPLICATION_REFERENCE }),
+  ),
+  http.get(
+    applicationUrl(MISSING_APPLICATION_REFERENCE),
+    () => new HttpResponse(null, { status: HTTP_NOT_FOUND }),
   ),
   http.get(
     historyUrl(UNAUTHORISED_HISTORY_REFERENCE),

@@ -77,6 +77,13 @@
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
       "pageNotFound": "Page not found",
+      "applicationNotFound": {
+        "title": "Application not found",
+        "messageOne": "We could not find an application with the reference number you entered.",
+        "messageTwo": "Check the reference number and try again.",
+        "messageThree": "If you believe the application exists, contact your team administrator for assistance.",
+        "searchAgainButton": "Search again"
+      },
       "forbidden": "Forbidden",
       "invalidRequest": "Invalid request",
       "internalServerError": "Internal Server Error",
@@ -170,6 +177,13 @@
       "title": "Civil legal aid certificate",
       "notFound": "The certificate for this application could not be found.",
       "invalidRequest": "Invalid certificate request."
+    },
+    "applicationSearch": {
+      "pageTitle": "Search for Application",
+      "pageHeading": "Search for an application or certificate",
+      "legalAidReferenceLabel": "Enter a legal aid reference",
+      "continueButton": "Continue",
+      "legalAidReferenceHint": "For example: INQ-Y68-B7G"
     },
     "claimAssessment": {
       "invalidRequest": "Invalid claim request.",

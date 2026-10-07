@@ -24,3 +24,7 @@ export interface AddHistoryNoteFormErrors {
 export interface AddHistoryNoteValidationResult {
   errors: Partial<AddHistoryNoteFormErrors>;
 }
+
+export interface SearchApplicationReferenceErrors {
+  applicationReference: FormErrorMessage;
+}

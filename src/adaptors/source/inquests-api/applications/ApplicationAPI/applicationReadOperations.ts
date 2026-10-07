@@ -14,7 +14,6 @@ import {
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
 import {
-  asUnexpectedApplicationApiFailure,
   classifyApplicationApiHttpFailure,
   getUpstreamStatusContext,
 } from "#src/adaptors/source/inquests-api/applications/ApplicationAPI/applicationApiFailure.js";
@@ -121,9 +120,28 @@ function throwTechnicalFailure(
     );
   }
 
-  const failure = asUnexpectedApplicationApiFailure(
-    classifyApplicationApiHttpFailure(error),
-  );
+  const failure = classifyApplicationApiHttpFailure(error);
+  if (failure.outcome === "NOT_FOUND") {
+    logger.logWarn({
+      functionName: "application_api_adaptor",
+      message: "Inquests API resource not found upstream",
+      extraContext: {
+        event: "outbound_api_not_found",
+        operation: metadata.operation,
+        upstream_method: metadata.method,
+        upstream_route: metadata.route,
+        upstream_status_code: failure.status,
+        duration_ms: Date.now() - startedAt,
+        laa_reference: laaReference,
+      },
+    });
+    throw new ApplicationError(
+      APPLICATION_ERROR_TYPES.NOT_FOUND,
+      metadata.operation,
+      false,
+    );
+  }
+
   logger.logError({
     functionName: "application_api_adaptor",
     message,
@@ -180,6 +198,7 @@ export async function getApplication(
           laa_reference: laaReference,
         },
       });
+
       throw new ApplicationError(
         APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
         GET_APPLICATION.operation,

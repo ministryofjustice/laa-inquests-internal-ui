@@ -1,0 +1,21 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}{{ t('pages.error.applicationNotFound.title', { SERVICE_NAME: config.SERVICE_NAME }) }}{% endblock %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ t('pages.error.applicationNotFound.title') }}</h1>
+            <p class="govuk-body">{{ t('pages.error.applicationNotFound.messageOne') }}</p>
+            <p class="govuk-body">{{ t('pages.error.applicationNotFound.messageTwo') }}</p>
+            <p class="govuk-body">{{ t('pages.error.applicationNotFound.messageThree') }}</p>
+            {{ govukButton({
+                text: t('pages.error.applicationNotFound.searchAgainButton'),
+                href: "/applications/search"
+            }) }}
+        </div>
+    </div>
+{% endblock %}

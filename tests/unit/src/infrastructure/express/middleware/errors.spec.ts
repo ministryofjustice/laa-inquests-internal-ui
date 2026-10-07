@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import {
   handleApiAuthErrors,
+  handleApplicationNotFoundError,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -98,6 +99,62 @@ describe("error middleware", () => {
         method: "GET",
         status_code: 500,
       });
+    });
+  });
+
+  describe("handleApplicationNotFoundError", () => {
+    it("renders page if error is application not found", () => {
+      const error = new ApplicationError(
+        APPLICATION_ERROR_TYPES.NOT_FOUND,
+        "get_application",
+        false,
+      );
+
+      handleApplicationNotFoundError(error, req, res, next);
+
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], 404);
+      assert.equal(res.render.callCount, 1);
+      const args = res.render.firstCall.args;
+      assert.equal(args[0], "application/not-found");
+    });
+
+    it("logs error on application not found", () => {
+      const error = new ApplicationError(
+        APPLICATION_ERROR_TYPES.NOT_FOUND,
+        "get_application",
+        false,
+      );
+      const logSpy = sinon.spy(logger, "logError");
+
+      handleApplicationNotFoundError(error, req, res, next);
+
+      assert.equal(logSpy.callCount, 1);
+    });
+
+    it("does not call next on application not found", () => {
+      const error = new ApplicationError(
+        APPLICATION_ERROR_TYPES.NOT_FOUND,
+        "get_application",
+        false,
+      );
+
+      handleApplicationNotFoundError(error, req, res, next);
+
+      assert.equal(next.callCount, 0);
+    });
+
+    it("calls next and does not render page on non-application not found error", () => {
+      const error = new ApplicationError(
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+        "get_application",
+        false,
+      );
+
+      handleApplicationNotFoundError(error, req, res, next);
+
+      assert.equal(res.render.callCount, 0);
+      assert.equal(next.callCount, 1);
     });
   });
 

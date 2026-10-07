@@ -280,6 +280,33 @@ describe("Test Application API Adaptor", () => {
     assert.deepEqual(expectedApplication, application);
   });
 
+  it("throws application not found error when retrieval returns 404", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const notFoundError = new axios.AxiosError(
+      "Not Found",
+      "ERR_BAD_REQUEST",
+      undefined,
+      undefined,
+      { status: 404 } as any,
+    );
+    axiosGetStub.rejects(notFoundError);
+
+    let thrown: unknown;
+    try {
+      await adaptor.getApplication("123", "access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    assert.equal(thrown.type, APPLICATION_ERROR_TYPES.NOT_FOUND);
+    assert.equal(thrown.operation, "get_application");
+    assert.equal(thrown.retryable, false);
+    assert.equal(thrown.cause, undefined);
+  });
+
   it("throws a sanitized retryable error when application retrieval returns 500", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
