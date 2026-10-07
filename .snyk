@@ -49,3 +49,8 @@ ignore:
       - "*":
           reason:
             "Temp ignore as there is no fixed version for zod"
+  "SNYK-ALPINE324-ZLIB-20541555":
+    - "*":
+        reason:
+          "Temp ignore as zlib is part of the base image. Resolved when new
+          docker image is released with zlib@1.3.2-r1."
