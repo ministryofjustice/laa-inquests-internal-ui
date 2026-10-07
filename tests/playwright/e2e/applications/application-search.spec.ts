@@ -54,9 +54,7 @@ test.describe("Application Search", () => {
     });
   });
 
-  test("displays error message for invalid reference", async ({
-    page,
-  }) => {
+  test("displays error message for invalid reference", async ({ page }) => {
     const form = page.getByTestId("application-search-form");
     const input = form.getByLabel("Enter a legal aid reference");
 
@@ -75,9 +73,7 @@ test.describe("Application Search", () => {
     await expect(form.locator(".govuk-error-message")).toBeVisible();
   });
 
-  test("displays error message for missing reference", async ({
-    page,
-  }) => {
+  test("displays error message for missing reference", async ({ page }) => {
     const form = page.getByTestId("application-search-form");
     const input = form.getByLabel("Enter a legal aid reference");
 
@@ -95,5 +91,4 @@ test.describe("Application Search", () => {
     );
     await expect(form.locator(".govuk-error-message")).toBeVisible();
   });
-
 });

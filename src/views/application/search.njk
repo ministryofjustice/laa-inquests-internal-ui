@@ -35,7 +35,7 @@
               errorMessage: applicationReference
             }) }}
           </div>
-          <div class="govuk-grid-column-one-third">
+          <div class="govuk-grid-column-one-third search-button-container {{ 'with-validation' if applicationReference != undefined else '' }}">
             {{ govukButton({
               text: t('pages.applicationSearch.continueButton'),
               type: "submit"

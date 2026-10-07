@@ -7,4 +7,10 @@
   overflow-wrap: break-word;
 }
 
+.search-button-container {
+  margin-top: 65px;
 
+  &.with-validation {
+    margin-top: 105px;
+  }
+}
