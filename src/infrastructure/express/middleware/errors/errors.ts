@@ -87,6 +87,36 @@ const handleApiAuthErrors = (
   }
 };
 
+const handleApplicationNotFoundError = (
+  err: unknown,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  if (
+    err instanceof ApplicationError &&
+    err.type === APPLICATION_ERROR_TYPES.NOT_FOUND
+  ) {
+    logger.logError({
+      functionName: "application_not_found_middleware",
+      message: "Application not found",
+      err,
+      request: req,
+      extraContext: {
+        event: "application_not_found",
+        route: getRequestRoutePath(req),
+        method: req.method,
+        status_code: HTTP_NOT_FOUND,
+      },
+    });
+
+    res.status(HTTP_NOT_FOUND);
+    res.render("application/not-found");
+  } else {
+    next(err);
+  }
+};
+
 const handleServerErrors = (
   err: unknown,
   req: Request,
@@ -119,4 +149,9 @@ const handleServerErrors = (
   });
 };
 
-export { handleApiAuthErrors, handleRouteNotFound, handleServerErrors };
+export {
+  handleApiAuthErrors,
+  handleRouteNotFound,
+  handleServerErrors,
+  handleApplicationNotFoundError,
+};

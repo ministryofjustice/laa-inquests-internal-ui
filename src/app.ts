@@ -9,6 +9,7 @@ import livereload from "connect-livereload";
 import config from "#src/infrastructure/config/config.js";
 import {
   handleApiAuthErrors,
+  handleApplicationNotFoundError,
   handleRouteNotFound,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
@@ -156,6 +157,7 @@ app.use("/", indexRouter);
 
 app.all("{*splat}", handleRouteNotFound);
 app.use(handleApiAuthErrors);
+app.use(handleApplicationNotFoundError);
 app.use(handleServerErrors);
 
 if (process.env.NODE_ENV === "development") {
