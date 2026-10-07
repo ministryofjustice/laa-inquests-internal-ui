@@ -76,19 +76,3 @@ export function getUpstreamStatusContext(
     return { upstream_status_code: status };
   }
 }
-
-export function asUnexpectedApplicationApiFailure(
-  failure: ApplicationApiHttpFailure,
-): Exclude<ApplicationApiHttpFailure, { outcome: "NOT_FOUND" }> {
-  if (failure.outcome === "NOT_FOUND") {
-    return {
-      outcome: "ERROR",
-      type: APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
-      failureReason: "upstream_4xx",
-      retryable: false,
-      status: failure.status,
-    };
-  } else {
-    return failure;
-  }
-}
