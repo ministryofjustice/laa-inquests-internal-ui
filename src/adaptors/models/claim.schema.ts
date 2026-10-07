@@ -28,6 +28,7 @@ const BaseClaimSchema = z.object({
   totalProfitCostNet: z.string().optional().nullable(),
   totalProfitCostGross: z.string().optional().nullable(),
   totalProfitCostVatZero: z.string().optional().nullable(),
+  totalAmount: z.string(),
   totalFundsRemainingAfterClaim: z.string(),
   poaTypeId: z.string().optional().nullable(),
   statusId: z.string().optional().nullable(),

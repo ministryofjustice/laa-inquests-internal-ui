@@ -12,6 +12,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     totalProfitCostNet: "1000.00",
     totalProfitCostGross: "1200.00",
     totalProfitCostVatZero: null,
+    totalAmount: "1200.00",
     totalFundsRemainingAfterClaim: "8800.00",
     poaTypeId: "PROFIT_COST",
     statusId: "SUBMITTED",
@@ -25,6 +26,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     totalProfitCostNet: "1600.00",
     totalProfitCostGross: "2000.00",
     totalProfitCostVatZero: null,
+    totalAmount: "2000.00",
     totalFundsRemainingAfterClaim: "8000.00",
     poaTypeId: "PROFIT_COST",
     statusId: "PAY_IN_FULL",
@@ -85,17 +87,14 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     );
   });
 
-  it("computes total remaining from the substantive certificate minus assessed gross", async () => {
+  it("computes total remaining from the substantive certificate minus assessed total amount", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims
       .withArgs("123", false, undefined)
       .resolves([toBeAssessedClaim]);
     claimsPortStub.getClaims
       .withArgs("123", true, undefined)
-      .resolves([
-        assessedClaim,
-        { ...assessedClaim, totalProfitCostGross: "500.00" },
-      ]);
+      .resolves([assessedClaim, { ...assessedClaim, totalAmount: "500.00" }]);
 
     const result = await new BuildApplicationClaimsViewUseCase(
       claimsPortStub,
@@ -109,12 +108,12 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.equal(result.data.totalRemaining, 7500);
   });
 
-  it("treats a null gross value as zero when calculating the remaining total", async () => {
+  it("treats an unparsable total amount as zero when calculating the remaining total", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.withArgs("123", false, undefined).resolves([]);
     claimsPortStub.getClaims
       .withArgs("123", true, undefined)
-      .resolves([{ ...assessedClaim, totalProfitCostGross: null }]);
+      .resolves([{ ...assessedClaim, totalAmount: "" }]);
 
     const result = await new BuildApplicationClaimsViewUseCase(
       claimsPortStub,
@@ -127,7 +126,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
     assert.equal(result.data.totalRemaining, 10000);
   });
 
-  it("uses the vat zero total when an assessed claim has no gross", async () => {
+  it("uses the resolved total amount for an assessed claim", async () => {
     const claimsPortStub = stubInterface<ClaimsPort>();
     claimsPortStub.getClaims.withArgs("123", false, undefined).resolves([]);
     claimsPortStub.getClaims.withArgs("123", true, undefined).resolves([
@@ -136,6 +135,7 @@ describe("BuildApplicationClaimsViewUseCase", () => {
         totalProfitCostNet: null,
         totalProfitCostGross: null,
         totalProfitCostVatZero: "800.00",
+        totalAmount: "800.00",
       },
     ]);
 

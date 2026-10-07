@@ -111,7 +111,7 @@ export class BuildClaimAssessmentViewUseCase {
         claimStatus: mapClaimDecision(claim.claimDecision?.decision),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
-          paymentAmount: formatAmount(getPaymentAmountRaw(claim)),
+          paymentAmount: formatAmount(claim.totalAmount),
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
         },
@@ -153,7 +153,9 @@ function mapClaimDecision(decision: string | undefined): string {
   );
 }
 
-function formatAmount(value: string | number | null | undefined): string {
+export function formatAmount(
+  value: string | number | null | undefined,
+): string {
   if (value === null || value === undefined || value === "") {
     return PLACEHOLDER_VALUE;
   }
@@ -276,26 +278,6 @@ function mapFinalOrNilBillDetails(
           }
         : undefined,
   };
-}
-
-function getPaymentAmountRaw(claim: ClaimDetail): string | null {
-  if (
-    claim.totalProfitCostVatZero !== null &&
-    claim.totalProfitCostVatZero !== undefined &&
-    claim.totalProfitCostVatZero !== ""
-  ) {
-    return claim.totalProfitCostVatZero;
-  }
-
-  if (
-    claim.totalProfitCostGross !== null &&
-    claim.totalProfitCostGross !== undefined &&
-    claim.totalProfitCostGross !== ""
-  ) {
-    return claim.totalProfitCostGross;
-  }
-
-  return null;
 }
 
 function mapSupportingEvidence(

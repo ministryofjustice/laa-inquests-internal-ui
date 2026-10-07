@@ -8,6 +8,7 @@ const baseClaim = {
   totalProfitCostNet: "1000.00",
   totalProfitCostGross: "1200.00",
   totalProfitCostVatZero: null,
+  totalAmount: "1200.00",
   totalFundsRemainingAfterClaim: "8800.00",
   poaTypeId: "PROFIT_COST",
   statusId: "SUBMITTED",
