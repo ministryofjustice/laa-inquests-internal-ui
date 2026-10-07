@@ -1,6 +1,7 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 
 
@@ -8,6 +9,14 @@
 {% set backUrl = "/" %}
 
 {% block pageContent %}
+    {% if applicationReference != undefined%}
+      {{ govukErrorSummary({
+        titleText: t('common.errorSummaryTitle'),
+        errorList: [
+          { text: applicationReference.text, href: "#application-reference" }
+        ]
+      }) }}
+    {% endif %}
     <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}</h1>
     <form data-testid="application-search-form" method="post" action="/applications/search">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -22,10 +31,11 @@
                 text: t('pages.applicationSearch.legalAidReferenceHint')
               },
               id: "application-reference",
-              name: "application-reference"
+              name: "application-reference",
+              errorMessage: applicationReference
             }) }}
           </div>
-          <div class="govuk-grid-column-one-third govuk-!-padding-top-5 govuk-!-margin-top-7">
+          <div class="govuk-grid-column-one-third">
             {{ govukButton({
               text: t('pages.applicationSearch.continueButton'),
               type: "submit"
