@@ -1,4 +1,4 @@
-import { SearchApplicationValidator } from "#src/adaptors/presenter/applications/SearchApplication.validator.js";
+import { SearchApplicationValidator } from "#src/adaptors/presenter/applications/SearchApplication/SearchApplication.validator.js";
 import { assert } from "chai";
 
 describe("SearchApplicationValidator", () => {

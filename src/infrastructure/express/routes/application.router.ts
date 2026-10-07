@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response, Router } from "express";
 import type { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
 import type { ClaimAssessmentAdaptor } from "#src/adaptors/presenter/applications/ClaimAssessment.adaptor.js";
 import type { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
-import type { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication.adaptor.js";
+import type { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication/SearchApplication.adaptor.js";
 import type {
   ClaimIdParams,
   TypedRequest,

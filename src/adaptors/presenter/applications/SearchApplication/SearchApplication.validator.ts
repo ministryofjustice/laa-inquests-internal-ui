@@ -1,5 +1,5 @@
 import { FormValidator } from "#src/utils/FormValidator.js";
-import type { SearchApplicationReferenceErrors } from "../models/form.types.js";
+import type { SearchApplicationReferenceErrors } from "../../models/form.types.js";
 
 export class SearchApplicationValidator extends FormValidator {
   validateSearchApplicationForm(

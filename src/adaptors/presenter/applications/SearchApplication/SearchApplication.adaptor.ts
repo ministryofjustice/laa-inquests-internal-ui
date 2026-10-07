@@ -1,6 +1,6 @@
 import type { TypedRequestBody } from "#src/infrastructure/express/api.types.js";
 import type { Request, Response } from "express";
-import type { SearchApplicationReferenceErrors } from "../models/form.types.js";
+import type { SearchApplicationReferenceErrors } from "../../models/form.types.js";
 import type { SearchApplicationValidator } from "./SearchApplication.validator.js";
 
 interface SearchApplicationReferenceForm {

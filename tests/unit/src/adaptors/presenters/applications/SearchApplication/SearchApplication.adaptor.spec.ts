@@ -2,8 +2,8 @@ import {
   StubbedInstance,
   stubInterface,
 } from "#node_modules/ts-sinon/dist/index.js";
-import { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication.adaptor.js";
-import { SearchApplicationValidator } from "#src/adaptors/presenter/applications/SearchApplication.validator.js";
+import { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication/SearchApplication.adaptor.js";
+import { SearchApplicationValidator } from "#src/adaptors/presenter/applications/SearchApplication/SearchApplication.validator.js";
 import { strict as assert } from "assert";
 import { stub } from "sinon";
 import type { Request, Response } from "express";
