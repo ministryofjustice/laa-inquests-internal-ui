@@ -98,6 +98,11 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         substantiveCertificate: "£10,000",
         totalRemaining: "£8,800",
       },
+      claimDetails: {
+        vatZeroTotal: "-",
+        netTotal: "£1,000",
+        grossTotal: "£1,200",
+      },
       claimCostBreakdown: null,
       supportingEvidence: [
         {
@@ -217,6 +222,58 @@ describe("BuildClaimAssessmentViewUseCase", () => {
           "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=attachment",
       },
     ]);
+  });
+
+  describe("claimDetails", () => {
+    async function buildClaimDetailsFor(claim: ClaimDetail) {
+      const applicationPortStub = stubInterface<ApplicationPort>();
+      const claimsPortStub = stubInterface<ClaimsPort>();
+
+      applicationPortStub.getApplication.resolves({
+        laaReference: "5",
+        proceeding: { substantiveCostLimitation: 10000 },
+      } as any);
+      claimsPortStub.getClaimById.resolves(claim);
+
+      const result = await new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({ laaReference: "5", claimReference: "INQC-0011-0011" });
+
+      assert.equal(result.status, "SUCCESS");
+      return result.data.claimDetails;
+    }
+
+    it("uses a placeholder for the 0% VAT total when it was not submitted", async () => {
+      assert.deepEqual(
+        await buildClaimDetailsFor({
+          ...poaBaseClaim,
+          totalProfitCostNet: "100.00",
+          totalProfitCostGross: "120.00",
+          totalProfitCostVatZero: null,
+          totalAmount: "120.00",
+        }),
+        { vatZeroTotal: "-", netTotal: "£100", grossTotal: "£120" },
+      );
+    });
+
+    it("formats the 0% VAT, net and gross totals of a disbursement claim as currency", async () => {
+      assert.deepEqual(
+        await buildClaimDetailsFor({
+          ...poaBaseClaim,
+          poaTypeId: "EXPERT_COST",
+          totalProfitCostNet: "1000.50",
+          totalProfitCostGross: "1700.60",
+          totalProfitCostVatZero: "500.00",
+          totalAmount: "1700.60",
+        }),
+        {
+          vatZeroTotal: "£500",
+          netTotal: "£1,000.50",
+          grossTotal: "£1,700.60",
+        },
+      );
+    });
   });
 
   describe("file format and size", () => {

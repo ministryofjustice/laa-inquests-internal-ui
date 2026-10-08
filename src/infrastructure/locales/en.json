@@ -203,6 +203,12 @@
         "substantiveCertificate": "Substantive certificate",
         "totalRemaining": "Total remaining"
       },
+      "claimDetails": {
+        "title": "Details of the claim",
+        "vatZeroTotal": "Total costs charged at 0% VAT",
+        "netTotal": "Net total excluding VAT",
+        "grossTotal": "Gross total of the claim including VAT"
+      },
       "finalOrNilBill": {
         "evidence": {
           "heading": "Evidence",

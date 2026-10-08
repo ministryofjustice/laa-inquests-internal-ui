@@ -69,6 +69,11 @@ export interface ClaimAssessmentViewData {
     substantiveCertificate: string;
     totalRemaining: string;
   };
+  claimDetails: {
+    vatZeroTotal: string;
+    netTotal: string;
+    grossTotal: string;
+  };
   claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
   finalOrNilBillDetails?: ClaimAssessmentFinalOrNilBillDetails;
@@ -123,6 +128,11 @@ export class BuildClaimAssessmentViewUseCase {
           paymentAmount: formatAmount(claim.totalAmount),
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
+        },
+        claimDetails: {
+          vatZeroTotal: formatAmount(claim.totalProfitCostVatZero),
+          netTotal: formatAmount(claim.totalProfitCostNet),
+          grossTotal: formatAmount(claim.totalProfitCostGross),
         },
         claimCostBreakdown: mapClaimCostBreakdown(
           claim,

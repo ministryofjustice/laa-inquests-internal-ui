@@ -73,6 +73,11 @@ describe("ClaimAssessmentAdaptor", () => {
           substantiveCertificate: "£10,000",
           totalRemaining: "£10,000",
         },
+        claimDetails: {
+          vatZeroTotal: "-",
+          netTotal: "£1,000",
+          grossTotal: "£1,200",
+        },
         claimCostBreakdown: {
           fileName: "final_bill_costs.xlsx",
           fileFormat: "xlsx",
@@ -160,6 +165,11 @@ describe("ClaimAssessmentAdaptor", () => {
           paymentAmount: "£1,200",
           substantiveCertificate: "£10,000",
           totalRemaining: "£8,800",
+        },
+        claimDetails: {
+          vatZeroTotal: "-",
+          netTotal: "£1,000",
+          grossTotal: "£1,200",
         },
         claimCostBreakdown: null,
         supportingEvidence: [],
