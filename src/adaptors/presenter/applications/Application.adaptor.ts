@@ -9,7 +9,10 @@ import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHi
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
-import { CLAIM_STATUSES } from "#src/infrastructure/locales/constants.js";
+import {
+  CLAIM_STATUSES,
+  CLAIM_STATUS_TAG_CLASSES,
+} from "#src/infrastructure/locales/constants.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
 import {
@@ -393,6 +396,10 @@ interface ClaimRow {
   date: string;
   total: string;
   status: string;
+  statusTag?: {
+    text: string;
+    classes: string;
+  };
   claimType: string;
   claimReference: string;
   href: string;
@@ -408,10 +415,17 @@ interface ClaimsViewModel {
 }
 
 function mapClaimRow(claim: ClaimSummary, laaReference: string): ClaimRow {
+  const statusId = claim.statusId ?? claim.claimDecisionStatus;
+  const status = mapClaimStatus(statusId);
+  const { [statusId ?? ""]: classes } = CLAIM_STATUS_TAG_CLASSES as Partial<
+    Record<string, string>
+  >;
+
   return {
     date: formatDate(claim.submissionDate),
     total: formatCurrency(getClaimCost(claim)),
-    status: mapClaimStatus(claim.statusId ?? claim.claimDecisionStatus),
+    status,
+    ...(classes && { statusTag: { text: status, classes } }),
     claimType: mapClaimType(claim.claimTypeId),
     claimReference: claim.claimReference,
     href: `/applications/${laaReference}/claims/${claim.claimReference}`,
