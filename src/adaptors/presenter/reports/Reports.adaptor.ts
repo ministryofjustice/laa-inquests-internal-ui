@@ -9,8 +9,12 @@ import type {
   PaymentExtractFormErrors,
 } from "./PaymentExtract/models/form.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_TOO_MANY_REQUESTS,
+} from "#src/infrastructure/express/constants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import config from "#src/infrastructure/config/config.js";
 
 const {
   pages: {
@@ -123,9 +127,7 @@ export class ReportsAdaptor {
       return;
     }
     if (res.locals.rateLimit === true) {
-      this.#renderPaymentExtractErrors(res, form, {
-        rateLimit: { text: en.pages.error.rateLimitError.reportLimitMessage },
-      });
+      this.#renderRateLimitError(res);
       return;
     }
 
@@ -168,6 +170,14 @@ export class ReportsAdaptor {
         const { [field]: error } = errors;
         return error === undefined ? [] : [{ text: error.text, href }];
       }),
+    });
+  }
+
+  #renderRateLimitError(res: Response): void {
+    res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
+      backUrl: "/",
+      shouldShowRateLimitText: true,
+      config,
     });
   }
 

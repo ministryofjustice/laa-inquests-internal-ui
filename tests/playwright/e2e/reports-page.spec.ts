@@ -195,7 +195,9 @@ test.describe("Reports page", () => {
       );
 
       await expect(
-        page.getByText("Please do not attempt to download reports too quickly"),
+        page.getByText(
+          "You must wait 5 seconds before downloading another file.",
+        ),
       ).toBeVisible({ timeout: 5000 });
     });
 
@@ -236,7 +238,9 @@ test.describe("Reports page", () => {
       );
 
       await expect(
-        page.getByText("Please do not attempt to download reports too quickly"),
+        page.getByText(
+          "You must wait 5 seconds before downloading another file.",
+        ),
       ).toBeVisible({ timeout: 5000 });
     });
 
@@ -282,13 +286,15 @@ test.describe("Reports page", () => {
       const secondPaymentExtractResponse =
         await secondPaymentExtractResponsePromise;
 
-      expect(secondPaymentExtractResponse.status()).toBe(400);
+      expect(secondPaymentExtractResponse.status()).toBe(429);
       expect(
         secondPaymentExtractResponse.headers()["content-type"],
       ).not.toContain("text/csv");
 
       await expect(
-        page.getByText("Please do not attempt to download reports too quickly"),
+        page.getByText(
+          "You must wait 5 seconds before downloading another file.",
+        ),
       ).toBeVisible({ timeout: 5000 });
     });
   });
