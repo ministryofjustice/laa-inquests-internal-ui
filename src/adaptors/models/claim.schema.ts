@@ -3,11 +3,13 @@ import { z } from "zod";
 const ClaimEvidenceSchema = z.object({
   claimEvidenceId: z.string(),
   fileName: z.string(),
+  fileSize: z.number().optional().nullable(),
 });
 
 const ClaimCostTemplateFileSchema = z.object({
   claimCostTemplateFileId: z.string(),
   claimCostTemplateFileName: z.string(),
+  fileSize: z.number().optional().nullable(),
 });
 
 const ClaimDecisionReasonSchema = z.object({

@@ -75,7 +75,7 @@ test.describe("Assess claim page", () => {
       page.getByRole("heading", { level: 2, name: laaReference }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { level: 3, name: "Claim status: Reject" }),
+      page.getByRole("heading", { level: 3, name: "Claim status: -" }),
     ).toBeVisible();
 
     const pageForm = page.getByTestId("assess-claim");
@@ -146,6 +146,85 @@ test.describe("Assess claim page", () => {
     await expect(pageForm.getByRole("radio", { name: "Reject" })).toBeVisible();
     await expect(
       pageForm.getByRole("button", { name: "Continue" }),
+    ).toBeVisible();
+  });
+
+  test("keeps the decision form, total remaining and no details of the claim table for a claim that is yet to be assessed", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    await expect(page.getByTestId("assessed-claim")).toHaveCount(0);
+    await expect(page.getByTestId("assess-claim")).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Assess a claim and make a decision",
+      }),
+    ).toBeVisible();
+    await expect(page.getByText("Total remaining")).toBeVisible();
+    await expect(page.getByText("Details of the claim")).toHaveCount(0);
+  });
+
+  test("shows evidence files as left aligned rows with a bold view link, format and size", async ({
+    page,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const sizedFile = page.locator(".govuk-summary-list__row", {
+      has: page.locator(".govuk-summary-list__key", {
+        hasText: "claim-evidence-1.pdf",
+      }),
+    });
+    const unsizedFile = page.locator(".govuk-summary-list__row", {
+      has: page.locator(".govuk-summary-list__key", {
+        hasText: "claim-evidence-2.pdf",
+      }),
+    });
+
+    await expect(sizedFile.locator(".govuk-summary-list__actions")).toHaveCount(
+      0,
+    );
+    await expect(
+      sizedFile.getByRole("link", { name: /^View claim-evidence-1\.pdf$/ }),
+    ).toHaveClass(/govuk-!-font-weight-bold/);
+    await expect(
+      sizedFile.getByRole("link", {
+        name: "Download claim-evidence-1.pdf (pdf 102KB)",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(sizedFile.locator(".govuk-summary-list__value")).toContainText(
+      "|",
+    );
+    await expect(
+      unsizedFile.getByRole("link", {
+        name: "Download claim-evidence-2.pdf (pdf)",
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+
+  test("shows the cost breakdown file as download only with format and size", async ({
+    page,
+  }) => {
+    await page.goto(assessFinalBillClaimPage);
+
+    const costBreakdownRow = page.locator(".govuk-summary-list__row", {
+      has: page.locator(".govuk-summary-list__key", {
+        hasText: "final_bill_costs.xlsx",
+      }),
+    });
+
+    await expect(
+      costBreakdownRow.getByRole("link", { name: /^View / }),
+    ).toHaveCount(0);
+    await expect(costBreakdownRow).not.toContainText("|");
+    await expect(
+      costBreakdownRow.getByRole("link", {
+        name: "Download final_bill_costs.xlsx (xlsx 20KB)",
+        exact: true,
+      }),
     ).toBeVisible();
   });
 
