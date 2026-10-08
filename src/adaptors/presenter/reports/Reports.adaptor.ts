@@ -38,7 +38,6 @@ const PAYMENT_EXTRACT_ERROR_HREFS: Array<{
 }> = [
   { field: "fromDate", href: "#from-date-day" },
   { field: "toDate", href: "#to-date-day" },
-  { field: "rateLimit", href: "" },
 ];
 
 export class ReportsAdaptor {
