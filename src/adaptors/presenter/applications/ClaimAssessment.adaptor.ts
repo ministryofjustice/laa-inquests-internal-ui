@@ -95,9 +95,8 @@ export class ClaimAssessmentAdaptor {
     }
 
     const {
-      data: { claimStatus, claimReference: resolvedClaimReference },
+      data: { claimStatus },
     } = claimAssessmentViewResult;
-    let isAssessed = false;
     let claimStatusTag = {
       text: claimStatus,
       classes: CLAIM_STATUS_TAG_CLASSES.SUBMITTED,
@@ -107,7 +106,6 @@ export class ClaimAssessmentAdaptor {
         text: en.pages.claimAssessment.statusTags.payInFull,
         classes: CLAIM_STATUS_TAG_CLASSES.PAY_IN_FULL,
       };
-      isAssessed = true;
     } else if (
       claimStatus === REJECT_DECISION ||
       claimStatus === REJECTED_STATUS
@@ -116,26 +114,12 @@ export class ClaimAssessmentAdaptor {
         text: en.pages.claimAssessment.statusTags.rejected,
         classes: CLAIM_STATUS_TAG_CLASSES.REJECTED,
       };
-      isAssessed = true;
-    }
-
-    let claimPageHeading = resolvedClaimReference;
-    if (!isAssessed) {
-      const {
-        pages: {
-          claimAssessment: { heading },
-        },
-      } = en;
-      claimPageHeading = heading;
     }
 
     res.render("application/claims/assess/index", {
       backUrl: `/applications/${laaReference}/overview`,
       ...claimAssessmentViewResult.data,
       claimStatusTag,
-      claimPageHeading,
-      showClaimReferenceSubheading: !isAssessed,
-      showClaimDecisionForm: !isAssessed,
       assessClaim,
       rejectionReason,
       ...(errorSummaries && { errorSummaries }),
