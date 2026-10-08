@@ -1,6 +1,5 @@
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
 import type { Config } from "#src/infrastructure/config/config.types.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
@@ -30,8 +29,7 @@ export const setupReportRateLimiter = (
       }
       res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
         backUrl: "/",
-        errorSummaries: true,
-        errorList: [{ text: en.pages.error.rateLimitError.reportLimitMessage }],
+        shouldShowRateLimitText: true,
         config,
       });
     },
