@@ -58,67 +58,32 @@ test.describe("Assess claim page", () => {
       await page.goto(`/applications/${laaReference}/claims/${reference}`);
 
       await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-      if (label === "Submitted") {
-        await expect(
-          page.getByRole("heading", {
-            level: 1,
-            name: claimAssessmentLocale.heading,
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(
-          page.getByRole("heading", {
-            level: 2,
-            name: reference,
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(
-          page.getByText(claimAssessmentLocale.radio.label, { exact: true }),
-        ).toBeVisible();
-        await expect(
-          page.getByRole("radio", { name: "Pay in full", exact: true }),
-        ).toBeVisible();
-        await expect(
-          page.getByRole("radio", { name: "Reject", exact: true }),
-        ).toBeVisible();
-        await expect(
-          page.getByRole("button", { name: "Continue", exact: true }),
-        ).toBeVisible();
-      } else {
-        await expect(
-          page.getByRole("heading", {
-            level: 1,
-            name: reference,
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(
-          page.getByText(claimAssessmentLocale.heading, { exact: true }),
-        ).toHaveCount(0);
-        await expect(
-          page.getByRole("heading", {
-            level: 2,
-            name: reference,
-            exact: true,
-          }),
-        ).toHaveCount(0);
-        await expect(
-          page.getByText(claimAssessmentLocale.radio.label, { exact: true }),
-        ).toHaveCount(0);
-        await expect(
-          page.getByRole("radio", { name: "Pay in full", exact: true }),
-        ).toHaveCount(0);
-        await expect(
-          page.getByRole("radio", { name: "Reject", exact: true }),
-        ).toHaveCount(0);
-        await expect(
-          page.getByRole("button", { name: "Continue", exact: true }),
-        ).toHaveCount(0);
-      }
-      await expect(page.getByText(laaReference, { exact: true })).toHaveCount(
-        0,
-      );
+      await expect(
+        page.getByRole("heading", {
+          level: 1,
+          name: claimAssessmentLocale.heading,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("heading", {
+          level: 2,
+          name: laaReference,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByText(claimAssessmentLocale.radio.label, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("radio", { name: "Pay in full", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("radio", { name: "Reject", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Continue", exact: true }),
+      ).toBeVisible();
 
       const statusHeading = page.getByRole("heading", {
         level: 3,
@@ -177,11 +142,10 @@ test.describe("Assess claim page", () => {
     await expect(
       page.getByRole("heading", {
         level: 2,
-        name: claimReference,
+        name: laaReference,
         exact: true,
       }),
     ).toBeVisible();
-    await expect(page.getByText(laaReference, { exact: true })).toHaveCount(0);
     await expect(
       page.getByRole("heading", { level: 3, name: "Claim status: Submitted" }),
     ).toBeVisible();

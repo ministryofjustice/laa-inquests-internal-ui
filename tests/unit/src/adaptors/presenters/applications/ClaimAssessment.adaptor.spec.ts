@@ -142,38 +142,6 @@ describe("ClaimAssessmentAdaptor", () => {
     });
   });
 
-  it("renders the assessment heading and claim reference subheading for a submitted claim", async () => {
-    buildClaimAssessmentViewUseCaseStub.execute.resolves({
-      status: "SUCCESS",
-      data: {
-        laaReference: "123",
-        claimReference: "INQC-0010-0010",
-        claimStatus: "Submitted",
-        overview: {
-          paymentType: "Payment on account",
-          paymentAmount: "£1,200",
-          substantiveCertificate: "£10,000",
-          totalRemaining: "£8,800",
-        },
-        claimCostBreakdown: null,
-        supportingEvidence: [],
-      },
-    });
-
-    await adaptor.renderClaimAssessmentPage(
-      requestStub,
-      responseStub,
-      "123",
-      "INQC-0010-0010",
-    );
-
-    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-      claimPageHeading: "Assess a claim and make a decision",
-      showClaimReferenceSubheading: true,
-      claimReference: "INQC-0010-0010",
-    });
-  });
-
   it("renders a green Pay in full tag for a paid-in-full claim", async () => {
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
@@ -220,19 +188,6 @@ describe("ClaimAssessmentAdaptor", () => {
         text: "Rejected",
         classes: "govuk-tag--red",
       },
-    });
-  });
-
-  it("does not show the claim decision form for a rejected claim", async () => {
-    await adaptor.renderClaimAssessmentPage(
-      requestStub,
-      responseStub,
-      "123",
-      "INQC-0010-0010",
-    );
-
-    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-      showClaimDecisionForm: false,
     });
   });
 
