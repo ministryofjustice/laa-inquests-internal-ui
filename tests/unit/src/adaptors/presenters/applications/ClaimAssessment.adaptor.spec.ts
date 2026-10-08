@@ -66,6 +66,7 @@ describe("ClaimAssessmentAdaptor", () => {
         laaReference: "123",
         claimReference: "INQC-0010-0010",
         claimStatus: "Reject",
+        isAssessed: false,
         overview: {
           paymentType: "Payment on account",
           paymentAmount: "£1,200",
@@ -149,6 +150,7 @@ describe("ClaimAssessmentAdaptor", () => {
         laaReference: "123",
         claimReference: "INQC-0010-0010",
         claimStatus: "Pay in full",
+        isAssessed: false,
         overview: {
           paymentType: "Payment on account",
           paymentAmount: "£1,200",
@@ -187,6 +189,48 @@ describe("ClaimAssessmentAdaptor", () => {
       claimStatusTag: {
         text: "Rejected",
         classes: "govuk-tag--red",
+      },
+    });
+  });
+
+  it("renders the read only assessed claim page when the claim has already been assessed", async () => {
+    buildClaimAssessmentViewUseCaseStub.execute.resolves({
+      status: "SUCCESS",
+      data: {
+        laaReference: "123",
+        claimReference: "INQC-0010-0010",
+        claimStatus: "Pay in full",
+        isAssessed: true,
+        overview: {
+          paymentType: "Payment on account",
+          paymentAmount: "£1,200",
+          substantiveCertificate: "£10,000",
+          totalRemaining: "£8,800",
+        },
+        claimCostBreakdown: null,
+        supportingEvidence: [],
+      },
+    });
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "INQC-0010-0010",
+    );
+
+    assert.equal(responseStub.render.callCount, 1);
+    assert.equal(
+      responseStub.render.getCall(0).args[0],
+      "application/claims/assessed/index",
+    );
+    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
+      backUrl: "/applications/123/overview",
+      claimReference: "INQC-0010-0010",
+      claimStatus: "Pay in full",
+      claimStatusTag: {
+        text: "Pay in full",
+        classes: "govuk-tag--green",
       },
     });
   });
