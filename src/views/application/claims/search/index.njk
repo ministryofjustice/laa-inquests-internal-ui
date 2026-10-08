@@ -5,39 +5,39 @@
 
 
 
-{% set pageTitle = t('pages.applicationSearch.pageTitle') %}
+{% set pageTitle = t('pages.claimSearch.pageTitle') %}
 {% set backUrl = "/" %}
 
 {% block pageContent %}
-    {% if applicationReference != undefined%}
+    {% if claimReference != undefined%}
       {{ govukErrorSummary({
         titleText: t('common.errorSummaryTitle'),
         errorList: [
-          { text: applicationReference.text, href: "#application-reference" }
+          { text: claimReference.text, href: "#claim-reference" }
         ]
       }) }}
     {% endif %}
-    <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}</h1>
-    <form data-testid="application-search-form" method="post" action="/applications/search">
+    <h1 class="govuk-heading-xl">{{t('pages.claimSearch.pageHeading')}}</h1>
+    <form data-testid="claim-search-form" method="post" action="/claims/search">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-two-thirds">
             {{ govukInput({
               label: {
-                text: t('pages.applicationSearch.legalAidReferenceLabel'),
+                text: t('pages.claimSearch.legalAidReferenceLabel'),
                 classes: "govuk-label--s"
               },
               hint: {
-                text: t('pages.applicationSearch.legalAidReferenceHint')
+                text: t('pages.claimSearch.legalAidReferenceHint')
               },
-              id: "application-reference",
-              name: "application-reference",
-              errorMessage: applicationReference
+              id: "claim-reference",
+              name: "claim-reference",
+              errorMessage: claimReference
             }) }}
           </div>
-          <div class="govuk-grid-column-one-third search-button-container {{ 'with-validation' if applicationReference != undefined else '' }}">
+          <div class="govuk-grid-column-one-third search-button-container {{ 'with-validation' if claimReference != undefined else '' }}">
             {{ govukButton({
-              text: t('pages.applicationSearch.continueButton'),
+              text: t('pages.claimSearch.continueButton'),
               type: "submit"
             }) }}
           </div>

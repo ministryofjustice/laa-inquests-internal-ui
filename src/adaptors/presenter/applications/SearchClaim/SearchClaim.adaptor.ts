@@ -1,13 +1,24 @@
-import { SearchClaimValidator } from "./SearchClaim.validator.js";
+import { TypedRequestBody } from "#src/infrastructure/express/api.types.js";
+import { SearchClaimReferenceErrors } from "../../models/form.types.js";
+import type { SearchClaimValidator } from "./SearchClaim.validator.js";
 import type { Request, Response } from "express";
 
+interface SearchClaimReferenceForm {
+  "claim-reference": string;
+}
+
 export class SearchClaimAdaptor {
+  constructor(private readonly validator: SearchClaimValidator) {}
 
-    constructor(private readonly validator: SearchClaimValidator) {}
+  renderSearchClaimPage(request: Request, response: Response, errors : Partial<SearchClaimReferenceErrors> = {}): void {
+    response.render("application/claims/search/index", errors);
+  }
 
-    renderSearchClaimPage(request: Request, response: Response): void {
-        response.render("claim/search");
-    }
+  processSearchClaimPage(request: TypedRequestBody<SearchClaimReferenceForm>, response: Response): void {
+    const { body: { "claim-reference": reference } } = request;
 
 
+
+    response.redirect(`/`);
+  }
 }

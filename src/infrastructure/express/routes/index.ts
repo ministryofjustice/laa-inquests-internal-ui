@@ -268,8 +268,8 @@ router.use(
 router.use("/claims", requireAuth, [
   createClaimRouter(
     express.Router(),
-    new SearchClaimAdaptor(new SearchClaimValidator())
-  )
+    new SearchClaimAdaptor(new SearchClaimValidator()),
+  ),
 ]);
 
 router.use("/applications", requireAuth, [

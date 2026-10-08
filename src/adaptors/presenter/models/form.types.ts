@@ -28,3 +28,7 @@ export interface AddHistoryNoteValidationResult {
 export interface SearchApplicationReferenceErrors {
   applicationReference: FormErrorMessage;
 }
+
+export interface SearchClaimReferenceErrors {
+  applicationReference: FormErrorMessage;
+}

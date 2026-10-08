@@ -10,28 +10,51 @@ import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchC
 import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
 
 describe("SearchClaimAdaptor", () => {
-    let responseStub: StubbedInstance<Response>;
-    let requestStub: StubbedInstance<Request>;
-    let validatorStub: StubbedInstance<SearchClaimValidator>;
-    let searchClaimAdaptor: SearchClaimAdaptor;
+  let responseStub: StubbedInstance<Response>;
+  let requestStub: StubbedInstance<Request>;
+  let validatorStub: StubbedInstance<SearchClaimValidator>;
+  let searchClaimAdaptor: SearchClaimAdaptor;
 
+  beforeEach(() => {
+    responseStub = stubInterface<Response>();
+    requestStub = stubInterface<Request>();
+    validatorStub = stubInterface<SearchClaimValidator>();
+    //validatorStub.validateSearchClaimForm.returns({});
+    searchClaimAdaptor = new SearchClaimAdaptor(validatorStub);
+  });
+
+  describe("renderSearchClaimPage", () => {
+    it("should render the search claim page", () => {
+      searchClaimAdaptor.renderSearchClaimPage(requestStub, responseStub);
+      assert.equal(responseStub.render.calledOnce, true);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "application/claims/search/index");
+    });
+
+    it("passes errors object into res.render", () => {
+      const errors = {
+        applicationReference: {
+          text: "Example error",
+        },
+      };
+      searchClaimAdaptor.renderSearchClaimPage(requestStub, responseStub, errors);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[1], errors);
+    });
+  });
+
+describe("processSearchClaimPage", () => {
     beforeEach(() => {
-        responseStub = stubInterface<Response>();
-        requestStub = stubInterface<Request>();
-        validatorStub = stubInterface<SearchClaimValidator>();
-        //validatorStub.validateSearchClaimForm.returns({});
-        searchClaimAdaptor = new SearchClaimAdaptor(validatorStub);
+      requestStub.body = { "claim-reference": "INQC-ELTH-NVX7" };
     });
 
-    describe("renderSearchClaimPage", () => {
-
-        it("should render the search claim page", () => {
-            searchClaimAdaptor.renderSearchClaimPage(requestStub, responseStub);
-            assert.equal(responseStub.render.calledOnce, true);
-            const renderArgs = responseStub.render.getCall(0).args;
-            assert.equal(renderArgs[0], "claim/search");
-        });
-
+    it("calls res.redirect with correct arguements", () => {
+      searchClaimAdaptor.processSearchClaimPage(requestStub, responseStub);
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectArgs[0], "/applications/INQC-ELTH-NVX7/overview");
     });
+
+  });
 
 });

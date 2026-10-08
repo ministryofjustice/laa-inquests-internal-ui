@@ -185,6 +185,13 @@
       "continueButton": "Continue",
       "legalAidReferenceHint": "For example: INQ-Y68-B7G"
     },
+    "claimSearch": {
+      "pageTitle": "Search for a claim",
+      "pageHeading": "Search for a claim",
+      "legalAidReferenceLabel": "Enter the claim reference number",
+      "continueButton": "Continue",
+      "legalAidReferenceHint": "For example: INQC-Y68H-4H2"
+    },
     "claimAssessment": {
       "invalidRequest": "Invalid claim request.",
       "notFound": "The claim could not be found.",

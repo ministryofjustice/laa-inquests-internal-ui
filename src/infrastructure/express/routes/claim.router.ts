@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response, Router } from "express";
 
 import type { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
 
-
 function createClaimRouter(
   claimRouter: Router,
   searchClaimAdaptor: SearchClaimAdaptor,
@@ -11,7 +10,7 @@ function createClaimRouter(
     "/search",
     (req: Request, res: Response, next: NextFunction): void => {
       try {
-        //searchClaimAdaptor.renderSearchApplicationPage(req, res);
+        searchClaimAdaptor.renderSearchClaimPage(req, res);
       } catch (err: unknown) {
         next(err);
       }
@@ -22,7 +21,7 @@ function createClaimRouter(
     "/search",
     (req: Request, res: Response, next: NextFunction): void => {
       try {
-        //searchClaimAdaptor.processSearchApplicationPage(req, res);
+        searchClaimAdaptor.processSearchClaimPage(req, res);
       } catch (err: unknown) {
         next(err);
       }
