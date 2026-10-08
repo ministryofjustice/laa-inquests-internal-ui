@@ -1,14 +1,14 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
-import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
+import { AllApplicationsAdaptor } from "#src/adaptors/presenter/home/AllApplications.adaptor.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
 describe("Home adaptor", () => {
-  let homeAdaptor: HomeAdaptor;
+  let homeAdaptor: AllApplicationsAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
   let applicationPortStub: StubbedInstance<ApplicationPort>;
@@ -19,7 +19,7 @@ describe("Home adaptor", () => {
     requestStub = stubInterface<Request>();
     applicationPortStub = stubInterface<ApplicationPort>();
     sessionHelperStub = stubInterface<SessionHelper>();
-    homeAdaptor = new HomeAdaptor(
+    homeAdaptor = new AllApplicationsAdaptor(
       sessionHelperStub,
       new BuildApplicationsListViewUseCase(applicationPortStub),
     );
@@ -51,7 +51,7 @@ describe("Home adaptor", () => {
 
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "main/index");
+    assert.equal(renderArgs[0], "main/all-applications");
     assert.deepEqual(renderArgs[1], {
       tableRows: [
         [
