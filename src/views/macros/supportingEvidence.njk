@@ -1,0 +1,49 @@
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "macros/evidenceFileLinks.njk" import evidenceFileLinks %}
+
+{% macro supportingEvidenceSection(claimCostBreakdown, supportingEvidence) %}
+  {% set supportingEvidenceRows = [] %}
+  {% for evidence in supportingEvidence %}
+    {% set supportingEvidenceRows = supportingEvidenceRows.concat([
+      {
+        key: { text: evidence.fileName },
+        value: { html: evidenceFileLinks(evidence) }
+      }
+    ]) %}
+  {% endfor %}
+
+  <h3 class="govuk-heading-m">{{ t('pages.claimAssessment.supportingEvidence.heading') }}</h3>
+
+  {{ govukWarningText({
+    text: t('pages.claimAssessment.supportingEvidence.warning'),
+    iconFallbackText: t('common.warning')
+  }) }}
+
+  {% if claimCostBreakdown %}
+    {{ govukSummaryList({
+      card: {
+        title: {
+          text: t('pages.claimAssessment.supportingEvidence.costBreakdown')
+        }
+      },
+      rows: [
+        {
+          key: { text: claimCostBreakdown.fileName },
+          value: { html: evidenceFileLinks(claimCostBreakdown) }
+        }
+      ]
+    }) }}
+  {% endif %}
+
+  {% if supportingEvidenceRows.length %}
+    {{ govukSummaryList({
+      card: {
+        title: {
+          text: t('pages.claimAssessment.supportingEvidence.otherEvidence')
+        }
+      },
+      rows: supportingEvidenceRows
+    }) }}
+  {% endif %}
+{% endmacro %}

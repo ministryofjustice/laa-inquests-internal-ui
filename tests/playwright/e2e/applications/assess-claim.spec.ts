@@ -298,7 +298,9 @@ test.describe("Assess claim page", () => {
       pageForm.getByText("Claim cost breakdown", { exact: true }),
     ).toBeVisible();
     await expect(
-      pageForm.getByText("final_bill_costs.xlsx", { exact: true }),
+      pageForm.locator(".govuk-summary-list__key", {
+        hasText: "final_bill_costs.xlsx",
+      }),
     ).toBeVisible();
     await expect(
       pageForm.getByRole("link", { name: /Download final_bill_costs.xlsx/ }),
@@ -307,7 +309,9 @@ test.describe("Assess claim page", () => {
       `${assessFinalBillClaimPage}/evidence/3fa85f64-5717-4562-b3fc-2c963f66afa6?disposition=attachment`,
     );
     await expect(
-      pageForm.getByText("claim-evidence-1.pdf", { exact: true }),
+      pageForm.locator(".govuk-summary-list__key", {
+        hasText: "claim-evidence-1.pdf",
+      }),
     ).toBeVisible();
 
     await expect(

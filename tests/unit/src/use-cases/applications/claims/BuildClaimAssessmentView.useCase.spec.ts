@@ -102,6 +102,8 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
+          fileFormat: "pdf",
+          fileSize: "",
           viewHref:
             "/applications/5/claims/INQC-0011-0011/evidence/test_evidence_1?disposition=inline",
           downloadHref:
@@ -199,18 +201,89 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data.claimCostBreakdown, {
       fileName: "final_bill_costs.xlsx",
+      fileFormat: "xlsx",
+      fileSize: "",
       downloadHref:
         "/applications/5/claims/INQC-0013-0013/evidence/test_cost_breakdown?disposition=attachment",
     });
     assert.deepEqual(result.data.supportingEvidence, [
       {
         fileName: "claim-evidence-1.pdf",
+        fileFormat: "pdf",
+        fileSize: "",
         viewHref:
           "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=inline",
         downloadHref:
           "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=attachment",
       },
     ]);
+  });
+
+  describe("file format and size", () => {
+    async function buildFor(claim: ClaimDetail) {
+      const applicationPortStub = stubInterface<ApplicationPort>();
+      const claimsPortStub = stubInterface<ClaimsPort>();
+
+      applicationPortStub.getApplication.resolves({
+        laaReference: "5",
+        proceeding: { substantiveCostLimitation: 10000 },
+      } as any);
+      claimsPortStub.getClaimById.resolves(claim);
+
+      const result = await new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({ laaReference: "5", claimReference: "INQC-0010-0010" });
+
+      assert.equal(result.status, "SUCCESS");
+      return result.data;
+    }
+
+    it("exposes the lower case file format and formatted size of evidence files", async () => {
+      const data = await buildFor({
+        ...poaBaseClaim,
+        claimEvidence: [
+          {
+            claimEvidenceId: "e1",
+            fileName: "Evidence.PDF",
+            fileSize: 104448,
+          },
+          { claimEvidenceId: "e2", fileName: "notes", fileSize: 1572864 },
+        ],
+      });
+
+      assert.deepEqual(
+        data.supportingEvidence.map(
+          ({ fileFormat, fileSize }) => `${fileFormat}|${fileSize}`,
+        ),
+        ["pdf|102KB", "|1.5MB"],
+      );
+    });
+
+    it("leaves the file size empty when the file size is not known", async () => {
+      const data = await buildFor({
+        ...poaBaseClaim,
+        claimEvidence: [
+          { claimEvidenceId: "e1", fileName: "a.pdf", fileSize: null },
+        ],
+      });
+
+      assert.equal(data.supportingEvidence[0].fileSize, "");
+    });
+
+    it("exposes the file format and size of the claim cost breakdown file", async () => {
+      const data = await buildFor({
+        ...finalBillBaseClaim,
+        claimCostTemplateFile: {
+          claimCostTemplateFileId: "t1",
+          claimCostTemplateFileName: "final_bill_costs.xlsx",
+          fileSize: 20480,
+        },
+      });
+
+      assert.equal(data.claimCostBreakdown?.fileFormat, "xlsx");
+      assert.equal(data.claimCostBreakdown?.fileSize, "20KB");
+    });
   });
 
   it("returns a null claim cost breakdown when the claim has no cost template file", async () => {
@@ -302,6 +375,8 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     assert.deepEqual(result.data.finalOrNilBillDetails, {
       claimCostTemplateFile: {
         fileName: "final_bill_costs.xlsx",
+        fileFormat: "xlsx",
+        fileSize: "",
         viewHref:
           "/applications/5/claims/INQC-0010-0010/evidence/cost-template-file-id?disposition=inline",
         downloadHref:
@@ -310,6 +385,8 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
+          fileFormat: "pdf",
+          fileSize: "",
           viewHref:
             "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=inline",
           downloadHref:
