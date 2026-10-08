@@ -543,7 +543,15 @@ describe("Application adaptor", () => {
         status: "SUCCESS",
         data: {
           toBeAssessedClaims: [toBeAssessedClaim],
-          assessedClaims: [assessedClaim],
+          assessedClaims: [
+            assessedClaim,
+            {
+              ...toBeAssessedClaim,
+              claimReference: "INQC-0017-0017",
+              statusId: "REJECTED",
+              claimDecisionStatus: "REJECTED",
+            },
+          ],
           hasClaims: true,
           substantiveCertificate: 10000,
           totalRemaining: 8000,
@@ -567,6 +575,10 @@ describe("Application adaptor", () => {
               date: "10 August 2026",
               total: "£1,200",
               status: "Submitted",
+              statusTag: {
+                text: "Submitted",
+                classes: "govuk-tag--blue",
+              },
               claimType: "Payment on account",
               href: "/applications/123/claims/INQC-0010-0010",
             },
@@ -576,8 +588,23 @@ describe("Application adaptor", () => {
               date: "01 July 2026",
               total: "£2,000",
               status: "Pay in full",
+              statusTag: {
+                text: "Pay in full",
+                classes: "govuk-tag--green",
+              },
               claimType: "Payment on account",
               href: "/applications/123/claims/INQC-0020-0020",
+            },
+            {
+              date: "10 August 2026",
+              total: "£1,200",
+              status: "Rejected",
+              statusTag: {
+                text: "Rejected",
+                classes: "govuk-tag--red",
+              },
+              claimType: "Payment on account",
+              href: "/applications/123/claims/INQC-0017-0017",
             },
           ],
         },

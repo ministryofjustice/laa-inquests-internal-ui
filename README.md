@@ -164,8 +164,11 @@ permission to make claim decisions. They are not displayed for Pay in full or
 Rejected claims.
 
 The claim decision takes precedence over its status. A claim with neither a
-decision nor a status displays Submitted rather than a dash. Application
-overview claim tables are unchanged.
+decision nor a status displays Submitted rather than a dash.
+
+Both Claims tab tables display columns in this order: Claim reference, Date,
+Type of claim, Total amount, Status. Submitted, Pay in full, and Rejected
+statuses use the same blue, green, and red GOV.UK tags as the claim overview.
 
 ## GitHub Actions
 

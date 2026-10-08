@@ -297,6 +297,19 @@ const assessedClaims = [
     statusId: "PAY_IN_FULL",
     claimDecisionStatus: "PAY_IN_FULL",
   },
+  {
+    claimReference: "INQC-0017-0017",
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-06-01T09:00:00.000000",
+    totalProfitCostNet: "1000.00",
+    totalProfitCostGross: "1200.00",
+    totalProfitCostVatZero: null,
+    totalAmount: "1200.00",
+    totalFundsRemainingAfterClaim: "8000.00",
+    poaTypeId: "PROFIT_COST",
+    statusId: "REJECTED",
+    claimDecisionStatus: "REJECTED",
+  },
 ];
 
 export const claimDetail = {

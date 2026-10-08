@@ -152,7 +152,6 @@ test.describe("Assess claim page", () => {
         name: "Assessed claims",
       }),
     ).toBeVisible();
-    await expect(claimsPanel.getByText("£1,200")).toBeVisible();
     await expect(claimsPanel.getByText("£2,000")).toBeVisible();
 
     const claimToAssessRow = claimsPanel.locator("tbody tr", {
@@ -160,6 +159,9 @@ test.describe("Assess claim page", () => {
         `a[href="/applications/${laaReference}/claims/${claimReference}"]`,
       ),
     });
+    await expect(
+      claimToAssessRow.getByText("£1,200", { exact: true }),
+    ).toBeVisible();
     await claimToAssessRow.getByRole("link", { name: claimReference }).click();
 
     await expect(page).toHaveURL(assessClaimPage);
