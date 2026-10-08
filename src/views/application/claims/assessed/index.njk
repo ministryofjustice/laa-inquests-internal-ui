@@ -1,5 +1,6 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "macros/claimOverview.njk" import claimOverview %}
 
 {% set pageTitle = claimReference %}
 
@@ -7,5 +8,7 @@
 <div data-testid="assessed-claim">
   <h1 class="govuk-heading-l">{{ claimReference }}</h1>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h3>
+
+  {{ claimOverview(overview, false) }}
 </div>
 {% endblock pageContent %}
