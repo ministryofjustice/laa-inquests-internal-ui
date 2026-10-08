@@ -17,7 +17,11 @@ export class SearchClaimAdaptor {
   processSearchClaimPage(request: TypedRequestBody<SearchClaimReferenceForm>, response: Response): void {
     const { body: { "claim-reference": reference } } = request;
 
-
+    const errors = this.validator.validateSearchClaimForm(reference);
+    if (Object.keys(errors).length > 0) {
+      this.renderSearchClaimPage(request as Request, response, errors);
+      return;
+    }
 
     response.redirect(`/`);
   }

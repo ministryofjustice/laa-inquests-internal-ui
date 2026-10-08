@@ -30,5 +30,5 @@ export interface SearchApplicationReferenceErrors {
 }
 
 export interface SearchClaimReferenceErrors {
-  applicationReference: FormErrorMessage;
+  claimReference: FormErrorMessage;
 }

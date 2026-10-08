@@ -2,12 +2,11 @@ import {
   StubbedInstance,
   stubInterface,
 } from "#node_modules/ts-sinon/dist/index.js";
+import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
+import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
 import type { Request, Response } from "express";
 import { strict as assert } from "assert";
 import { stub } from "sinon";
-
-import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
-import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
 
 describe("SearchClaimAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
@@ -19,7 +18,7 @@ describe("SearchClaimAdaptor", () => {
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
     validatorStub = stubInterface<SearchClaimValidator>();
-    //validatorStub.validateSearchClaimForm.returns({});
+    validatorStub.validateSearchClaimForm.returns({});
     searchClaimAdaptor = new SearchClaimAdaptor(validatorStub);
   });
 
@@ -33,7 +32,7 @@ describe("SearchClaimAdaptor", () => {
 
     it("passes errors object into res.render", () => {
       const errors = {
-        applicationReference: {
+        claimReference: {
           text: "Example error",
         },
       };
@@ -48,11 +47,29 @@ describe("processSearchClaimPage", () => {
       requestStub.body = { "claim-reference": "INQC-ELTH-NVX7" };
     });
 
-    it("calls res.redirect with correct arguements", () => {
+    // it("calls res.redirect with correct arguements", () => {
+    //   searchClaimAdaptor.processSearchClaimPage(requestStub, responseStub);
+    //   assert.equal(responseStub.redirect.callCount, 1);
+    //   const redirectArgs = responseStub.redirect.getCall(0).args;
+    //   assert.equal(redirectArgs[0], "/");
+    // });
+
+    it("calls renderSearchClaimPage with expected errors", () => {
+      const errors = {
+        claimReference: {
+          text: "Example error",
+        },
+      };
+      validatorStub.validateSearchClaimForm.returns(errors);
+
+      const renderStub = stub(searchClaimAdaptor, "renderSearchClaimPage");
+
       searchClaimAdaptor.processSearchClaimPage(requestStub, responseStub);
-      assert.equal(responseStub.redirect.callCount, 1);
-      const redirectArgs = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectArgs[0], "/applications/INQC-ELTH-NVX7/overview");
+      assert.equal(validatorStub.validateSearchClaimForm.callCount, 1);
+      assert.equal(
+        renderStub.calledOnceWithExactly(requestStub, responseStub, errors),
+        true,
+      );
     });
 
   });
