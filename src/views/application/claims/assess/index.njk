@@ -5,8 +5,9 @@
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
 
-{% set pageTitle = t('pages.claimAssessment.heading') %}
+{% set pageTitle = claimPageHeading %}
 
 {% block pageContent %}
 {% if errorSummaries %}
@@ -47,9 +48,11 @@
 <form data-testid="assess-claim" method="post" action="/applications/{{ laaReference }}/claims/{{ claimReference }}">
   <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
-  <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.heading') }}</h1>
-  <h2 class="govuk-heading-m">{{ laaReference }}</h2>
-  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
+  <h1 class="govuk-heading-l">{{ claimPageHeading }}</h1>
+  {% if showClaimReferenceSubheading %}
+    <h2 class="govuk-heading-m">{{ claimReference }}</h2>
+  {% endif %}
+  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h3>
 
   {{ govukSummaryList({
     card: {
@@ -172,7 +175,7 @@
       }) }}
   {% endif %}
 
-  {% if hasPermission(permissions.MAKE_CLAIM_DECISION) %}
+  {% if showClaimDecisionForm and hasPermission(permissions.MAKE_CLAIM_DECISION) %}
   {{ govukRadios({
     idPrefix: 'assess-claim',
     name: 'assessClaim',
@@ -216,7 +219,6 @@
   {{ govukButton({
     text: t('pages.claimAssessment.continue')
   }) }}
+  {% endif %}
 </form>
-
-{% endif %}
 {% endblock pageContent %}
