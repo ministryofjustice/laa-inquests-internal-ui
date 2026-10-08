@@ -34,7 +34,11 @@ export const FAILED_EVIDENCE_ID = "evidence-500";
 const claimUrl = (claimReference: string): string =>
   `${TEST_CONFIG.INQUESTS_API_URL}/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimReference}`;
 
-const finalBillClaimDetail = { ...claimDetail, claimTypeId: "FINAL_BILL" };
+const finalBillClaimDetail = {
+  ...claimDetail,
+  claimTypeId: "FINAL_BILL",
+  claimDecision: null,
+};
 
 export const claimErrorHandlers = [
   http.get(
@@ -60,6 +64,7 @@ export const claimErrorHandlers = [
     HttpResponse.json({
       ...claimDetail,
       claimReference: FAILED_REJECTION_CLAIM_API_ID,
+      claimDecision: null,
     }),
   ),
   http.patch(

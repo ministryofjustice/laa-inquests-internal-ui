@@ -52,6 +52,12 @@ export enum CLAIM_STATUSES {
   REJECTED_WITH_AMENDMENT = "Rejected with amendment",
 }
 
+export const CLAIM_STATUS_TAG_CLASSES = {
+  SUBMITTED: "govuk-tag--blue",
+  PAY_IN_FULL: "govuk-tag--green",
+  REJECTED: "govuk-tag--red",
+};
+
 export enum CLAIM_DECISION_STATUSES {
   REJECT = "Reject",
   GRANT = "Grant",

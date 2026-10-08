@@ -1,6 +1,7 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
   CLAIM_DECISION_STATUSES,
+  CLAIM_STATUSES,
   DISPOSITION,
   INQUEST_OUTCOMES,
   PLACEHOLDER_VALUE,
@@ -108,7 +109,9 @@ export class BuildClaimAssessmentViewUseCase {
       data: {
         laaReference: application.laaReference,
         claimReference: claim.claimReference,
-        claimStatus: mapClaimDecision(claim.claimDecision?.decision),
+        claimStatus: mapClaimDecision(
+          claim.claimDecision?.decision ?? claim.statusId ?? undefined,
+        ),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
           paymentAmount: formatAmount(claim.totalAmount),
@@ -145,11 +148,13 @@ function isFinalOrNilBill(claimTypeId: string): boolean {
 
 function mapClaimDecision(decision: string | undefined): string {
   if (!decision) {
-    return PLACEHOLDER_VALUE;
+    return CLAIM_STATUSES.SUBMITTED;
   }
 
   return (
-    (CLAIM_DECISION_STATUSES as Record<string, string>)[decision] ?? decision
+    (CLAIM_DECISION_STATUSES as Partial<Record<string, string>>)[decision] ??
+    (CLAIM_STATUSES as Partial<Record<string, string>>)[decision] ??
+    decision
   );
 }
 

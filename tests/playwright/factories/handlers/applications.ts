@@ -330,6 +330,11 @@ export const claimDetail = {
   },
 };
 
+export const submittedClaimDetail = {
+  ...claimDetail,
+  claimDecision: null,
+};
+
 const claimDetailWithoutEvidence = {
   ...claimDetail,
   claimReference: "INQC-0011-0011",
@@ -346,7 +351,7 @@ const claimDetailVatZeroOnly = {
 };
 
 const finalBillClaimDetail = {
-  ...claimDetail,
+  ...submittedClaimDetail,
   claimReference: "INQC-0013-0013",
   claimTypeId: "FINAL_BILL",
   claimCostTemplateFile: {
@@ -374,7 +379,7 @@ const finalBillClaimDetail = {
 };
 
 const nilBillClaimDetail = {
-  ...claimDetail,
+  ...submittedClaimDetail,
   claimReference: "INQC-0014-0014",
   claimTypeId: "NIL_BILL",
   totalProfitCostNet: null,
@@ -404,7 +409,6 @@ const nilBillClaimDetail = {
 const submittedPoaClaimDetail = {
   ...claimDetail,
   claimReference: "INQC-0015-0015",
-  statusId: "SUBMITTED",
   claimDecision: null,
 };
 
@@ -621,7 +625,7 @@ export const applicationHandlers = [
         params.id === "INQ-YYY-005" &&
         params.claimReference === "INQC-0010-0010"
       ) {
-        return HttpResponse.json(claimDetail);
+        return HttpResponse.json(submittedClaimDetail);
       }
 
       if (
@@ -657,6 +661,31 @@ export const applicationHandlers = [
         params.claimReference === "INQC-0015-0015"
       ) {
         return HttpResponse.json(submittedPoaClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0017-0017"
+      ) {
+        return HttpResponse.json({
+          ...claimDetail,
+          claimReference: "INQC-0017-0017",
+        });
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0016-0016"
+      ) {
+        return HttpResponse.json({
+          ...claimDetail,
+          ...assessedClaims[0],
+          claimReference: "INQC-0016-0016",
+          claimDecision: {
+            ...claimDetail.claimDecision,
+            decision: "PAY_IN_FULL",
+          },
+        });
       }
 
       return new HttpResponse(null, { status: 404 });
