@@ -14,7 +14,7 @@ import {
   HTTP_TOO_MANY_REQUESTS,
 } from "#src/infrastructure/express/constants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
-import config from "#src/infrastructure/config/config.js";
+import type { Config } from "#src/infrastructure/config/config.types.js";
 
 const {
   pages: {
@@ -44,6 +44,7 @@ export class ReportsAdaptor {
   constructor(
     private readonly useCases: ReportUseCases,
     private readonly paymentExtractValidator: PaymentExtractValidator,
+    private readonly config: Config,
   ) {}
 
   renderReportsPage(req: Request, res: Response): void {
@@ -126,7 +127,7 @@ export class ReportsAdaptor {
       return;
     }
     if (res.locals.rateLimit === true) {
-      this.#renderRateLimitError(res);
+      this.#renderRateLimitError(res, this.config);
       return;
     }
 
@@ -172,7 +173,7 @@ export class ReportsAdaptor {
     });
   }
 
-  #renderRateLimitError(res: Response): void {
+  #renderRateLimitError(res: Response, config: Config): void {
     res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
       backUrl: "/",
       shouldShowRateLimitText: true,

@@ -167,14 +167,15 @@ const homeAdaptor = new HomeAdaptor(
 const reportsAdaptor = new ReportsAdaptor(
   {
     downloadApplicationsBacklogReportUseCase:
-      new DownloadApplicationsBacklogReportUseCase(reportsApiAdaptor),
+    new DownloadApplicationsBacklogReportUseCase(reportsApiAdaptor),
     downloadClaimsBacklogReportUseCase: new DownloadClaimsBacklogReportUseCase(
       reportsApiAdaptor,
     ),
     downloadPaymentExtractReportUseCase:
-      new DownloadPaymentExtractReportUseCase(reportsApiAdaptor),
+    new DownloadPaymentExtractReportUseCase(reportsApiAdaptor),
   },
   new PaymentExtractValidator(),
+  config
 );
 const userRolesAdaptor = new UserRolesAdaptor();
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
