@@ -179,6 +179,29 @@ for (const assessed of assessedClaimCases) {
       ).toBeVisible();
     });
 
+    test("splits every table evenly between the label and value columns", async ({
+      page,
+    }) => {
+      for (const title of [
+        "Overview of the claim",
+        "Details of the claim",
+        "Other evidence",
+      ]) {
+        const row = summaryRow(summaryCard(page, title), "").first();
+        const rowBox = await row.boundingBox();
+        const valueBox = await row
+          .locator(".govuk-summary-list__value")
+          .boundingBox();
+
+        expect(
+          Math.abs(
+            (valueBox?.x ?? 0) - (rowBox?.x ?? 0) - (rowBox?.width ?? 0) / 2,
+          ),
+          title,
+        ).toBeLessThanOrEqual(1);
+      }
+    });
+
     test("has no accessibility violations", async ({
       page,
       checkAccessibility,
