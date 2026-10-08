@@ -1,0 +1,57 @@
+{% extends "base.njk" %}
+{%- from "moj/components/ticket-panel/macro.njk" import mojTicketPanel -%}
+
+{% set title = "What do you need to do?" %}
+{% set pageTitle = title %}
+
+{% block content %}
+<h1 class="govuk-heading-l govuk-!-margin-bottom-2">{{ pageTitle }}</h1>
+<p class="govuk-body">Your available options will depend on your role.<p>
+
+{% set options = [] %}
+{% if hasPermission(permissions.VIEW_APPLICATIONS_OVERVIEW_PAGE) %}
+    {% set options = (options.concat(
+        {
+            html: ' <h2 class="govuk-heading-m govuk-!-margin-bottom-2"><a href="/applications/search" class="govuk-link govuk-link--no-visited-state">Find an application or certificate</a></h2>
+            <p class="govuk-body">Search using a reference starting INQ</p>',
+            attributes: {
+            "aria-label": "Applications"
+            },
+            classes: "moj-ticket-panel__content--blue"
+        }
+    )) %}
+{% endif %}
+{% if hasPermission(permissions.VIEW_CLAIMS_DETAILS) %}
+    {% set options = (options.concat(
+        {
+            html: ' <h2 class="govuk-heading-m govuk-!-margin-bottom-2"><a href="/claims/search" class="govuk-link govuk-link--no-visited-state">Find a claim</a></h2>
+            <p class="govuk-body">Search using a claim reference starting INQC</p>',
+            attributes: {
+            "aria-label": "Claims"
+            },
+            classes: "moj-ticket-panel__content--blue"
+        }
+    )) %}
+{% endif %}
+{% if hasPermission(permissions.VIEW_REPORTS_PAGE) %}
+    {% set options = (options.concat(
+        {
+            html: ' <h2 class="govuk-heading-m govuk-!-margin-bottom-2"><a href="/reports" class="govuk-link govuk-link--no-visited-state">Download reports</a></h2>
+            <p class="govuk-body">Find and download reports for claims, applications, and management information</p>',
+            attributes: {
+            "aria-label": "Reports"
+            },
+            classes: "moj-ticket-panel__content--blue"
+        }
+    )) %}
+{% endif %}
+    
+
+{{ mojTicketPanel({
+  attributes: {
+    "aria-label": "Navigation"
+  },
+  items: options
+}) }}
+
+{% endblock %}

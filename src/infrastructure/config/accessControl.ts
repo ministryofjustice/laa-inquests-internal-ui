@@ -104,6 +104,7 @@ export const PERMISSION_ROLE_MAP: Readonly<
 };
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
+  //TODO: Put policies in place for the search pages
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
     allowedRoles:

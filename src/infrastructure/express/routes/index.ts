@@ -47,6 +47,7 @@ import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/clai
 import { GetClaimEvidenceUseCase } from "#src/use-cases/applications/claims/GetClaimEvidence.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { AllApplicationsAdaptor } from "#src/adaptors/presenter/home/AllApplications.adaptor.js";
+import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
@@ -160,10 +161,11 @@ const checkYourAnswersAdaptor = new CheckYourAnswersAdaptor(
   new PayInFullClaimUseCase(claimsAdaptor),
   new BuildClaimPaidInFullViewUseCase(claimsAdaptor),
 );
-const homeAdaptor = new AllApplicationsAdaptor(
+const allApplicationsAdaptor = new AllApplicationsAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
+const homeAdaptor = new HomeAdaptor(new SessionHelper());
 const reportsAdaptor = new ReportsAdaptor(
   {
     downloadApplicationsBacklogReportUseCase:
@@ -224,7 +226,19 @@ router.get(
   requireAuth,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await homeAdaptor.renderHomePage(req, res);
+      await allApplicationsAdaptor.renderHomePage(req, res);
+    } catch (err: unknown) {
+      next(err);
+    }
+  },
+);
+
+router.get(
+  "/home",
+  requireAuth,
+  (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      homeAdaptor.renderHome(req, res);
     } catch (err: unknown) {
       next(err);
     }
