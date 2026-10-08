@@ -262,10 +262,10 @@
         {% else %}
             {% set claimsTableHead = [
                 { text: t('pages.applicationOverview.claims.table.claimReference') },
-                { text: t('pages.applicationOverview.claims.table.totalAmount') },
-                { text: t('pages.applicationOverview.claims.table.status') },
+                { text: t('pages.applicationOverview.claims.table.date') },
                 { text: t('pages.applicationOverview.claims.table.typeOfClaim') },
-                { text: t('pages.applicationOverview.claims.table.date') }
+                { text: t('pages.applicationOverview.claims.table.totalAmount') },
+                { text: t('pages.applicationOverview.claims.table.status') }
             ] %}
 
             <h2 class="govuk-heading-m">{{ t('pages.applicationOverview.claims.totalHeading') }}</h2>
@@ -278,10 +278,10 @@
                 {% for claim in claims.toBeAssessed %}
                     {% set toBeAssessedRows = toBeAssessedRows.concat([[
                         { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ claim.claimReference ~ '</a>' },
-                        { text: claim.total },
-                        { text: claim.status },
+                        { text: claim.date },
                         { text: claim.claimType },
-                        { text: claim.date }
+                        { text: claim.total },
+                        { html: govukTag(claim.statusTag) } if claim.statusTag else { text: claim.status }
                     ]]) %}
                 {% endfor %}
                 {{ govukTable({
@@ -296,10 +296,10 @@
                 {% for claim in claims.assessed %}
                     {% set assessedRows = assessedRows.concat([[
                         { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ claim.claimReference ~ '</a>' },
-                        { text: claim.total },
-                        { text: claim.status },
+                        { text: claim.date },
                         { text: claim.claimType },
-                        { text: claim.date }
+                        { text: claim.total },
+                        { html: govukTag(claim.statusTag) } if claim.statusTag else { text: claim.status }
                     ]]) %}
                 {% endfor %}
                 {{ govukTable({

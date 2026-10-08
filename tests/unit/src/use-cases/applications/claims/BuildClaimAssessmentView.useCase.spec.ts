@@ -67,6 +67,62 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     },
   };
 
+  it("shows Submitted when a submitted claim has not been assessed", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: "5",
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...poaBaseClaim,
+      statusId: "SUBMITTED",
+      claimDecision: null,
+    });
+
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
+      laaReference: "5",
+      claimReference: poaBaseClaim.claimReference,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    if (result.status === "SUCCESS") {
+      assert.equal(result.data.claimStatus, "Submitted");
+    }
+  });
+
+  it("shows Submitted when the claim has no decision or status", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const claimsPortStub = stubInterface<ClaimsPort>();
+
+    applicationPortStub.getApplication.resolves({
+      laaReference: "5",
+      proceeding: { substantiveCostLimitation: 10000 },
+    } as any);
+    claimsPortStub.getClaimById.resolves({
+      ...poaBaseClaim,
+      statusId: undefined,
+      claimDecision: null,
+    });
+
+    const result = await new BuildClaimAssessmentViewUseCase(
+      applicationPortStub,
+      claimsPortStub,
+    ).execute({
+      laaReference: "5",
+      claimReference: poaBaseClaim.claimReference,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    if (result.status === "SUCCESS") {
+      assert.equal(result.data.claimStatus, "Submitted");
+    }
+  });
+
   it("builds claim assessment data using claimDecision decision for status", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const claimsPortStub = stubInterface<ClaimsPort>();

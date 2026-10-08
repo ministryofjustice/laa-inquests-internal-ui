@@ -142,6 +142,55 @@ describe("ClaimAssessmentAdaptor", () => {
     });
   });
 
+  it("renders a green Pay in full tag for a paid-in-full claim", async () => {
+    buildClaimAssessmentViewUseCaseStub.execute.resolves({
+      status: "SUCCESS",
+      data: {
+        laaReference: "123",
+        claimReference: "INQC-0010-0010",
+        claimStatus: "Pay in full",
+        overview: {
+          paymentType: "Payment on account",
+          paymentAmount: "£1,200",
+          substantiveCertificate: "£10,000",
+          totalRemaining: "£8,800",
+        },
+        claimCostBreakdown: null,
+        supportingEvidence: [],
+      },
+    });
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "INQC-0010-0010",
+    );
+
+    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
+      claimStatusTag: {
+        text: "Pay in full",
+        classes: "govuk-tag--green",
+      },
+    });
+  });
+
+  it("renders a red Rejected tag for a rejected claim", async () => {
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "INQC-0010-0010",
+    );
+
+    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
+      claimStatusTag: {
+        text: "Rejected",
+        classes: "govuk-tag--red",
+      },
+    });
+  });
+
   it("clears stale claim approval session data on a fresh GET", async () => {
     requestStub.method = "GET";
     requestStub.query = {};

@@ -34,6 +34,70 @@ const paidInFullPanelText = (claimType: string): string =>
   );
 
 test.describe("Assess claim page", () => {
+  for (const { reference, label, colour } of [
+    {
+      reference: submittedPoaClaimReference,
+      label: "Submitted",
+      colour: "blue",
+    },
+    {
+      reference: "INQC-0016-0016",
+      label: "Pay in full",
+      colour: "green",
+    },
+    {
+      reference: "INQC-0017-0017",
+      label: "Rejected",
+      colour: "red",
+    },
+  ]) {
+    test(`shows exactly one ${colour} claim status tag for ${label}`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${laaReference}/claims/${reference}`);
+
+      await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+      await expect(
+        page.getByRole("heading", {
+          level: 1,
+          name: claimAssessmentLocale.heading,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("heading", {
+          level: 2,
+          name: laaReference,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByText(claimAssessmentLocale.radio.label, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("radio", { name: "Pay in full", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("radio", { name: "Reject", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Continue", exact: true }),
+      ).toBeVisible();
+
+      const statusHeading = page.getByRole("heading", {
+        level: 3,
+        name: /^Claim status:/,
+      });
+      const statusTag = statusHeading.locator(".govuk-tag");
+
+      await expect(statusTag).toHaveCount(1);
+      await expect(statusTag).toHaveText(label);
+      await expect(statusTag).toHaveClass(`govuk-tag govuk-tag--${colour}`);
+      await checkAccessibility();
+    });
+  }
+
   test("opens a specific claim from the claims tab and shows that claim's data", async ({
     page,
   }) => {
@@ -53,7 +117,6 @@ test.describe("Assess claim page", () => {
         name: "Assessed claims",
       }),
     ).toBeVisible();
-    await expect(claimsPanel.getByText("£1,200")).toBeVisible();
     await expect(claimsPanel.getByText("£2,000")).toBeVisible();
 
     const claimToAssessRow = claimsPanel.locator("tbody tr", {
@@ -61,6 +124,9 @@ test.describe("Assess claim page", () => {
         `a[href="/applications/${laaReference}/claims/${claimReference}"]`,
       ),
     });
+    await expect(
+      claimToAssessRow.getByText("£1,200", { exact: true }),
+    ).toBeVisible();
     await claimToAssessRow.getByRole("link", { name: claimReference }).click();
 
     await expect(page).toHaveURL(assessClaimPage);
@@ -68,14 +134,20 @@ test.describe("Assess claim page", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Assess a claim and make a decision",
+        name: claimAssessmentLocale.heading,
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: laaReference,
+        exact: true,
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { level: 2, name: laaReference }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { level: 3, name: "Claim status: Reject" }),
+      page.getByRole("heading", { level: 3, name: "Claim status: Submitted" }),
     ).toBeVisible();
 
     const pageForm = page.getByTestId("assess-claim");
@@ -416,7 +488,8 @@ test.describe("Assess claim page", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Assess a claim and make a decision",
+        name: claimAssessmentLocale.heading,
+        exact: true,
       }),
     ).toBeVisible();
 

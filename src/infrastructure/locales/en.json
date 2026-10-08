@@ -195,6 +195,10 @@
       },
       "heading": "Assess a claim and make a decision",
       "claimStatus": "Claim status",
+      "statusTags": {
+        "payInFull": "Pay in full",
+        "rejected": "Rejected"
+      },
       "continue": "Continue",
       "overview": {
         "title": "Overview of the claim",
