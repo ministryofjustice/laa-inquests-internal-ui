@@ -98,7 +98,7 @@
         "tryAgainMessageGlobal": "Try again later.",
         "IpLimitMessage": "We received too many requests from your network or device in a short space of time. Your access has been paused to protect the service. We have not saved your answers. When the service is available, you will have to start again.",
         "tryAgainMessageIp": "Try again in 15 minutes.",
-        "reportLimitMessage": "Please do not attempt to download reports too quickly"
+        "reportLimitMessage": "You must wait {RATE_WINDOW_PER_REPORT_SECONDS} seconds before downloading another file."
       }
     },
     "applicationOverview": {
