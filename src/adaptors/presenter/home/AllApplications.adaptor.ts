@@ -19,7 +19,7 @@ interface TableCell {
   attributes?: Record<string, string>;
 }
 
-export class HomeAdaptor {
+export class AllApplicationsAdaptor {
   private readonly buildApplicationsListViewUseCase: BuildApplicationsListViewUseCase;
   private readonly sessionHelper: SessionHelper;
 
@@ -38,7 +38,7 @@ export class HomeAdaptor {
         accessToken: req.session.user?.accessToken,
       });
 
-    res.render("main/index", {
+    res.render("main/all-applications", {
       tableRows: sortApplicationsByCreatedAtDesc(
         applicationsListResult.data.applications,
       )

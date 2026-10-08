@@ -46,7 +46,7 @@ import { RejectClaimUseCase } from "#src/use-cases/applications/claims/RejectCla
 import { BuildClaimRejectionViewUseCase } from "#src/use-cases/applications/claims/BuildClaimRejectionView.useCase.js";
 import { GetClaimEvidenceUseCase } from "#src/use-cases/applications/claims/GetClaimEvidence.useCase.js";
 import { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
-import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
+import { AllApplicationsAdaptor } from "#src/adaptors/presenter/home/AllApplications.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
@@ -160,7 +160,7 @@ const checkYourAnswersAdaptor = new CheckYourAnswersAdaptor(
   new PayInFullClaimUseCase(claimsAdaptor),
   new BuildClaimPaidInFullViewUseCase(claimsAdaptor),
 );
-const homeAdaptor = new HomeAdaptor(
+const homeAdaptor = new AllApplicationsAdaptor(
   new SessionHelper(),
   buildApplicationsListViewUseCase,
 );
