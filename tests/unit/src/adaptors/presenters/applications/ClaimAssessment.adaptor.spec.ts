@@ -75,11 +75,15 @@ describe("ClaimAssessmentAdaptor", () => {
         },
         claimCostBreakdown: {
           fileName: "final_bill_costs.xlsx",
+          fileFormat: "xlsx",
+          fileSize: "",
           downloadHref: "#",
         },
         supportingEvidence: [
           {
             fileName: "claim-evidence-1.pdf",
+            fileFormat: "pdf",
+            fileSize: "",
             viewHref: "#",
             downloadHref: "#",
           },
