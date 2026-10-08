@@ -1,0 +1,48 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+
+
+{% set pageTitle = t('pages.applicationSearch.pageTitle') %}
+{% set backUrl = "/" %}
+
+{% block pageContent %}
+    {% if applicationReference != undefined%}
+      {{ govukErrorSummary({
+        titleText: t('common.errorSummaryTitle'),
+        errorList: [
+          { text: applicationReference.text, href: "#application-reference" }
+        ]
+      }) }}
+    {% endif %}
+    <h1 class="govuk-heading-xl">{{t('pages.applicationSearch.pageHeading')}}</h1>
+    <form data-testid="application-search-form" method="post" action="/applications/search">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            {{ govukInput({
+              label: {
+                text: t('pages.applicationSearch.legalAidReferenceLabel'),
+                classes: "govuk-label--s"
+              },
+              hint: {
+                text: t('pages.applicationSearch.legalAidReferenceHint')
+              },
+              id: "application-reference",
+              name: "application-reference",
+              errorMessage: applicationReference
+            }) }}
+          </div>
+          <div class="govuk-grid-column-one-third search-button-container {{ 'with-validation' if applicationReference != undefined else '' }}">
+            {{ govukButton({
+              text: t('pages.applicationSearch.continueButton'),
+              type: "submit"
+            }) }}
+          </div>
+        </div>
+      </form>
+
+
+{% endblock %}
