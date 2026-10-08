@@ -1,5 +1,6 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
+  ASSESSED_CLAIM_DECISIONS,
   CLAIM_DECISION_STATUSES,
   DISPOSITION,
   INQUEST_OUTCOMES,
@@ -8,7 +9,7 @@ import {
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
-import { formatCurrency } from "#src/utils/formatter.js";
+import { formatCurrency, formatFileSize } from "#src/utils/formatter.js";
 import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimAssessmentViewInput {
@@ -19,6 +20,8 @@ interface BuildClaimAssessmentViewInput {
 
 export interface ClaimAssessmentEvidenceRow {
   fileName: string;
+  fileFormat: string;
+  fileSize: string;
   viewHref: string;
   downloadHref: string;
 }
@@ -50,6 +53,8 @@ export interface ClaimAssessmentFinalOrNilBillDetails {
 
 export interface ClaimCostBreakdownRow {
   fileName: string;
+  fileFormat: string;
+  fileSize: string;
   downloadHref: string;
 }
 
@@ -57,11 +62,17 @@ export interface ClaimAssessmentViewData {
   laaReference: string;
   claimReference: string;
   claimStatus: string;
+  isAssessed: boolean;
   overview: {
     paymentType: string;
     paymentAmount: string;
     substantiveCertificate: string;
     totalRemaining: string;
+  };
+  claimDetails: {
+    vatZeroTotal: string;
+    netTotal: string;
+    grossTotal: string;
   };
   claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
@@ -109,11 +120,19 @@ export class BuildClaimAssessmentViewUseCase {
         laaReference: application.laaReference,
         claimReference: claim.claimReference,
         claimStatus: mapClaimDecision(claim.claimDecision?.decision),
+        isAssessed: ASSESSED_CLAIM_DECISIONS.includes(
+          claim.claimDecision?.decision ?? "",
+        ),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
           paymentAmount: formatAmount(claim.totalAmount),
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
+        },
+        claimDetails: {
+          vatZeroTotal: formatAmount(claim.totalProfitCostVatZero),
+          netTotal: formatAmount(claim.totalProfitCostNet),
+          grossTotal: formatAmount(claim.totalProfitCostGross),
         },
         claimCostBreakdown: mapClaimCostBreakdown(
           claim,
@@ -224,6 +243,7 @@ function mapFinalOrNilBillDetails(
         claim.claimCostTemplateFile.claimCostTemplateFileId,
         laaReference,
         claimReference,
+        claim.claimCostTemplateFile.fileSize,
       )
     : undefined;
 
@@ -295,8 +315,17 @@ function mapSupportingEvidence(
       evidence.claimEvidenceId,
       laaReference,
       claimReference,
+      evidence.fileSize,
     ),
   );
+}
+
+function getFileFormat(fileName: string): string {
+  const extensionStart = fileName.lastIndexOf(".");
+
+  return extensionStart === -1
+    ? ""
+    : fileName.slice(extensionStart + 1).toLowerCase();
 }
 
 function mapEvidenceRow(
@@ -304,11 +333,14 @@ function mapEvidenceRow(
   evidenceId: string,
   laaReference: string,
   claimReference: string,
+  fileSize: number | null | undefined,
 ): ClaimAssessmentEvidenceRow {
   const basePath = `/applications/${laaReference}/claims/${claimReference}/evidence`;
 
   return {
     fileName,
+    fileFormat: getFileFormat(fileName),
+    fileSize: formatFileSize(fileSize),
     viewHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.INLINE}`,
     downloadHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
@@ -329,6 +361,8 @@ function mapClaimCostBreakdown(
 
   return {
     fileName: costTemplateFile.claimCostTemplateFileName,
+    fileFormat: getFileFormat(costTemplateFile.claimCostTemplateFileName),
+    fileSize: formatFileSize(costTemplateFile.fileSize),
     downloadHref: `${basePath}/${costTemplateFile.claimCostTemplateFileId}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
 }

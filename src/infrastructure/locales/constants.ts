@@ -74,6 +74,8 @@ export enum INQUEST_OUTCOMES {
 
 export const PAYABLE_CLAIM_STATUSES = ["ACCEPTED", "PAY_IN_FULL"];
 
+export const ASSESSED_CLAIM_DECISIONS = ["PAY_IN_FULL", "REJECT"];
+
 export const PLACEHOLDER_VALUE = "-";
 
 export const DISPOSITION = {

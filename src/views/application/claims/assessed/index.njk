@@ -1,0 +1,22 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "macros/claimOverview.njk" import claimOverview %}
+{% from "macros/claimDetails.njk" import claimDetailsCard %}
+{% from "macros/finalOrNilBillDetails.njk" import finalOrNilBillDetailsCards %}
+{% from "macros/supportingEvidence.njk" import supportingEvidenceSection %}
+
+{% set pageTitle = claimReference %}
+
+{% block pageContent %}
+<div data-testid="assessed-claim">
+  <h1 class="govuk-heading-l">{{ claimReference }}</h1>
+  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
+
+  {{ claimOverview(overview, false) }}
+
+  {{ claimDetailsCard(claimDetails) }}
+
+  {{ finalOrNilBillDetailsCards(finalOrNilBillDetails) }}
+
+  {{ supportingEvidenceSection(claimCostBreakdown, supportingEvidence) }}
+</div>
+{% endblock pageContent %}

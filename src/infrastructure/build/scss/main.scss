@@ -14,3 +14,14 @@
     margin-top: 105px;
   }
 }
+
+// Gives the label and value columns of a summary list the same width.
+.app-summary-list--equal-columns {
+  .govuk-summary-list__key,
+  .govuk-summary-list__value {
+    @media (min-width: 40.0625em) {
+      box-sizing: border-box;
+      width: 50%;
+    }
+  }
+}

@@ -317,17 +317,14 @@ export const claimDetail = {
     {
       claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
+      fileSize: 104448,
     },
     {
       claimEvidenceId: "test_evidence_2",
       fileName: "claim-evidence-2.pdf",
     },
   ],
-  claimDecision: {
-    claimDecisionId: 123,
-    decision: "REJECT",
-    decisionReasons: [],
-  },
+  claimDecision: null,
 };
 
 const claimDetailWithoutEvidence = {
@@ -352,6 +349,7 @@ const finalBillClaimDetail = {
   claimCostTemplateFile: {
     claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     claimCostTemplateFileName: "final_bill_costs.xlsx",
+    fileSize: 20480,
   },
   claimEvidence: [
     {
@@ -399,6 +397,60 @@ const nilBillClaimDetail = {
   financialRecoveryDamages: null,
   financialRecoveryInterest: null,
   payingParty: null,
+};
+
+export const ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE = "INQC-0030-0030";
+export const ASSESSED_REJECTED_CLAIM_REFERENCE = "INQC-0031-0031";
+
+const assessedPayInFullClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE,
+  submissionDate: "2026-07-01T09:00:00.000000",
+  totalProfitCostNet: "1600.00",
+  totalProfitCostGross: "2000.00",
+  totalProfitCostVatZero: null,
+  totalAmount: "2000.00",
+  totalFundsRemainingAfterClaim: "8000.00",
+  claimDecision: {
+    claimDecisionId: 124,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+  },
+};
+
+const assessedRejectedClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_REJECTED_CLAIM_REFERENCE,
+  claimTypeId: "FINAL_BILL",
+  submissionDate: "2026-07-02T09:00:00.000000",
+  totalProfitCostNet: "170.00",
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: null,
+  totalAmount: "170.00",
+  totalFundsRemainingAfterClaim: "10000.00",
+  claimCostTemplateFile: {
+    claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    claimCostTemplateFileName: "final_bill_costs.xlsx",
+    fileSize: 20480,
+  },
+  claimEvidence: [
+    {
+      claimEvidenceId: "test_evidence_1",
+      fileName: "claim-evidence-1.pdf",
+      fileSize: 1572864,
+    },
+    {
+      claimEvidenceId: "test_evidence_2",
+      fileName: "claim-evidence-2.pdf",
+    },
+  ],
+  claimDecision: {
+    claimDecisionId: 125,
+    decision: "REJECT",
+    decisionReasons: [
+      { reasonCode: "MANUAL_REJECTION", justification: "Not allowed" },
+    ],
+  },
 };
 
 const submittedPoaClaimDetail = {
@@ -657,6 +709,20 @@ export const applicationHandlers = [
         params.claimReference === "INQC-0015-0015"
       ) {
         return HttpResponse.json(submittedPoaClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedPayInFullClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_REJECTED_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedRejectedClaimDetail);
       }
 
       return new HttpResponse(null, { status: 404 });

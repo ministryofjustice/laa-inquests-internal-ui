@@ -1,0 +1,26 @@
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% macro claimDetailsCard(claimDetails) %}
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.claimDetails.title')
+      }
+    },
+    classes: 'app-summary-list--equal-columns',
+    rows: [
+      {
+        key: { text: t('pages.claimAssessment.claimDetails.vatZeroTotal') },
+        value: { text: claimDetails.vatZeroTotal }
+      },
+      {
+        key: { text: t('pages.claimAssessment.claimDetails.netTotal') },
+        value: { text: claimDetails.netTotal }
+      },
+      {
+        key: { text: t('pages.claimAssessment.claimDetails.grossTotal') },
+        value: { text: claimDetails.grossTotal }
+      }
+    ]
+  }) }}
+{% endmacro %}

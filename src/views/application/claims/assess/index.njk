@@ -1,6 +1,7 @@
 {% extends "layouts/page-with-back-link.njk" %}
-{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
-{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "macros/claimOverview.njk" import claimOverview %}
+{% from "macros/finalOrNilBillDetails.njk" import finalOrNilBillDetailsCards %}
+{% from "macros/supportingEvidence.njk" import supportingEvidenceSection %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
@@ -19,31 +20,6 @@
   }) }}
 {% endif %}
 
-{% set supportingEvidenceRows = [] %}
-{% for evidence in supportingEvidence %}
-  {% set supportingEvidenceRows = supportingEvidenceRows.concat([
-    {
-      key: {
-        text: evidence.fileName
-      },
-      actions: {
-        items: [
-          {
-            href: evidence.viewHref,
-            text: t('pages.claimAssessment.supportingEvidence.view'),
-            visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.view') + ' ' + evidence.fileName
-          },
-          {
-            href: evidence.downloadHref,
-            text: t('pages.claimAssessment.supportingEvidence.download'),
-            visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.download') + ' ' + evidence.fileName
-          }
-        ]
-      }
-    }
-  ]) %}
-{% endfor %}
-
 <form data-testid="assess-claim" method="post" action="/applications/{{ laaReference }}/claims/{{ claimReference }}">
   <input type="hidden" name="_csrf" value="{{csrfToken}}" />
 
@@ -51,126 +27,11 @@
   <h2 class="govuk-heading-m">{{ laaReference }}</h2>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
 
-  {{ govukSummaryList({
-    card: {
-      title: {
-        text: t('pages.claimAssessment.overview.title')
-      }
-    },
-    rows: [
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.paymentType')
-        },
-        value: {
-          text: overview.paymentType
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.paymentAmount')
-        },
-        value: {
-          text: overview.paymentAmount
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.substantiveCertificate')
-        },
-        value: {
-          text: overview.substantiveCertificate
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.totalRemaining')
-        },
-        value: {
-          text: overview.totalRemaining
-        }
-      }
-    ]
-  }) }}
+  {{ claimOverview(overview, true) }}
 
-  {% if finalOrNilBillDetails %}
-    {% if finalOrNilBillDetails.counsel %}
-      {{ govukSummaryList({ card: { title: { text: t('pages.claimAssessment.finalOrNilBill.counsel.heading') } }, rows: [
-        { key: { text: t('pages.claimAssessment.finalOrNilBill.counsel.numberInstructed') }, value: { text: finalOrNilBillDetails.counsel.numberInstructed } },
-        { key: { text: t('pages.claimAssessment.finalOrNilBill.counsel.hasBeenPaid') }, value: { text: finalOrNilBillDetails.counsel.hasBeenPaid } },
-        { key: { text: t('pages.claimAssessment.finalOrNilBill.counsel.lastWorkingDate') }, value: { text: finalOrNilBillDetails.counsel.lastWorkingDate } }
-      ] }) }}
-    {% endif %}
+  {{ finalOrNilBillDetailsCards(finalOrNilBillDetails) }}
 
-    {% if finalOrNilBillDetails.inquestDetails or finalOrNilBillDetails.alternativeFundingDetails or finalOrNilBillDetails.financialRecoveryCosts %}
-      <h3 class="govuk-heading-m">{{ t('pages.claimAssessment.finalOrNilBill.otherDetails.heading') }}</h3>
-      {% if finalOrNilBillDetails.inquestDetails %}
-        {{ govukSummaryList({ card: { title: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.inquestDetails') } }, rows: [
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.outcome') }, value: { text: finalOrNilBillDetails.inquestDetails.outcome } },
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.alternativeFundingPostInquest') }, value: { text: finalOrNilBillDetails.inquestDetails.alternativeFundingPostInquest } }
-        ] }) }}
-      {% endif %}
-      {% if finalOrNilBillDetails.alternativeFundingDetails %}
-        {{ govukSummaryList({ card: { title: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.alternativeFundingDetails') } }, rows: [
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.recoveryCostsMade') }, value: { text: finalOrNilBillDetails.alternativeFundingDetails.recoveryCostsMade } },
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.previousPreCertificateCosts') }, value: { text: finalOrNilBillDetails.alternativeFundingDetails.previousPreCertificateCosts } },
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.payingParty') }, value: { text: finalOrNilBillDetails.alternativeFundingDetails.payingParty } }
-        ] }) }}
-      {% endif %}
-      {% if finalOrNilBillDetails.financialRecoveryCosts %}
-        {{ govukSummaryList({ card: { title: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.financialRecoveryCosts') } }, rows: [
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.costs') }, value: { text: finalOrNilBillDetails.financialRecoveryCosts.costs } },
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.damages') }, value: { text: finalOrNilBillDetails.financialRecoveryCosts.damages } },
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.interest') }, value: { text: finalOrNilBillDetails.financialRecoveryCosts.interest } },
-          { key: { text: t('pages.claimAssessment.finalOrNilBill.otherDetails.previousPreCertificateCosts') }, value: { text: finalOrNilBillDetails.financialRecoveryCosts.previousPreCertificateCosts } }
-        ] }) }}
-      {% endif %}
-    {% endif %}
-  {% endif %}
-
-  <h3 class="govuk-heading-m">{{ t('pages.claimAssessment.supportingEvidence.heading') }}</h3>
-
-  {{ govukWarningText({
-    text: t('pages.claimAssessment.supportingEvidence.warning'),
-    iconFallbackText: t('common.warning')
-  }) }}
-
-  {% if claimCostBreakdown %}
-    {{ govukSummaryList({
-        card: {
-          title: {
-            text: t('pages.claimAssessment.supportingEvidence.costBreakdown')
-          }
-        },
-        rows: [
-          {
-            key: {
-              text: claimCostBreakdown.fileName
-            },
-            actions: {
-              items: [
-                {
-                  href: claimCostBreakdown.downloadHref,
-                  text: t('pages.claimAssessment.supportingEvidence.download'),
-                  visuallyHiddenText: t('pages.claimAssessment.supportingEvidence.download') + ' ' + claimCostBreakdown.fileName
-                }
-              ]
-            }
-          }
-        ]
-      }) }}
-  {% endif %}
-
-  {% if supportingEvidenceRows.length %}
-    {{ govukSummaryList({
-        card: {
-          title: {
-            text: t('pages.claimAssessment.supportingEvidence.otherEvidence')
-          }
-        },
-        rows: supportingEvidenceRows
-      }) }}
-  {% endif %}
+  {{ supportingEvidenceSection(claimCostBreakdown, supportingEvidence) }}
 
   {% if hasPermission(permissions.MAKE_CLAIM_DECISION) %}
   {{ govukRadios({

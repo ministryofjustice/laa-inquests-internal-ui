@@ -91,22 +91,82 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       laaReference: "5",
       claimReference: "INQC-0011-0011",
       claimStatus: "Reject",
+      isAssessed: true,
       overview: {
         paymentType: "Payment on account",
         paymentAmount: "£1,200",
         substantiveCertificate: "£10,000",
         totalRemaining: "£8,800",
       },
+      claimDetails: {
+        vatZeroTotal: "-",
+        netTotal: "£1,000",
+        grossTotal: "£1,200",
+      },
       claimCostBreakdown: null,
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
+          fileFormat: "pdf",
+          fileSize: "",
           viewHref:
             "/applications/5/claims/INQC-0011-0011/evidence/test_evidence_1?disposition=inline",
           downloadHref:
             "/applications/5/claims/INQC-0011-0011/evidence/test_evidence_1?disposition=attachment",
         },
       ],
+    });
+  });
+
+  describe("isAssessed", () => {
+    async function buildViewFor(
+      claimDecision: ClaimDetail["claimDecision"],
+    ): Promise<boolean> {
+      const applicationPortStub = stubInterface<ApplicationPort>();
+      const claimsPortStub = stubInterface<ClaimsPort>();
+
+      applicationPortStub.getApplication.resolves({
+        laaReference: "5",
+        proceeding: { substantiveCostLimitation: 10000 },
+      } as any);
+      claimsPortStub.getClaimById.resolves({
+        ...poaBaseClaim,
+        claimDecision,
+      });
+
+      const result = await new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({ laaReference: "5", claimReference: "INQC-0011-0011" });
+
+      assert.equal(result.status, "SUCCESS");
+      return result.data.isAssessed;
+    }
+
+    it("is true when the claim decision is pay in full", async () => {
+      assert.equal(
+        await buildViewFor({
+          claimDecisionId: 1,
+          decision: "PAY_IN_FULL",
+          decisionReasons: [],
+        }),
+        true,
+      );
+    });
+
+    it("is true when the claim decision is reject", async () => {
+      assert.equal(
+        await buildViewFor({
+          claimDecisionId: 1,
+          decision: "REJECT",
+          decisionReasons: [],
+        }),
+        true,
+      );
+    });
+
+    it("is false when the claim has no decision", async () => {
+      assert.equal(await buildViewFor(null), false);
     });
   });
 
@@ -146,18 +206,141 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data.claimCostBreakdown, {
       fileName: "final_bill_costs.xlsx",
+      fileFormat: "xlsx",
+      fileSize: "",
       downloadHref:
         "/applications/5/claims/INQC-0013-0013/evidence/test_cost_breakdown?disposition=attachment",
     });
     assert.deepEqual(result.data.supportingEvidence, [
       {
         fileName: "claim-evidence-1.pdf",
+        fileFormat: "pdf",
+        fileSize: "",
         viewHref:
           "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=inline",
         downloadHref:
           "/applications/5/claims/INQC-0013-0013/evidence/test_evidence_1?disposition=attachment",
       },
     ]);
+  });
+
+  describe("claimDetails", () => {
+    async function buildClaimDetailsFor(claim: ClaimDetail) {
+      const applicationPortStub = stubInterface<ApplicationPort>();
+      const claimsPortStub = stubInterface<ClaimsPort>();
+
+      applicationPortStub.getApplication.resolves({
+        laaReference: "5",
+        proceeding: { substantiveCostLimitation: 10000 },
+      } as any);
+      claimsPortStub.getClaimById.resolves(claim);
+
+      const result = await new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({ laaReference: "5", claimReference: "INQC-0011-0011" });
+
+      assert.equal(result.status, "SUCCESS");
+      return result.data.claimDetails;
+    }
+
+    it("uses a placeholder for the 0% VAT total when it was not submitted", async () => {
+      assert.deepEqual(
+        await buildClaimDetailsFor({
+          ...poaBaseClaim,
+          totalProfitCostNet: "100.00",
+          totalProfitCostGross: "120.00",
+          totalProfitCostVatZero: null,
+          totalAmount: "120.00",
+        }),
+        { vatZeroTotal: "-", netTotal: "£100", grossTotal: "£120" },
+      );
+    });
+
+    it("formats the 0% VAT, net and gross totals of a disbursement claim as currency", async () => {
+      assert.deepEqual(
+        await buildClaimDetailsFor({
+          ...poaBaseClaim,
+          poaTypeId: "EXPERT_COST",
+          totalProfitCostNet: "1000.50",
+          totalProfitCostGross: "1700.60",
+          totalProfitCostVatZero: "500.00",
+          totalAmount: "1700.60",
+        }),
+        {
+          vatZeroTotal: "£500",
+          netTotal: "£1,000.50",
+          grossTotal: "£1,700.60",
+        },
+      );
+    });
+  });
+
+  describe("file format and size", () => {
+    async function buildFor(claim: ClaimDetail) {
+      const applicationPortStub = stubInterface<ApplicationPort>();
+      const claimsPortStub = stubInterface<ClaimsPort>();
+
+      applicationPortStub.getApplication.resolves({
+        laaReference: "5",
+        proceeding: { substantiveCostLimitation: 10000 },
+      } as any);
+      claimsPortStub.getClaimById.resolves(claim);
+
+      const result = await new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({ laaReference: "5", claimReference: "INQC-0010-0010" });
+
+      assert.equal(result.status, "SUCCESS");
+      return result.data;
+    }
+
+    it("exposes the lower case file format and formatted size of evidence files", async () => {
+      const data = await buildFor({
+        ...poaBaseClaim,
+        claimEvidence: [
+          {
+            claimEvidenceId: "e1",
+            fileName: "Evidence.PDF",
+            fileSize: 104448,
+          },
+          { claimEvidenceId: "e2", fileName: "notes", fileSize: 1572864 },
+        ],
+      });
+
+      assert.deepEqual(
+        data.supportingEvidence.map(
+          ({ fileFormat, fileSize }) => `${fileFormat}|${fileSize}`,
+        ),
+        ["pdf|102KB", "|1.5MB"],
+      );
+    });
+
+    it("leaves the file size empty when the file size is not known", async () => {
+      const data = await buildFor({
+        ...poaBaseClaim,
+        claimEvidence: [
+          { claimEvidenceId: "e1", fileName: "a.pdf", fileSize: null },
+        ],
+      });
+
+      assert.equal(data.supportingEvidence[0].fileSize, "");
+    });
+
+    it("exposes the file format and size of the claim cost breakdown file", async () => {
+      const data = await buildFor({
+        ...finalBillBaseClaim,
+        claimCostTemplateFile: {
+          claimCostTemplateFileId: "t1",
+          claimCostTemplateFileName: "final_bill_costs.xlsx",
+          fileSize: 20480,
+        },
+      });
+
+      assert.equal(data.claimCostBreakdown?.fileFormat, "xlsx");
+      assert.equal(data.claimCostBreakdown?.fileSize, "20KB");
+    });
   });
 
   it("returns a null claim cost breakdown when the claim has no cost template file", async () => {
@@ -249,6 +432,8 @@ describe("BuildClaimAssessmentViewUseCase", () => {
     assert.deepEqual(result.data.finalOrNilBillDetails, {
       claimCostTemplateFile: {
         fileName: "final_bill_costs.xlsx",
+        fileFormat: "xlsx",
+        fileSize: "",
         viewHref:
           "/applications/5/claims/INQC-0010-0010/evidence/cost-template-file-id?disposition=inline",
         downloadHref:
@@ -257,6 +442,8 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       supportingEvidence: [
         {
           fileName: "claim-evidence-1.pdf",
+          fileFormat: "pdf",
+          fileSize: "",
           viewHref:
             "/applications/5/claims/INQC-0010-0010/evidence/test_evidence_1?disposition=inline",
           downloadHref:

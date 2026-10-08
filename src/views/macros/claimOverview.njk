@@ -1,0 +1,35 @@
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% macro claimOverview(overview, showTotalRemaining) %}
+  {% set rows = [
+    {
+      key: { text: t('pages.claimAssessment.overview.paymentType') },
+      value: { text: overview.paymentType }
+    },
+    {
+      key: { text: t('pages.claimAssessment.overview.paymentAmount') },
+      value: { text: overview.paymentAmount }
+    },
+    {
+      key: { text: t('pages.claimAssessment.overview.substantiveCertificate') },
+      value: { text: overview.substantiveCertificate }
+    }
+  ] %}
+
+  {% if showTotalRemaining %}
+    {% set rows = rows.concat([{
+      key: { text: t('pages.claimAssessment.overview.totalRemaining') },
+      value: { text: overview.totalRemaining }
+    }]) %}
+  {% endif %}
+
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: t('pages.claimAssessment.overview.title')
+      }
+    },
+    classes: 'app-summary-list--equal-columns',
+    rows: rows
+  }) }}
+{% endmacro %}
