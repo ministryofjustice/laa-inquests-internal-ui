@@ -91,6 +91,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       laaReference: "5",
       claimReference: "INQC-0011-0011",
       claimStatus: "Reject",
+      isAssessed: true,
       overview: {
         paymentType: "Payment on account",
         paymentAmount: "£1,200",
@@ -107,6 +108,58 @@ describe("BuildClaimAssessmentViewUseCase", () => {
             "/applications/5/claims/INQC-0011-0011/evidence/test_evidence_1?disposition=attachment",
         },
       ],
+    });
+  });
+
+  describe("isAssessed", () => {
+    async function buildViewFor(
+      claimDecision: ClaimDetail["claimDecision"],
+    ): Promise<boolean> {
+      const applicationPortStub = stubInterface<ApplicationPort>();
+      const claimsPortStub = stubInterface<ClaimsPort>();
+
+      applicationPortStub.getApplication.resolves({
+        laaReference: "5",
+        proceeding: { substantiveCostLimitation: 10000 },
+      } as any);
+      claimsPortStub.getClaimById.resolves({
+        ...poaBaseClaim,
+        claimDecision,
+      });
+
+      const result = await new BuildClaimAssessmentViewUseCase(
+        applicationPortStub,
+        claimsPortStub,
+      ).execute({ laaReference: "5", claimReference: "INQC-0011-0011" });
+
+      assert.equal(result.status, "SUCCESS");
+      return result.data.isAssessed;
+    }
+
+    it("is true when the claim decision is pay in full", async () => {
+      assert.equal(
+        await buildViewFor({
+          claimDecisionId: 1,
+          decision: "PAY_IN_FULL",
+          decisionReasons: [],
+        }),
+        true,
+      );
+    });
+
+    it("is true when the claim decision is reject", async () => {
+      assert.equal(
+        await buildViewFor({
+          claimDecisionId: 1,
+          decision: "REJECT",
+          decisionReasons: [],
+        }),
+        true,
+      );
+    });
+
+    it("is false when the claim has no decision", async () => {
+      assert.equal(await buildViewFor(null), false);
     });
   });
 

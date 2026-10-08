@@ -90,7 +90,11 @@ export class ClaimAssessmentAdaptor {
       return;
     }
 
-    res.render("application/claims/assess/index", {
+    const view = claimAssessmentViewResult.data.isAssessed
+      ? "application/claims/assessed/index"
+      : "application/claims/assess/index";
+
+    res.render(view, {
       backUrl: `/applications/${laaReference}/overview`,
       ...claimAssessmentViewResult.data,
       assessClaim,

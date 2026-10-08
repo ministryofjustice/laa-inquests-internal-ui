@@ -1,5 +1,6 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
+  ASSESSED_CLAIM_DECISIONS,
   CLAIM_DECISION_STATUSES,
   DISPOSITION,
   INQUEST_OUTCOMES,
@@ -57,6 +58,7 @@ export interface ClaimAssessmentViewData {
   laaReference: string;
   claimReference: string;
   claimStatus: string;
+  isAssessed: boolean;
   overview: {
     paymentType: string;
     paymentAmount: string;
@@ -109,6 +111,9 @@ export class BuildClaimAssessmentViewUseCase {
         laaReference: application.laaReference,
         claimReference: claim.claimReference,
         claimStatus: mapClaimDecision(claim.claimDecision?.decision),
+        isAssessed: ASSESSED_CLAIM_DECISIONS.includes(
+          claim.claimDecision?.decision ?? "",
+        ),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
           paymentAmount: formatAmount(claim.totalAmount),
