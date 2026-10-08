@@ -1,5 +1,6 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "macros/claimOverview.njk" import claimOverview %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
@@ -51,47 +52,7 @@
   <h2 class="govuk-heading-m">{{ laaReference }}</h2>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
 
-  {{ govukSummaryList({
-    card: {
-      title: {
-        text: t('pages.claimAssessment.overview.title')
-      }
-    },
-    rows: [
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.paymentType')
-        },
-        value: {
-          text: overview.paymentType
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.paymentAmount')
-        },
-        value: {
-          text: overview.paymentAmount
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.substantiveCertificate')
-        },
-        value: {
-          text: overview.substantiveCertificate
-        }
-      },
-      {
-        key: {
-          text: t('pages.claimAssessment.overview.totalRemaining')
-        },
-        value: {
-          text: overview.totalRemaining
-        }
-      }
-    ]
-  }) }}
+  {{ claimOverview(overview, true) }}
 
   {% if finalOrNilBillDetails %}
     {% if finalOrNilBillDetails.counsel %}

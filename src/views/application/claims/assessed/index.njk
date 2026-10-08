@@ -1,4 +1,5 @@
 {% extends "layouts/page-with-back-link.njk" %}
+{% from "macros/claimOverview.njk" import claimOverview %}
 
 {% set pageTitle = claimReference %}
 
@@ -6,5 +7,7 @@
 <div data-testid="assessed-claim">
   <h1 class="govuk-heading-l">{{ claimReference }}</h1>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
+
+  {{ claimOverview(overview, false) }}
 </div>
 {% endblock pageContent %}
