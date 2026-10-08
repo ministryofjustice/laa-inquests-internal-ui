@@ -1,10 +1,10 @@
 {% extends "layouts/page-with-back-link.njk" %}
 
-{% set pageTitle = t('pages.claimAssessment.heading') %}
+{% set pageTitle = claimReference %}
 
 {% block pageContent %}
 <div data-testid="assessed-claim">
-  <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.heading') }}</h1>
+  <h1 class="govuk-heading-l">{{ claimReference }}</h1>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
 </div>
 {% endblock pageContent %}

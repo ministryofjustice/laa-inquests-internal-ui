@@ -399,8 +399,8 @@ const nilBillClaimDetail = {
   payingParty: null,
 };
 
-export const ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE = "INQC-0020-0020";
-export const ASSESSED_REJECTED_CLAIM_REFERENCE = "INQC-0021-0021";
+export const ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE = "INQC-0030-0030";
+export const ASSESSED_REJECTED_CLAIM_REFERENCE = "INQC-0031-0031";
 
 const assessedPayInFullClaimDetail = {
   ...claimDetail,

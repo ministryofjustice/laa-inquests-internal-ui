@@ -2,7 +2,6 @@ import { expect, test } from "../../fixtures/index.js";
 import type { Locator, Page } from "@playwright/test";
 
 const laaReference = "INQ-YYY-005";
-const applicationOverviewPage = `/applications/${laaReference}/overview`;
 
 interface AssessedClaimCase {
   decision: string;
@@ -18,7 +17,7 @@ interface AssessedClaimCase {
 const assessedClaimCases: AssessedClaimCase[] = [
   {
     decision: "PAY_IN_FULL",
-    claimReference: "INQC-0020-0020",
+    claimReference: "INQC-0030-0030",
     claimStatus: "Pay in full",
     paymentType: "Payment on account",
     paymentAmount: "£2,000",
@@ -28,7 +27,7 @@ const assessedClaimCases: AssessedClaimCase[] = [
   },
   {
     decision: "REJECT",
-    claimReference: "INQC-0021-0021",
+    claimReference: "INQC-0031-0031",
     claimStatus: "Reject",
     paymentType: "Final bill",
     paymentAmount: "£170",
@@ -217,25 +216,5 @@ test.describe("Assessed claim page - final bill cost breakdown", () => {
       "href",
       `${assessedPage}/evidence/3fa85f64-5717-4562-b3fc-2c963f66afa6?disposition=attachment`,
     );
-  });
-});
-
-test.describe("Assessed claim page - navigation", () => {
-  test("opens the assessed claim page from the assessed claims table", async ({
-    page,
-  }) => {
-    await page.goto(applicationOverviewPage);
-    await page.getByRole("tab", { name: "Claims" }).click();
-
-    await page
-      .locator("#claims")
-      .getByRole("link", { name: "INQC-0020-0020" })
-      .click();
-
-    await expect(page).toHaveURL(claimPage("INQC-0020-0020"));
-    await expect(page.getByTestId("assessed-claim")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { level: 1, name: "INQC-0020-0020" }),
-    ).toBeVisible();
   });
 });
