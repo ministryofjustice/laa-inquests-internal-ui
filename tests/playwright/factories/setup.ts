@@ -18,7 +18,7 @@ export const server = setupServer(...handlers);
  * MSW server configuration options
  */
 export const serverConfig = {
-  onUnhandledRequest: "warn" as const,
+  onUnhandledFrame: "warn" as const,
 };
 
 /**
