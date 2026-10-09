@@ -9,7 +9,7 @@
 <p class="govuk-body">Your available options will depend on your role.<p>
 
 {% set options = [] %}
-{% if hasPermission(permissions.VIEW_APPLICATIONS_OVERVIEW_PAGE) %}
+{% if hasPermission(permissions.SEARCH_APPLICATIONS) %}
     {% set options = (options.concat(
         {
             html: ' <h2 class="govuk-heading-m govuk-!-margin-bottom-2"><a href="/applications/search" class="govuk-link govuk-link--no-visited-state">Find an application or certificate</a></h2>

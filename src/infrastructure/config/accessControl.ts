@@ -47,6 +47,7 @@ export const RECOGNISED_ROLES: readonly CaseworkerRole[] = Object.values(
 
 export const PERMISSIONS = {
   VIEW_CLAIMS_TAB: "viewClaimsTab",
+  SEARCH_APPLICATIONS: "searchApplications",
   MANAGE_APPLICATION: "manageApplication",
   VIEW_APPLICATIONS_OVERVIEW_PAGE: "viewApplicationsOverviewPage",
   VIEW_CLAIMS_DETAILS: "viewClaimsDetails",
@@ -79,6 +80,11 @@ export const PERMISSION_ROLE_MAP: Readonly<
     INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
     INTERNAL_CASEWORKER_ROLES.ASSURANCE,
   ],
+  [PERMISSIONS.SEARCH_APPLICATIONS]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+    INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+    INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+  ],
   [PERMISSIONS.MANAGE_APPLICATION]: [
     INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
   ],
@@ -104,7 +110,10 @@ export const PERMISSION_ROLE_MAP: Readonly<
 };
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
-  //TODO: Put policies in place for the search pages
+  {
+    prefix: "/applications/search",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS],
+  },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
     allowedRoles:
