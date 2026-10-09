@@ -103,11 +103,10 @@ test.describe("Home page", () => {
       await page.goto("/auth/test-login");
     });
 
-    test("should show applications panel for users with the VIEW_APPLICATIONS_OVERVIEW_PAGE permission", async ({
+    test("should show applications panel for users with the SEARCH_APPLICATIONS permission", async ({
       page,
     }) => {
-      const allowedRoles =
-        PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE];
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS];
       for (const role of allowedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
         await page.goto("/home");
@@ -118,11 +117,10 @@ test.describe("Home page", () => {
       }
     });
 
-    test("should not show applications panel for users without the VIEW_APPLICATIONS_OVERVIEW_PAGE permission", async ({
+    test("should not show applications panel for users without the SEARCH_APPLICATIONS permission", async ({
       page,
     }) => {
-      const allowedRoles =
-        PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE];
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS];
 
       for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
         (r) => !allowedRoles.includes(r),

@@ -199,11 +199,10 @@ describe("globalAccessGuard", () => {
   describe("Parameterized tests for policy-protected routes", () => {
     const policyTests = [
       {
-        description: "Only authenticated requests to applications search",
+        description: "Only authenticated requests to the search page",
         path: "/applications/search",
         allowedRoles: [
           INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
-          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
           INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
           INTERNAL_CASEWORKER_ROLES.ASSURANCE,
         ],
