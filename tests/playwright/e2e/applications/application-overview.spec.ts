@@ -22,27 +22,62 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
-  test("should have a status tag", async ({ page }) => {
-    await page.goto(`/applications/${laaReference}/overview`);
-    const statusTag = page
-      .locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)")
-      .first();
-    await expect(statusTag).toBeVisible();
+  test("does not show an assessment tag above the application reference", async ({
+    page,
+  }) => {
+    for (const applicationReference of [laaReference, "INQ-YYY-005"]) {
+      await page.goto(`/applications/${applicationReference}/overview`);
+      await expect(
+        page.locator(".govuk-tag", {
+          hasText: /Awaiting assessment|Assessment complete/,
+        }),
+      ).toHaveCount(0);
+    }
+  });
+
+  test("shows a green Live certificate tag below the reference for granted applications", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-005/overview");
+
+    const certificateTag = page.locator("h1 + .govuk-tag");
+    await expect(certificateTag).toHaveText("Live");
+    await expect(certificateTag).toHaveClass(/govuk-tag--green/);
+    await checkAccessibility();
+  });
+
+  test("does not show a certificate tag for submitted, refused, or null decisions", async ({
+    page,
+  }) => {
+    for (const applicationReference of [
+      "INQ-YYY-009",
+      "INQ-YYY-011",
+      "INQ-YYY-012",
+    ]) {
+      await page.goto(`/applications/${applicationReference}/overview`);
+      await expect(page.locator("h1 + .govuk-tag")).toHaveCount(0);
+      await expect(
+        page.locator(".govuk-tag", { hasText: /^Live$/ }),
+      ).toHaveCount(0);
+    }
   });
 
   for (const applicationReference of ["INQ-YYY-009", "INQ-YYY-010"]) {
-    test(`treats Submitted merits as awaiting assessment for ${applicationReference}`, async ({
+    test(`shows Submitted merits and allows assessment for ${applicationReference}`, async ({
       page,
       checkAccessibility,
     }) => {
       await page.goto(`/applications/${applicationReference}/overview`);
 
       await expect(
-        page.locator(".govuk-tag", { hasText: "Pending decision" }),
+        page.locator("#application-details .govuk-tag", {
+          hasText: "Submitted",
+        }),
       ).toBeVisible();
       await expect(
         page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
-      ).toHaveClass(/govuk-tag--grey/);
+      ).toHaveCount(0);
       await expect(
         page.locator(".govuk-tag", { hasText: "Assessment complete" }),
       ).toHaveCount(0);
@@ -56,22 +91,61 @@ test.describe("Application overview page", () => {
         `/applications/${applicationReference}/decision`,
       );
       await expect(page.getByTestId("make-a-decision")).toBeVisible();
+      await expect(
+        page.getByTestId("make-a-decision").locator(".govuk-tag"),
+      ).toHaveText("Submitted");
       await checkAccessibility();
     });
   }
 
-  test("retains Pending backwards compatibility (remove after the API migration to Submitted)", async ({
+  test("shows a grey Status unavailable tag when merits status is unexpected", async ({
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/applications/INQ-YYY-001/overview");
+    const applicationReference = "INQ-YYY-013";
+    const response = await page.goto(
+      `/applications/${applicationReference}/overview`,
+    );
 
-    await expect(
-      page.locator(".govuk-tag", { hasText: "Pending decision" }),
-    ).toBeVisible();
-    await expect(
-      page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
-    ).toHaveClass(/govuk-tag--grey/);
+    expect(response?.ok()).toBe(true);
+    const meritsTag = page.locator("#application-details .govuk-tag");
+    await expect(meritsTag).toHaveText("Status unavailable");
+    await expect(meritsTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+
+    await page
+      .locator("#application-details")
+      .getByRole("button", { name: "Make assessment" })
+      .click();
+    const decisionTag = page
+      .getByTestId("make-a-decision")
+      .locator(".govuk-tag");
+    await expect(decisionTag).toHaveText("Status unavailable");
+    await expect(decisionTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+  });
+
+  test("shows a grey Status unavailable tag when merits status is null", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const applicationReference = "INQ-YYY-011";
+    await page.goto(`/applications/${applicationReference}/overview`);
+
+    const meritsTag = page.locator("#application-details .govuk-tag");
+    await expect(meritsTag).toHaveText("Status unavailable");
+    await expect(meritsTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+
+    await page
+      .locator("#application-details")
+      .getByRole("button", { name: "Make assessment" })
+      .click();
+    const decisionTag = page
+      .getByTestId("make-a-decision")
+      .locator(".govuk-tag");
+    await expect(decisionTag).toHaveText("Status unavailable");
+    await expect(decisionTag).toHaveClass("govuk-tag govuk-tag--grey");
     await checkAccessibility();
   });
 

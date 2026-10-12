@@ -16,7 +16,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
-    overallDecision: "PENDING",
+    overallDecision: "SUBMITTED",
     proceeding: {
       proceedingId: "IQPC",
       proceedingName: "Death in police custody",
@@ -29,7 +29,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: "PENDING",
+      meritsDecision: "SUBMITTED",
     },
     publicBodies: [
       {
@@ -92,6 +92,36 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     ]);
   });
 
+  it("identifies live certificates only for granted decisions", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
+    const decisions = [
+      { overallDecision: "GRANTED", hasLiveCertificate: true },
+      { overallDecision: "Granted", hasLiveCertificate: true },
+      { overallDecision: "granted", hasLiveCertificate: true },
+      { overallDecision: "SUBMITTED", hasLiveCertificate: false },
+      { overallDecision: "REFUSED", hasLiveCertificate: false },
+      { overallDecision: null, hasLiveCertificate: false },
+      { overallDecision: undefined, hasLiveCertificate: false },
+    ];
+
+    for (const { overallDecision, hasLiveCertificate } of decisions) {
+      applicationPortStub.getApplication.resolves({
+        ...application,
+        overallDecision,
+      });
+
+      const result = await useCase.execute({ laaReference: "123" });
+
+      assert.partialDeepStrictEqual(result, {
+        status: "SUCCESS",
+        data: { hasLiveCertificate },
+      });
+    }
+  });
+
   it("returns INVALID_INPUT without calling the port when input is incomplete", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const useCase = new BuildApplicationOverviewViewUseCase(
@@ -104,75 +134,6 @@ describe("BuildApplicationOverviewViewUseCase", () => {
 
     assert.deepEqual(result, { status: "INVALID_INPUT" });
     assert.equal(applicationPortStub.getApplication.callCount, 0);
-  });
-
-  it("marks Submitted applications as awaiting assessment regardless of case", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    const useCase = new BuildApplicationOverviewViewUseCase(
-      applicationPortStub,
-    );
-
-    for (const overallDecision of ["Submitted", "SUBMITTED", "submitted"]) {
-      applicationPortStub.getApplication.resolves({
-        ...application,
-        overallDecision,
-      });
-
-      const result = await useCase.execute({ laaReference: "123" });
-
-      assert.partialDeepStrictEqual(result, {
-        status: "SUCCESS",
-        data: { isAwaitingAssessment: true },
-      });
-    }
-  });
-
-  it("retains Pending backwards compatibility (remove after the API migration to Submitted)", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    const useCase = new BuildApplicationOverviewViewUseCase(
-      applicationPortStub,
-    );
-
-    for (const overallDecision of ["Pending", "PENDING", "pending"]) {
-      applicationPortStub.getApplication.resolves({
-        ...application,
-        overallDecision,
-      });
-
-      const result = await useCase.execute({ laaReference: "123" });
-
-      assert.partialDeepStrictEqual(result, {
-        status: "SUCCESS",
-        data: { isAwaitingAssessment: true },
-      });
-    }
-  });
-
-  it("preserves assessment state for completed and missing decisions", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    const useCase = new BuildApplicationOverviewViewUseCase(
-      applicationPortStub,
-    );
-    const decisions = [
-      { overallDecision: "GRANTED", isAwaitingAssessment: false },
-      { overallDecision: "REFUSED", isAwaitingAssessment: false },
-      { overallDecision: undefined, isAwaitingAssessment: true },
-      { overallDecision: "", isAwaitingAssessment: true },
-    ];
-
-    for (const { overallDecision, isAwaitingAssessment } of decisions) {
-      applicationPortStub.getApplication.resolves({
-        ...application,
-        overallDecision,
-      });
-
-      const result = await useCase.execute({ laaReference: "123" });
-
-      assert.partialDeepStrictEqual(result, {
-        status: "SUCCESS",
-        data: { isAwaitingAssessment },
-      });
-    }
   });
 
   it("propagates application errors from the port unchanged", async () => {

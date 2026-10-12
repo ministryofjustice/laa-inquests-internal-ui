@@ -4,7 +4,9 @@
     <strong class="govuk-tag govuk-tag--red">Refused</strong>
   {%- elif upperValue == "GRANTED" -%}
     <strong class="govuk-tag govuk-tag--green">Granted</strong>
+  {%- elif upperValue == "SUBMITTED" -%}
+    <strong class="govuk-tag govuk-tag--blue">{{ t('pages.decision.merits.submittedStatus') }}</strong>
   {%- else -%}
-    <strong class="govuk-tag govuk-tag--blue">Pending decision</strong>
+    <strong class="govuk-tag govuk-tag--grey">{{ t('pages.decision.merits.unavailableStatus') }}</strong>
   {%- endif -%}
 {% endmacro %}

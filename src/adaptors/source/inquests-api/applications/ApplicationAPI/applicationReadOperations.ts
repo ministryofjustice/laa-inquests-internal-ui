@@ -7,7 +7,12 @@ import {
   ApplicationSchema,
   HistoryEventSchema,
 } from "#src/adaptors/models/application.schema.js";
-import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
+import {
+  APPLICATION_STATUSES,
+  GRANTED_DECISION,
+  REFUSED_DECISION,
+  SUBMITTED_DECISION,
+} from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   APPLICATION_ERROR_TYPES,
@@ -206,6 +211,32 @@ export async function getApplication(
       );
     }
 
+    const { data: application } = result;
+    const { overallDecision } = application;
+    const hasRecognisedMeritsStatus = [
+      GRANTED_DECISION,
+      REFUSED_DECISION,
+      SUBMITTED_DECISION,
+    ].includes(overallDecision?.toUpperCase() ?? "");
+
+    if (!hasRecognisedMeritsStatus) {
+      logger.logError({
+        functionName: "application_api_adaptor",
+        message: "Application merits status is unavailable",
+        extraContext: {
+          event: "application_merits_status_unavailable",
+          operation: GET_APPLICATION.operation,
+          upstream_method: GET_APPLICATION.method,
+          upstream_route: GET_APPLICATION.route,
+          failure_reason: overallDecision
+            ? "unexpected_status"
+            : "missing_status",
+          duration_ms: Date.now() - startedAt,
+          laa_reference: laaReference,
+        },
+      });
+    }
+
     logSuccess(
       "Application retrieved upstream",
       laaReference,
@@ -213,10 +244,11 @@ export async function getApplication(
       startedAt,
     );
     return {
-      ...result.data,
+      ...application,
+      overallDecision: hasRecognisedMeritsStatus ? overallDecision : null,
       status:
-        (APPLICATION_STATUSES as Record<string, string>)[result.data.status] ??
-        result.data.status,
+        (APPLICATION_STATUSES as Record<string, string>)[application.status] ??
+        application.status,
     };
   } catch (error) {
     throwTechnicalFailure(

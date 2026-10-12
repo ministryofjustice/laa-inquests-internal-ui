@@ -110,6 +110,7 @@
     },
     "applicationOverview": {
       "invalidRequest": "Invalid application request.",
+      "liveCertificateStatus": "Live",
       "details": {
         "viewCertificate": "View certificate"
       },
@@ -396,6 +397,8 @@
       },
       "merits": {
         "header": "Make a decision",
+        "submittedStatus": "Submitted",
+        "unavailableStatus": "Status unavailable",
         "extraDetail": "Use this section to provide more details about your decision. This will be shared with the provider and recorded in application history.",
         "proceedingsOverview": {
           "title": "Overview",
