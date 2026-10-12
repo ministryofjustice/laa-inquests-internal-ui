@@ -5,6 +5,7 @@ import {
   HISTORY_EVENT_REFERENCE,
   PENDING_DECISION,
   REFUSED_DECISION,
+  SUBMITTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
 
 /**
@@ -59,6 +60,18 @@ const applicationSummaries = [
     created_at: "2026-07-18T09:00:00.000000",
     status: "LIVE",
     overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: "INQ-YYY-009",
+    created_at: "2026-07-19T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: "Submitted",
+  },
+  {
+    laa_reference: "INQ-YYY-010",
+    created_at: "2026-07-20T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: SUBMITTED_DECISION,
   },
 ];
 
@@ -297,6 +310,19 @@ const assessedClaims = [
     statusId: "PAY_IN_FULL",
     claimDecisionStatus: "PAY_IN_FULL",
   },
+  {
+    claimReference: "INQC-0017-0017",
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    submissionDate: "2026-06-01T09:00:00.000000",
+    totalProfitCostNet: "1000.00",
+    totalProfitCostGross: "1200.00",
+    totalProfitCostVatZero: null,
+    totalAmount: "1200.00",
+    totalFundsRemainingAfterClaim: "8000.00",
+    poaTypeId: "PROFIT_COST",
+    statusId: "REJECTED",
+    claimDecisionStatus: "REJECTED",
+  },
 ];
 
 export const claimDetail = {
@@ -330,6 +356,11 @@ export const claimDetail = {
   },
 };
 
+export const submittedClaimDetail = {
+  ...claimDetail,
+  claimDecision: null,
+};
+
 const claimDetailWithoutEvidence = {
   ...claimDetail,
   claimReference: "INQC-0011-0011",
@@ -346,7 +377,7 @@ const claimDetailVatZeroOnly = {
 };
 
 const finalBillClaimDetail = {
-  ...claimDetail,
+  ...submittedClaimDetail,
   claimReference: "INQC-0013-0013",
   claimTypeId: "FINAL_BILL",
   claimCostTemplateFile: {
@@ -374,7 +405,7 @@ const finalBillClaimDetail = {
 };
 
 const nilBillClaimDetail = {
-  ...claimDetail,
+  ...submittedClaimDetail,
   claimReference: "INQC-0014-0014",
   claimTypeId: "NIL_BILL",
   totalProfitCostNet: null,
@@ -404,7 +435,6 @@ const nilBillClaimDetail = {
 const submittedPoaClaimDetail = {
   ...claimDetail,
   claimReference: "INQC-0015-0015",
-  statusId: "SUBMITTED",
   claimDecision: null,
 };
 
@@ -621,7 +651,7 @@ export const applicationHandlers = [
         params.id === "INQ-YYY-005" &&
         params.claimReference === "INQC-0010-0010"
       ) {
-        return HttpResponse.json(claimDetail);
+        return HttpResponse.json(submittedClaimDetail);
       }
 
       if (
@@ -657,6 +687,31 @@ export const applicationHandlers = [
         params.claimReference === "INQC-0015-0015"
       ) {
         return HttpResponse.json(submittedPoaClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0017-0017"
+      ) {
+        return HttpResponse.json({
+          ...claimDetail,
+          claimReference: "INQC-0017-0017",
+        });
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === "INQC-0016-0016"
+      ) {
+        return HttpResponse.json({
+          ...claimDetail,
+          ...assessedClaims[0],
+          claimReference: "INQC-0016-0016",
+          claimDecision: {
+            ...claimDetail.claimDecision,
+            decision: "PAY_IN_FULL",
+          },
+        });
       }
 
       return new HttpResponse(null, { status: 404 });

@@ -18,8 +18,8 @@ const ERROR_EXIT_CODE = 1;
 
 // Enable request interception with simple warning for unhandled requests
 mswServer.listen({
-  onUnhandledRequest: (req: Request, print: { warning: () => void }): void => {
-    print.warning();
+  onUnhandledFrame: ({ defaults }) => {
+    defaults.warn();
   },
 });
 console.log("🎭 MSW server started - intercepting outbound requests");

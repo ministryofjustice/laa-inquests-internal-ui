@@ -5,6 +5,7 @@
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
 
 {% set pageTitle = t('pages.claimAssessment.heading') %}
 
@@ -49,7 +50,7 @@
 
   <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.heading') }}</h1>
   <h2 class="govuk-heading-m">{{ laaReference }}</h2>
-  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: <span class="govuk-tag govuk-tag--blue">{{ claimStatus }}</span></h3>
+  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h3>
 
   {{ govukSummaryList({
     card: {
@@ -216,7 +217,6 @@
   {{ govukButton({
     text: t('pages.claimAssessment.continue')
   }) }}
+  {% endif %}
 </form>
-
-{% endif %}
 {% endblock pageContent %}

@@ -144,6 +144,21 @@ submitting another invalid note displays fresh validation errors.
 The note-added success banner also clears when leaving History and does not
 reappear when returning to the tab. Other success banners are unaffected.
 
+## Claim Status Tags
+
+The claim overview displays one GOV.UK status tag (IDDS-913):
+
+- **Submitted** (blue): the claim is awaiting assessment.
+- **Pay in full** (green): the caseworker has selected pay in full.
+- **Rejected** (red): the caseworker has rejected the claim.
+
+The claim decision takes precedence over its status. A claim with neither a
+decision nor a status displays Submitted rather than a dash.
+
+Both Claims tab tables display columns in this order: Claim reference, Date,
+Type of claim, Total amount, Status. Submitted, Pay in full, and Rejected
+statuses use the same blue, green, and red GOV.UK tags as the claim overview.
+
 ## GitHub Actions
 
 - These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.

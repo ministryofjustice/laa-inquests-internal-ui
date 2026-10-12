@@ -9,6 +9,8 @@ import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applica
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import {
   CLAIM_DECISION_STATUSES,
+  CLAIM_STATUSES,
+  CLAIM_STATUS_TAG_CLASSES,
   DISPOSITION,
 } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -28,6 +30,8 @@ import {
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;
+const PAY_IN_FULL_STATUS: string = CLAIM_DECISION_STATUSES.PAY_IN_FULL;
+const REJECTED_STATUS: string = CLAIM_STATUSES.REJECTED;
 
 export class ClaimAssessmentAdaptor {
   private readonly navigationHelper: ClaimAssessmentNavigationHelper;
@@ -90,9 +94,32 @@ export class ClaimAssessmentAdaptor {
       return;
     }
 
+    const {
+      data: { claimStatus },
+    } = claimAssessmentViewResult;
+    let claimStatusTag = {
+      text: claimStatus,
+      classes: CLAIM_STATUS_TAG_CLASSES.SUBMITTED,
+    };
+    if (claimStatus === PAY_IN_FULL_STATUS) {
+      claimStatusTag = {
+        text: en.pages.claimAssessment.statusTags.payInFull,
+        classes: CLAIM_STATUS_TAG_CLASSES.PAY_IN_FULL,
+      };
+    } else if (
+      claimStatus === REJECT_DECISION ||
+      claimStatus === REJECTED_STATUS
+    ) {
+      claimStatusTag = {
+        text: en.pages.claimAssessment.statusTags.rejected,
+        classes: CLAIM_STATUS_TAG_CLASSES.REJECTED,
+      };
+    }
+
     res.render("application/claims/assess/index", {
       backUrl: `/applications/${laaReference}/overview`,
       ...claimAssessmentViewResult.data,
+      claimStatusTag,
       assessClaim,
       rejectionReason,
       ...(errorSummaries && { errorSummaries }),

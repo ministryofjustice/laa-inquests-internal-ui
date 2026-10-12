@@ -7,6 +7,7 @@ export const EMPTY_ARR_LENGTH = 0;
 export const GRANTED_DECISION = "GRANTED";
 export const REFUSED_DECISION = "REFUSED";
 export const PENDING_DECISION = "PENDING";
+export const SUBMITTED_DECISION = "SUBMITTED";
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
@@ -51,6 +52,12 @@ export enum CLAIM_STATUSES {
   REJECTED = "Rejected",
   REJECTED_WITH_AMENDMENT = "Rejected with amendment",
 }
+
+export const CLAIM_STATUS_TAG_CLASSES = {
+  SUBMITTED: "govuk-tag--blue",
+  PAY_IN_FULL: "govuk-tag--green",
+  REJECTED: "govuk-tag--red",
+};
 
 export enum CLAIM_DECISION_STATUSES {
   REJECT = "Reject",
