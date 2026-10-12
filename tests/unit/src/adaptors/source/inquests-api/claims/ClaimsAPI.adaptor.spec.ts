@@ -308,6 +308,61 @@ describe("Test Claims API Adaptor", () => {
     logInfoStub.restore();
   });
 
+  it("retrieves the application reference for a claim", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: { laaReference: "INQ-WAU-X9A" },
+    });
+
+    const result = await adaptor.getApplicationReferenceByClaimReference(
+      "INQC-ELTH-NV70",
+      "access-token-123",
+    );
+
+    assert.equal(result, "INQ-WAU-X9A");
+    assert.isTrue(axiosGetStub.calledOnce);
+
+    const [url, config] = axiosGetStub.getCall(0).args;
+    assert.equal(url, `${baseUrl}/claims/INQC-ELTH-NV70/application`);
+    assert.equal(config?.headers?.Authorization, "Bearer access-token-123");
+  });
+
+  it("returns undefined when the claim is not found for application reference lookup", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);
+    const logWarnStub = sinon.stub(logger, "logWarn");
+
+    axiosGetStub.rejects(
+      new axios.AxiosError(
+        "Not Found",
+        "ERR_BAD_REQUEST",
+        undefined,
+        undefined,
+        { status: 404 } as any,
+      ),
+    );
+
+    const result = await adaptor.getApplicationReferenceByClaimReference(
+      "INQC-ELTH-NV70",
+      "access-token-123",
+    );
+
+    assert.equal(result, undefined);
+    sinon.assert.calledOnce(logWarnStub);
+    assert.deepInclude(logWarnStub.firstCall.args[0].extraContext, {
+      event: "outbound_api_not_found",
+      operation: "get_application_reference",
+      upstream_method: "GET",
+      upstream_route: "/claims/:claimReference/application",
+      upstream_status_code: 404,
+      claim_reference: "INQC-ELTH-NV70",
+    });
+
+    logWarnStub.restore();
+  });
+
   it("calls axios with the claim evidence endpoint and disposition query param", async () => {
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ClaimsAPIAdaptor(fakeAxios, baseUrl);

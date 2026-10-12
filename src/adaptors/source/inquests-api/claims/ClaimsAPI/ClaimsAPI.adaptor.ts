@@ -11,6 +11,7 @@ import type {
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
+  getApplicationReferenceByClaimReference,
   getClaimById,
   getClaimEvidence,
   getClaims,
@@ -81,6 +82,18 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       http: this.http,
       baseUrl: this.baseUrl,
       laaReference,
+      claimReference,
+      accessToken,
+    });
+  }
+
+  async getApplicationReferenceByClaimReference(
+    claimReference: string,
+    accessToken: string | undefined,
+  ): Promise<string | undefined> {
+    return await getApplicationReferenceByClaimReference({
+      http: this.http,
+      baseUrl: this.baseUrl,
       claimReference,
       accessToken,
     });
