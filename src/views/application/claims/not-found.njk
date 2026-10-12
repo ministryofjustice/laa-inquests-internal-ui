@@ -1,0 +1,21 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}{{ t('pages.error.claimNotFound.title', { SERVICE_NAME: config.SERVICE_NAME }) }}{% endblock %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ t('pages.error.claimNotFound.title') }}</h1>
+            <p class="govuk-body">{{ t('pages.error.claimNotFound.messageOne') }}</p>
+            <p class="govuk-body">{{ t('pages.error.claimNotFound.messageTwo') }}</p>
+            <p class="govuk-body">{{ t('pages.error.claimNotFound.messageThree') }}</p>
+            {{ govukButton({
+                text: t('pages.error.claimNotFound.searchAgainButton'),
+                href: "/claims/search"
+            }) }}
+        </div>
+    </div>
+{% endblock %}
