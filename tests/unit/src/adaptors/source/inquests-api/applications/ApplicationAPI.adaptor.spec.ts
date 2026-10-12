@@ -280,6 +280,53 @@ describe("Test Application API Adaptor", () => {
     assert.deepEqual(expectedApplication, application);
   });
 
+  it("logs once and returns unavailable merits for missing or unexpected statuses without exposing raw values", async () => {
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, "https://localhost");
+    const logErrorStub = sinon.stub(logger, "logError");
+
+    try {
+      for (const overallDecision of [
+        "upstream-sensitive-status",
+        null,
+        undefined,
+        "",
+        "   ",
+      ]) {
+        logErrorStub.resetHistory();
+        axiosGetStub.resolves({
+          data: { ...expectedApplication, overallDecision },
+        });
+
+        const application = await adaptor.getApplication(
+          "123",
+          "access-token-123",
+        );
+
+        assert.equal(application.overallDecision, null);
+        sinon.assert.calledOnce(logErrorStub);
+        const logInput = logErrorStub.firstCall.args[0];
+        assert.deepInclude(logInput.extraContext, {
+          event: "application_merits_status_unavailable",
+          operation: "get_application",
+          upstream_method: "GET",
+          upstream_route: "/applications/:id",
+          laa_reference: "123",
+        });
+        assert.notInclude(
+          JSON.stringify(logInput),
+          "upstream-sensitive-status",
+        );
+        assert.notInclude(JSON.stringify(logInput), "access-token-123");
+        assert.notProperty(logInput, "err");
+        assert.notProperty(logInput.extraContext, "body");
+        assert.notProperty(logInput.extraContext, "response");
+      }
+    } finally {
+      logErrorStub.restore();
+    }
+  });
+
   it("throws application not found error when retrieval returns 404", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;

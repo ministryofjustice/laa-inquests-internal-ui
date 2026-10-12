@@ -58,6 +58,11 @@ test.describe.serial("Grant application journey", () => {
   });
 
   test("caseworker selects Grant and continues to certificate start date page", async () => {
+    await sharedPage.goto(overviewPage);
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag"),
+    ).toHaveText("Submitted");
+    await expect(sharedPage.locator("h1 + .govuk-tag")).toHaveCount(0);
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -356,13 +361,31 @@ test.describe.serial("Grant application journey", () => {
     await expect(button).toHaveAttribute("href", overviewPage);
   });
 
-  test("caseworker views certificate link", async () => {
+  test("caseworker sees updated merits and certificate statuses after granting and refreshing", async () => {
     const button = await sharedPage.getByRole("button", {
       name: successLocale.applicationOverviewReturnButton,
     });
     await button.click();
     await sharedPage.waitForLoadState("domcontentloaded");
     await expect(sharedPage).toHaveURL(overviewPage);
+
+    const meritsTag = sharedPage.locator("#application-details .govuk-tag");
+    const certificateTag = sharedPage.locator("h1 + .govuk-tag");
+    await expect(meritsTag).toHaveText("Granted");
+    await expect(certificateTag).toHaveText("Live");
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag", {
+        hasText: "Submitted",
+      }),
+    ).toHaveCount(0);
+    await sharedPage.reload();
+    await expect(meritsTag).toHaveText("Granted");
+    await expect(certificateTag).toHaveText("Live");
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag", {
+        hasText: "Submitted",
+      }),
+    ).toHaveCount(0);
 
     const viewCertificateLink = await sharedPage.getByRole("link", {
       name: overviewLocale.details.viewCertificate,

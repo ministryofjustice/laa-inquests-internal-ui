@@ -84,6 +84,12 @@ const applicationSummaries = [
     status: "LIVE",
     overall_decision: REFUSED_DECISION,
   },
+  {
+    laa_reference: "INQ-YYY-013",
+    created_at: "2026-07-23T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: "UNEXPECTED_STATUS",
+  },
 ];
 
 /**

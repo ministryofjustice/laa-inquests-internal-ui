@@ -41,9 +41,9 @@ test.describe("Application overview page", () => {
   }) => {
     await page.goto("/applications/INQ-YYY-005/overview");
 
-    const certificateTag = page.locator("h1 + p > .govuk-tag");
+    const certificateTag = page.locator("h1 + .govuk-tag");
     await expect(certificateTag).toHaveText("Live");
-    await expect(certificateTag).toHaveClass("govuk-tag govuk-tag--green");
+    await expect(certificateTag).toHaveClass(/govuk-tag--green/);
     await checkAccessibility();
   });
 
@@ -56,7 +56,7 @@ test.describe("Application overview page", () => {
       "INQ-YYY-012",
     ]) {
       await page.goto(`/applications/${applicationReference}/overview`);
-      await expect(page.locator("h1 + p > .govuk-tag")).toHaveCount(0);
+      await expect(page.locator("h1 + .govuk-tag")).toHaveCount(0);
       await expect(
         page.locator(".govuk-tag", { hasText: /^Live$/ }),
       ).toHaveCount(0);
@@ -97,6 +97,33 @@ test.describe("Application overview page", () => {
       await checkAccessibility();
     });
   }
+
+  test("shows a grey Status unavailable tag when merits status is unexpected", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const applicationReference = "INQ-YYY-013";
+    const response = await page.goto(
+      `/applications/${applicationReference}/overview`,
+    );
+
+    expect(response?.ok()).toBe(true);
+    const meritsTag = page.locator("#application-details .govuk-tag");
+    await expect(meritsTag).toHaveText("Status unavailable");
+    await expect(meritsTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+
+    await page
+      .locator("#application-details")
+      .getByRole("button", { name: "Make assessment" })
+      .click();
+    const decisionTag = page
+      .getByTestId("make-a-decision")
+      .locator(".govuk-tag");
+    await expect(decisionTag).toHaveText("Status unavailable");
+    await expect(decisionTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+  });
 
   test("shows a grey Status unavailable tag when merits status is null", async ({
     page,
