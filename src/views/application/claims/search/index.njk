@@ -20,8 +20,8 @@
     <h1 class="govuk-heading-xl">{{t('pages.claimSearch.pageHeading')}}</h1>
     <form data-testid="claim-search-form" method="post" action="/claims/search">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-two-thirds">
+    <div class="search-form-row">
+      <div class="search-form-input">
             {{ govukInput({
               label: {
                 text: t('pages.claimSearch.legalAidReferenceLabel'),
@@ -35,7 +35,7 @@
               errorMessage: claimReference
             }) }}
           </div>
-          <div class="govuk-grid-column-one-third search-button-container {{ 'with-validation' if claimReference != undefined else '' }}">
+      <div class="search-button-container">
             {{ govukButton({
               text: t('pages.claimSearch.continueButton'),
               type: "submit"
