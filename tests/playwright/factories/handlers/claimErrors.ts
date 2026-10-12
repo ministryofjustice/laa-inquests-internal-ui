@@ -11,6 +11,7 @@ import {
 } from "#tests/playwright/constants/httpStatus.js";
 
 export const CLAIM_APPLICATION_REFERENCE = "INQ-YYY-005";
+export const MISSING_CLAIM_REFERENCE = "INQC-4040-4040";
 export const UNAUTHORISED_CLAIM_ID = "claim-401";
 export const FORBIDDEN_CLAIM_ID = "claim-403";
 export const MISSING_CLAIM_ID = "claim-404";
@@ -41,6 +42,14 @@ const finalBillClaimDetail = {
 };
 
 export const claimErrorHandlers = [
+  http.get(
+    `${TEST_CONFIG.INQUESTS_API_URL}/claims/${MISSING_CLAIM_REFERENCE}/application`,
+    () =>
+      HttpResponse.json(
+        { detail: "Claim not found" },
+        { status: HTTP_NOT_FOUND },
+      ),
+  ),
   http.get(
     claimUrl(UNAUTHORISED_CLAIM_ID),
     () => new HttpResponse(null, { status: HTTP_UNAUTHORIZED }),

@@ -1,0 +1,48 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+
+
+{% set pageTitle = t('pages.claimSearch.pageTitle') %}
+{% set backUrl = "/" %}
+
+{% block pageContent %}
+    {% if claimReference != undefined%}
+      {{ govukErrorSummary({
+        titleText: t('common.errorSummaryTitle'),
+        errorList: [
+          { text: claimReference.text, href: "#claim-reference" }
+        ]
+      }) }}
+    {% endif %}
+    <h1 class="govuk-heading-xl">{{t('pages.claimSearch.pageHeading')}}</h1>
+    <form data-testid="claim-search-form" method="post" action="/claims/search">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-two-thirds">
+            {{ govukInput({
+              label: {
+                text: t('pages.claimSearch.legalAidReferenceLabel'),
+                classes: "govuk-label--s"
+              },
+              hint: {
+                text: t('pages.claimSearch.legalAidReferenceHint')
+              },
+              id: "claim-reference",
+              name: "claim-reference",
+              errorMessage: claimReference
+            }) }}
+          </div>
+          <div class="govuk-grid-column-one-third search-button-container {{ 'with-validation' if claimReference != undefined else '' }}">
+            {{ govukButton({
+              text: t('pages.claimSearch.continueButton'),
+              type: "submit"
+            }) }}
+          </div>
+        </div>
+      </form>
+
+
+{% endblock %}
