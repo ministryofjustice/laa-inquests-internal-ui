@@ -106,6 +106,75 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     assert.equal(applicationPortStub.getApplication.callCount, 0);
   });
 
+  it("marks Submitted applications as awaiting assessment regardless of case", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
+
+    for (const overallDecision of ["Submitted", "SUBMITTED", "submitted"]) {
+      applicationPortStub.getApplication.resolves({
+        ...application,
+        overallDecision,
+      });
+
+      const result = await useCase.execute({ laaReference: "123" });
+
+      assert.partialDeepStrictEqual(result, {
+        status: "SUCCESS",
+        data: { isAwaitingAssessment: true },
+      });
+    }
+  });
+
+  it("retains Pending backwards compatibility (remove after the API migration to Submitted)", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
+
+    for (const overallDecision of ["Pending", "PENDING", "pending"]) {
+      applicationPortStub.getApplication.resolves({
+        ...application,
+        overallDecision,
+      });
+
+      const result = await useCase.execute({ laaReference: "123" });
+
+      assert.partialDeepStrictEqual(result, {
+        status: "SUCCESS",
+        data: { isAwaitingAssessment: true },
+      });
+    }
+  });
+
+  it("preserves assessment state for completed and missing decisions", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
+    const decisions = [
+      { overallDecision: "GRANTED", isAwaitingAssessment: false },
+      { overallDecision: "REFUSED", isAwaitingAssessment: false },
+      { overallDecision: undefined, isAwaitingAssessment: true },
+      { overallDecision: "", isAwaitingAssessment: true },
+    ];
+
+    for (const { overallDecision, isAwaitingAssessment } of decisions) {
+      applicationPortStub.getApplication.resolves({
+        ...application,
+        overallDecision,
+      });
+
+      const result = await useCase.execute({ laaReference: "123" });
+
+      assert.partialDeepStrictEqual(result, {
+        status: "SUCCESS",
+        data: { isAwaitingAssessment },
+      });
+    }
+  });
+
   it("propagates application errors from the port unchanged", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const error = new ApplicationError(
