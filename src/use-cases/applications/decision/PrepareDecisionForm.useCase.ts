@@ -1,5 +1,4 @@
 import type { Application } from "#src/adaptors/models/application.types.js";
-import { SUBMITTED_DECISION } from "#src/infrastructure/locales/constants.js";
 import { toTitleCase } from "#src/utils/formatter.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
@@ -38,12 +37,7 @@ export class PrepareDecisionFormUseCase {
       certificateType: toTitleCase(
         input.application.proceeding.certificateType,
       ),
-      meritsDecision:
-        input.application.overallDecision === null
-          ? ""
-          : toTitleCase(
-              input.application.overallDecision ?? SUBMITTED_DECISION,
-            ),
+      meritsDecision: toTitleCase(input.application.overallDecision ?? ""),
     };
 
     return {

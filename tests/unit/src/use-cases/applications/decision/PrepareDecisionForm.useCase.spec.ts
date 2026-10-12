@@ -4,19 +4,6 @@ import { PrepareDecisionFormUseCase } from "#src/use-cases/applications/decision
 describe("PrepareDecisionFormUseCase", () => {
   const useCase = new PrepareDecisionFormUseCase();
 
-  it("defaults to Submitted when the overall decision is missing", () => {
-    const result = useCase.execute({
-      application: {
-        proceeding: { certificateType: "SUBSTANTIVE" },
-      } as any,
-    });
-
-    assert.partialDeepStrictEqual(result, {
-      status: "SUCCESS",
-      data: { proceeding: { meritsDecision: "Submitted" } },
-    });
-  });
-
   it("returns an empty display value for a null merits status", () => {
     const result = useCase.execute({
       application: {
