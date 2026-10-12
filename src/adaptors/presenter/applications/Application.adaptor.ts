@@ -161,6 +161,7 @@ export class ApplicationAdaptor {
 
     res.render("application/application-overview", {
       application,
+      hasLiveCertificate: overviewViewResult.data.hasLiveCertificate,
       proceeding,
       clientHomeAddressDisplay,
       clientCorrespondenceAddressDisplay,

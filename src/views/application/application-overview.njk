@@ -45,6 +45,12 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
+            {% if hasLiveCertificate %}
+                {{ govukTag({
+                    text: t('pages.applicationOverview.liveCertificateStatus'),
+                    classes: "govuk-tag--green govuk-!-margin-bottom-8"
+                }) }}
+            {% endif %}
         </div>
         {% if application.overallDecision == "GRANTED" %}
             <div class="govuk-grid-column-one-half  govuk-!-padding-top-3">

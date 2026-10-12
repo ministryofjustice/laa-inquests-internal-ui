@@ -1,5 +1,6 @@
 import type { Application } from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
+import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 interface BuildApplicationOverviewViewInput {
   laaReference: string;
@@ -8,6 +9,7 @@ interface BuildApplicationOverviewViewInput {
 
 interface BuildApplicationOverviewViewData {
   application: Application;
+  hasLiveCertificate: boolean;
 }
 
 export type BuildApplicationOverviewViewResult =
@@ -30,7 +32,11 @@ export class BuildApplicationOverviewViewUseCase {
     );
     return {
       status: "SUCCESS",
-      data: { application },
+      data: {
+        application,
+        hasLiveCertificate:
+          application.overallDecision?.toUpperCase() === GRANTED_DECISION,
+      },
     };
   }
 }

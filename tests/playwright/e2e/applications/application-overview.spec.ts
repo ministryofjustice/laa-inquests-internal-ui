@@ -28,7 +28,37 @@ test.describe("Application overview page", () => {
     for (const applicationReference of [laaReference, "INQ-YYY-005"]) {
       await page.goto(`/applications/${applicationReference}/overview`);
       await expect(
-        page.locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)"),
+        page.locator(".govuk-tag", {
+          hasText: /Awaiting assessment|Assessment complete/,
+        }),
+      ).toHaveCount(0);
+    }
+  });
+
+  test("shows a green Live certificate tag below the reference for granted applications", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-005/overview");
+
+    const certificateTag = page.locator("h1 + p > .govuk-tag");
+    await expect(certificateTag).toHaveText("Live");
+    await expect(certificateTag).toHaveClass("govuk-tag govuk-tag--green");
+    await checkAccessibility();
+  });
+
+  test("does not show a certificate tag for submitted, refused, or null decisions", async ({
+    page,
+  }) => {
+    for (const applicationReference of [
+      "INQ-YYY-009",
+      "INQ-YYY-011",
+      "INQ-YYY-012",
+    ]) {
+      await page.goto(`/applications/${applicationReference}/overview`);
+      await expect(page.locator("h1 + p > .govuk-tag")).toHaveCount(0);
+      await expect(
+        page.locator(".govuk-tag", { hasText: /^Live$/ }),
       ).toHaveCount(0);
     }
   });

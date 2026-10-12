@@ -92,6 +92,36 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     ]);
   });
 
+  it("identifies live certificates only for granted decisions", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
+    const decisions = [
+      { overallDecision: "GRANTED", hasLiveCertificate: true },
+      { overallDecision: "Granted", hasLiveCertificate: true },
+      { overallDecision: "granted", hasLiveCertificate: true },
+      { overallDecision: "SUBMITTED", hasLiveCertificate: false },
+      { overallDecision: "REFUSED", hasLiveCertificate: false },
+      { overallDecision: null, hasLiveCertificate: false },
+      { overallDecision: undefined, hasLiveCertificate: false },
+    ];
+
+    for (const { overallDecision, hasLiveCertificate } of decisions) {
+      applicationPortStub.getApplication.resolves({
+        ...application,
+        overallDecision,
+      });
+
+      const result = await useCase.execute({ laaReference: "123" });
+
+      assert.partialDeepStrictEqual(result, {
+        status: "SUCCESS",
+        data: { hasLiveCertificate },
+      });
+    }
+  });
+
   it("returns INVALID_INPUT without calling the port when input is incomplete", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const useCase = new BuildApplicationOverviewViewUseCase(

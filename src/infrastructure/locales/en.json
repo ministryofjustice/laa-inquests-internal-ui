@@ -110,6 +110,7 @@
     },
     "applicationOverview": {
       "invalidRequest": "Invalid application request.",
+      "liveCertificateStatus": "Live",
       "details": {
         "viewCertificate": "View certificate"
       },
