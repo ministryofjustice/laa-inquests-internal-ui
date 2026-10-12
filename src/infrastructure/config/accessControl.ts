@@ -148,6 +148,15 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/public-authorities",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MANAGE_APPLICATION],
   },
+  {
+    prefix: "/applications/search",
+    allowedRoles:
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
+  },
+  {
+    prefix: "/claims/search",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB],
+  },
 ];
 
 export function isRecognisedRole(value: unknown): value is CaseworkerRole {
