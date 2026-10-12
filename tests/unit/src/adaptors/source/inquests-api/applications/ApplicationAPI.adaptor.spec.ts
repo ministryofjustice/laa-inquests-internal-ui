@@ -37,7 +37,7 @@ const expectedApplication: Application = {
   usedDelegatedFunctions: true,
   applicationType: "INITIAL",
   autoGrant: true,
-  overallDecision: "PENDING",
+  overallDecision: "SUBMITTED",
   proceeding: {
     proceedingId: "IQPC",
     proceedingName: "Death in police custody",
@@ -50,7 +50,7 @@ const expectedApplication: Application = {
     scopeDescription: "This is the scope description",
     substantiveCostLimitation: 10000,
     clientInvolvementType: "RESPONDENT",
-    meritsDecision: "PENDING",
+    meritsDecision: "SUBMITTED",
   },
   publicBodies: [
     {
@@ -105,7 +105,7 @@ const expectedApplicationsSummary = [
     laa_reference: "1",
     created_at: "2026-05-18T15:49:07.455255",
     status: LIVE_STATUS,
-    overall_decision: "PENDING",
+    overall_decision: "SUBMITTED",
   },
   {
     laa_reference: "2",
@@ -237,7 +237,7 @@ describe("Test Application API Adaptor", () => {
         laaReference: "1",
         createdAt: "2026-05-18T15:49:07.455255",
         status: APPLICATION_STATUSES.LIVE,
-        overallDecision: "PENDING",
+        overallDecision: "SUBMITTED",
       },
       {
         laaReference: "2",

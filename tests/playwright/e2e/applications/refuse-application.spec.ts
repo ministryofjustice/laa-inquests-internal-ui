@@ -16,7 +16,7 @@ const confirmationLocale = en.pages.decision.confirmation;
 const successLocale = en.pages.decision.success;
 const overviewLocale = en.pages.applicationOverview;
 
-const laaReference = "3";
+const laaReference = "INQ-YYY-003";
 const makeADecisionPage = `/applications/${laaReference}/decision`;
 const makeADecisionFromCheckAnswersPage = `${makeADecisionPage}?from=check-your-answers`;
 const overviewPage = `/applications/${laaReference}/overview`;
@@ -46,6 +46,10 @@ test.describe.serial("Refuse application journey", () => {
   });
 
   test("caseworker views the Make a decision page", async () => {
+    await sharedPage.goto(overviewPage);
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag"),
+    ).toHaveText("Submitted");
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -395,13 +399,29 @@ test.describe.serial("Refuse application journey", () => {
     );
   });
 
-  test("caseworker views overall application with updated and no view certificate link", async () => {
+  test("caseworker sees updated merits status after refusing and refreshing", async () => {
     const button = await sharedPage.getByRole("button", {
       name: successLocale.applicationOverviewReturnButton,
     });
     await button.click();
     await sharedPage.waitForLoadState("domcontentloaded");
     await expect(sharedPage).toHaveURL(overviewPage);
+    const meritsTag = sharedPage.locator("#application-details .govuk-tag");
+    await expect(meritsTag).toHaveText("Refused");
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag", {
+        hasText: "Submitted",
+      }),
+    ).toHaveCount(0);
+    await expect(sharedPage.locator("h1 + .govuk-tag")).toHaveCount(0);
+    await sharedPage.reload();
+    await expect(meritsTag).toHaveText("Refused");
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag", {
+        hasText: "Submitted",
+      }),
+    ).toHaveCount(0);
+    await expect(sharedPage.locator("h1 + .govuk-tag")).toHaveCount(0);
     const viewCertificateLink = await sharedPage.getByRole("link", {
       name: overviewLocale.details.viewCertificate,
     });
