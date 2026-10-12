@@ -47,7 +47,7 @@ describe("Application adaptor", () => {
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
-    overallDecision: "PENDING",
+    overallDecision: "SUBMITTED",
     proceeding: {
       proceedingId: "IQPC",
       proceedingName: "Death in police custody",
@@ -60,7 +60,7 @@ describe("Application adaptor", () => {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: "PENDING",
+      meritsDecision: "SUBMITTED",
     },
     publicBodies: [
       {
@@ -456,7 +456,7 @@ describe("Application adaptor", () => {
       });
     });
 
-    it("renders grey 'Awaiting assessment' tag for legacy PENDING (remove after the API migration to Submitted)", async () => {
+    it("renders grey 'Awaiting assessment' tag when overallDecision is SUBMITTED", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       await applicationAdaptor.renderApplicationPage(
         requestStub,

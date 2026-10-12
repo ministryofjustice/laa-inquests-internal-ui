@@ -16,7 +16,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
-    overallDecision: "PENDING",
+    overallDecision: "SUBMITTED",
     proceeding: {
       proceedingId: "IQPC",
       proceedingName: "Death in police custody",
@@ -29,7 +29,7 @@ describe("BuildApplicationOverviewViewUseCase", () => {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: "PENDING",
+      meritsDecision: "SUBMITTED",
     },
     publicBodies: [
       {
@@ -113,27 +113,6 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     );
 
     for (const overallDecision of ["Submitted", "SUBMITTED", "submitted"]) {
-      applicationPortStub.getApplication.resolves({
-        ...application,
-        overallDecision,
-      });
-
-      const result = await useCase.execute({ laaReference: "123" });
-
-      assert.partialDeepStrictEqual(result, {
-        status: "SUCCESS",
-        data: { isAwaitingAssessment: true },
-      });
-    }
-  });
-
-  it("retains Pending backwards compatibility (remove after the API migration to Submitted)", async () => {
-    const applicationPortStub = stubInterface<ApplicationPort>();
-    const useCase = new BuildApplicationOverviewViewUseCase(
-      applicationPortStub,
-    );
-
-    for (const overallDecision of ["Pending", "PENDING", "pending"]) {
       applicationPortStub.getApplication.resolves({
         ...application,
         overallDecision,

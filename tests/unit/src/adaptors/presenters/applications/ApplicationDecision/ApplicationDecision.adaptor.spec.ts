@@ -41,7 +41,7 @@ describe("ApplicationDecisionAdaptor", () => {
     scopeDescription: "Full scope",
     substantiveCostLimitation: 1000,
     clientInvolvementType: "APPLICANT",
-    meritsDecision: "PENDING",
+    meritsDecision: "SUBMITTED",
   };
 
   beforeEach(() => {
@@ -61,7 +61,7 @@ describe("ApplicationDecisionAdaptor", () => {
   describe("renderApplicationDecisionForm", () => {
     it("calls res.render with the correct view name", async () => {
       viewApplicationSourceStub.getApplication.resolves({
-        overallDecision: "PENDING",
+        overallDecision: "SUBMITTED",
         proceeding: mockProceeding,
       } as any);
 
@@ -77,7 +77,7 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("calls res.render with the correct variables", async () => {
       viewApplicationSourceStub.getApplication.resolves({
-        overallDecision: "PENDING",
+        overallDecision: "SUBMITTED",
         proceeding: mockProceeding,
       } as any);
       sessionHelperStub.getSessionData.returns({ overallDecision: "REFUSED" });
@@ -93,7 +93,7 @@ describe("ApplicationDecisionAdaptor", () => {
         laaReference,
         proceeding: {
           certificateType: "Substantive",
-          meritsDecision: "Pending",
+          meritsDecision: "Submitted",
         },
         overallDecision: "REFUSED",
       });
@@ -104,7 +104,7 @@ describe("ApplicationDecisionAdaptor", () => {
         from: "check-your-answers",
       };
       viewApplicationSourceStub.getApplication.resolves({
-        overallDecision: "PENDING",
+        overallDecision: "SUBMITTED",
         proceeding: mockProceeding,
       } as any);
       sessionHelperStub.getSessionData.onFirstCall().returns(null);
@@ -130,7 +130,7 @@ describe("ApplicationDecisionAdaptor", () => {
         laaReference,
         proceeding: {
           certificateType: "Substantive",
-          meritsDecision: "Pending",
+          meritsDecision: "Submitted",
         },
         overallDecision: undefined,
       });

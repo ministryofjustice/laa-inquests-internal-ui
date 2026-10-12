@@ -1,9 +1,6 @@
 import type { Application } from "#src/adaptors/models/application.types.js";
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import {
-  PENDING_DECISION,
-  SUBMITTED_DECISION,
-} from "#src/infrastructure/locales/constants.js";
+import { SUBMITTED_DECISION } from "#src/infrastructure/locales/constants.js";
 
 interface BuildApplicationOverviewViewInput {
   laaReference: string;
@@ -35,9 +32,7 @@ export class BuildApplicationOverviewViewUseCase {
     );
     const overallDecision = application.overallDecision?.toUpperCase();
     const isAwaitingAssessment =
-      !overallDecision ||
-      overallDecision === SUBMITTED_DECISION ||
-      overallDecision === PENDING_DECISION;
+      !overallDecision || overallDecision === SUBMITTED_DECISION;
 
     return {
       status: "SUCCESS",

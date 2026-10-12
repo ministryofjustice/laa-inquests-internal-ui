@@ -38,7 +38,9 @@ test.describe("Application overview page", () => {
       await page.goto(`/applications/${applicationReference}/overview`);
 
       await expect(
-        page.locator(".govuk-tag", { hasText: "Pending decision" }),
+        page.locator("#application-details .govuk-tag", {
+          hasText: "Submitted",
+        }),
       ).toBeVisible();
       await expect(
         page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
@@ -56,24 +58,12 @@ test.describe("Application overview page", () => {
         `/applications/${applicationReference}/decision`,
       );
       await expect(page.getByTestId("make-a-decision")).toBeVisible();
+      await expect(
+        page.getByTestId("make-a-decision").locator(".govuk-tag"),
+      ).toHaveText("Submitted");
       await checkAccessibility();
     });
   }
-
-  test("retains Pending backwards compatibility (remove after the API migration to Submitted)", async ({
-    page,
-    checkAccessibility,
-  }) => {
-    await page.goto("/applications/INQ-YYY-001/overview");
-
-    await expect(
-      page.locator(".govuk-tag", { hasText: "Pending decision" }),
-    ).toBeVisible();
-    await expect(
-      page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
-    ).toHaveClass(/govuk-tag--grey/);
-    await checkAccessibility();
-  });
 
   test("should have tabs", async ({ page }) => {
     await page.goto(`/applications/${laaReference}/overview`);

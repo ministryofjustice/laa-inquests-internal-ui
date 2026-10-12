@@ -29,7 +29,7 @@ describe("toTitleCase()", () => {
   });
 
   it("handles an already title-cased string", () => {
-    expect(toTitleCase("Pending")).to.equal("Pending");
+    expect(toTitleCase("Submitted")).to.equal("Submitted");
   });
 
   it("handles a fully lowercase string", () => {

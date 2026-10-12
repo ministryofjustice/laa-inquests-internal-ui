@@ -3,7 +3,6 @@ import { http, HttpResponse } from "msw";
 import {
   GRANTED_DECISION,
   HISTORY_EVENT_REFERENCE,
-  PENDING_DECISION,
   REFUSED_DECISION,
   SUBMITTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
@@ -17,25 +16,25 @@ const applicationSummaries = [
     laa_reference: "INQ-YYY-001",
     created_at: "2026-05-18T15:49:07.455255",
     status: "LIVE",
-    overall_decision: PENDING_DECISION,
+    overall_decision: SUBMITTED_DECISION,
   },
   {
     laa_reference: "INQ-YYY-002",
     created_at: "2026-05-19T15:49:07.455255",
     status: "LIVE",
-    overall_decision: PENDING_DECISION,
+    overall_decision: SUBMITTED_DECISION,
   },
   {
     laa_reference: "INQ-YYY-003",
     created_at: "2026-07-13T09:00:00.000000",
     status: "LIVE",
-    overall_decision: PENDING_DECISION,
+    overall_decision: SUBMITTED_DECISION,
   },
   {
     laa_reference: "INQ-YYY-004",
     created_at: "2026-07-14T09:00:00.000000",
     status: "LIVE",
-    overall_decision: PENDING_DECISION,
+    overall_decision: SUBMITTED_DECISION,
   },
   {
     laa_reference: "INQ-YYY-005",
@@ -88,7 +87,7 @@ const fullApplications = [
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
-    overallDecision: PENDING_DECISION,
+    overallDecision: SUBMITTED_DECISION,
     proceeding: {
       proceedingId: "IQPC",
       proceedingName: "Death in police custody",
@@ -101,7 +100,7 @@ const fullApplications = [
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: PENDING_DECISION,
+      meritsDecision: SUBMITTED_DECISION,
     },
     publicBodies: [
       {
@@ -158,7 +157,7 @@ const fullApplications = [
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
-    overallDecision: PENDING_DECISION,
+    overallDecision: SUBMITTED_DECISION,
     proceeding: {
       proceedingId: "PC049",
       proceedingName: "CAPA",
@@ -171,7 +170,7 @@ const fullApplications = [
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: PENDING_DECISION,
+      meritsDecision: SUBMITTED_DECISION,
     },
     publicBodies: [
       {
@@ -533,7 +532,7 @@ export const applicationHandlers = [
     const matchingSummary = applicationSummaries.find(
       (applicationSummary) => applicationSummary.laa_reference === params.id,
     );
-    const decision = matchingSummary?.overall_decision ?? PENDING_DECISION;
+    const decision = matchingSummary?.overall_decision ?? SUBMITTED_DECISION;
     appToReturn.overallDecision = decision;
     appToReturn.proceeding!.meritsDecision = decision;
     appToReturn.laaReference = params.id as string;
@@ -733,9 +732,9 @@ export const applicationHandlers = [
     () => {
       const backlogCsv = Buffer.from(
         "Application / Case Reference Number,Current Application Status,Application Received Date,Firm Name,Firm Account Number,Proceeding Code,Matter Type\n" +
-          "1,PENDING,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
-          "2,PENDING,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
-          "10,PENDING,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
+          "1,SUBMITTED,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
+          "2,SUBMITTED,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
+          "10,SUBMITTED,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
       );
       return new HttpResponse(backlogCsv, {
         status: 200,
@@ -749,9 +748,9 @@ export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/reports/claims/backlog`, () => {
     const claimsBacklogCsv = Buffer.from(
       "Application / Case Reference Number,Current Application Status,Application Received Date,Firm Name,Firm Account Number,Proceeding Code,Matter Type\n" +
-        "1,PENDING,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
-        "2,PENDING,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
-        "10,PENDING,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
+        "1,SUBMITTED,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
+        "2,SUBMITTED,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
+        "10,SUBMITTED,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
     );
 
     return new HttpResponse(claimsBacklogCsv, {

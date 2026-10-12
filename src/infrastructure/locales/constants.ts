@@ -6,7 +6,6 @@ export const EMPTY_ARR_LENGTH = 0;
 
 export const GRANTED_DECISION = "GRANTED";
 export const REFUSED_DECISION = "REFUSED";
-export const PENDING_DECISION = "PENDING";
 export const SUBMITTED_DECISION = "SUBMITTED";
 
 export const DATE_MONTH_INDEX_OFFSET = 1;

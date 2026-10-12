@@ -32,7 +32,7 @@ describe("CertificateAdaptor", () => {
     usedDelegatedFunctions: true,
     applicationType: "INITIAL",
     autoGrant: true,
-    overallDecision: "PENDING",
+    overallDecision: "SUBMITTED",
     proceeding: {
       proceedingId: "IQPC",
       proceedingName: "Death in police custody",
@@ -45,7 +45,7 @@ describe("CertificateAdaptor", () => {
       scopeDescription: "This is the scope description",
       substantiveCostLimitation: 10000,
       clientInvolvementType: "RESPONDENT",
-      meritsDecision: "PENDING",
+      meritsDecision: "SUBMITTED",
     },
     publicBodies: [
       {
