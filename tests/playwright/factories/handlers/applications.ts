@@ -72,6 +72,12 @@ const applicationSummaries = [
     status: "LIVE",
     overall_decision: SUBMITTED_DECISION,
   },
+  {
+    laa_reference: "INQ-YYY-011",
+    created_at: "2026-07-21T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: null,
+  },
 ];
 
 /**
@@ -537,7 +543,12 @@ export const applicationHandlers = [
     appToReturn.proceeding!.meritsDecision = decision;
     appToReturn.laaReference = params.id as string;
 
-    return HttpResponse.json(appToReturn);
+    return HttpResponse.json({
+      ...appToReturn,
+      overallDecision: matchingSummary
+        ? matchingSummary.overall_decision
+        : decision,
+    });
   }),
 
   http.patch(

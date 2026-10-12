@@ -38,9 +38,12 @@ export class PrepareDecisionFormUseCase {
       certificateType: toTitleCase(
         input.application.proceeding.certificateType,
       ),
-      meritsDecision: toTitleCase(
-        input.application.overallDecision ?? SUBMITTED_DECISION,
-      ),
+      meritsDecision:
+        input.application.overallDecision === null
+          ? ""
+          : toTitleCase(
+              input.application.overallDecision ?? SUBMITTED_DECISION,
+            ),
     };
 
     return {

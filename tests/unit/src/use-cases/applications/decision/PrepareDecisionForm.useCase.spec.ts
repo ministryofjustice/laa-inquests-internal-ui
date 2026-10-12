@@ -17,6 +17,20 @@ describe("PrepareDecisionFormUseCase", () => {
     });
   });
 
+  it("returns an empty display value for a null merits status", () => {
+    const result = useCase.execute({
+      application: {
+        proceeding: { certificateType: "SUBSTANTIVE" },
+        overallDecision: null,
+      } as any,
+    });
+
+    assert.partialDeepStrictEqual(result, {
+      status: "SUCCESS",
+      data: { proceeding: { meritsDecision: "" } },
+    });
+  });
+
   it("returns SUCCESS with formatted proceeding and selected session decision", () => {
     const result = useCase.execute({
       application: {

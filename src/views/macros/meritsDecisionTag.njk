@@ -1,6 +1,8 @@
 {% macro meritsDecisionTag(value) %}
   {%- set upperValue = value | upper -%}
-  {%- if upperValue == "REFUSED" -%}
+  {%- if not value -%}
+    <strong class="govuk-tag govuk-tag--grey">{{ t('pages.decision.merits.unavailableStatus') }}</strong>
+  {%- elif upperValue == "REFUSED" -%}
     <strong class="govuk-tag govuk-tag--red">Refused</strong>
   {%- elif upperValue == "GRANTED" -%}
     <strong class="govuk-tag govuk-tag--green">Granted</strong>

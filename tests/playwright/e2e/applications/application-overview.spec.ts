@@ -68,6 +68,30 @@ test.describe("Application overview page", () => {
     });
   }
 
+  test("shows a grey Status unavailable tag when merits status is null", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const applicationReference = "INQ-YYY-011";
+    await page.goto(`/applications/${applicationReference}/overview`);
+
+    const meritsTag = page.locator("#application-details .govuk-tag");
+    await expect(meritsTag).toHaveText("Status unavailable");
+    await expect(meritsTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+
+    await page
+      .locator("#application-details")
+      .getByRole("button", { name: "Make assessment" })
+      .click();
+    const decisionTag = page
+      .getByTestId("make-a-decision")
+      .locator(".govuk-tag");
+    await expect(decisionTag).toHaveText("Status unavailable");
+    await expect(decisionTag).toHaveClass("govuk-tag govuk-tag--grey");
+    await checkAccessibility();
+  });
+
   test("should have tabs", async ({ page }) => {
     await page.goto(`/applications/${laaReference}/overview`);
     await page.waitForLoadState("domcontentloaded");
