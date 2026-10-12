@@ -6,6 +6,14 @@ import { RECOGNISED_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
+// Allows load/perf tests to seed a session with a real Entra access token.
+function resolveAccessToken(value: unknown): string {
+  if (typeof value === "string" && value !== "") {
+    return value;
+  }
+  return "test-access-token";
+}
+
 export function createAuthRouter(
   authRouter: Router,
   authAdaptor: AuthAdaptor,
@@ -80,7 +88,7 @@ export function createAuthRouter(
       req.session.user = {
         userId: "test-caseworker",
         userName: "[MOJUSER] - [INTSILAS] Internal E2E",
-        accessToken: "test-access-token",
+        accessToken: resolveAccessToken(req.query.accessToken),
       };
       // Optional override of roles for testing rbac behaviour in E2E tests.
       const overrideRoles =

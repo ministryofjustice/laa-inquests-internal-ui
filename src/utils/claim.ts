@@ -13,9 +13,19 @@ function parseCost(value: string | null | undefined): number | undefined {
 }
 
 /**
- * The billed value of a claim, as resolved by the API.
+ * The billed value of a claim, as resolved by the API. FINAL_BILL/NIL_BILL
+ * claims don't carry a totalAmount — fall back to the gross profit cost.
  */
 export function getClaimCost(claim: ClaimSummary): number {
+  const isFinalOrNilBill =
+    claim.claimTypeId === "FINAL_BILL" || claim.claimTypeId === "NIL_BILL";
+
+  if (isFinalOrNilBill) {
+    return (
+      parseCost(claim.totalAmount) ?? parseCost(claim.totalProfitCostGross) ?? 0
+    );
+  }
+
   return parseCost(claim.totalAmount) ?? 0;
 }
 

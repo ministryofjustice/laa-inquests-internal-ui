@@ -79,7 +79,7 @@ export class BuildClaimAssessmentViewUseCase {
     private readonly applicationPort: ApplicationPort,
     private readonly claimsPort: ClaimsPort,
   ) {}
-
+  // eslint-disable-next-line complexity -- This maps the conditional final and nil bill view sections.
   async execute(
     input: BuildClaimAssessmentViewInput,
   ): Promise<BuildClaimAssessmentViewResult> {
@@ -114,7 +114,11 @@ export class BuildClaimAssessmentViewUseCase {
         ),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
-          paymentAmount: formatAmount(claim.totalAmount),
+          paymentAmount: formatAmount(
+            isFinalOrNilBill(claim.claimTypeId)
+              ? (claim.totalAmount ?? claim.totalProfitCostGross)
+              : claim.totalAmount,
+          ),
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
         },
