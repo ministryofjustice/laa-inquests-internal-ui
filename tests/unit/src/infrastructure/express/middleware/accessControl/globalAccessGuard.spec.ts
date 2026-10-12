@@ -199,6 +199,16 @@ describe("globalAccessGuard", () => {
   describe("Parameterized tests for policy-protected routes", () => {
     const policyTests = [
       {
+        description: "Only authenticated requests to applications search",
+        path: "/applications/search",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        ],
+      },
+      {
         description: "Only authenticated requests to applications overview",
         path: "/applications/INQ-123-456/overview",
         allowedRoles: [
@@ -227,6 +237,15 @@ describe("globalAccessGuard", () => {
       {
         description: "Only authenticated requests to claims details",
         path: "/applications/INQ-123-456/claims/INQC-1234-5678",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+          INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+        ],
+      },
+      {
+        description: "Only authenticated requests to claims search",
+        path: "/claims/search",
         allowedRoles: [
           INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
           INTERNAL_CASEWORKER_ROLES.ASSURANCE,
