@@ -30,6 +30,51 @@ test.describe("Application overview page", () => {
     await expect(statusTag).toBeVisible();
   });
 
+  for (const applicationReference of ["INQ-YYY-009", "INQ-YYY-010"]) {
+    test(`treats Submitted merits as awaiting assessment for ${applicationReference}`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${applicationReference}/overview`);
+
+      await expect(
+        page.locator(".govuk-tag", { hasText: "Pending decision" }),
+      ).toBeVisible();
+      await expect(
+        page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
+      ).toHaveClass(/govuk-tag--grey/);
+      await expect(
+        page.locator(".govuk-tag", { hasText: "Assessment complete" }),
+      ).toHaveCount(0);
+      await checkAccessibility();
+
+      await page
+        .locator("#application-details")
+        .getByRole("button", { name: "Make assessment" })
+        .click();
+      await expect(page).toHaveURL(
+        `/applications/${applicationReference}/decision`,
+      );
+      await expect(page.getByTestId("make-a-decision")).toBeVisible();
+      await checkAccessibility();
+    });
+  }
+
+  test("retains Pending backwards compatibility (remove after the API migration to Submitted)", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-001/overview");
+
+    await expect(
+      page.locator(".govuk-tag", { hasText: "Pending decision" }),
+    ).toBeVisible();
+    await expect(
+      page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
+    ).toHaveClass(/govuk-tag--grey/);
+    await checkAccessibility();
+  });
+
   test("should have tabs", async ({ page }) => {
     await page.goto(`/applications/${laaReference}/overview`);
     await page.waitForLoadState("domcontentloaded");
