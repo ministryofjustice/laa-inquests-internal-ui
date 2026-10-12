@@ -5,6 +5,7 @@ import type {
 } from "#src/adaptors/models/claim.types.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 import {
+  ClaimApplicationReferenceSchema,
   ClaimDetailSchema,
   ClaimSummariesSchema,
 } from "#src/adaptors/models/claim.schema.js";
@@ -38,6 +39,11 @@ const GET_CLAIMS = {
 const GET_CLAIM = {
   operation: "get_claim",
   route: "/applications/:id/claims/:claimReference",
+};
+
+const GET_APPLICATION_REFERENCE = {
+  operation: "get_application_reference",
+  route: "/claims/:claimReference/application",
 };
 
 const GET_CLAIM_EVIDENCE = {
@@ -258,6 +264,92 @@ export async function getClaimById(
       }
     }
     throwClaimsFailure(error, GET_CLAIM, identifiers, startedAt);
+  }
+}
+
+export async function getApplicationReferenceByClaimReference(
+  request: ClaimsApiRequest & { claimReference: string },
+): Promise<string | undefined> {
+  const { http, baseUrl, claimReference } = request;
+  const startedAt = Date.now();
+  const identifiers = { claim_reference: claimReference };
+  const accessToken = requireAccessToken(
+    request.accessToken,
+    GET_APPLICATION_REFERENCE,
+    identifiers,
+    startedAt,
+  );
+
+  try {
+    const { data }: AxiosResponse<unknown> = await http.get(
+      `${baseUrl}/claims/${encodeURIComponent(claimReference)}/application`,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    const result = ClaimApplicationReferenceSchema.safeParse(data);
+
+    if (!result.success) {
+      logger.logError({
+        functionName: "claims_api_adaptor",
+        message: "Application reference response validation failed",
+        extraContext: {
+          event: "outbound_api_request_failed",
+          operation: GET_APPLICATION_REFERENCE.operation,
+          upstream_method: "GET",
+          upstream_route: GET_APPLICATION_REFERENCE.route,
+          failure_reason: "invalid_response",
+          retryable: false,
+          duration_ms: Date.now() - startedAt,
+          ...identifiers,
+        },
+      });
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+        GET_APPLICATION_REFERENCE.operation,
+        false,
+      );
+    }
+
+    logger.logInfo({
+      functionName: "claims_api_adaptor",
+      message: "Application reference retrieved upstream",
+      extraContext: {
+        event: "outbound_api_call",
+        operation: GET_APPLICATION_REFERENCE.operation,
+        upstream_method: "GET",
+        upstream_route: GET_APPLICATION_REFERENCE.route,
+        duration_ms: Date.now() - startedAt,
+        ...identifiers,
+      },
+    });
+
+    return result.data.laaReference;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const failure = classifyClaimsApiHttpFailure(error);
+      if (failure.outcome === "NOT_FOUND") {
+        logger.logWarn({
+          functionName: "claims_api_adaptor",
+          message: "Claim not found upstream",
+          extraContext: {
+            event: "outbound_api_not_found",
+            operation: GET_APPLICATION_REFERENCE.operation,
+            upstream_method: "GET",
+            upstream_route: GET_APPLICATION_REFERENCE.route,
+            upstream_status_code: failure.status,
+            duration_ms: Date.now() - startedAt,
+            ...identifiers,
+          },
+        });
+        return undefined;
+      }
+    }
+
+    throwClaimsFailure(
+      error,
+      GET_APPLICATION_REFERENCE,
+      identifiers,
+      startedAt,
+    );
   }
 }
 

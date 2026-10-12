@@ -1,5 +1,6 @@
 import { validateGovPage } from "#tests/playwright/utils/govuk-validators.js";
 import { test, expect } from "../../fixtures/index.js";
+import { MISSING_CLAIM_REFERENCE } from "#tests/playwright/factories/handlers/claimErrors.js";
 
 test.describe("Claim Search", () => {
   test.beforeEach(async ({ page }) => {
@@ -25,7 +26,7 @@ test.describe("Claim Search", () => {
     await expect(
       form.getByLabel("Enter the claim reference number"),
     ).toBeVisible();
-    await expect(page.getByText("For example: INQC-Y68H-4H2")).toBeVisible();
+    await expect(page.getByText("For example: INQC-Y68H-4H2A")).toBeVisible();
   });
 
   test("renders continue button to the right of the input", async ({
@@ -74,5 +75,23 @@ test.describe("Claim Search", () => {
       "#claim-reference",
     );
     await expect(form.locator(".govuk-error-message")).toBeVisible();
+  });
+
+  test("returns a not found response when the claim reference does not exist", async ({
+    page,
+  }) => {
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname === "/claims/search",
+    );
+
+    await page
+      .getByLabel("Enter the claim reference number")
+      .fill(MISSING_CLAIM_REFERENCE);
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    const response = await responsePromise;
+    expect(response.status()).toBe(404);
   });
 });

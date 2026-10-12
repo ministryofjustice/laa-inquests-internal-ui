@@ -60,4 +60,8 @@ export const ClaimDetailSchema = BaseClaimSchema.extend({
   payingParty: z.string().optional().nullable(),
 });
 
+export const ClaimApplicationReferenceSchema = z.object({
+  laaReference: z.string(),
+});
+
 export const ClaimSummariesSchema = z.array(ClaimSummarySchema);

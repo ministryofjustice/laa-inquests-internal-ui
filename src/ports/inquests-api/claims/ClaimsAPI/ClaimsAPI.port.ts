@@ -39,6 +39,10 @@ export interface ClaimsPort {
       }
     | undefined
   >;
+  getApplicationReferenceByClaimReference: (
+    claimReference: string,
+    accessToken: string | undefined,
+  ) => Promise<string | undefined>;
   rejectClaim: (
     laaReference: string,
     claimReference: string,

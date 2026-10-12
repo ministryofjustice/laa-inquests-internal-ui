@@ -19,9 +19,9 @@ function createClaimRouter(
 
   claimRouter.post(
     "/search",
-    (req: Request, res: Response, next: NextFunction): void => {
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
-        searchClaimAdaptor.processSearchClaimPage(req, res);
+        await searchClaimAdaptor.processSearchClaimPage(req, res);
       } catch (err: unknown) {
         next(err);
       }

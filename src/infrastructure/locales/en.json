@@ -84,6 +84,13 @@
         "messageThree": "If you believe the application exists, contact your team administrator for assistance.",
         "searchAgainButton": "Search again"
       },
+      "claimNotFound": {
+        "title": "Claim not found",
+        "messageOne": "We could not find a claim with the reference number you entered.",
+        "messageTwo": "Check the reference number and try again.",
+        "messageThree": "If you believe the claim exists, contact your team administrator for assistance.",
+        "searchAgainButton": "Search again"
+      },
       "forbidden": "Forbidden",
       "invalidRequest": "Invalid request",
       "internalServerError": "Internal Server Error",
@@ -190,7 +197,11 @@
       "pageHeading": "Search for a claim",
       "legalAidReferenceLabel": "Enter the claim reference number",
       "continueButton": "Continue",
-      "legalAidReferenceHint": "For example: INQC-Y68H-4H2"
+      "legalAidReferenceHint": "For example: INQC-Y68H-4H2A",
+      "error": {
+        "required": "Enter the claim reference number",
+        "format": "Enter a claim reference number in the correct format"
+      }
     },
     "claimAssessment": {
       "invalidRequest": "Invalid claim request.",

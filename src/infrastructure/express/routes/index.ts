@@ -71,6 +71,7 @@ import { BuildClaimPaidInFullViewUseCase } from "#src/use-cases/applications/cla
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
 import { SearchApplicationAdaptor } from "#src/adaptors/presenter/applications/SearchApplication/SearchApplication.adaptor.js";
 import { SearchApplicationValidator } from "#src/adaptors/presenter/applications/SearchApplication/SearchApplication.validator.js";
+import { RetrieveApplicationReferenceUseCase } from "#src/use-cases/applications/claims/RetrieveApplicationReference.useCase.js";
 import createClaimRouter from "#src/infrastructure/express/routes/claim.router.js";
 import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
 import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
@@ -268,7 +269,10 @@ router.use(
 router.use("/claims", requireAuth, [
   createClaimRouter(
     express.Router(),
-    new SearchClaimAdaptor(new SearchClaimValidator()),
+    new SearchClaimAdaptor(
+      new SearchClaimValidator(),
+      new RetrieveApplicationReferenceUseCase(claimsAdaptor),
+    ),
   ),
 ]);
 
