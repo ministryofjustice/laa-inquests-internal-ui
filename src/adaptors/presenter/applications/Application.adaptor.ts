@@ -141,10 +141,7 @@ export class ApplicationAdaptor {
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
       getCorrespondenceDisplay(application, clientHomeAddressDisplay);
 
-    const isPending =
-      !application.overallDecision ||
-      application.overallDecision.toUpperCase() === "PENDING";
-    const statusTag = isPending
+    const statusTag = overviewViewResult.data.isAwaitingAssessment
       ? { text: "Awaiting assessment", classes: "govuk-tag--grey" }
       : { text: "Assessment complete", classes: "govuk-tag--green" };
 

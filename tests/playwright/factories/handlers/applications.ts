@@ -5,6 +5,7 @@ import {
   HISTORY_EVENT_REFERENCE,
   PENDING_DECISION,
   REFUSED_DECISION,
+  SUBMITTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
 
 /**
@@ -59,6 +60,18 @@ const applicationSummaries = [
     created_at: "2026-07-18T09:00:00.000000",
     status: "LIVE",
     overall_decision: GRANTED_DECISION,
+  },
+  {
+    laa_reference: "INQ-YYY-009",
+    created_at: "2026-07-19T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: "Submitted",
+  },
+  {
+    laa_reference: "INQ-YYY-010",
+    created_at: "2026-07-20T09:00:00.000000",
+    status: "LIVE",
+    overall_decision: SUBMITTED_DECISION,
   },
 ];
 
