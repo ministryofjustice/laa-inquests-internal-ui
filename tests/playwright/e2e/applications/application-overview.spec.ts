@@ -22,16 +22,19 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
-  test("should have a status tag", async ({ page }) => {
-    await page.goto(`/applications/${laaReference}/overview`);
-    const statusTag = page
-      .locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)")
-      .first();
-    await expect(statusTag).toBeVisible();
+  test("does not show an assessment tag above the application reference", async ({
+    page,
+  }) => {
+    for (const applicationReference of [laaReference, "INQ-YYY-005"]) {
+      await page.goto(`/applications/${applicationReference}/overview`);
+      await expect(
+        page.locator("p > .govuk-tag:not(.govuk-phase-banner__content__tag)"),
+      ).toHaveCount(0);
+    }
   });
 
   for (const applicationReference of ["INQ-YYY-009", "INQ-YYY-010"]) {
-    test(`treats Submitted merits as awaiting assessment for ${applicationReference}`, async ({
+    test(`shows Submitted merits and allows assessment for ${applicationReference}`, async ({
       page,
       checkAccessibility,
     }) => {
@@ -44,7 +47,7 @@ test.describe("Application overview page", () => {
       ).toBeVisible();
       await expect(
         page.locator(".govuk-tag", { hasText: "Awaiting assessment" }),
-      ).toHaveClass(/govuk-tag--grey/);
+      ).toHaveCount(0);
       await expect(
         page.locator(".govuk-tag", { hasText: "Assessment complete" }),
       ).toHaveCount(0);

@@ -456,33 +456,21 @@ describe("Application adaptor", () => {
       });
     });
 
-    it("renders grey 'Awaiting assessment' tag when overallDecision is SUBMITTED", async () => {
-      viewApplicationAdaptorStub.getApplication.resolves(application);
-      await applicationAdaptor.renderApplicationPage(
-        requestStub,
-        responseStub,
-        "123",
-      );
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.partialDeepStrictEqual(renderArgs[1], {
-        statusTag: { text: "Awaiting assessment", classes: "govuk-tag--grey" },
-      });
-    });
-
-    it("renders green 'Assessment complete' tag when overallDecision is GRANTED", async () => {
-      viewApplicationAdaptorStub.getApplication.resolves({
-        ...application,
-        overallDecision: GRANTED_DECISION,
-      });
-      await applicationAdaptor.renderApplicationPage(
-        requestStub,
-        responseStub,
-        "123",
-      );
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.partialDeepStrictEqual(renderArgs[1], {
-        statusTag: { text: "Assessment complete", classes: "govuk-tag--green" },
-      });
+    it("does not supply an overview assessment tag", async () => {
+      for (const overallDecision of ["SUBMITTED", GRANTED_DECISION]) {
+        responseStub.render.resetHistory();
+        viewApplicationAdaptorStub.getApplication.resolves({
+          ...application,
+          overallDecision,
+        });
+        await applicationAdaptor.renderApplicationPage(
+          requestStub,
+          responseStub,
+          "123",
+        );
+        const renderArgs = responseStub.render.getCall(0).args;
+        assert.equal(Object.hasOwn(renderArgs[1] ?? {}, "statusTag"), false);
+      }
     });
 
     it("passes coronersLetter fileName from the application response to the view", async () => {

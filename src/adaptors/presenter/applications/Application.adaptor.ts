@@ -141,10 +141,6 @@ export class ApplicationAdaptor {
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
       getCorrespondenceDisplay(application, clientHomeAddressDisplay);
 
-    const statusTag = overviewViewResult.data.isAwaitingAssessment
-      ? { text: "Awaiting assessment", classes: "govuk-tag--grey" }
-      : { text: "Assessment complete", classes: "govuk-tag--green" };
-
     const claims = await this.#buildClaimsView(
       req,
       laaReference,
@@ -169,7 +165,6 @@ export class ApplicationAdaptor {
       clientHomeAddressDisplay,
       clientCorrespondenceAddressDisplay,
       careOfRecipientDisplay,
-      statusTag,
       claims,
       historyRows,
       historyError,
