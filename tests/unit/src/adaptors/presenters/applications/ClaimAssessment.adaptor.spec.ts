@@ -73,10 +73,9 @@ describe("ClaimAssessmentAdaptor", () => {
           substantiveCertificate: "£10,000",
           totalRemaining: "£10,000",
         },
-        claimDetails: {
-          vatZeroTotal: "-",
-          netTotal: "£1,000",
-          grossTotal: "£1,200",
+        assessmentDetails: {
+          profitCosts: { netTotal: "£1,000", grossTotal: "£1,200" },
+          disbursementCosts: { netTotal: "£100", grossTotal: "£120" },
         },
         claimCostBreakdown: {
           fileName: "final_bill_costs.xlsx",
@@ -166,6 +165,10 @@ describe("ClaimAssessmentAdaptor", () => {
           substantiveCertificate: "£10,000",
           totalRemaining: "£8,800",
         },
+        assessmentDetails: {
+          profitCosts: { netTotal: "£1,000", grossTotal: "£1,200" },
+          disbursementCosts: { netTotal: "£100", grossTotal: "£120" },
+        },
         claimCostBreakdown: null,
         supportingEvidence: [],
       },
@@ -216,10 +219,9 @@ describe("ClaimAssessmentAdaptor", () => {
           substantiveCertificate: "£10,000",
           totalRemaining: "£8,800",
         },
-        claimDetails: {
-          vatZeroTotal: "-",
-          netTotal: "£1,000",
-          grossTotal: "£1,200",
+        assessmentDetails: {
+          profitCosts: { netTotal: "£1,000", grossTotal: "£1,200" },
+          disbursementCosts: { netTotal: "£100", grossTotal: "£120" },
         },
         claimCostBreakdown: null,
         supportingEvidence: [],

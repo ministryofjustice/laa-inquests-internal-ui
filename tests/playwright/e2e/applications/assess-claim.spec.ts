@@ -235,7 +235,8 @@ test.describe("Assess claim page", () => {
       }),
     ).toBeVisible();
     await expect(page.getByText("Total remaining")).toBeVisible();
-    await expect(page.getByText("Details of the claim")).toHaveCount(0);
+    await expect(page.getByText("Details from the assessment")).toHaveCount(0);
+    await expect(page.getByText("Total profit costs")).toHaveCount(0);
   });
 
   test("shows evidence files as left aligned rows with a bold view link, format and size", async ({
