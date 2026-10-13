@@ -1,7 +1,7 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 {% from "macros/claimOverview.njk" import claimOverview %}
-{% from "macros/claimDetails.njk" import claimDetailsCard %}
+{% from "macros/assessmentDetails.njk" import assessmentDetailsSection %}
 {% from "macros/finalOrNilBillDetails.njk" import finalOrNilBillDetailsCards %}
 {% from "macros/supportingEvidence.njk" import supportingEvidenceSection %}
 
@@ -12,9 +12,11 @@
   <h1 class="govuk-heading-l">{{ claimReference }}</h1>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h3>
 
-  {{ claimOverview(overview, false) }}
+  {{ assessmentDetailsSection(assessmentDetails) }}
 
-  {{ claimDetailsCard(claimDetails) }}
+  <h2 class="govuk-heading-m">{{ t('pages.claimAssessment.claimDetailsHeading') }}</h2>
+
+  {{ claimOverview(overview, false) }}
 
   {{ finalOrNilBillDetailsCards(finalOrNilBillDetails) }}
 

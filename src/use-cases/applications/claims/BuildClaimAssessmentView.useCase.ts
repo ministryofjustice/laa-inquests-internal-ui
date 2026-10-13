@@ -59,6 +59,11 @@ export interface ClaimCostBreakdownRow {
   downloadHref: string;
 }
 
+export interface AssessmentCostTotals {
+  netTotal: string;
+  grossTotal: string;
+}
+
 export interface ClaimAssessmentViewData {
   laaReference: string;
   claimReference: string;
@@ -70,10 +75,9 @@ export interface ClaimAssessmentViewData {
     substantiveCertificate: string;
     totalRemaining: string;
   };
-  claimDetails: {
-    vatZeroTotal: string;
-    netTotal: string;
-    grossTotal: string;
+  assessmentDetails: {
+    profitCosts: AssessmentCostTotals;
+    disbursementCosts: AssessmentCostTotals;
   };
   claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
@@ -130,11 +134,7 @@ export class BuildClaimAssessmentViewUseCase {
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
         },
-        claimDetails: {
-          vatZeroTotal: formatAmount(claim.totalProfitCostVatZero),
-          netTotal: formatAmount(claim.totalProfitCostNet),
-          grossTotal: formatAmount(claim.totalProfitCostGross),
-        },
+        assessmentDetails: mapAssessmentDetails(claim),
         claimCostBreakdown: mapClaimCostBreakdown(
           claim,
           input.laaReference,
@@ -157,6 +157,23 @@ export class BuildClaimAssessmentViewUseCase {
       },
     };
   }
+}
+
+function mapAssessmentDetails(
+  claim: ClaimDetail,
+): ClaimAssessmentViewData["assessmentDetails"] {
+  const amount = claim.claimDecision?.decisionAmount;
+
+  return {
+    profitCosts: {
+      netTotal: formatAmount(amount?.profitCostNet),
+      grossTotal: formatAmount(amount?.profitCostGross),
+    },
+    disbursementCosts: {
+      netTotal: formatAmount(amount?.disbursementNet),
+      grossTotal: formatAmount(amount?.disbursementGross),
+    },
+  };
 }
 
 function isFinalOrNilBill(claimTypeId: string): boolean {

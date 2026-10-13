@@ -17,10 +17,18 @@ const ClaimDecisionReasonSchema = z.object({
   justification: z.string().nullable(),
 });
 
+const ClaimDecisionAmountSchema = z.object({
+  profitCostNet: z.string().optional().nullable(),
+  profitCostGross: z.string().optional().nullable(),
+  disbursementNet: z.string().optional().nullable(),
+  disbursementGross: z.string().optional().nullable(),
+});
+
 const ClaimDecisionSchema = z.object({
   claimDecisionId: z.number(),
   decision: z.string(),
   decisionReasons: z.array(ClaimDecisionReasonSchema).optional().default([]),
+  decisionAmount: ClaimDecisionAmountSchema.optional().nullable(),
 });
 
 const BaseClaimSchema = z.object({

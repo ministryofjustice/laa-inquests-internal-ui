@@ -9,9 +9,10 @@ interface AssessedClaimCase {
   claimStatus: string;
   paymentType: string;
   paymentAmount: string;
-  vatZeroTotal: string;
-  netTotal: string;
-  grossTotal: string;
+  profitNet: string;
+  profitGross: string;
+  disbursementNet: string;
+  disbursementGross: string;
 }
 
 const assessedClaimCases: AssessedClaimCase[] = [
@@ -19,11 +20,12 @@ const assessedClaimCases: AssessedClaimCase[] = [
     decision: "PAY_IN_FULL",
     claimReference: "INQC-0030-0030",
     claimStatus: "Pay in full",
-    paymentType: "Payment on account",
-    paymentAmount: "£2,000",
-    vatZeroTotal: "-",
-    netTotal: "£1,600",
-    grossTotal: "£2,000",
+    paymentType: "Final bill",
+    paymentAmount: "£1,320",
+    profitNet: "£1,000",
+    profitGross: "£1,200",
+    disbursementNet: "£100",
+    disbursementGross: "£120",
   },
   {
     decision: "REJECT",
@@ -31,9 +33,10 @@ const assessedClaimCases: AssessedClaimCase[] = [
     claimStatus: "Reject",
     paymentType: "Final bill",
     paymentAmount: "£170",
-    vatZeroTotal: "-",
-    netTotal: "£170",
-    grossTotal: "-",
+    profitNet: "-",
+    profitGross: "-",
+    disbursementNet: "-",
+    disbursementGross: "-",
   },
 ];
 
@@ -97,34 +100,63 @@ for (const assessed of assessedClaimCases) {
       await expect(overview.getByText("Total remaining")).toHaveCount(0);
     });
 
-    test("shows the details of the claim table directly after the overview", async ({
+    test("shows the details from the assessment before the claim details", async ({
       page,
     }) => {
-      const details = summaryCard(page, "Details of the claim");
+      const sections = page
+        .getByTestId("assessed-claim")
+        .getByRole("heading", { level: 2 });
 
-      await expect(details).toBeVisible();
-      await expect(
-        summaryRow(details, "Total costs charged at 0% VAT").locator(
-          ".govuk-summary-list__value",
-        ),
-      ).toHaveText(assessed.vatZeroTotal);
-      await expect(
-        summaryRow(details, "Net total excluding VAT").locator(
-          ".govuk-summary-list__value",
-        ),
-      ).toHaveText(assessed.netTotal);
-      await expect(
-        summaryRow(details, "Gross total of the claim including VAT").locator(
-          ".govuk-summary-list__value",
-        ),
-      ).toHaveText(assessed.grossTotal);
+      await expect(sections.first()).toHaveText("Details from the assessment");
+      const titles = await sections.allTextContents();
+      expect(titles.slice(0, 5).map((title) => title.trim())).toStrictEqual([
+        "Details from the assessment",
+        "Total profit costs",
+        "Total disbursement costs",
+        "Claim details",
+        "Overview of the claim",
+      ]);
+    });
 
-      const cardTitles = await page
-        .locator(".govuk-summary-card__title")
-        .allTextContents();
-      expect(cardTitles.map((title) => title.trim()).slice(0, 2)).toStrictEqual(
-        ["Overview of the claim", "Details of the claim"],
-      );
+    test("shows the assessed profit and disbursement amounts", async ({
+      page,
+    }) => {
+      const profit = summaryCard(page, "Total profit costs");
+      const disbursement = summaryCard(page, "Total disbursement costs");
+      const value = ".govuk-summary-list__value";
+
+      await expect(profit.locator(".govuk-summary-list__row")).toHaveCount(2);
+      await expect(
+        summaryRow(profit, "Net total for profit costs excluding VAT").locator(
+          value,
+        ),
+      ).toHaveText(assessed.profitNet);
+      await expect(
+        summaryRow(
+          profit,
+          "Gross total for profit costs including VAT",
+        ).locator(value),
+      ).toHaveText(assessed.profitGross);
+
+      await expect(
+        disbursement.locator(".govuk-summary-list__row"),
+      ).toHaveCount(2);
+      await expect(
+        summaryRow(
+          disbursement,
+          "Net total for disbursement costs excluding VAT",
+        ).locator(value),
+      ).toHaveText(assessed.disbursementNet);
+      await expect(
+        summaryRow(
+          disbursement,
+          "Gross total for disbursement costs including VAT",
+        ).locator(value),
+      ).toHaveText(assessed.disbursementGross);
+    });
+
+    test("no longer shows the details of the claim table", async ({ page }) => {
+      await expect(page.getByText("Details of the claim")).toHaveCount(0);
     });
 
     test("shows evidence files as left aligned rows with a bold view link, format and size", async ({
@@ -183,8 +215,9 @@ for (const assessed of assessedClaimCases) {
       page,
     }) => {
       for (const title of [
+        "Total profit costs",
+        "Total disbursement costs",
         "Overview of the claim",
-        "Details of the claim",
         "Other evidence",
       ]) {
         const row = summaryRow(summaryCard(page, title), "").first();
@@ -239,5 +272,24 @@ test.describe("Assessed claim page - final bill cost breakdown", () => {
       "href",
       `${assessedPage}/evidence/3fa85f64-5717-4562-b3fc-2c963f66afa6?disposition=attachment`,
     );
+  });
+});
+
+test.describe("Assessed claim page - claim paid at 0% VAT", () => {
+  test("shows dashes for net and gross and no 0% VAT rows", async ({
+    page,
+  }) => {
+    await page.goto(claimPage("INQC-0032-0032"));
+
+    for (const title of ["Total profit costs", "Total disbursement costs"]) {
+      const card = summaryCard(page, title);
+
+      await expect(card.locator(".govuk-summary-list__row")).toHaveCount(2);
+      await expect(card.locator(".govuk-summary-list__value")).toHaveText([
+        "-",
+        "-",
+      ]);
+      await expect(card.getByText("0% VAT")).toHaveCount(0);
+    }
   });
 });

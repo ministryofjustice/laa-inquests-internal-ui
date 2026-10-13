@@ -449,20 +449,55 @@ const nilBillClaimDetail = {
 
 export const ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE = "INQC-0030-0030";
 export const ASSESSED_REJECTED_CLAIM_REFERENCE = "INQC-0031-0031";
+export const ASSESSED_ZERO_VAT_CLAIM_REFERENCE = "INQC-0032-0032";
 
 const assessedPayInFullClaimDetail = {
   ...claimDetail,
   claimReference: ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE,
+  claimTypeId: "FINAL_BILL",
   submissionDate: "2026-07-01T09:00:00.000000",
-  totalProfitCostNet: "1600.00",
-  totalProfitCostGross: "2000.00",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
   totalProfitCostVatZero: null,
-  totalAmount: "2000.00",
-  totalFundsRemainingAfterClaim: "8000.00",
+  totalAmount: "1320.00",
+  totalFundsRemainingAfterClaim: "8680.00",
   claimDecision: {
     claimDecisionId: 124,
     decision: "PAY_IN_FULL",
     decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: "1000.00",
+      profitCostGross: "1200.00",
+      profitCostVatZero: null,
+      disbursementNet: "100.00",
+      disbursementGross: "120.00",
+      disbursementVatZero: null,
+    },
+  },
+};
+
+const assessedZeroVatClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_ZERO_VAT_CLAIM_REFERENCE,
+  claimTypeId: "FINAL_BILL",
+  submissionDate: "2026-07-03T09:00:00.000000",
+  totalProfitCostNet: null,
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: "800.00",
+  totalAmount: "800.00",
+  totalFundsRemainingAfterClaim: "9200.00",
+  claimDecision: {
+    claimDecisionId: 126,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: null,
+      profitCostGross: null,
+      profitCostVatZero: "800.00",
+      disbursementNet: null,
+      disbursementGross: null,
+      disbursementVatZero: "50.00",
+    },
   },
 };
 
@@ -498,6 +533,7 @@ const assessedRejectedClaimDetail = {
     decisionReasons: [
       { reasonCode: "MANUAL_REJECTION", justification: "Not allowed" },
     ],
+    decisionAmount: null,
   },
 };
 
@@ -789,16 +825,20 @@ export const applicationHandlers = [
 
       if (
         params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_ZERO_VAT_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedZeroVatClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
         params.claimReference === "INQC-0016-0016"
       ) {
         return HttpResponse.json({
           ...claimDetail,
           ...assessedClaims[0],
           claimReference: "INQC-0016-0016",
-          claimDecision: {
-            ...claimDetail.claimDecision,
-            decision: "PAY_IN_FULL",
-          },
+          claimDecision: null,
         });
       }
 
