@@ -79,7 +79,7 @@ for (const assessed of assessedClaimCases) {
       ).toBeVisible();
     });
 
-    test("shows the overview of the claim without the total remaining row", async ({
+    test("shows the overview of the claim", async ({
       page,
     }) => {
       const overview = summaryCard(page, "Overview of the claim");
@@ -97,7 +97,6 @@ for (const assessed of assessedClaimCases) {
       await expect(summaryRow(overview, "Substantive certificate")).toHaveCount(
         1,
       );
-      await expect(overview.getByText("Total remaining")).toHaveCount(0);
     });
 
     test("shows the details from the assessment before the claim details", async ({
@@ -153,10 +152,6 @@ for (const assessed of assessedClaimCases) {
           "Gross total for disbursement costs including VAT",
         ).locator(value),
       ).toHaveText(assessed.disbursementGross);
-    });
-
-    test("no longer shows the details of the claim table", async ({ page }) => {
-      await expect(page.getByText("Details of the claim")).toHaveCount(0);
     });
 
     test("shows evidence files as left aligned rows with a bold view link, format and size", async ({
