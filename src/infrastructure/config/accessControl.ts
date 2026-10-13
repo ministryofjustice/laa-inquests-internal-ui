@@ -159,11 +159,6 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MANAGE_APPLICATION],
   },
   {
-    prefix: "/applications/search",
-    allowedRoles:
-      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
-  },
-  {
     prefix: "/claims/search",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB],
   },

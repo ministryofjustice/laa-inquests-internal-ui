@@ -134,10 +134,10 @@ test.describe("Home page", () => {
       }
     });
 
-    test("should show claims panel for users with the VIEW_CLAIMS_DETAILS permission", async ({
+    test("should show claims panel for users with the VIEW_CLAIMS_TAB permission", async ({
       page,
     }) => {
-      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS];
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB];
       for (const role of allowedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
         await page.goto("/");
@@ -148,10 +148,10 @@ test.describe("Home page", () => {
       }
     });
 
-    test("should not show claims panel for users without the VIEW_CLAIMS_DETAILS permission", async ({
+    test("should not show claims panel for users without the VIEW_CLAIMS_TAB permission", async ({
       page,
     }) => {
-      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS];
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB];
 
       for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
         (r) => !allowedRoles.includes(r),

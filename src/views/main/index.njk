@@ -21,7 +21,7 @@
         }
     )) %}
 {% endif %}
-{% if hasPermission(permissions.VIEW_CLAIMS_DETAILS) %}
+{% if hasPermission(permissions.VIEW_CLAIMS_TAB) %}
     {% set options = (options.concat(
         {
             html: ' <h2 class="govuk-heading-m govuk-!-margin-bottom-2"><a href="/claims/search" class="govuk-link govuk-link--no-visited-state">Find a claim</a></h2>
