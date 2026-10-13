@@ -1,130 +1,37 @@
-import { strict as assert } from "assert";
-import { stubInterface, type StubbedInstance } from "ts-sinon";
+import { assert } from "chai";
+import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
+import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
-import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
-import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
-import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
-import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 
 describe("Home adaptor", () => {
-  let homeAdaptor: HomeAdaptor;
-  let responseStub: StubbedInstance<Response>;
-  let requestStub: StubbedInstance<Request>;
-  let applicationPortStub: StubbedInstance<ApplicationPort>;
-  let sessionHelperStub: StubbedInstance<SessionHelper>;
+  describe("renderHome", () => {
+    it("clears session data and renders the home page", () => {
+      const sessionHelper = stubInterface<SessionHelper>();
+      const adaptor = new HomeAdaptor(sessionHelper);
 
-  beforeEach(() => {
-    responseStub = stubInterface<Response>();
-    requestStub = stubInterface<Request>();
-    applicationPortStub = stubInterface<ApplicationPort>();
-    sessionHelperStub = stubInterface<SessionHelper>();
-    homeAdaptor = new HomeAdaptor(
-      sessionHelperStub,
-      new BuildApplicationsListViewUseCase(applicationPortStub),
-    );
-  });
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
 
-  it("renders home page with table rows from all applications", async () => {
-    applicationPortStub.getAllApplications.resolves([
-      {
-        laaReference: "123",
-        createdAt: "2026-05-20T08:46:36.793278",
-        status: "Live",
-        overallDecision: "SUBMITTED",
-      },
-      {
-        laaReference: "456",
-        createdAt: "2026-05-21T08:46:36.793278",
-        status: "Live",
-        overallDecision: GRANTED_DECISION,
-      },
-      {
-        laaReference: null,
-        createdAt: "bad-date",
-        status: null,
-        overallDecision: "ASSESSMENT_COMPLETE",
-      },
-    ] as any);
+      adaptor.renderHome(requestStub, responseStub);
 
-    await homeAdaptor.renderHomePage(requestStub, responseStub);
-
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "main/index");
-    assert.deepEqual(renderArgs[1], {
-      tableRows: [
-        [
-          {
-            text: "456",
-            href: "/applications/456/overview",
-          },
-          {
-            text: "21 May 2026 08:46",
-            attributes: {
-              "data-sort-value": "2026-05-21T08:46:36.793278",
-            },
-          },
-          { text: "Live" },
-          { text: "Granted" },
-        ],
-        [
-          {
-            text: "123",
-            href: "/applications/123/overview",
-          },
-          {
-            text: "20 May 2026 08:46",
-            attributes: {
-              "data-sort-value": "2026-05-20T08:46:36.793278",
-            },
-          },
-          { text: "Live" },
-          { text: "Submitted" },
-        ],
-        [
-          {
-            text: "null",
-            href: "/applications/null/overview",
-          },
-          {
-            text: "bad-date",
-            attributes: {
-              "data-sort-value": "bad-date",
-            },
-          },
-          { text: "-" },
-          { text: "Assessment Complete" },
-        ],
-      ],
+      assert.equal(
+        sessionHelper.clearSessionData.callCount,
+        1,
+        "clearSessionData should be called once",
+      );
+      assert.equal(
+        sessionHelper.clearSessionData.getCall(0).args[0],
+        requestStub,
+        "clearSessionData should be called with req",
+      );
+      assert.equal(
+        sessionHelper.clearSessionData.getCall(0).args[1],
+        "decision",
+        "clearSessionData should be called with 'decision'",
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      assert.equal(responseStub.render.getCall(0).args[0], "main/index");
     });
-  });
-
-  it("throws when applications list cannot be built", async () => {
-    applicationPortStub.getAllApplications.rejects(new Error("boom"));
-
-    await assert.rejects(
-      async () => homeAdaptor.renderHomePage(requestStub, responseStub),
-      (thrown: unknown) => thrown instanceof Error && thrown.message === "boom",
-    );
-  });
-
-  it("clears decision session data when rendering home page", async () => {
-    applicationPortStub.getAllApplications.resolves([
-      {
-        laaReference: "123",
-        createdAt: "2026-05-20T08:46:36.793278",
-        status: "Live",
-        overallDecision: "SUBMITTED",
-      },
-    ] as any);
-
-    await homeAdaptor.renderHomePage(requestStub, responseStub);
-
-    assert.equal(sessionHelperStub.clearSessionData.callCount, 1);
-    assert.deepEqual(sessionHelperStub.clearSessionData.getCall(0).args, [
-      requestStub,
-      "decision",
-    ]);
   });
 });
