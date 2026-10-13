@@ -812,7 +812,9 @@ export const applicationHandlers = [
       ) {
         return HttpResponse.json({
           ...claimDetail,
+          ...assessedClaims[1],
           claimReference: "INQC-0017-0017",
+          claimDecision: null,
         });
       }
 
