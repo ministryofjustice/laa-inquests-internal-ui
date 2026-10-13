@@ -1,6 +1,11 @@
 import { test, expect } from "../fixtures/index.js";
 import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
 import { CASEWORKER_DISPLAY_NAME } from "#tests/playwright/constants/Caseworker.js";
+import {
+  INTERNAL_CASEWORKER_ROLES,
+  PERMISSIONS,
+  PERMISSION_ROLE_MAP,
+} from "#src/infrastructure/config/accessControl.js";
 
 test.describe("Home page", () => {
   test.beforeEach(async ({ page }) => {
@@ -34,11 +39,6 @@ test.describe("Home page", () => {
     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
   });
 
-  test("should have the correct link for reports button", async ({ page }) => {
-    const reportsLink = page.getByRole("link", { name: "View Reports" });
-    await expect(reportsLink).toHaveAttribute("href", "/reports");
-  });
-
   test("navigation items should be in correct order", async ({ page }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
@@ -50,60 +50,150 @@ test.describe("Home page", () => {
     await expect(navLinks.nth(1)).toHaveText("Sign out");
   });
 
-  test("displays service name and applications table", async ({
-    pages,
-    checkAccessibility,
-  }) => {
-    const homePage = pages.homePage;
-
-    await homePage.navigate();
-    await homePage.waitForLoad();
-
-    await expect(homePage.heading).toBeVisible();
-    const serviceName = await homePage.getServiceName();
-    expect(serviceName).toBeTruthy();
-
-    await expect(homePage.developerBanner).toContainText(
-      "This page is not production ready and is intended for developers.",
+  test("should have the correct panel for applications", async ({ page }) => {
+    const applicationsPanel = page.getByRole("region", {
+      name: "Applications",
+    });
+    await expect(applicationsPanel).toBeVisible();
+    const applicationsPanelHeading = applicationsPanel.getByRole("heading", {
+      name: "Find an application or certificate",
+    });
+    await expect(applicationsPanelHeading).toBeVisible();
+    const applicationsPanelLink = applicationsPanelHeading.getByRole("link", {
+      name: "Find an application or certificate",
+    });
+    await expect(applicationsPanelLink).toHaveAttribute(
+      "href",
+      "/applications/search",
     );
-
-    await expect(homePage.applicationsTable).toBeVisible();
-    await expect(homePage.tableCaption).toContainText("All applications");
-
-    const applicationReferences = await homePage.getApplicationReferences();
-    expect(applicationReferences.length).toBeGreaterThan(0);
-
-    await checkAccessibility();
   });
 
-  test("table has correct structure", async ({ pages }) => {
-    const homePage = pages.homePage;
+  test("should have the correct panel for claims", async ({ page }) => {
+    const claimsPanel = page.getByRole("region", {
+      name: "Claims",
+    });
+    await expect(claimsPanel).toBeVisible();
+    const claimsPanelHeading = claimsPanel.getByRole("heading", {
+      name: "Find a claim",
+    });
+    await expect(claimsPanelHeading).toBeVisible();
+    const claimsPanelLink = claimsPanelHeading.getByRole("link", {
+      name: "Find a claim",
+    });
+    await expect(claimsPanelLink).toHaveAttribute("href", "/claims/search");
+  });
 
-    await homePage.navigate();
-    await homePage.waitForLoad();
+  test("should have the correct panel for reports", async ({ page }) => {
+    const reportsPanel = page.getByRole("region", {
+      name: "Reports",
+    });
+    await expect(reportsPanel).toBeVisible();
+    const reportsPanelHeading = reportsPanel.getByRole("heading", {
+      name: "Download reports",
+    });
+    await expect(reportsPanelHeading).toBeVisible();
+    const reportsPanelLink = reportsPanelHeading.getByRole("link", {
+      name: "Download reports",
+    });
+    await expect(reportsPanelLink).toHaveAttribute("href", "/reports");
+  });
 
-    const table = homePage.applicationsTable;
-    await expect(table.locator("thead th").nth(0)).toHaveText("Reference");
-    await expect(table.locator("thead th").nth(1)).toHaveText("Created Date");
-    await expect(table.locator("thead th").nth(2)).toHaveText("Status");
-    await expect(table.locator("thead th").nth(3)).toHaveText("Decision");
+  test.describe("RBAC", () => {
+    test.afterEach(async ({ page }) => {
+      await page.goto("/auth/test-login");
+    });
 
-    const firstReferenceLink = table
-      .locator("tbody tr")
-      .first()
-      .locator("td a");
-    await expect(firstReferenceLink).toHaveAttribute(
-      "href",
-      /\/applications\/INQ-YYY-\d+\/overview/,
-    );
+    test("should show applications panel for users with the SEARCH_APPLICATIONS permission", async ({
+      page,
+    }) => {
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto("/");
+        const applicationsPanel = page.getByRole("region", {
+          name: "Applications",
+        });
+        await expect(applicationsPanel).toBeVisible();
+      }
+    });
 
-    const firstCreatedDate = table
-      .locator("tbody tr")
-      .first()
-      .locator("td")
-      .nth(1);
-    await expect(firstCreatedDate).toHaveText(
-      /\d{1,2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}/,
-    );
+    test("should not show applications panel for users without the SEARCH_APPLICATIONS permission", async ({
+      page,
+    }) => {
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS];
+
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto("/");
+        const applicationsPanel = page.getByRole("region", {
+          name: "Applications",
+        });
+        await expect(applicationsPanel).not.toBeVisible();
+      }
+    });
+
+    test("should show claims panel for users with the VIEW_CLAIMS_TAB permission", async ({
+      page,
+    }) => {
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto("/");
+        const claimsPanel = page.getByRole("region", {
+          name: "Claims",
+        });
+        await expect(claimsPanel).toBeVisible();
+      }
+    });
+
+    test("should not show claims panel for users without the VIEW_CLAIMS_TAB permission", async ({
+      page,
+    }) => {
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB];
+
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto("/");
+        const claimsPanel = page.getByRole("region", {
+          name: "Claims",
+        });
+        await expect(claimsPanel).not.toBeVisible();
+      }
+    });
+
+    test("should show reports panel for users with the VIEW_REPORTS_PAGE permission", async ({
+      page,
+    }) => {
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_REPORTS_PAGE];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto("/");
+        const reportsPanel = page.getByRole("region", {
+          name: "Reports",
+        });
+        await expect(reportsPanel).toBeVisible();
+      }
+    });
+
+    test("should not show reports panel for users without the VIEW_REPORTS_PAGE permission", async ({
+      page,
+    }) => {
+      const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_REPORTS_PAGE];
+
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
+        (r) => !allowedRoles.includes(r),
+      )) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto("/");
+        const reportsPanel = page.getByRole("region", {
+          name: "Reports",
+        });
+        await expect(reportsPanel).not.toBeVisible();
+      }
+    });
   });
 });

@@ -1,0 +1,64 @@
+{% extends "base.njk" %}
+
+{% block content %}
+    <h1 class="govuk-heading-xl">Inquests</h1>
+
+    {%- from "govuk/components/warning-text/macro.njk" import govukWarningText -%}
+    {%- from "govuk/components/table/macro.njk" import govukTable -%}
+
+    {% set renderedRows = [] %}
+    {% for row in tableRows %}
+      {% set renderedRows = (renderedRows.push([
+        {
+          html: '<a class="govuk-link" href="' + row[0].href + '">' + row[0].text + '</a>'
+        },
+        row[1],
+        row[2],
+        row[3]
+      ]), renderedRows) %}
+    {% endfor %}
+
+    {{ govukWarningText({
+        text: t('pages.home.developerBanner.text'),
+        iconFallbackText: t('pages.home.developerBanner.title')
+    }) }}
+
+    <p class="govuk-body">
+      <a class="govuk-link" href="/reports">{{ t('pages.home.reportsButton') }}</a>
+    </p>
+
+    {{ govukTable({
+        attributes: {
+            "data-module": "moj-sortable-table"
+        },
+        caption: t('pages.home.applicationsTable.caption'),
+        head: [
+            {
+            text: t('pages.home.applicationsTable.reference'),
+            attributes: {
+                "aria-sort": "none"
+            }
+            },
+            {
+            text: t('pages.home.applicationsTable.createdDate'),
+            attributes: {
+                "aria-sort": "descending"
+            }
+            },
+            {
+            text: t('pages.home.applicationsTable.status'),
+            attributes: {
+                "aria-sort": "none"
+            }
+            },
+            {
+            text: t('pages.home.applicationsTable.decision'),
+            attributes: {
+                "aria-sort": "none"
+            },
+            format: "text"
+            }
+        ],
+        rows: renderedRows
+        }) }}
+{% endblock %}
