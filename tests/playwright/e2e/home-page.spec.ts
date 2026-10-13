@@ -9,7 +9,7 @@ import {
 
 test.describe("Home page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/home");
+    await page.goto("/");
   });
 
   test("should have the correct title", async ({ page }) => {
@@ -109,7 +109,7 @@ test.describe("Home page", () => {
       const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS];
       for (const role of allowedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto("/home");
+        await page.goto("/");
         const applicationsPanel = page.getByRole("region", {
           name: "Applications",
         });
@@ -126,7 +126,7 @@ test.describe("Home page", () => {
         (r) => !allowedRoles.includes(r),
       )) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto("/home");
+        await page.goto("/");
         const applicationsPanel = page.getByRole("region", {
           name: "Applications",
         });
@@ -140,7 +140,7 @@ test.describe("Home page", () => {
       const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_DETAILS];
       for (const role of allowedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto("/home");
+        await page.goto("/");
         const claimsPanel = page.getByRole("region", {
           name: "Claims",
         });
@@ -157,7 +157,7 @@ test.describe("Home page", () => {
         (r) => !allowedRoles.includes(r),
       )) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto("/home");
+        await page.goto("/");
         const claimsPanel = page.getByRole("region", {
           name: "Claims",
         });
@@ -171,7 +171,7 @@ test.describe("Home page", () => {
       const allowedRoles = PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_REPORTS_PAGE];
       for (const role of allowedRoles) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto("/home");
+        await page.goto("/");
         const reportsPanel = page.getByRole("region", {
           name: "Reports",
         });
@@ -188,7 +188,7 @@ test.describe("Home page", () => {
         (r) => !allowedRoles.includes(r),
       )) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
-        await page.goto("/home");
+        await page.goto("/");
         const reportsPanel = page.getByRole("region", {
           name: "Reports",
         });

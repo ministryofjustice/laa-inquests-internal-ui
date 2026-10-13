@@ -2,9 +2,9 @@ import { test, expect } from "../fixtures/index.js";
 import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
 import { CASEWORKER_DISPLAY_NAME } from "#tests/playwright/constants/Caseworker.js";
 
-test.describe("Home page", () => {
+test.describe("All Applications page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/dev/all-applications");
   });
 
   test("should have the correct title", async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe("Home page", () => {
     pages,
     checkAccessibility,
   }) => {
-    const homePage = pages.homePage;
+    const homePage = pages.allApplicationsPage;
 
     await homePage.navigate();
     await homePage.waitForLoad();
@@ -77,7 +77,7 @@ test.describe("Home page", () => {
   });
 
   test("table has correct structure", async ({ pages }) => {
-    const homePage = pages.homePage;
+    const homePage = pages.allApplicationsPage;
 
     await homePage.navigate();
     await homePage.waitForLoad();

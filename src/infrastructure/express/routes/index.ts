@@ -226,7 +226,7 @@ const authAdaptor = new AuthAdaptor(
  */
 
 router.get(
-  "/",
+  "/dev/all-applications",
   requireAuth,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -238,7 +238,7 @@ router.get(
 );
 
 router.get(
-  "/home",
+  "/",
   requireAuth,
   (req: Request, res: Response, next: NextFunction): void => {
     try {

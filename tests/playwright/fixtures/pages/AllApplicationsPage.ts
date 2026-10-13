@@ -4,13 +4,13 @@ import { TEST_CONFIG } from "#tests/playwright/playwright.config.js";
 /**
  * Page object for the home page
  */
-export class HomePage {
+export class AllApplicationsPage {
   private readonly page: Page;
   private readonly url: string;
 
   constructor(page: Page) {
     this.page = page;
-    this.url = TEST_CONFIG.BASE_URL + "/";
+    this.url = TEST_CONFIG.BASE_URL + "/dev/all-applications";
   }
 
   get heading(): Locator {

@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { HomePage } from "#tests/playwright/fixtures/pages/HomePage.js";
+import { AllApplicationsPage } from "#tests/playwright/fixtures/pages/AllApplicationsPage.js";
 
 export class PageFactory {
   private readonly page: Page;
@@ -8,7 +8,7 @@ export class PageFactory {
     this.page = page;
   }
 
-  get homePage(): HomePage {
-    return new HomePage(this.page);
+  get allApplicationsPage(): AllApplicationsPage {
+    return new AllApplicationsPage(this.page);
   }
 }
