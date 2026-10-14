@@ -62,6 +62,7 @@ export interface ClaimCostBreakdownRow {
 export interface AssessmentCostTotals {
   netTotal: string;
   grossTotal: string;
+  zeroVatTotal: string;
 }
 
 export interface ClaimAssessmentViewData {
@@ -76,9 +77,9 @@ export interface ClaimAssessmentViewData {
     totalRemaining: string;
   };
   assessmentDetails: {
-    profitCosts: AssessmentCostTotals;
-    disbursementCosts: AssessmentCostTotals;
-  };
+    profitCosts: AssessmentCostTotals | null;
+    disbursementCosts: AssessmentCostTotals | null;
+  } | null;
   claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
   finalOrNilBillDetails?: ClaimAssessmentFinalOrNilBillDetails;
@@ -163,16 +164,38 @@ function mapAssessmentDetails(
   claim: ClaimDetail,
 ): ClaimAssessmentViewData["assessmentDetails"] {
   const amount = claim.claimDecision?.decisionAmount;
+  const profitCosts = mapCostTotals(
+    amount?.profitCostNet,
+    amount?.profitCostGross,
+    amount?.profitCostVatZero,
+  );
+  const disbursementCosts = mapCostTotals(
+    amount?.disbursementNet,
+    amount?.disbursementGross,
+    amount?.disbursementVatZero,
+  );
+
+  if (profitCosts === null && disbursementCosts === null) {
+    return null;
+  }
+
+  return { profitCosts, disbursementCosts };
+}
+
+// A cost card is only shown when at least one of its amounts was assessed.
+function mapCostTotals(
+  net: string | null | undefined,
+  gross: string | null | undefined,
+  zeroVat: string | null | undefined,
+): AssessmentCostTotals | null {
+  if (![net, gross, zeroVat].some(hasValue)) {
+    return null;
+  }
 
   return {
-    profitCosts: {
-      netTotal: formatAmount(amount?.profitCostNet),
-      grossTotal: formatAmount(amount?.profitCostGross),
-    },
-    disbursementCosts: {
-      netTotal: formatAmount(amount?.disbursementNet),
-      grossTotal: formatAmount(amount?.disbursementGross),
-    },
+    netTotal: formatAmount(net),
+    grossTotal: formatAmount(gross),
+    zeroVatTotal: formatAmount(zeroVat),
   };
 }
 

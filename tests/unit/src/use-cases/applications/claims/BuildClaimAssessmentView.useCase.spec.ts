@@ -154,10 +154,7 @@ describe("BuildClaimAssessmentViewUseCase", () => {
         substantiveCertificate: "£10,000",
         totalRemaining: "£8,800",
       },
-      assessmentDetails: {
-        profitCosts: { netTotal: "-", grossTotal: "-" },
-        disbursementCosts: { netTotal: "-", grossTotal: "-" },
-      },
+      assessmentDetails: null,
       claimCostBreakdown: null,
       supportingEvidence: [
         {
@@ -280,10 +277,12 @@ describe("BuildClaimAssessmentViewUseCase", () => {
   });
 
   describe("assessmentDetails", () => {
+    type DecisionAmount = NonNullable<
+      NonNullable<ClaimDetail["claimDecision"]>["decisionAmount"]
+    >;
+
     const payInFullDecision = (
-      decisionAmount: NonNullable<
-        NonNullable<ClaimDetail["claimDecision"]>["decisionAmount"]
-      > | null,
+      decisionAmount: DecisionAmount | null | undefined,
     ): ClaimDetail["claimDecision"] => ({
       claimDecisionId: 1,
       decision: "PAY_IN_FULL",
@@ -310,78 +309,120 @@ describe("BuildClaimAssessmentViewUseCase", () => {
       return result.data.assessmentDetails;
     }
 
-    it("maps the assessed profit net and gross totals", async () => {
-      const details = await buildAssessmentDetailsFor({
+    const buildFor = (decisionAmount: DecisionAmount | null | undefined) =>
+      buildAssessmentDetailsFor({
         ...finalBillBaseClaim,
-        claimDecision: payInFullDecision({
-          profitCostNet: "1000.00",
-          profitCostGross: "1200.00",
-          disbursementNet: "100.00",
-          disbursementGross: "120.00",
-        }),
+        claimDecision: payInFullDecision(decisionAmount),
       });
 
-      assert.deepEqual(details.profitCosts, {
+    it("maps the assessed profit net, gross and 0% VAT totals", async () => {
+      const details = await buildFor({
+        profitCostNet: "1000.00",
+        profitCostGross: "1200.00",
+        profitCostVatZero: "800.00",
+        disbursementNet: "100.00",
+      });
+
+      assert.deepEqual(details?.profitCosts, {
         netTotal: "£1,000",
         grossTotal: "£1,200",
+        zeroVatTotal: "£800",
       });
     });
 
-    it("maps the assessed disbursement net and gross totals", async () => {
-      const details = await buildAssessmentDetailsFor({
-        ...finalBillBaseClaim,
-        claimDecision: payInFullDecision({
-          profitCostNet: "1000.00",
-          profitCostGross: "1200.00",
-          disbursementNet: "100.50",
-          disbursementGross: "120.60",
-        }),
+    it("maps the assessed disbursement net, gross and 0% VAT totals", async () => {
+      const details = await buildFor({
+        profitCostNet: "1000.00",
+        disbursementNet: "100.50",
+        disbursementGross: "120.60",
+        disbursementVatZero: "50.00",
       });
 
-      assert.deepEqual(details.disbursementCosts, {
+      assert.deepEqual(details?.disbursementCosts, {
         netTotal: "£100.50",
         grossTotal: "£120.60",
+        zeroVatTotal: "£50",
       });
     });
 
-    it("uses a placeholder for every total when the decision has no amount", async () => {
-      const details = await buildAssessmentDetailsFor({
-        ...finalBillBaseClaim,
-        claimDecision: {
-          claimDecisionId: 1,
-          decision: "REJECT",
-          decisionReasons: [],
-          decisionAmount: null,
-        },
+    it("uses a placeholder for each total that is missing on a card that has an amount", async () => {
+      const details = await buildFor({
+        profitCostNet: null,
+        profitCostGross: "1200.00",
+        profitCostVatZero: "",
       });
 
-      assert.deepEqual(details, {
-        profitCosts: { netTotal: "-", grossTotal: "-" },
-        disbursementCosts: { netTotal: "-", grossTotal: "-" },
+      assert.deepEqual(details?.profitCosts, {
+        netTotal: "-",
+        grossTotal: "£1,200",
+        zeroVatTotal: "-",
       });
     });
 
-    it("uses a placeholder for net and gross when the claim was paid at 0% VAT", async () => {
-      const details = await buildAssessmentDetailsFor({
-        ...finalBillBaseClaim,
-        claimDecision: payInFullDecision({
+    it("has no disbursement card when only profit costs were assessed", async () => {
+      const details = await buildFor({
+        profitCostNet: "1000.00",
+        profitCostGross: "1200.00",
+        disbursementNet: null,
+        disbursementGross: null,
+        disbursementVatZero: null,
+      });
+
+      assert.equal(details?.disbursementCosts, null);
+      assert.notEqual(details?.profitCosts, null);
+    });
+
+    it("has no profit card when only disbursement costs were assessed", async () => {
+      const details = await buildFor({
+        profitCostNet: null,
+        profitCostGross: null,
+        profitCostVatZero: null,
+        disbursementNet: "100.00",
+        disbursementGross: "120.00",
+      });
+
+      assert.equal(details?.profitCosts, null);
+      assert.notEqual(details?.disbursementCosts, null);
+    });
+
+    it("has a card when only its 0% VAT total was assessed", async () => {
+      const details = await buildFor({ profitCostVatZero: "800.00" });
+
+      assert.deepEqual(details?.profitCosts, {
+        netTotal: "-",
+        grossTotal: "-",
+        zeroVatTotal: "£800",
+      });
+      assert.equal(details?.disbursementCosts, null);
+    });
+
+    it("has no assessment details when the decision has no amount", async () => {
+      assert.equal(await buildFor(null), null);
+      assert.equal(await buildFor(undefined), null);
+    });
+
+    it("has no assessment details when every assessed amount is empty", async () => {
+      assert.equal(
+        await buildFor({
           profitCostNet: null,
-          profitCostGross: null,
+          profitCostGross: "",
+          profitCostVatZero: null,
           disbursementNet: null,
           disbursementGross: null,
+          disbursementVatZero: null,
         }),
-      });
-
-      assert.deepEqual(details, {
-        profitCosts: { netTotal: "-", grossTotal: "-" },
-        disbursementCosts: { netTotal: "-", grossTotal: "-" },
-      });
+        null,
+      );
     });
 
-    it("does not expose the old claim details", async () => {
-      const details = await buildAssessmentDetailsFor(finalBillBaseClaim);
-
-      assert.equal("vatZeroTotal" in details.profitCosts, false);
+    it("has no assessment details when the claim has no decision", async () => {
+      assert.equal(
+        await buildAssessmentDetailsFor({
+          ...finalBillBaseClaim,
+          claimDecision: null,
+        }),
+        null,
+      );
     });
   });
 

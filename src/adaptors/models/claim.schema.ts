@@ -20,8 +20,10 @@ const ClaimDecisionReasonSchema = z.object({
 const ClaimDecisionAmountSchema = z.object({
   profitCostNet: z.string().optional().nullable(),
   profitCostGross: z.string().optional().nullable(),
+  profitCostVatZero: z.string().optional().nullable(),
   disbursementNet: z.string().optional().nullable(),
   disbursementGross: z.string().optional().nullable(),
+  disbursementVatZero: z.string().optional().nullable(),
 });
 
 const ClaimDecisionSchema = z.object({
