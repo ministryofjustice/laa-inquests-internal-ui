@@ -74,8 +74,12 @@ describe("ClaimAssessmentAdaptor", () => {
           totalRemaining: "£10,000",
         },
         assessmentDetails: {
-          profitCosts: { netTotal: "£1,000", grossTotal: "£1,200" },
-          disbursementCosts: { netTotal: "£100", grossTotal: "£120" },
+          profitCosts: {
+            netTotal: "£1,000",
+            grossTotal: "£1,200",
+            zeroVatTotal: "-",
+          },
+          disbursementCosts: null,
         },
         claimCostBreakdown: {
           fileName: "final_bill_costs.xlsx",
@@ -166,8 +170,12 @@ describe("ClaimAssessmentAdaptor", () => {
           totalRemaining: "£8,800",
         },
         assessmentDetails: {
-          profitCosts: { netTotal: "£1,000", grossTotal: "£1,200" },
-          disbursementCosts: { netTotal: "£100", grossTotal: "£120" },
+          profitCosts: {
+            netTotal: "£1,000",
+            grossTotal: "£1,200",
+            zeroVatTotal: "-",
+          },
+          disbursementCosts: null,
         },
         claimCostBreakdown: null,
         supportingEvidence: [],
@@ -220,8 +228,12 @@ describe("ClaimAssessmentAdaptor", () => {
           totalRemaining: "£8,800",
         },
         assessmentDetails: {
-          profitCosts: { netTotal: "£1,000", grossTotal: "£1,200" },
-          disbursementCosts: { netTotal: "£100", grossTotal: "£120" },
+          profitCosts: {
+            netTotal: "£1,000",
+            grossTotal: "£1,200",
+            zeroVatTotal: "-",
+          },
+          disbursementCosts: null,
         },
         claimCostBreakdown: null,
         supportingEvidence: [],

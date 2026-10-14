@@ -12,7 +12,9 @@
   <h1 class="govuk-heading-l">{{ claimReference }}</h1>
   <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h3>
 
-  {{ assessmentDetailsSection(assessmentDetails) }}
+  {% if assessmentDetails %}
+    {{ assessmentDetailsSection(assessmentDetails) }}
+  {% endif %}
 
   <h2 class="govuk-heading-m">{{ t('pages.claimAssessment.claimDetailsHeading') }}</h2>
 

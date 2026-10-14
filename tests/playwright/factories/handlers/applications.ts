@@ -450,6 +450,8 @@ const nilBillClaimDetail = {
 export const ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE = "INQC-0030-0030";
 export const ASSESSED_REJECTED_CLAIM_REFERENCE = "INQC-0031-0031";
 export const ASSESSED_ZERO_VAT_CLAIM_REFERENCE = "INQC-0032-0032";
+export const ASSESSED_PROFIT_POA_CLAIM_REFERENCE = "INQC-0033-0033";
+export const ASSESSED_DISBURSEMENT_POA_CLAIM_REFERENCE = "INQC-0034-0034";
 
 const assessedPayInFullClaimDetail = {
   ...claimDetail,
@@ -534,6 +536,58 @@ const assessedRejectedClaimDetail = {
       { reasonCode: "MANUAL_REJECTION", justification: "Not allowed" },
     ],
     decisionAmount: null,
+  },
+};
+
+const assessedProfitPoaClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_PROFIT_POA_CLAIM_REFERENCE,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-07-04T09:00:00.000000",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
+  totalProfitCostVatZero: null,
+  totalAmount: "1200.00",
+  totalFundsRemainingAfterClaim: "8800.00",
+  poaTypeId: "PROFIT_COST",
+  claimDecision: {
+    claimDecisionId: 127,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: "1000.00",
+      profitCostGross: "1200.00",
+      profitCostVatZero: null,
+      disbursementNet: null,
+      disbursementGross: null,
+      disbursementVatZero: null,
+    },
+  },
+};
+
+const assessedDisbursementPoaClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_DISBURSEMENT_POA_CLAIM_REFERENCE,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-07-05T09:00:00.000000",
+  totalProfitCostNet: "100.00",
+  totalProfitCostGross: "120.00",
+  totalProfitCostVatZero: null,
+  totalAmount: "120.00",
+  totalFundsRemainingAfterClaim: "8880.00",
+  poaTypeId: "EXPERT_COST",
+  claimDecision: {
+    claimDecisionId: 128,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: null,
+      profitCostGross: null,
+      profitCostVatZero: null,
+      disbursementNet: "100.00",
+      disbursementGross: "120.00",
+      disbursementVatZero: null,
+    },
   },
 };
 
@@ -830,6 +884,20 @@ export const applicationHandlers = [
         params.claimReference === ASSESSED_ZERO_VAT_CLAIM_REFERENCE
       ) {
         return HttpResponse.json(assessedZeroVatClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_PROFIT_POA_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedProfitPoaClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_DISBURSEMENT_POA_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedDisbursementPoaClaimDetail);
       }
 
       if (
