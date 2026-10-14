@@ -1,0 +1,11 @@
+{# Links are rendered as the summary list row value so they sit left aligned, like the tables above. #}
+{% macro evidenceFileLinks(file) %}
+  {%- set fileDetails = (file.fileFormat ~ ' ' ~ file.fileSize) | trim -%}
+  {%- if file.viewHref -%}
+    <a class="govuk-link govuk-!-font-weight-bold" href="{{ file.viewHref }}">{{ t('pages.claimAssessment.supportingEvidence.view') }}<span class="govuk-visually-hidden"> {{ file.fileName }}</span></a>
+    <span class="govuk-!-margin-left-2 govuk-!-margin-right-2" aria-hidden="true">|</span>
+  {%- endif -%}
+  <a class="govuk-link" href="{{ file.downloadHref }}">{{ t('pages.claimAssessment.supportingEvidence.download') }}<span class="govuk-visually-hidden"> {{ file.fileName }}</span>
+  {%- if fileDetails %} ({{ fileDetails }}){% endif -%}
+  </a>
+{% endmacro %}

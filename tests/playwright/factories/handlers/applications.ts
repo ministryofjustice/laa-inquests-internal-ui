@@ -360,17 +360,14 @@ export const claimDetail = {
     {
       claimEvidenceId: "test_evidence_1",
       fileName: "claim-evidence-1.pdf",
+      fileSize: 104448,
     },
     {
       claimEvidenceId: "test_evidence_2",
       fileName: "claim-evidence-2.pdf",
     },
   ],
-  claimDecision: {
-    claimDecisionId: 123,
-    decision: "REJECT",
-    decisionReasons: [],
-  },
+  claimDecision: null,
 };
 
 export const submittedClaimDetail = {
@@ -400,6 +397,7 @@ const finalBillClaimDetail = {
   claimCostTemplateFile: {
     claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     claimCostTemplateFileName: "final_bill_costs.xlsx",
+    fileSize: 20480,
   },
   claimEvidence: [
     {
@@ -447,6 +445,150 @@ const nilBillClaimDetail = {
   financialRecoveryDamages: null,
   financialRecoveryInterest: null,
   payingParty: null,
+};
+
+export const ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE = "INQC-0030-0030";
+export const ASSESSED_REJECTED_CLAIM_REFERENCE = "INQC-0031-0031";
+export const ASSESSED_ZERO_VAT_CLAIM_REFERENCE = "INQC-0032-0032";
+export const ASSESSED_PROFIT_POA_CLAIM_REFERENCE = "INQC-0033-0033";
+export const ASSESSED_DISBURSEMENT_POA_CLAIM_REFERENCE = "INQC-0034-0034";
+
+const assessedPayInFullClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE,
+  claimTypeId: "FINAL_BILL",
+  submissionDate: "2026-07-01T09:00:00.000000",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
+  totalProfitCostVatZero: null,
+  totalAmount: "1320.00",
+  totalFundsRemainingAfterClaim: "8680.00",
+  claimDecision: {
+    claimDecisionId: 124,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: "1000.00",
+      profitCostGross: "1200.00",
+      profitCostVatZero: null,
+      disbursementNet: "100.00",
+      disbursementGross: "120.00",
+      disbursementVatZero: null,
+    },
+  },
+};
+
+const assessedZeroVatClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_ZERO_VAT_CLAIM_REFERENCE,
+  claimTypeId: "FINAL_BILL",
+  submissionDate: "2026-07-03T09:00:00.000000",
+  totalProfitCostNet: null,
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: "800.00",
+  totalAmount: "800.00",
+  totalFundsRemainingAfterClaim: "9200.00",
+  claimDecision: {
+    claimDecisionId: 126,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: null,
+      profitCostGross: null,
+      profitCostVatZero: "800.00",
+      disbursementNet: null,
+      disbursementGross: null,
+      disbursementVatZero: "50.00",
+    },
+  },
+};
+
+const assessedRejectedClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_REJECTED_CLAIM_REFERENCE,
+  claimTypeId: "FINAL_BILL",
+  submissionDate: "2026-07-02T09:00:00.000000",
+  totalProfitCostNet: "170.00",
+  totalProfitCostGross: null,
+  totalProfitCostVatZero: null,
+  totalAmount: "170.00",
+  totalFundsRemainingAfterClaim: "10000.00",
+  claimCostTemplateFile: {
+    claimCostTemplateFileId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    claimCostTemplateFileName: "final_bill_costs.xlsx",
+    fileSize: 20480,
+  },
+  claimEvidence: [
+    {
+      claimEvidenceId: "test_evidence_1",
+      fileName: "claim-evidence-1.pdf",
+      fileSize: 1572864,
+    },
+    {
+      claimEvidenceId: "test_evidence_2",
+      fileName: "claim-evidence-2.pdf",
+    },
+  ],
+  claimDecision: {
+    claimDecisionId: 125,
+    decision: "REJECT",
+    decisionReasons: [
+      { reasonCode: "MANUAL_REJECTION", justification: "Not allowed" },
+    ],
+    decisionAmount: null,
+  },
+};
+
+const assessedProfitPoaClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_PROFIT_POA_CLAIM_REFERENCE,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-07-04T09:00:00.000000",
+  totalProfitCostNet: "1000.00",
+  totalProfitCostGross: "1200.00",
+  totalProfitCostVatZero: null,
+  totalAmount: "1200.00",
+  totalFundsRemainingAfterClaim: "8800.00",
+  poaTypeId: "PROFIT_COST",
+  claimDecision: {
+    claimDecisionId: 127,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: "1000.00",
+      profitCostGross: "1200.00",
+      profitCostVatZero: null,
+      disbursementNet: null,
+      disbursementGross: null,
+      disbursementVatZero: null,
+    },
+  },
+};
+
+const assessedDisbursementPoaClaimDetail = {
+  ...claimDetail,
+  claimReference: ASSESSED_DISBURSEMENT_POA_CLAIM_REFERENCE,
+  claimTypeId: "PAYMENT_ON_ACCOUNT",
+  submissionDate: "2026-07-05T09:00:00.000000",
+  totalProfitCostNet: "100.00",
+  totalProfitCostGross: "120.00",
+  totalProfitCostVatZero: null,
+  totalAmount: "120.00",
+  totalFundsRemainingAfterClaim: "8880.00",
+  poaTypeId: "EXPERT_COST",
+  claimDecision: {
+    claimDecisionId: 128,
+    decision: "PAY_IN_FULL",
+    decisionReasons: [],
+    decisionAmount: {
+      profitCostNet: null,
+      profitCostGross: null,
+      profitCostVatZero: null,
+      disbursementNet: "100.00",
+      disbursementGross: "120.00",
+      disbursementVatZero: null,
+    },
+  },
 };
 
 const submittedPoaClaimDetail = {
@@ -713,12 +855,49 @@ export const applicationHandlers = [
 
       if (
         params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_PAY_IN_FULL_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedPayInFullClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
         params.claimReference === "INQC-0017-0017"
       ) {
         return HttpResponse.json({
           ...claimDetail,
+          ...assessedClaims[1],
           claimReference: "INQC-0017-0017",
+          claimDecision: null,
         });
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_REJECTED_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedRejectedClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_ZERO_VAT_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedZeroVatClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_PROFIT_POA_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedProfitPoaClaimDetail);
+      }
+
+      if (
+        params.id === "INQ-YYY-005" &&
+        params.claimReference === ASSESSED_DISBURSEMENT_POA_CLAIM_REFERENCE
+      ) {
+        return HttpResponse.json(assessedDisbursementPoaClaimDetail);
       }
 
       if (
@@ -729,10 +908,7 @@ export const applicationHandlers = [
           ...claimDetail,
           ...assessedClaims[0],
           claimReference: "INQC-0016-0016",
-          claimDecision: {
-            ...claimDetail.claimDecision,
-            decision: "PAY_IN_FULL",
-          },
+          claimDecision: null,
         });
       }
 

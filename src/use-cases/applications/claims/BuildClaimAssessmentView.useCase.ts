@@ -1,5 +1,6 @@
 import type { ClaimDetail } from "#src/adaptors/models/claim.types.js";
 import {
+  ASSESSED_CLAIM_DECISIONS,
   CLAIM_DECISION_STATUSES,
   CLAIM_STATUSES,
   DISPOSITION,
@@ -9,7 +10,7 @@ import {
 import type { ApplicationPort } from "#src/ports/inquests-api/applications/ApplicationAPI/ApplicationAPI.port.js";
 import type { ClaimsPort } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
-import { formatCurrency } from "#src/utils/formatter.js";
+import { formatCurrency, formatFileSize } from "#src/utils/formatter.js";
 import { mapClaimType } from "#src/utils/claim.js";
 
 interface BuildClaimAssessmentViewInput {
@@ -20,6 +21,8 @@ interface BuildClaimAssessmentViewInput {
 
 export interface ClaimAssessmentEvidenceRow {
   fileName: string;
+  fileFormat: string;
+  fileSize: string;
   viewHref: string;
   downloadHref: string;
 }
@@ -51,19 +54,32 @@ export interface ClaimAssessmentFinalOrNilBillDetails {
 
 export interface ClaimCostBreakdownRow {
   fileName: string;
+  fileFormat: string;
+  fileSize: string;
   downloadHref: string;
+}
+
+export interface AssessmentCostTotals {
+  netTotal: string;
+  grossTotal: string;
+  zeroVatTotal: string;
 }
 
 export interface ClaimAssessmentViewData {
   laaReference: string;
   claimReference: string;
   claimStatus: string;
+  isAssessed: boolean;
   overview: {
     paymentType: string;
     paymentAmount: string;
     substantiveCertificate: string;
     totalRemaining: string;
   };
+  assessmentDetails: {
+    profitCosts: AssessmentCostTotals | null;
+    disbursementCosts: AssessmentCostTotals | null;
+  } | null;
   claimCostBreakdown: ClaimCostBreakdownRow | null;
   supportingEvidence: ClaimAssessmentEvidenceRow[];
   finalOrNilBillDetails?: ClaimAssessmentFinalOrNilBillDetails;
@@ -104,20 +120,22 @@ export class BuildClaimAssessmentViewUseCase {
       claim.substantiveCostLimitation ??
       application.proceeding.substantiveCostLimitation;
 
+    const decision = claim.claimDecision?.decision;
+
     return {
       status: "SUCCESS",
       data: {
         laaReference: application.laaReference,
         claimReference: claim.claimReference,
-        claimStatus: mapClaimDecision(
-          claim.claimDecision?.decision ?? claim.statusId ?? undefined,
-        ),
+        claimStatus: mapClaimDecision(decision ?? claim.statusId ?? undefined),
+        isAssessed: ASSESSED_CLAIM_DECISIONS.includes(decision ?? ""),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
           paymentAmount: formatAmount(claim.totalAmount),
           substantiveCertificate: formatAmount(substantiveCostLimitation),
           totalRemaining: formatAmount(claim.totalFundsRemainingAfterClaim),
         },
+        assessmentDetails: mapAssessmentDetails(claim),
         claimCostBreakdown: mapClaimCostBreakdown(
           claim,
           input.laaReference,
@@ -140,6 +158,45 @@ export class BuildClaimAssessmentViewUseCase {
       },
     };
   }
+}
+
+function mapAssessmentDetails(
+  claim: ClaimDetail,
+): ClaimAssessmentViewData["assessmentDetails"] {
+  const amount = claim.claimDecision?.decisionAmount;
+  const profitCosts = mapCostTotals(
+    amount?.profitCostNet,
+    amount?.profitCostGross,
+    amount?.profitCostVatZero,
+  );
+  const disbursementCosts = mapCostTotals(
+    amount?.disbursementNet,
+    amount?.disbursementGross,
+    amount?.disbursementVatZero,
+  );
+
+  if (profitCosts === null && disbursementCosts === null) {
+    return null;
+  }
+
+  return { profitCosts, disbursementCosts };
+}
+
+// A cost card is only shown when at least one of its amounts was assessed.
+function mapCostTotals(
+  net: string | null | undefined,
+  gross: string | null | undefined,
+  zeroVat: string | null | undefined,
+): AssessmentCostTotals | null {
+  if (![net, gross, zeroVat].some(hasValue)) {
+    return null;
+  }
+
+  return {
+    netTotal: formatAmount(net),
+    grossTotal: formatAmount(gross),
+    zeroVatTotal: formatAmount(zeroVat),
+  };
 }
 
 function isFinalOrNilBill(claimTypeId: string): boolean {
@@ -229,6 +286,7 @@ function mapFinalOrNilBillDetails(
         claim.claimCostTemplateFile.claimCostTemplateFileId,
         laaReference,
         claimReference,
+        claim.claimCostTemplateFile.fileSize,
       )
     : undefined;
 
@@ -300,8 +358,17 @@ function mapSupportingEvidence(
       evidence.claimEvidenceId,
       laaReference,
       claimReference,
+      evidence.fileSize,
     ),
   );
+}
+
+function getFileFormat(fileName: string): string {
+  const extensionStart = fileName.lastIndexOf(".");
+
+  return extensionStart === -1
+    ? ""
+    : fileName.slice(extensionStart + 1).toLowerCase();
 }
 
 function mapEvidenceRow(
@@ -309,11 +376,14 @@ function mapEvidenceRow(
   evidenceId: string,
   laaReference: string,
   claimReference: string,
+  fileSize: number | null | undefined,
 ): ClaimAssessmentEvidenceRow {
   const basePath = `/applications/${laaReference}/claims/${claimReference}/evidence`;
 
   return {
     fileName,
+    fileFormat: getFileFormat(fileName),
+    fileSize: formatFileSize(fileSize),
     viewHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.INLINE}`,
     downloadHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
@@ -334,6 +404,8 @@ function mapClaimCostBreakdown(
 
   return {
     fileName: costTemplateFile.claimCostTemplateFileName,
+    fileFormat: getFileFormat(costTemplateFile.claimCostTemplateFileName),
+    fileSize: formatFileSize(costTemplateFile.fileSize),
     downloadHref: `${basePath}/${costTemplateFile.claimCostTemplateFileId}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
 }

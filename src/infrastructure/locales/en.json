@@ -226,6 +226,22 @@
         "substantiveCertificate": "Substantive certificate",
         "totalRemaining": "Total remaining"
       },
+      "assessmentDetails": {
+        "heading": "Details from the assessment",
+        "profitCosts": {
+          "title": "Total profit costs",
+          "net": "Net total for profit costs excluding VAT",
+          "gross": "Gross total for profit costs including VAT",
+          "zeroVat": "Total for profit costs charged at 0% VAT"
+        },
+        "disbursementCosts": {
+          "title": "Total disbursement costs",
+          "net": "Net total for disbursement costs excluding VAT",
+          "gross": "Gross total for disbursement costs including VAT",
+          "zeroVat": "Total for disbursement costs charged at 0% VAT"
+        }
+      },
+      "claimDetailsHeading": "Claim details",
       "finalOrNilBill": {
         "evidence": {
           "heading": "Evidence",

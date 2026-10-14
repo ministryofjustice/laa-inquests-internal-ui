@@ -1,0 +1,50 @@
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% macro assessmentCostCard(title, netLabel, grossLabel, zeroVatLabel, totals) %}
+  {{ govukSummaryList({
+    card: {
+      title: {
+        text: title
+      }
+    },
+    classes: 'app-summary-list--equal-columns',
+    rows: [
+      {
+        key: { text: netLabel },
+        value: { text: totals.netTotal }
+      },
+      {
+        key: { text: grossLabel },
+        value: { text: totals.grossTotal }
+      },
+      {
+        key: { text: zeroVatLabel },
+        value: { text: totals.zeroVatTotal }
+      }
+    ]
+  }) }}
+{% endmacro %}
+
+{% macro assessmentDetailsSection(details) %}
+  <h2 class="govuk-heading-m">{{ t('pages.claimAssessment.assessmentDetails.heading') }}</h2>
+
+  {% if details.profitCosts %}
+    {{ assessmentCostCard(
+      t('pages.claimAssessment.assessmentDetails.profitCosts.title'),
+      t('pages.claimAssessment.assessmentDetails.profitCosts.net'),
+      t('pages.claimAssessment.assessmentDetails.profitCosts.gross'),
+      t('pages.claimAssessment.assessmentDetails.profitCosts.zeroVat'),
+      details.profitCosts
+    ) }}
+  {% endif %}
+
+  {% if details.disbursementCosts %}
+    {{ assessmentCostCard(
+      t('pages.claimAssessment.assessmentDetails.disbursementCosts.title'),
+      t('pages.claimAssessment.assessmentDetails.disbursementCosts.net'),
+      t('pages.claimAssessment.assessmentDetails.disbursementCosts.gross'),
+      t('pages.claimAssessment.assessmentDetails.disbursementCosts.zeroVat'),
+      details.disbursementCosts
+    ) }}
+  {% endif %}
+{% endmacro %}

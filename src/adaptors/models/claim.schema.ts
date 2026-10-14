@@ -3,11 +3,13 @@ import { z } from "zod";
 const ClaimEvidenceSchema = z.object({
   claimEvidenceId: z.string(),
   fileName: z.string(),
+  fileSize: z.number().optional().nullable(),
 });
 
 const ClaimCostTemplateFileSchema = z.object({
   claimCostTemplateFileId: z.string(),
   claimCostTemplateFileName: z.string(),
+  fileSize: z.number().optional().nullable(),
 });
 
 const ClaimDecisionReasonSchema = z.object({
@@ -15,10 +17,20 @@ const ClaimDecisionReasonSchema = z.object({
   justification: z.string().nullable(),
 });
 
+const ClaimDecisionAmountSchema = z.object({
+  profitCostNet: z.string().optional().nullable(),
+  profitCostGross: z.string().optional().nullable(),
+  profitCostVatZero: z.string().optional().nullable(),
+  disbursementNet: z.string().optional().nullable(),
+  disbursementGross: z.string().optional().nullable(),
+  disbursementVatZero: z.string().optional().nullable(),
+});
+
 const ClaimDecisionSchema = z.object({
   claimDecisionId: z.number(),
   decision: z.string(),
   decisionReasons: z.array(ClaimDecisionReasonSchema).optional().default([]),
+  decisionAmount: ClaimDecisionAmountSchema.optional().nullable(),
 });
 
 const BaseClaimSchema = z.object({
