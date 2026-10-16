@@ -2,10 +2,10 @@
 
 ENVIRONMENT=$1
 
-if [[ "$ENVIRONMENT" == "staging" || "$ENVIRONMENT" == "prod" ]]; then
-  VALUES_FILE="./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml"
-else
+if [[ "$ENVIRONMENT" == "suppliertest"]]; then
   VALUES_FILE="./deploy/infrastructure/helm/values/environment.yaml"
+else
+  VALUES_FILE="./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml"
 fi
 
 deploy_branch() {
@@ -23,7 +23,7 @@ deploy_branch() {
   helm upgrade "$BRANCH_RELEASE_NAME" ./deploy/infrastructure/helm/. \
                 --install --wait --timeout 10m \
                 --namespace="${K8S_NAMESPACE}" \
-                --values "$VALUES_FILE" \
+                --values ./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml \
                 --set-string ingress.allowlist="${ALLOW_LIST//,/\\,}" \
                 --set image.repository="$REGISTRY/$REPOSITORY" \
                 --set image.tag="$IMAGE_TAG" \
@@ -59,7 +59,7 @@ deploy_main() {
   helm upgrade laa-inquests-internal-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
-                          --values "$VALUES_FILE" \
+                          --values ./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml \
                           --set-string ingress.allowlist="${ALLOW_LIST//,/\\,}" \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
@@ -94,12 +94,8 @@ if [ -z "$branch_name" ]; then
   branch_name="$GITHUB_REF_NAME" # Branch name if this is a push event
 fi
 
-if [[ ("$ENVIRONMENT" == 'suppliertest') ]] || \
-   [[ ("$ENVIRONMENT" == 'dev') && "$branch_name" == "main" ]] || \
-   [[ (("$ENVIRONMENT" == 'staging' || "$ENVIRONMENT" == 'prod') && "$branch_name" =~ $releaseTag) ]]
+if  [[ ("$ENVIRONMENT" == 'dev') && "$branch_name" != "main" ]] 
 then
-  deploy_main
-else
   if deploy_branch; then
     echo "Deploy succeeded"
   else
@@ -112,4 +108,6 @@ else
       exit 1
     fi
   fi
+else
+  deploy_main
 fi

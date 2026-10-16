@@ -93,7 +93,7 @@ env:
   RATE_LIMIT_IP_MAX: 900
   RATE_WINDOW_MS: 900000
   RATE_WINDOW_PER_REPORT_MS: 5000
-  NODE_ENV: "environment"
+  NODE_ENV: "dev"
 
 autoscaling:
   enabled: false
