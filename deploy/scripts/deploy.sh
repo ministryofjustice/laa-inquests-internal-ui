@@ -23,12 +23,12 @@ deploy_branch() {
   helm upgrade "$BRANCH_RELEASE_NAME" ./deploy/infrastructure/helm/. \
                 --install --wait --timeout 10m \
                 --namespace="${K8S_NAMESPACE}" \
-                --values ./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml \
+                --values ./deploy/infrastructure/helm/values/"ENVIRONMENT".yaml \
                 --set-string ingress.allowlist="${ALLOW_LIST//,/\\,}" \
                 --set image.repository="$REGISTRY/$REPOSITORY" \
                 --set image.tag="$IMAGE_TAG" \
                 --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
-                --set 'ingress.hosts[0].host'="$RELEASE_HOST" \
+                --set ingress.hosts[0].host="$RELEASE_HOST" \
                 --set env.AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
                 --set env.AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" \
                 --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
@@ -59,12 +59,12 @@ deploy_main() {
   helm upgrade laa-inquests-internal-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
-                          --values ./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml \
+                          --values ./deploy/infrastructure/helm/values/"ENVIRONMENT".yaml \
                           --set-string ingress.allowlist="${ALLOW_LIST//,/\\,}" \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
                           --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
-                          --set 'ingress.hosts[0].host'="$RELEASE_HOST" \
+                          --set ingress.hosts[0].host="$RELEASE_HOST" \
                           --set env.AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
                           --set env.AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" \
                           --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
