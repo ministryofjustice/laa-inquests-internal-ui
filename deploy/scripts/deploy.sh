@@ -2,8 +2,8 @@
 
 ENVIRONMENT=$1
 
-if [[ "$ENVIRONMENT" == "suppliertest"]]; then
-  VALUES_FILE="./deploy/infrastructure/helm/values/environment.yaml"
+if [[ "$ENVIRONMENT" == "suppliertest" ]]; then
+  VALUES_FILE="./deploy/infrastructure/helm/values/dev.yaml"
 else
   VALUES_FILE="./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml"
 fi
