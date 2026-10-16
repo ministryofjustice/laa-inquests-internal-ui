@@ -1,8 +1,14 @@
+# Default values for laa-inquests-internal-ui.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Shared replica count for non-production environments.
 replicaCount: 2
 
 image:
   repository: nginx
   pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
 imagePullSecrets: []
@@ -11,6 +17,8 @@ fullnameOverride: ""
 
 serviceAccount:
   create: false
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
   name: "cd-serviceaccount"
 
 podAnnotations: {}
@@ -106,9 +114,23 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
 
+# Additional volumes on the output Deployment definition.
 volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
 volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
 nodeSelector: {}
+
 tolerations: []
+
 affinity: {}
