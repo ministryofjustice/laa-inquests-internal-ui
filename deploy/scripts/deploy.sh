@@ -9,8 +9,11 @@ else
 fi
 
 deploy_branch() {
+# Convert the branch name into a string that can be turned into a valid URL
   BRANCH_RELEASE_NAME=$(echo "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
+# Set the deployment host, this will add the prefix of the branch name e.g el-257-deploy-with-circleci or just main
   RELEASE_HOST="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+# Set the ingress name, needs release name, namespace and -green suffix
   IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
   AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
@@ -88,9 +91,9 @@ deploy_main() {
 
 releaseTag="^[0-9]+[.][0-9]+[.][0-9]+$"
 
-branch_name="$GITHUB_HEAD_REF"
+branch_name="$GITHUB_HEAD_REF" # Branch name if this is a pull-request event
 if [ -z "$branch_name" ]; then
-  branch_name="$GITHUB_REF_NAME"
+  branch_name="$GITHUB_REF_NAME" # Branch name if this is a push event
 fi
 
 if [[ "$ENVIRONMENT" != "staging" && "$ENVIRONMENT" != "prod" && "$branch_name" == "main" ]] || \
