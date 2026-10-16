@@ -72,6 +72,20 @@ resources:
     cpu: 250m
     memory: 256Mi
 
+livenessProbe:
+  httpGet:
+    path: /status
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 60
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 60
+
 env:
   AWS_SECRETS_INQUESTS_API_ENTRA_CONFIG: ""
   AWS_SECRETS_AUTH_CLIENT_ID: ""
