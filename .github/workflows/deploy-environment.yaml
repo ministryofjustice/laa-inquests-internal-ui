@@ -1,4 +1,4 @@
-name: Deploy to suppliertest
+name: Deploy to environment
 
 on:
   workflow_dispatch:
