@@ -51,7 +51,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.session = { cookie: {} } as never;
 
       route?.stack[0].handle(req, res);
 
@@ -85,6 +85,26 @@ describe("createAuthRouter", () => {
         `expected maxAge ~${expectedMaxAge}, got ${maxAge}`,
       );
       assert.equal(res.redirect.firstCall.args[0], "/");
+    });
+
+    it("applies idle and absolute timeout overrides when provided", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = { cookie: {} } as never;
+      req.query = { idleSeconds: "5", absoluteSeconds: "30" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      const lifetime = req.session.lifetime;
+      assert.equal(lifetime?.idleTimeoutMs, 5_000);
+      assert.equal(
+        (lifetime?.absoluteExpiresAt ?? 0) - (lifetime?.lastActivityAt ?? 0),
+        30_000,
+      );
+      assert.equal(req.session.cookie.maxAge, 5_000);
     });
   });
 

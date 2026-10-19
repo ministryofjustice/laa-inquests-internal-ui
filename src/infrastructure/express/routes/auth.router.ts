@@ -1,8 +1,13 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
-import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { startSessionLifetime } from "#src/infrastructure/express/session/sessionExpiry.js";
 import { RECOGNISED_ROLES } from "#src/infrastructure/config/accessControl.js";
+import {
+  SESSION_ABSOLUTE_TIMEOUT_MS,
+  SESSION_EXPIRY_BUFFER_MS,
+  SESSION_IDLE_TIMEOUT_MS,
+} from "#src/infrastructure/locales/constants.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
@@ -92,14 +97,40 @@ export function createAuthRouter(
           ? overrideRoles.split(",")
           : [...RECOGNISED_ROLES];
 
-      // Optional expiry to exercise session-expiry behaviour in E2E tests.
-      const tokenExpirySeconds = Number(req.query.tokenExpirySeconds);
-      if (!Number.isNaN(tokenExpirySeconds)) {
-        applySessionExpiry(
-          req.session,
-          new Date(Date.now() + tokenExpirySeconds * MILLISECONDS_IN_A_SECOND),
-        );
-      }
+      // Optional overrides to exercise session-expiry behaviour in E2E tests.
+      const now = Date.now();
+      const secondsOr = (value: unknown, fallbackMs: number): number => {
+        if (typeof value !== "string" || value === "") {
+          return fallbackMs;
+        }
+        const seconds = Number(value);
+        if (Number.isNaN(seconds)) {
+          return fallbackMs;
+        }
+        return seconds * MILLISECONDS_IN_A_SECOND;
+      };
+      const absoluteTimeoutMs = secondsOr(
+        req.query.absoluteSeconds,
+        SESSION_ABSOLUTE_TIMEOUT_MS,
+      );
+      startSessionLifetime(
+        req.session,
+        new Date(
+          now +
+            secondsOr(
+              req.query.tokenExpirySeconds,
+              absoluteTimeoutMs + SESSION_EXPIRY_BUFFER_MS,
+            ),
+        ),
+        now,
+        {
+          idleTimeoutMs: secondsOr(
+            req.query.idleSeconds,
+            SESSION_IDLE_TIMEOUT_MS,
+          ),
+          absoluteTimeoutMs,
+        },
+      );
 
       res.redirect("/");
     });
