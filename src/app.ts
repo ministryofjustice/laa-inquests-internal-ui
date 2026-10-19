@@ -64,6 +64,9 @@ app.set("view engine", "njk");
 initializeI18nextSync();
 
 app.use(requestLoggingContext);
+
+app.use(nonceMiddleware);
+app.use(helmet(helmetConfig));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));
@@ -142,8 +145,6 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 app.use(viewContext);
 app.use(globalAccessGuard);
 app.use(setupLocaleData);
-app.use(nonceMiddleware);
-app.use(helmet(helmetConfig));
 setupNunjucks(app);
 setupCsrf(app);
 
