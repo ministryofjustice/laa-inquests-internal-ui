@@ -76,6 +76,8 @@ import { RetrieveApplicationReferenceUseCase } from "#src/use-cases/applications
 import createClaimRouter from "#src/infrastructure/express/routes/claim.router.js";
 import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
 import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
+import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
+import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/accessibilityStatement/AccessibilityStatement.adaptor.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -170,6 +172,7 @@ const allApplicationsAdaptor = new AllApplicationsAdaptor(
   buildApplicationsListViewUseCase,
 );
 const homeAdaptor = new HomeAdaptor(new SessionHelper());
+const accessibilityStatementAdaptor = new AccessibilityStatementAdaptor();
 const reportsAdaptor = new ReportsAdaptor(
   {
     downloadApplicationsBacklogReportUseCase:
@@ -272,6 +275,14 @@ router.use(
   "/reports",
   requireAuth,
   createReportsRouter(express.Router(), reportsAdaptor),
+);
+
+router.use(
+  "/accessibility-statement",
+  createAccessibilityStatementRouter(
+    express.Router(),
+    accessibilityStatementAdaptor,
+  ),
 );
 
 router.use(
