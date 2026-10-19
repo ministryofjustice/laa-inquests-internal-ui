@@ -117,5 +117,9 @@ export enum HISTORY_EVENT_REFERENCE {
 // Buffer before the Entra access-token expiry at which the session is treated as expired.
 export const SESSION_EXPIRY_BUFFER_MS = 60_000;
 
+export const SESSION_IDLE_TIMEOUT_MS = 1_200_000;
+
+export const SESSION_ABSOLUTE_TIMEOUT_MS = 43_200_000;
+
 // Marks a request that has already been redirected to sign in, so it is not redirected again.
 export const SESSION_EXPIRED_QUERY_FLAG = "sessionExpired";

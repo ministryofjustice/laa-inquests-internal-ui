@@ -1,7 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
+import { promisify } from "node:util";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
-import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { startSessionLifetime } from "#src/infrastructure/express/session/sessionExpiry.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import config from "#src/infrastructure/config/config.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 export class AuthAdaptor {
@@ -35,6 +37,8 @@ export class AuthAdaptor {
       this.authScopes,
       this.redirectUri,
     );
+    await this.#regenerateSession(req);
+    startSessionLifetime(req.session, user.accessTokenExpiresOn, Date.now());
     Object.assign(req.session, {
       user: {
         userId: user.userId,
@@ -43,12 +47,12 @@ export class AuthAdaptor {
       },
       roles: user.roles,
     });
-    applySessionExpiry(req.session, user.accessTokenExpiresOn);
     res.redirect("/");
   }
 
   logout(req: Request, res: Response, next: NextFunction): void {
     req.session.destroy((err) => {
+      res.clearCookie(config.session.name);
       if (err !== undefined && err !== null) {
         next(err);
         return;
@@ -56,5 +60,11 @@ export class AuthAdaptor {
       const url = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(this.postLogoutUri)}`;
       res.redirect(url);
     });
+  }
+
+  async #regenerateSession(req: Request): Promise<void> {
+    await promisify((callback: (err: unknown) => void): void => {
+      req.session.regenerate(callback);
+    })();
   }
 }
