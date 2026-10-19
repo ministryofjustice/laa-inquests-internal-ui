@@ -489,6 +489,11 @@
           "storesClicks": "what you click on while you visit the site",
           "storesDevice": "the device and browser you use"
         },
+        "googleAnalytics": {
+          "name": "Google Analytics",
+          "purpose": "Placeholder",
+          "expires": "1 year"
+        },
         "radio": {
           "label": "Do you want to accept analytics cookies?",
           "yes": "Yes",

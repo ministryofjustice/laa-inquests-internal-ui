@@ -24,15 +24,13 @@ test.describe("View cookies page", () => {
     ).toBeVisible();
   });
 
-  test("should display the essential cookies table", async ({ page }) => {
+  test("should display the essential cookies section", async ({ page }) => {
     await page.goto(cookiesUrl);
 
     await expect(
       page.locator("h2.govuk-heading-m", { hasText: "Essential cookies" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("table", { name: "Essential cookies we use" }),
-    ).toBeVisible();
+    await expect(page.getByTestId("essential-cookies-table")).toBeVisible();
   });
 
   test("should display the analytics cookies section and radios", async ({
@@ -46,6 +44,7 @@ test.describe("View cookies page", () => {
         hasText: "Analytics cookies (optional)",
       }),
     ).toBeVisible();
+    await expect(page.getByTestId("analytics-cookies-table")).toBeVisible();
     await expect(
       page.getByRole("group", {
         name: "Do you want to accept analytics cookies?",

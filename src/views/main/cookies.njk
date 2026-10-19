@@ -18,6 +18,9 @@
       caption: t('pages.cookies.essential.tableCaption'),
       captionClasses: "govuk-table__caption--s",
       firstCellIsHeader: false,
+      attributes: {
+         "data-testId": "essential-cookies-table"
+      },
       head: [
         { text: t('pages.cookies.table.name') },
         { text: t('pages.cookies.table.purpose') },
@@ -50,14 +53,33 @@
       <li>{{ t('pages.cookies.analytics.googleStorage.storesDevice') }}</li>
     </ul>
 
+     {{ govukTable({
+          attributes: {
+              "data-testId": "analytics-cookies-table"
+          },
+          firstCellIsHeader: false,
+          head: [
+            { text: t('pages.cookies.table.name') },
+            { text: t('pages.cookies.table.purpose') },
+            { text: t('pages.cookies.table.expires') }
+          ],
+          rows: [
+            [
+              { text: t('pages.cookies.analytics.googleAnalytics.name') },
+              { text: t('pages.cookies.analytics.googleAnalytics.purpose') },
+              { text: t('pages.cookies.analytics.googleAnalytics.expires') }
+            ]
+          ]
+        }) }}
+
     {{ govukRadios({
-      classes: "govuk-radios--small",
+      classes: "govuk-radios--medium",
       name: "changedName",
       fieldset: {
         legend: {
           text: t('pages.cookies.analytics.radio.label'),
           isPageHeading: true,
-          classes: "govuk-fieldset__legend--m"
+          classes: "govuk-fieldset__legend--s"
         }
       },
       items: [
