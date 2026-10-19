@@ -51,6 +51,7 @@ import { HomeAdaptor } from "#src/adaptors/presenter/home/Home.adaptor.js";
 import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildApplicationsListView.useCase.js";
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
+import { CookiesAdaptor } from "#src/adaptors/presenter/cookies/Cookies.adaptor.js";
 import { UserRolesAdaptor } from "#src/adaptors/presenter/userRoles/UserRoles.adaptor.js";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
 import { createUserRolesRouter } from "#src/infrastructure/express/routes/userRoles.router.js";
@@ -76,6 +77,7 @@ import { RetrieveApplicationReferenceUseCase } from "#src/use-cases/applications
 import createClaimRouter from "#src/infrastructure/express/routes/claim.router.js";
 import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
 import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
+import { createCookiesRouter } from "#src/infrastructure/express/routes/cookies.router.js";
 import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
 import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/footer/AccessibilityStatement.adaptor.js";
 import { createHelpRouter } from "#src/infrastructure/express/routes/help.router.js";
@@ -189,6 +191,7 @@ const reportsAdaptor = new ReportsAdaptor(
   },
   new PaymentExtractValidator(),
 );
+const cookiesAdaptor = new CookiesAdaptor();
 const userRolesAdaptor = new UserRolesAdaptor();
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
@@ -285,6 +288,11 @@ router.use(
   "/help",
   requireAuth,
   createHelpRouter(express.Router(), helpAdaptor),
+);
+router.use(
+  "/cookies",
+  requireAuth,
+  createCookiesRouter(express.Router(), cookiesAdaptor),
 );
 
 router.use(
