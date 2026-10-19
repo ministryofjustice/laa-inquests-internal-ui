@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response, Router } from "express";
-import type { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/accessibilityStatement/AccessibilityStatement.adaptor.js";
+import type { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/footer/AccessibilityStatement.adaptor.js";
 
 export function createAccessibilityStatementRouter(
   accessibilityStatementRouter: Router,

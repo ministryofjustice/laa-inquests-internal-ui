@@ -77,7 +77,7 @@ import createClaimRouter from "#src/infrastructure/express/routes/claim.router.j
 import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.adaptor.js";
 import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
 import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
-import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/accessibilityStatement/AccessibilityStatement.adaptor.js";
+import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/footer/AccessibilityStatement.adaptor.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
