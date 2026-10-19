@@ -3,132 +3,78 @@
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 
+{% set pageTitle = t('pages.cookies.title') %}
+
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l">Cookies</h1>
-    <p class="govuk-body">Cookies are small files saved on your phone, tablet or computer when you visit a website.</p>
-    <p class="govuk-body">We use cookies to make this site work and collect information about how you use our service.</p>
-    <h2 class="govuk-heading-m">Essential cookies</h2>
-    <p class="govuk-body">We use as essential cookie to remember when you accept or reject cookies on our website, and another to remember your answers as you complete forms.</p>
+    <h1 class="govuk-heading-l">{{ t('pages.cookies.title') }}</h1>
+    <p class="govuk-body">{{ t('pages.cookies.description') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.purpose') }}</p>
+
+    <h2 class="govuk-heading-m">{{ t('pages.cookies.essential.heading') }}</h2>
+    <p class="govuk-body">{{ t('pages.cookies.essential.body') }}</p>
     {{ govukTable({
-      caption: "Essential cookies we use",
+      caption: t('pages.cookies.essential.tableCaption'),
       captionClasses: "govuk-table__caption--s",
       firstCellIsHeader: false,
       head: [
-        {
-          text: "Name"
-        },
-        {
-          text: "Purpose"
-        },
-        {
-          text: "Expires"
-        }
+        { text: t('pages.cookies.table.name') },
+        { text: t('pages.cookies.table.purpose') },
+        { text: t('pages.cookies.table.expires') }
       ],
       rows: [
         [
-          {
-            text: "session_cookie"
-          },
-          {
-            text: "Used to keep you signed in"
-          },
-          {
-            text: "20 hours"
-          }
+          { text: t('pages.cookies.essential.sessionCookie.name') },
+          { text: t('pages.cookies.essential.sessionCookie.purpose') },
+          { text: t('pages.cookies.essential.sessionCookie.expires') }
         ],
         [
-          {
-            text: "cookie_policy"
-          },
-          {
-            text: "Saves your cookie consent settings"
-          },
-          {
-            text: "1 year"
-          }
+          { text: t('pages.cookies.essential.cookiePolicy.name') },
+          { text: t('pages.cookies.essential.cookiePolicy.purpose') },
+          { text: t('pages.cookies.essential.cookiePolicy.expires') }
         ]
       ]
     }) }}
 
-    <h2 class="govuk-heading-m">Analytics cookies (optional)</h2>
-        <p class="govuk-body">We use Google Analytics software to understand how people use legal aid at inquests. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.</p>
-        <p class="govuk-body">We do not collect or store your personal information (for example your name or address) so this information cannot be used to identify who you are.</p>
-        <p class="govuk-body">We do not allow Google to use or share our analytics data</p>
-        <p class="govuk-body">Google Analytics stores information about:</p>
-        <ul class="govuk-list govuk-list--bullet">
-          <li>the pages you visit</li>
-          <li>how long have you spend on each page</li>
-          <li>how you arrived at the site</li>
-          <li>what you click on while you visit the site</li>
-          <li>the device and browser you use</li>
-        </ul>
-        {{ govukTable({
-          captionClasses: "govuk-table__caption--s",
-          firstCellIsHeader: false,
-          head: [
-            {
-              text: "Name"
-            },
-            {
-              text: "Purpose"
-            },
-            {
-              text: "Expires"
-            }
-          ],
-          rows: [
-            [
-              {
-                text: "session_cookie"
-              },
-              {
-                text: "Used to keep you signed in"
-              },
-              {
-                text: "20 hours"
-              }
-            ],
-            [
-              {
-                text: "cookie_policy"
-              },
-              {
-                text: "Saves your cookie consent settings"
-              },
-              {
-                text: "1 year"
-              }
-            ]
-          ]
-        }) }}
+    <h2 class="govuk-heading-m">{{ t('pages.cookies.analytics.heading') }}</h2>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.purpose') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.collection') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.dataSharing') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.googleStorage.description') }}</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesPages') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesTime') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesArrival') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesClicks') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesDevice') }}</li>
+    </ul>
 
-        {{ govukRadios({
-          classes: "govuk-radios--small",
-          name: "changedName",
-          fieldset: {
-            legend: {
-              text: "Do you want to accept analytics cookies?",
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--m"
-            }
-          },
-          items: [
-            {
-              value: "yes",
-              text: "Yes"
-            },
-            {
-              value: "no",
-              text: "No"
-            }
-          ]
-        }) }}
+    {{ govukRadios({
+      classes: "govuk-radios--small",
+      name: "changedName",
+      fieldset: {
+        legend: {
+          text: t('pages.cookies.analytics.radio.label'),
+          isPageHeading: true,
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      items: [
+        {
+          value: "yes",
+          text: t('pages.cookies.analytics.radio.yes')
+        },
+        {
+          value: "no",
+          text: t('pages.cookies.analytics.radio.no')
+        }
+      ]
+    }) }}
 
-        {{ govukButton({
-          text: "Save cookie settings"
-        }) }}
+    {{ govukButton({
+      text: t('pages.cookies.saveButton')
+    }) }}
   </div>
 </div>
 {% endblock %}
