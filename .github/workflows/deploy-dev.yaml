@@ -160,6 +160,7 @@ jobs:
           github-head-ref: ${{ github.head_ref }}
           image-tag: ${{ github.sha }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
+          sentry_dsn: ${{ secrets.SENTRY_DSN }}
   notify-slack:
     permissions:
       contents: read

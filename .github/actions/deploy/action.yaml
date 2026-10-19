@@ -4,6 +4,9 @@ inputs:
   allow-list:
     description: "IP allow list"
     required: true
+  app-environment:
+    description: "Environment to which the app is being deployed [staging, production, etc]"
+    required: true
   auth_directory_url:
     description: "Entra Authority URL"
   auth_client_id:
@@ -14,6 +17,14 @@ inputs:
     description: "Logout URI"
   auth_redirect_uri:
     description: "Redirect URI back to the application"
+  ecr-repository:
+    description: "ECR repository"
+    required: true
+  ecr-registry_url:
+    description: "ECR registry url"
+    required: true
+  inquests_api_url:
+    description: "Inquests API URL"
   kube-cert:
     description: "Kubernetes cluster authentication certificate"
     required: true
@@ -26,14 +37,8 @@ inputs:
   kube-namespace:
     description: "Kubernetes cluster namespace"
     required: true
-  app-environment:
-    description: "Environment to which the app is being deployed [staging, production, etc]"
-    required: true
-  ecr-repository:
-    description: "ECR repository"
-    required: true
-  ecr-registry_url:
-    description: "ECR registry url"
+  sentry_dsn:
+    description: "Sentry DSN"
     required: true
   session_secret:
     description: "Session secret"
@@ -41,8 +46,6 @@ inputs:
     description: "Service name"
   session_name:
     description: "Session name"
-  inquests_api_url:
-    description: "Inquests API URL"
 runs:
   using: "composite"
   steps:
@@ -97,6 +100,7 @@ runs:
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
         SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
+        SENTRY_DSN: ${{ inputs.sentry_dsn || '' }}
       run: |
         echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID" >> "$GITHUB_ENV"
         echo "AUTH_CLIENT_SECRET=$AUTH_CLIENT_SECRET" >> "$GITHUB_ENV"
@@ -108,6 +112,7 @@ runs:
         echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
         echo "SESSION_NAME=$SESSION_NAME" >> "$GITHUB_ENV"
         echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"
+        echo "SENTRY_DSN=$SENTRY_DSN" >> "$GITHUB_ENV"
 
     - name: Deploy using Helm
       shell: bash
