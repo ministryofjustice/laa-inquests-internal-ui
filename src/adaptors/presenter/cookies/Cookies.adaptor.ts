@@ -15,7 +15,7 @@ export class CookiesAdaptor {
         event: "cookies_page_requested",
       },
     });
-    res.render("main/cookies", { backUrl: req.query.returnTo });
+    res.render("main/cookies", { returnTo: req.query.returnTo });
   }
 
   saveCookiesPreferences(req: Request, res: Response): void {

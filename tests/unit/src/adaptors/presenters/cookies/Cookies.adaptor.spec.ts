@@ -29,7 +29,7 @@ describe("Cookies adaptor", () => {
     assert.equal(responseStub.render.callCount, 1);
     assert.deepEqual(responseStub.render.firstCall.args, [
       "main/cookies",
-      { backUrl: "/" },
+      { returnTo: "/" },
     ]);
   });
 
