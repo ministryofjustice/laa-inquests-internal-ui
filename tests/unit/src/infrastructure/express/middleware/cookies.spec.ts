@@ -16,6 +16,10 @@ describe("processCookies", () => {
     next = sinon.stub();
   });
 
+  afterEach(() => {
+    sinon.restore();
+  });
+
   it("assigns hasTrackingConsent to false when cookies_policy undefined", () => {
     assert.equal(res.locals.hasTrackingConsent, undefined);
     processCookies(req, res, next);
