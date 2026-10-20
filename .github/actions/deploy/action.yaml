@@ -52,6 +52,16 @@ runs:
     - name: Checkout
       uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
 
+    - name: Check Sentry DSN is set
+      shell: bash
+      env:
+        SENTRY_DSN: ${{ inputs.sentry_dsn }}
+      run: |
+        if [ -z "$SENTRY_DSN" ]; then
+          echo "::error::SENTRY_DSN is required. Set the SENTRY_DSN secret for this environment."
+          exit 1
+        fi
+
     - name: Authenticate to the cluster
       uses: ministryofjustice/laa-reusable-github-actions/.github/actions/authenticate_to_cluster@2aa2676c3cd9876ec7037ee8b3d729d0306cb7c6
       with:
@@ -100,7 +110,7 @@ runs:
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
         SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
-        SENTRY_DSN: ${{ inputs.sentry_dsn || '' }}
+        SENTRY_DSN: ${{ inputs.sentry_dsn }}
       run: |
         echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID" >> "$GITHUB_ENV"
         echo "AUTH_CLIENT_SECRET=$AUTH_CLIENT_SECRET" >> "$GITHUB_ENV"

@@ -2,6 +2,11 @@
 
 ENVIRONMENT=$1
 
+if [[ -z "$SENTRY_DSN" ]]; then
+  echo "SENTRY_DSN must be set" >&2
+  exit 1
+fi
+
 if [[ "$ENVIRONMENT" == "suppliertest" ]]; then
   VALUES_FILE="./deploy/infrastructure/helm/values/dev.yaml"
 else

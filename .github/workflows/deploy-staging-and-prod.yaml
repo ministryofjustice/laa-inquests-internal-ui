@@ -87,6 +87,7 @@ jobs:
           service_name: ${{ vars.SERVICE_NAME }}
           session_name: ${{ vars.SESSION_NAME}}
           session_secret: ${{ secrets.SESSION_SECRET }}
+          sentry_dsn: ${{ secrets.SENTRY_DSN }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-prod:
