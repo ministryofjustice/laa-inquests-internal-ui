@@ -110,7 +110,8 @@ Every error that reaches Express is reported to Sentry, including expected
 `ApplicationError`s (`FORBIDDEN`, `AUTHENTICATION_REQUIRED`, `NOT_FOUND`).
 
 - The `ApplicationError` message must stay `Application operation failed:
-<operation>`; it is sent to Sentry unfiltered.
+<operation>`; it is sent to Sentry with only emails, IP addresses and tokens
+  redacted, which cannot catch names or file names.
 - Do not catch an error only to hide it from Sentry; if an outcome is expected and
   should not alert, return a use-case result instead of throwing.
 - Reporting is configured in `src/infrastructure/config/sentry.ts`
@@ -145,7 +146,7 @@ above that boundary construct `ApplicationError` directly.
 - Expected outcomes are not generic exceptions.
 - HTTP status is set, not only passed to a template.
 - Semantic success events occur only after confirmed success.
-- No error message or Sentry call carries identifiers or user input.
+- No error message or Sentry call carries personal data or user input; only case references, claim references, firm codes and firm IDs are allowed.
 - Logs contain required safe context and exclude sensitive data.
 - Negative and accessibility tests cover the changed path.
 - Migrated code does not copy `OutboundAdapterResult`, `UpstreamAuthError`,

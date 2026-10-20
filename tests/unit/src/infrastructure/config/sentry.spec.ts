@@ -37,6 +37,31 @@ const toErrorEvent = (event: Record<string, unknown>): ErrorEvent =>
 const exceptionEvent = (type: string, value: string): ErrorEvent =>
   toErrorEvent({ exception: { values: [{ type, value }] } });
 
+const API_URL = "https://api.example.com";
+
+// Outbound urls keep their path only for our own Inquests API host.
+const useApiUrl = (): void => {
+  let original: string;
+  before(() => {
+    original = config.INQUESTS_API_URL;
+    config.INQUESTS_API_URL = API_URL;
+  });
+  after(() => {
+    config.INQUESTS_API_URL = original;
+  });
+};
+
+class FakeMsalError extends Error {
+  constructor(
+    message: string,
+    readonly errorCode: string,
+    readonly errorMessage: string,
+  ) {
+    super(message);
+    this.name = "SomeFutureMsalError";
+  }
+}
+
 describe("sentryConfig", () => {
   it("uses the ENVIRONMENT config value as the Sentry environment", () => {
     expect(sentryConfig.environment).to.equal(config.ENVIRONMENT);
@@ -175,168 +200,474 @@ describe("initSentry", () => {
 });
 
 describe("scrubEvent", () => {
-  [
-    "AxiosError",
-    "ZodError",
-    "$ZodError",
-    "AuthError",
-    "ClientAuthError",
-    "ClientConfigurationError",
-    "InteractionRequiredAuthError",
-    "ServerError",
-  ].forEach((type) => {
-    it(`filters the message of ${type} exceptions`, () => {
+  describe("exception messages", () => {
+    [
+      "AuthError",
+      "ClientAuthError",
+      "ClientConfigurationError",
+      "InteractionRequiredAuthError",
+      "ServerError",
+    ].forEach((type) => {
+      it(`replaces the whole message of ${type} exceptions`, () => {
+        const event = scrubEvent(
+          exceptionEvent(
+            type,
+            "AADSTS70000: user jane@example.com has no access",
+          ),
+          HINT,
+        );
+
+        expect(event.exception?.values?.[0]?.value).to.equal("[Filtered]");
+      });
+    });
+
+    it("replaces the whole message of an msal error that is only recognised by its shape", () => {
+      const error = new FakeMsalError(
+        "token for jane@example.com expired",
+        "invalid_grant",
+        "token for jane@example.com expired",
+      );
+
       const event = scrubEvent(
-        exceptionEvent(type, "failed for LAA-SECRET"),
+        exceptionEvent(
+          "SomeFutureMsalError",
+          "token for jane@example.com expired",
+        ),
+        { originalException: error },
+      );
+
+      expect(event.exception?.values?.[0]?.value).to.equal("[Filtered]");
+    });
+
+    it("replaces the message of a wrapped msal error", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          exception: {
+            values: [
+              { type: "ClientAuthError", value: "user jane@example.com" },
+              { type: "Error", value: "sign in failed" },
+            ],
+          },
+        }),
+        { originalException: new Error("sign in failed") },
+      );
+
+      expect(event.exception?.values?.map(({ value }) => value)).to.deep.equal([
+        "[Filtered]",
+        "sign in failed",
+      ]);
+    });
+
+    it("tags msal errors with their error code only", () => {
+      const error = new FakeMsalError("x", "invalid_grant", "x");
+      const event = scrubEvent(exceptionEvent("SomeFutureMsalError", "x"), {
+        originalException: error,
+      });
+
+      expect(event.tags).to.deep.equal({ auth_error_code: "invalid_grant" });
+    });
+
+    it("keeps the status text of axios errors", () => {
+      const event = scrubEvent(
+        exceptionEvent("AxiosError", "Request failed with status code 403"),
         HINT,
       );
 
-      expect(event?.exception?.values?.[0]?.value).to.equal("[Filtered]");
+      expect(event.exception?.values?.[0]?.value).to.equal(
+        "Request failed with status code 403",
+      );
+    });
+
+    it("redacts addresses and emails in axios error messages", () => {
+      const event = scrubEvent(
+        exceptionEvent(
+          "AxiosError",
+          "connect ECONNREFUSED 10.1.2.3:443 for jane@example.com",
+        ),
+        HINT,
+      );
+
+      expect(event.exception?.values?.[0]?.value).to.equal(
+        "connect ECONNREFUSED [IP]:443 for [Email]",
+      );
+    });
+
+    it("tags axios errors with their status and code", () => {
+      const error = Object.assign(new Error("timeout of 5000ms exceeded"), {
+        isAxiosError: true,
+        code: "ECONNABORTED",
+        status: 504,
+      });
+
+      const event = scrubEvent(exceptionEvent("AxiosError", "timeout"), {
+        originalException: error,
+      });
+
+      expect(event.tags).to.deep.equal({
+        axios_code: "ECONNABORTED",
+        http_status: "504",
+      });
+    });
+
+    it("summarises zod errors by issue code and path without values", () => {
+      const result = z
+        .object({ name: z.string(), items: z.array(z.number()) })
+        .safeParse({ name: 42, items: [1, "jane@example.com"] });
+
+      const event = scrubEvent(exceptionEvent("ZodError", "raw issues"), {
+        originalException: result.error,
+      });
+
+      expect(event.exception?.values?.[0]?.value).to.equal(
+        "invalid_type at name; invalid_type at items.*",
+      );
+    });
+
+    it("replaces the message of a wrapped zod error that has no issues to summarise", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          exception: {
+            values: [
+              { type: "$ZodError", value: "jane@example.com" },
+              { type: "Error", value: "validation failed" },
+            ],
+          },
+        }),
+        { originalException: new Error("validation failed") },
+      );
+
+      expect(event.exception?.values?.[0]?.value).to.equal("[Filtered]");
+    });
+
+    it("keeps the type of filtered exceptions", () => {
+      const event = scrubEvent(
+        exceptionEvent("ClientAuthError", "secret"),
+        HINT,
+      );
+
+      expect(event.exception?.values?.[0]?.type).to.equal("ClientAuthError");
+    });
+
+    it("keeps the message of application errors", () => {
+      const event = scrubEvent(
+        exceptionEvent(
+          "ApplicationError",
+          "Application operation failed: get_application",
+        ),
+        HINT,
+      );
+
+      expect(event.exception?.values?.[0]?.value).to.equal(
+        "Application operation failed: get_application",
+      );
+    });
+
+    it("keeps the message of other exceptions", () => {
+      const event = scrubEvent(
+        exceptionEvent("TypeError", "x is undefined"),
+        HINT,
+      );
+
+      expect(event.exception?.values?.[0]?.value).to.equal("x is undefined");
+    });
+
+    it("redacts addresses, emails and tokens in other exceptions", () => {
+      const event = scrubEvent(
+        exceptionEvent(
+          "Error",
+          "connect ECONNREFUSED 10.1.2.3:6379 as jane@example.com Bearer abc.def",
+        ),
+        HINT,
+      );
+
+      expect(event.exception?.values?.[0]?.value).to.equal(
+        "connect ECONNREFUSED [IP]:6379 as [Email] Bearer [Token]",
+      );
     });
   });
 
-  it("keeps the type of filtered exceptions", () => {
-    const event = scrubEvent(exceptionEvent("AxiosError", "secret"), HINT);
+  describe("event message", () => {
+    it("redacts emails and addresses in the event message", () => {
+      const event = scrubEvent(
+        toErrorEvent({ message: "lookup for jane@example.com via 10.1.2.3" }),
+        HINT,
+      );
 
-    expect(event?.exception?.values?.[0]?.type).to.equal("AxiosError");
+      expect(event.message).to.equal("lookup for [Email] via [IP]");
+    });
+
+    it("leaves an event without a message alone", () => {
+      const event = scrubEvent(toErrorEvent({}), HINT);
+
+      expect(event).to.not.have.property("message");
+    });
   });
 
-  it("keeps the message of application errors", () => {
-    const event = scrubEvent(
-      exceptionEvent(
-        "ApplicationError",
-        "Application operation failed: get_application",
-      ),
-      HINT,
-    );
+  describe("request", () => {
+    it("keeps the path with its case and claim references", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          request: {
+            url: "https://internal.example.com/applications/INQ-ABC-123/claims/INQC-AB12-CD34/rejected",
+            method: "GET",
+          },
+        }),
+        HINT,
+      );
 
-    expect(event?.exception?.values?.[0]?.value).to.equal(
-      "Application operation failed: get_application",
-    );
+      expect(event.request?.url).to.equal(
+        "https://internal.example.com/applications/INQ-ABC-123/claims/INQC-AB12-CD34/rejected",
+      );
+      expect(event.request?.method).to.equal("GET");
+    });
+
+    it("drops credentials, the query string and the fragment from the url", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          request: {
+            url: "https://jane:pw@internal.example.com/auth/callback?code=abc&state=xyz#frag",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.request?.url).to.equal(
+        "https://internal.example.com/auth/callback",
+      );
+    });
+
+    it("replaces path segments that are not route words or references", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          request: {
+            url: "https://internal.example.com/applications/jane-smith/report-jane-smith.pdf",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.request?.url).to.equal(
+        "https://internal.example.com/applications/[Filtered]/[Filtered]",
+      );
+    });
+
+    it("removes the request query string, cookies, headers and body", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          request: {
+            url: "https://internal.example.com/",
+            query_string: "token=abc",
+            cookies: { session: "secret" },
+            headers: { authorization: "Bearer secret" },
+            data: "name=secret",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.request).to.not.have.any.keys(
+        "query_string",
+        "cookies",
+        "headers",
+        "data",
+      );
+    });
+
+    it("tags the event with the references in the request path", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          tags: { existing: "kept" },
+          request: {
+            url: "https://internal.example.com/applications/INQ-ABC-123/claims/INQC-AB12-CD34/rejected",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.tags).to.deep.equal({
+        existing: "kept",
+        laa_reference: "INQ-ABC-123",
+        claim_reference: "INQC-AB12-CD34",
+      });
+    });
+
+    it("does not tag segments that only look like a reference", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          request: {
+            url: "https://internal.example.com/applications/INQ-ABC-123-jane/overview",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event).to.not.have.property("tags");
+    });
   });
 
-  it("keeps the message of other exceptions", () => {
-    const event = scrubEvent(
-      exceptionEvent("TypeError", "x is undefined"),
-      HINT,
-    );
+  describe("user and extra data", () => {
+    it("removes the user", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          user: { ip_address: "203.0.113.1", email: "a@example.com", id: "42" },
+        }),
+        HINT,
+      );
 
-    expect(event?.exception?.values?.[0]?.value).to.equal("x is undefined");
+      expect(event).to.not.have.property("user");
+    });
+
+    it("keeps allow-listed extra data and drops the rest", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          extra: {
+            laa_reference: "INQ-ABC-123",
+            claim_reference: "INQC-AB12-CD34",
+            firm_code: "1A234B",
+            firm_id: 4567,
+            request_id: "req-1",
+            status_code: 500,
+            user_name: "jane.smith",
+            email: "jane@example.com",
+            file_name: "evidence-jane-smith.pdf",
+            nested: { laa_reference: "INQ-ABC-123" },
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.extra).to.deep.equal({
+        laa_reference: "INQ-ABC-123",
+        claim_reference: "INQC-AB12-CD34",
+        firm_code: "1A234B",
+        firm_id: 4567,
+        request_id: "req-1",
+        status_code: 500,
+      });
+    });
+
+    it("drops reference and firm keys whose value has the wrong shape", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          extra: {
+            laa_reference: "Jane Smith",
+            claim_reference: "jane@example.com",
+            firm_code: "Smith & Co Solicitors",
+            event: "claim_rejected",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.extra).to.deep.equal({ event: "claim_rejected" });
+    });
+
+    it("redacts allow-listed string values", () => {
+      const event = scrubEvent(
+        toErrorEvent({ extra: { error_type: "failed for jane@example.com" } }),
+        HINT,
+      );
+
+      expect(event.extra).to.deep.equal({ error_type: "failed for [Email]" });
+    });
+
+    it("removes extra data when nothing in it is allowed", () => {
+      const event = scrubEvent(
+        toErrorEvent({ extra: { email: "jane@example.com" } }),
+        HINT,
+      );
+
+      expect(event).to.not.have.property("extra");
+    });
   });
 
-  it("reduces the request url to scheme and host", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        request: {
-          url: "https://user:pass@internal.example.com/applications/LAA-SECRET?token=abc#frag",
-          method: "GET",
-        },
-      }),
-      HINT,
-    );
+  describe("transaction name", () => {
+    it("replaces the raw path with the route template", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          transaction: "GET /applications/INQ-ABC-123",
+          request: {
+            url: "https://internal.example.com/applications/INQ-ABC-123",
+          },
+          contexts: {
+            trace: { data: { "http.route": "/applications/:laaReference" } },
+          },
+        }),
+        HINT,
+      );
 
-    expect(event?.request?.url).to.equal("https://internal.example.com");
-    expect(event?.request?.method).to.equal("GET");
+      expect(event.transaction).to.equal("GET /applications/:laaReference");
+    });
+
+    it("falls back to the sanitized path when the route is unknown", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          transaction: "POST /applications/INQ-ABC-123/note",
+          request: {
+            url: "https://internal.example.com/applications/INQ-ABC-123/note",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.transaction).to.equal("POST /applications/INQ-ABC-123/note");
+    });
+
+    it("filters unknown segments in the fallback path", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          transaction: "GET /applications/jane-smith",
+          request: {
+            url: "https://internal.example.com/applications/jane-smith",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.transaction).to.equal("GET /applications/[Filtered]");
+    });
+
+    it("keeps a transaction name that is already a route template", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          transaction: "GET /applications/:laaReference",
+          request: {
+            url: "https://internal.example.com/applications/INQ-ABC-123",
+          },
+        }),
+        HINT,
+      );
+
+      expect(event.transaction).to.equal("GET /applications/:laaReference");
+    });
   });
 
-  it("removes the request query string, cookies, headers and body", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        request: {
-          url: "https://internal.example.com/",
-          query_string: "token=abc",
-          cookies: { session: "secret" },
-          headers: { authorization: "Bearer secret" },
-          data: "name=secret",
-        },
-      }),
-      HINT,
-    );
-
-    expect(event?.request).to.not.have.any.keys(
-      "query_string",
-      "cookies",
-      "headers",
-      "data",
-    );
-  });
-
-  it("removes user and extra data", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        user: { ip_address: "203.0.113.1", email: "a@example.com" },
-        extra: { laa_reference: "LAA-SECRET" },
-      }),
-      HINT,
-    );
-
-    expect(event).to.not.have.any.keys("user", "extra");
-  });
-
-  it("replaces the raw path in the transaction name with the route template", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        transaction: "GET /applications/LAA-SECRET",
-        request: {
-          url: "https://internal.example.com/applications/LAA-SECRET",
-        },
-        contexts: {
-          trace: { data: { "http.route": "/applications/:laaReference" } },
-        },
-      }),
-      HINT,
-    );
-
-    expect(event?.transaction).to.equal("GET /applications/:laaReference");
-  });
-
-  it("filters the raw path in the transaction name when the route is unknown", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        transaction: "GET /applications/LAA-SECRET",
-        request: {
-          url: "https://internal.example.com/applications/LAA-SECRET",
-        },
-      }),
-      HINT,
-    );
-
-    expect(event?.transaction).to.equal("GET [Filtered]");
-  });
-
-  it("keeps a transaction name that is already a route template", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        transaction: "GET /applications/:laaReference",
-        request: {
-          url: "https://internal.example.com/applications/LAA-SECRET",
-        },
-      }),
-      HINT,
-    );
-
-    expect(event?.transaction).to.equal("GET /applications/:laaReference");
-  });
-
-  it("removes the url from the trace context data", () => {
-    const event = scrubEvent(
-      toErrorEvent({
-        contexts: {
-          trace: {
-            data: {
-              "url.path": "/applications/LAA-SECRET",
-              "url.full":
-                "https://internal.example.com/applications/LAA-SECRET",
-              "http.route": "/applications/:laaReference",
+  describe("trace context data", () => {
+    it("keeps the sanitized path and drops the query and target", () => {
+      const event = scrubEvent(
+        toErrorEvent({
+          contexts: {
+            trace: {
+              data: {
+                "url.path": "/applications/INQ-ABC-123/report-jane.pdf",
+                "url.full":
+                  "https://internal.example.com/applications/INQ-ABC-123/overview?code=abc",
+                "url.query": "?code=abc",
+                "http.target": "/applications/INQ-ABC-123/overview?code=abc",
+                "http.route": "/applications/:laaReference",
+              },
             },
           },
-        },
-      }),
-      HINT,
-    );
+        }),
+        HINT,
+      );
 
-    expect(event?.contexts?.trace?.data).to.deep.equal({
-      "http.route": "/applications/:laaReference",
+      expect(event.contexts?.trace?.data).to.deep.equal({
+        "url.path": "/applications/INQ-ABC-123/[Filtered]",
+        "url.full":
+          "https://internal.example.com/applications/INQ-ABC-123/overview",
+        "http.route": "/applications/:laaReference",
+      });
     });
   });
 });
@@ -434,20 +765,52 @@ describe("tagApplicationError", () => {
 });
 
 describe("scrubBreadcrumb", () => {
-  it("reduces outbound http breadcrumb urls to scheme and host", () => {
+  useApiUrl();
+
+  it("keeps the sanitized path of requests to our own API", () => {
     const breadcrumb = scrubBreadcrumb(
       {
         category: "http",
         data: {
-          url: "https://api.example.com/applications/LAA-SECRET?token=abc",
+          url: `${API_URL}/applications/INQ-ABC-123/note?token=abc#frag`,
           method: "GET",
         },
       } as Breadcrumb,
       HINT,
     );
 
-    expect(breadcrumb?.data?.url).to.equal("https://api.example.com");
-    expect(breadcrumb?.data?.method).to.equal("GET");
+    expect(breadcrumb.data?.url).to.equal(
+      `${API_URL}/applications/INQ-ABC-123/note`,
+    );
+    expect(breadcrumb.data?.method).to.equal("GET");
+  });
+
+  it("filters unknown segments in requests to our own API", () => {
+    const breadcrumb = scrubBreadcrumb(
+      {
+        category: "http",
+        data: { url: `${API_URL}/applications/jane-smith/note` },
+      } as Breadcrumb,
+      HINT,
+    );
+
+    expect(breadcrumb.data?.url).to.equal(
+      `${API_URL}/applications/[Filtered]/note`,
+    );
+  });
+
+  it("keeps only the host of requests to other services", () => {
+    const breadcrumb = scrubBreadcrumb(
+      {
+        category: "http",
+        data: {
+          url: "https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token",
+        },
+      } as Breadcrumb,
+      HINT,
+    );
+
+    expect(breadcrumb.data?.url).to.equal("https://login.microsoftonline.com");
   });
 
   it("removes query and fragment data from breadcrumbs", () => {
@@ -459,7 +822,7 @@ describe("scrubBreadcrumb", () => {
       HINT,
     );
 
-    expect(breadcrumb?.data).to.deep.equal({});
+    expect(breadcrumb.data).to.deep.equal({});
   });
 
   it("returns breadcrumbs without data unchanged", () => {
@@ -470,113 +833,175 @@ describe("scrubBreadcrumb", () => {
 });
 
 describe("scrubSpan", () => {
-  it("reduces outbound http span urls to scheme and host", () => {
-    const span = scrubSpan(
-      toSpan({
-        name: "GET",
-        attributes: {
-          "sentry.op": "http.client",
-          "url.full":
-            "https://api.example.com/applications/LAA-SECRET?token=abc",
-          "url.path": "/applications/LAA-SECRET",
-          "url.query": "?token=abc",
-          "http.target": "/applications/LAA-SECRET?token=abc",
-          "http.request.method": "GET",
-        },
-      }),
-    );
+  useApiUrl();
 
-    expect(span.attributes).to.deep.equal({
-      "sentry.op": "http.client",
-      "url.full": "https://api.example.com",
-      "http.request.method": "GET",
+  describe("outbound requests", () => {
+    it("keeps the sanitized path and the references of requests to our own API", () => {
+      const span = scrubSpan(
+        toSpan({
+          attributes: {
+            "sentry.op": "http.client",
+            "url.full": `${API_URL}/applications/INQ-ABC-123/claims/INQC-AB12-CD34?token=abc`,
+            "url.path": "/applications/INQ-ABC-123/claims/INQC-AB12-CD34",
+            "url.query": "?token=abc",
+            "http.target":
+              "/applications/INQ-ABC-123/claims/INQC-AB12-CD34?token=abc",
+            "http.request.method": "GET",
+          },
+        }),
+      );
+
+      expect(span.attributes).to.deep.equal({
+        "sentry.op": "http.client",
+        "url.full": `${API_URL}/applications/INQ-ABC-123/claims/INQC-AB12-CD34`,
+        "url.path": "/applications/INQ-ABC-123/claims/INQC-AB12-CD34",
+        "http.request.method": "GET",
+        laa_reference: "INQ-ABC-123",
+        claim_reference: "INQC-AB12-CD34",
+      });
+    });
+
+    it("keeps only the host of requests to other services", () => {
+      const span = scrubSpan(
+        toSpan({
+          attributes: {
+            "sentry.op": "http.client",
+            "url.full":
+              "https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token",
+            "url.path": "/tenant-id/oauth2/v2.0/token",
+            "http.request.method": "POST",
+          },
+        }),
+      );
+
+      expect(span.attributes).to.deep.equal({
+        "sentry.op": "http.client",
+        "url.full": "https://login.microsoftonline.com",
+        "http.request.method": "POST",
+      });
+    });
+
+    it("keeps the sanitized path in the name of requests to our own API", () => {
+      const span = scrubSpan(
+        toSpan({
+          name: `GET ${API_URL}/applications/INQ-ABC-123/note?token=abc`,
+          attributes: { "sentry.op": "http.client" },
+        }),
+      );
+
+      expect(span.name).to.equal(
+        `GET ${API_URL}/applications/INQ-ABC-123/note`,
+      );
+    });
+
+    it("reduces the name of requests to other services to the host", () => {
+      const span = scrubSpan(
+        toSpan({
+          name: "GET https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token",
+          attributes: { "sentry.op": "http.client" },
+        }),
+      );
+
+      expect(span.name).to.equal("GET https://login.microsoftonline.com");
+    });
+
+    it("keeps a host only span name", () => {
+      const span = scrubSpan(
+        toSpan({
+          name: "GET 127.0.0.1",
+          attributes: { "sentry.op": "http.client" },
+        }),
+      );
+
+      expect(span.name).to.equal("GET 127.0.0.1");
     });
   });
 
-  it("reduces an outbound http span name containing a url to scheme and host", () => {
-    const span = scrubSpan(
-      toSpan({
-        name: "GET https://api.example.com/applications/LAA-SECRET",
-        attributes: { "sentry.op": "http.client" },
-      }),
-    );
+  describe("incoming requests", () => {
+    it("keeps the sanitized url and the references, and drops the query and target", () => {
+      const span = scrubSpan(
+        toSpan({
+          attributes: {
+            "sentry.op": "http.server",
+            "url.full":
+              "https://internal.example.com/applications/INQ-ABC-123/overview?code=abc",
+            "url.path": "/applications/INQ-ABC-123/overview",
+            "url.query": "?code=abc",
+            "http.target": "/applications/INQ-ABC-123/overview?code=abc",
+            "http.route": "/applications/:laaReference/overview",
+          },
+        }),
+      );
 
-    expect(span.name).to.equal("GET https://api.example.com");
-  });
-
-  it("drops the path from an outbound http span name", () => {
-    const span = scrubSpan(
-      toSpan({
-        name: "GET /applications/LAA-SECRET",
-        attributes: { "sentry.op": "http.client" },
-      }),
-    );
-
-    expect(span.name).to.equal("GET");
-  });
-
-  it("keeps the host in an outbound http span name", () => {
-    const span = scrubSpan(
-      toSpan({
-        name: "GET 127.0.0.1",
-        attributes: { "sentry.op": "http.client" },
-      }),
-    );
-
-    expect(span.name).to.equal("GET 127.0.0.1");
-  });
-
-  it("removes the raw url from incoming request spans and keeps the route", () => {
-    const span = scrubSpan(
-      toSpan({
-        attributes: {
-          "sentry.op": "http.server",
-          "url.full": "https://internal.example.com/applications/LAA-SECRET",
-          "url.path": "/applications/LAA-SECRET",
-          "url.query": "?token=abc",
-          "http.target": "/applications/LAA-SECRET?token=abc",
-          "http.route": "/applications/:laaReference",
-        },
-      }),
-    );
-
-    expect(span.attributes).to.deep.equal({
-      "sentry.op": "http.server",
-      "http.route": "/applications/:laaReference",
+      expect(span.attributes).to.deep.equal({
+        "sentry.op": "http.server",
+        "url.full":
+          "https://internal.example.com/applications/INQ-ABC-123/overview",
+        "url.path": "/applications/INQ-ABC-123/overview",
+        "http.route": "/applications/:laaReference/overview",
+        laa_reference: "INQ-ABC-123",
+      });
     });
-  });
 
-  it("replaces the raw path in span names with the route template", () => {
-    const span = scrubSpan(
-      toSpan({
-        name: "GET /applications/LAA-SECRET",
-        attributes: {
-          "sentry.op": "http.server",
-          "url.path": "/applications/LAA-SECRET",
-          "http.route": "/applications/:laaReference",
-          "sentry.segment.name": "GET /applications/LAA-SECRET",
-        },
-      }),
-    );
+    it("filters unknown segments in the url", () => {
+      const span = scrubSpan(
+        toSpan({
+          attributes: {
+            "sentry.op": "http.server",
+            "url.path": "/applications/jane-smith",
+          },
+        }),
+      );
 
-    expect(span.name).to.equal("GET /applications/:laaReference");
-    expect(span.attributes["sentry.segment.name"]).to.equal(
-      "GET /applications/:laaReference",
-    );
-  });
+      expect(span.attributes["url.path"]).to.equal("/applications/[Filtered]");
+    });
 
-  it("filters the raw path in span names when the route is unknown", () => {
-    const span = scrubSpan(
-      toSpan({
-        name: "GET /applications/LAA-SECRET",
-        attributes: {
-          "sentry.op": "http.server",
-          "url.path": "/applications/LAA-SECRET",
-        },
-      }),
-    );
+    it("replaces the raw path in span names with the route template", () => {
+      const span = scrubSpan(
+        toSpan({
+          name: "GET /applications/INQ-ABC-123",
+          attributes: {
+            "sentry.op": "http.server",
+            "url.path": "/applications/INQ-ABC-123",
+            "http.route": "/applications/:laaReference",
+            "sentry.segment.name": "GET /applications/INQ-ABC-123",
+          },
+        }),
+      );
 
-    expect(span.name).to.equal("GET [Filtered]");
+      expect(span.name).to.equal("GET /applications/:laaReference");
+      expect(span.attributes["sentry.segment.name"]).to.equal(
+        "GET /applications/:laaReference",
+      );
+    });
+
+    it("falls back to the sanitized path in span names when the route is unknown", () => {
+      const span = scrubSpan(
+        toSpan({
+          name: "POST /applications/INQ-ABC-123/note",
+          attributes: {
+            "sentry.op": "http.server",
+            "url.path": "/applications/INQ-ABC-123/note",
+          },
+        }),
+      );
+
+      expect(span.name).to.equal("POST /applications/INQ-ABC-123/note");
+    });
+
+    it("filters unknown segments in the fallback span name", () => {
+      const span = scrubSpan(
+        toSpan({
+          name: "GET /applications/jane-smith",
+          attributes: {
+            "sentry.op": "http.server",
+            "url.path": "/applications/jane-smith",
+          },
+        }),
+      );
+
+      expect(span.name).to.equal("GET /applications/[Filtered]");
+    });
   });
 
   it("leaves other spans unchanged", () => {
@@ -677,49 +1102,75 @@ describe("Sentry events produced with the real config", () => {
     expect(events("event")).to.have.length(1);
   });
 
-  it("does not leak the url, query, cookies or headers of the failing request", async () => {
+  it("keeps the case reference and drops personal data of the failing request", async () => {
     const app = buildApp(() => new Error("boom"));
 
     await request(app)
-      .get("/applications/LAA-SECRET?token=abc")
+      .get("/applications/INQ-ABC-123?email=jane@example.com&code=abc")
       .set("Cookie", "session=cookie-secret")
       .set("Authorization", "Bearer bearer-secret")
+      .set("X-Forwarded-For", "203.0.113.7")
       .expect(500);
     await Sentry.flush(2000);
 
     const serialised = JSON.stringify(events("event"));
-    expect(serialised).to.not.include("LAA-SECRET");
-    expect(serialised).to.not.include("token=abc");
+    expect(serialised).to.include("INQ-ABC-123");
+    expect(serialised).to.not.include("jane@example.com");
+    expect(serialised).to.not.include("code=abc");
     expect(serialised).to.not.include("cookie-secret");
     expect(serialised).to.not.include("bearer-secret");
+    expect(serialised).to.not.include("203.0.113.7");
   });
 
-  it("filters the message of axios errors", async () => {
-    const app = buildApp(
-      () => new AxiosError("Request failed: /applications/LAA-SECRET"),
-    );
+  it("tags the event with the case reference", async () => {
+    const app = buildApp(() => new Error("boom"));
 
-    await request(app).get("/applications/x").expect(500);
-    await Sentry.flush(2000);
-
-    const serialised = JSON.stringify(events("event"));
-    expect(serialised).to.include("AxiosError");
-    expect(serialised).to.not.include("LAA-SECRET");
-  });
-
-  it("filters the message of zod validation errors", async () => {
-    const app = buildApp(() => {
-      const result = z
-        .object({ name: z.string() })
-        .safeParse({ name: 42, secret: "LAA-SECRET" });
-      return result.error;
-    });
-
-    await request(app).get("/applications/x").expect(500);
+    await request(app).get("/applications/INQ-ABC-123").expect(500);
     await Sentry.flush(2000);
 
     const [event] = events("event") as unknown as ErrorEvent[];
-    expect(event?.exception?.values?.[0]?.value).to.equal("[Filtered]");
+    expect(event?.tags?.laa_reference).to.equal("INQ-ABC-123");
+  });
+
+  it("does not send a name or file name that is part of the path", async () => {
+    const app = buildApp(() => new Error("boom"));
+
+    await request(app).get("/applications/jane-smith-evidence.pdf").expect(500);
+    await Sentry.flush(2000);
+
+    const serialised = JSON.stringify(events("event"));
+    expect(serialised).to.not.include("jane-smith");
+    expect(serialised).to.not.include("evidence.pdf");
+  });
+
+  it("keeps the status text of axios errors and redacts addresses", async () => {
+    const app = buildApp(
+      () => new AxiosError("connect ECONNREFUSED 10.1.2.3:443"),
+    );
+
+    await request(app).get("/applications/INQ-ABC-123").expect(500);
+    await Sentry.flush(2000);
+
+    const serialised = JSON.stringify(events("event"));
+    expect(serialised).to.include("ECONNREFUSED [IP]:443");
+    expect(serialised).to.not.include("10.1.2.3");
+  });
+
+  it("summarises zod validation errors without the rejected values", async () => {
+    const app = buildApp(() => {
+      const result = z
+        .object({ name: z.string() })
+        .safeParse({ name: 42, secret: "jane@example.com" });
+      return result.error;
+    });
+
+    await request(app).get("/applications/INQ-ABC-123").expect(500);
+    await Sentry.flush(2000);
+
+    const [event] = events("event") as unknown as ErrorEvent[];
+    expect(event?.exception?.values?.[0]?.value).to.equal(
+      "invalid_type at name",
+    );
   });
 
   it("reports application errors of different types separately even though Dedupe is on", async () => {
@@ -771,11 +1222,11 @@ describe("Sentry events produced with the real config", () => {
     expect(serialised).to.not.include("printed by the logger");
   });
 
-  it("keeps only the host of outbound requests in breadcrumbs and spans", async () => {
+  const callLocalServer = async (path: string): Promise<void> => {
     await Sentry.startSpan({ name: "outbound" }, async () => {
       await new Promise<void>((resolve, reject) => {
         http
-          .get(`${localServerUrl}/applications/LAA-SECRET?token=abc`, (res) => {
+          .get(`${localServerUrl}${path}`, (res) => {
             res.resume();
             res.on("end", resolve);
           })
@@ -784,10 +1235,42 @@ describe("Sentry events produced with the real config", () => {
     });
     Sentry.captureException(new Error("after outbound call"));
     await Sentry.flush(2000);
+  };
 
-    const serialised = JSON.stringify(items.map((item) => item.payload));
-    expect(serialised).to.include(localServerUrl);
-    expect(serialised).to.not.include("LAA-SECRET");
-    expect(serialised).to.not.include("token=abc");
+  describe("outbound requests", () => {
+    let originalApiUrl: string;
+
+    beforeEach(() => {
+      originalApiUrl = config.INQUESTS_API_URL;
+    });
+
+    afterEach(() => {
+      config.INQUESTS_API_URL = originalApiUrl;
+    });
+
+    it("keeps the path and references of requests to our own API but not the query", async () => {
+      config.INQUESTS_API_URL = localServerUrl;
+
+      await callLocalServer(
+        "/applications/INQ-ABC-123/note?email=jane@example.com",
+      );
+
+      const serialised = JSON.stringify(items.map((item) => item.payload));
+      expect(serialised).to.include(
+        `${localServerUrl}/applications/INQ-ABC-123/note`,
+      );
+      expect(serialised).to.not.include("jane@example.com");
+    });
+
+    it("keeps only the host of requests to other services", async () => {
+      config.INQUESTS_API_URL = "https://api.example.com";
+
+      await callLocalServer("/tenant-id/oauth2/token?code=abc");
+
+      const serialised = JSON.stringify(items.map((item) => item.payload));
+      expect(serialised).to.include(localServerUrl);
+      expect(serialised).to.not.include("tenant-id");
+      expect(serialised).to.not.include("code=abc");
+    });
   });
 });

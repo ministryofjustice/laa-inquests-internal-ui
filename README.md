@@ -116,13 +116,28 @@ profiles at 20% of sampled sessions.
 
 #### What is (not) sent
 
-Personal and case data must never reach Sentry. The config turns off user info,
-cookies, headers, request bodies, query strings, local variables, logs and
-console breadcrumbs. Request and outbound URLs are reduced to scheme and host,
-route paths are replaced by the route template (e.g. `/applications/:laaReference`),
-and the messages of Axios, Zod and MSAL errors are replaced with `[Filtered]`.
-Do not add `Sentry.setUser`, `setExtra`, `setContext` or tags carrying
-identifiers.
+Personal data must never reach Sentry: IP addresses, email addresses, names,
+user IDs, usernames, tokens, credentials and file names. Case references
+(`INQ-XXX-XXX`), claim references (`INQC-XXXX-XXXX`), firm codes and firm IDs
+may be sent.
+
+- **Sent:** request and outbound-API URLs with their path, so the case and
+  claim references are visible; `laa_reference` and `claim_reference` tags on
+  events and spans; route templates as transaction names
+  (`GET /:laaReference/overview`); the status text of Axios errors; a summary
+  of Zod errors (issue codes and field paths only).
+- **Path allow-list:** a path segment is kept only if it is a known route word
+  or a reference. Anything else is replaced with `[Filtered]`. When you add a
+  route or an Inquests API path, add its new words to `KNOWN_SEGMENTS` in
+  `src/infrastructure/config/sentryPaths.ts` (a unit test fails until you do).
+- **Never sent:** the user, cookies, headers, request bodies, query strings and
+  fragments, local variables, logs and console breadcrumbs. Outbound requests
+  to other services (such as Entra) keep only scheme and host. The whole
+  message of MSAL errors is replaced with `[Filtered]` (only the error code is
+  kept as a tag). Emails, IP addresses and tokens are redacted from other
+  exception messages.
+- Do not add `Sentry.setUser`, or `setExtra`, `setContext` or tags carrying
+  anything other than the allowed references and firm identifiers.
 
 ### Initialize pre-commit hooks
 

@@ -8,18 +8,22 @@ import type {
 } from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import config from "#src/infrastructure/config/config.js";
+import {
+  FILTERED,
+  REFERENCE_PATTERNS,
+  redactText,
+  referenceTags,
+  sanitizePath,
+} from "#src/infrastructure/config/sentryPaths.js";
 
 const TRACES_SAMPLE_RATE = 0.02;
 const PROFILE_SESSION_SAMPLE_RATE = 0.2;
 const NO_FRAME_CONTEXT_LINES = 0;
-const FILTERED = "[Filtered]";
 
-// Exceptions from these libraries embed request URLs (which contain LAA
-// references), the rejected input values, or token and tenant details.
-const SENSITIVE_EXCEPTION_TYPES = new Set([
-  "AxiosError",
-  "ZodError",
-  "$ZodError",
+// The text of these errors can name users, tenants or token details, so the
+// whole message is replaced. This list covers the msal-node error classes; an
+// error with the msal shape (errorCode and errorMessage) is caught as well.
+const MSAL_ERROR_NAMES = new Set([
   "AuthError",
   "ClientAuthError",
   "ClientConfigurationError",
@@ -27,9 +31,10 @@ const SENSITIVE_EXCEPTION_TYPES = new Set([
   "ServerError",
 ]);
 
+const ZOD_ERROR_NAMES = new Set(["ZodError", "$ZodError"]);
+
 const URL_DATA_KEYS = ["url", "url.full", "http.url"];
 const URL_DETAIL_DATA_KEYS = [
-  "url.path",
   "url.query",
   "url.fragment",
   "http.query",
@@ -37,68 +42,102 @@ const URL_DETAIL_DATA_KEYS = [
   "http.target",
 ];
 
+const SAFE_CODE = /^[A-Za-z0-9_.\-]{1,64}$/v;
+const SHORT_CODE = /^[A-Za-z0-9_\-]{1,32}$/v;
+const ZOD_ISSUE_CODE = /^[a-z_]{1,40}$/v;
+const ZOD_PATH_KEY = /^[A-Za-z_]\w{0,60}$/v;
+const MIN_HTTP_STATUS = 100;
+const MAX_HTTP_STATUS = 599;
+
 type SpanData = Record<string, unknown>;
 type Integration = Extract<NodeOptions["integrations"], unknown[]>[number];
 type StreamedSpan = Parameters<NonNullable<NodeOptions["beforeSendSpan"]>>[0];
+type ErrorException = NonNullable<
+  NonNullable<ErrorEvent["exception"]>["values"]
+>[number];
 
-// Outbound URLs carry LAA references, file names and signatures.
-const hostOnly = (url: string): string | undefined => {
+const parseUrl = (url: string): URL | undefined => {
   try {
-    const { protocol, host } = new URL(url);
-    return `${protocol}//${host}`;
+    return new URL(url);
   } catch {
     return undefined;
   }
 };
 
-const removeUrlDetails = (data: SpanData): void => {
+const isApiUrl = (url: string): boolean => {
+  const apiHost = parseUrl(config.INQUESTS_API_URL)?.host;
+  return apiHost !== undefined && parseUrl(url)?.host === apiHost;
+};
+
+// Credentials, query string and fragment are always dropped. The path is kept
+// (sanitized) for our own services; other hosts keep only scheme and host, as
+// their paths can hold tenant ids or signatures.
+const scrubUrl = (url: string, keepPath: boolean): string => {
+  const parsed = parseUrl(url);
+  if (parsed === undefined) {
+    return FILTERED;
+  }
+
+  const origin = `${parsed.protocol}//${parsed.host}`;
+  return keepPath ? `${origin}${sanitizePath(parsed.pathname)}` : origin;
+};
+
+const firstUrl = (data: SpanData): string | undefined => {
+  for (const key of URL_DATA_KEYS) {
+    const { [key]: value } = data;
+    if (typeof value === "string") {
+      return value;
+    }
+  }
+  return undefined;
+};
+
+const requestPath = (data: SpanData): string | undefined => {
+  const { "url.path": urlPath } = data;
+  if (typeof urlPath === "string") {
+    return urlPath;
+  }
+
+  const url = firstUrl(data);
+  return url === undefined ? undefined : parseUrl(url)?.pathname;
+};
+
+const scrubUrlData = (data: SpanData, keepPath: boolean): void => {
+  for (const key of URL_DATA_KEYS) {
+    const { [key]: value } = data;
+    if (typeof value === "string") {
+      data[key] = scrubUrl(value, keepPath);
+    }
+  }
+
+  const { "url.path": urlPath } = data;
+  if (keepPath && typeof urlPath === "string") {
+    data["url.path"] = sanitizePath(urlPath);
+  } else {
+    delete data["url.path"];
+  }
+
   for (const key of URL_DETAIL_DATA_KEYS) {
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- keys are a fixed list
     delete data[key];
   }
 };
 
-const reduceUrlsToHost = (data: SpanData): void => {
-  for (const key of URL_DATA_KEYS) {
-    const { [key]: value } = data;
-    if (typeof value === "string") {
-      data[key] = hostOnly(value) ?? FILTERED;
-    }
-  }
-  removeUrlDetails(data);
-};
-
-const removeAllUrlData = (data: SpanData): void => {
-  for (const key of URL_DATA_KEYS) {
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- keys are a fixed list
-    delete data[key];
-  }
-  removeUrlDetails(data);
-};
-
-const pathOf = (url: unknown): string | undefined => {
-  if (typeof url !== "string") {
-    return undefined;
-  }
-  try {
-    const { pathname } = new URL(url, "http://placeholder");
-    return pathname === "/" ? undefined : pathname;
-  } catch {
-    return undefined;
-  }
-};
-
-// Names such as "GET /applications/LAA-123" embed the raw path. A route template
-// is used instead when the SDK knows it; otherwise the path is dropped.
+// Names such as "GET /applications/INQ-ABC-123" embed the raw path. The route
+// template is preferred so Sentry groups by route and not by case; without one
+// the sanitized path is used.
 const withoutRawPath = (
   name: string,
   rawPath: string | undefined,
   route: unknown,
 ): string => {
-  if (rawPath === undefined || !name.includes(rawPath)) {
+  if (rawPath === undefined || rawPath === "/" || !name.includes(rawPath)) {
     return name;
   }
-  return name.replace(rawPath, typeof route === "string" ? route : FILTERED);
+  return name.replace(
+    rawPath,
+    typeof route === "string" ? route : sanitizePath(rawPath),
+  );
 };
 
 const scrubRequest = (event: ErrorEvent): string | undefined => {
@@ -107,9 +146,12 @@ const scrubRequest = (event: ErrorEvent): string | undefined => {
     return undefined;
   }
 
-  const rawPath = pathOf(request.url);
+  const rawPath =
+    typeof request.url === "string"
+      ? parseUrl(request.url)?.pathname
+      : undefined;
   if (typeof request.url === "string") {
-    request.url = hostOnly(request.url) ?? FILTERED;
+    request.url = scrubUrl(request.url, true);
   }
   delete request.query_string;
   delete request.cookies;
@@ -118,31 +160,179 @@ const scrubRequest = (event: ErrorEvent): string | undefined => {
   return rawPath;
 };
 
-const filterSensitiveExceptions = (event: ErrorEvent): void => {
-  for (const exception of event.exception?.values ?? []) {
-    if (
-      exception.type !== undefined &&
-      SENSITIVE_EXCEPTION_TYPES.has(exception.type)
-    ) {
-      exception.value = FILTERED;
-    }
-  }
-};
-
 const scrubTraceContext = (
   event: ErrorEvent,
   rawPath: string | undefined,
 ): void => {
   const traceData = event.contexts?.trace?.data;
-  if (traceData === undefined) {
+  if (traceData !== undefined) {
+    scrubUrlData(traceData, true);
+  }
+
+  if (event.transaction !== undefined) {
+    event.transaction = withoutRawPath(
+      event.transaction,
+      rawPath,
+      traceData?.["http.route"],
+    );
+  }
+};
+
+const isScalar = (value: unknown): value is string | number | boolean =>
+  ["string", "number", "boolean"].includes(typeof value);
+
+const isShortCode = (value: unknown): boolean =>
+  (typeof value === "string" && SHORT_CODE.test(value)) ||
+  (typeof value === "number" && Number.isInteger(value));
+
+// References and firm identifiers may be sent, but only in their expected shape.
+const EXTRA_VALUE_CHECKS = new Map<string, (value: unknown) => boolean>([
+  [
+    "laa_reference",
+    (value) =>
+      typeof value === "string" && REFERENCE_PATTERNS.laa_reference.test(value),
+  ],
+  [
+    "claim_reference",
+    (value) =>
+      typeof value === "string" &&
+      REFERENCE_PATTERNS.claim_reference.test(value),
+  ],
+  ["firm_code", isShortCode],
+  ["firm_id", isShortCode],
+]);
+
+const SAFE_EXTRA_KEYS = new Set([
+  "event",
+  "request_id",
+  "correlation_id",
+  "status_code",
+  "method",
+  "duration_ms",
+  "error_type",
+  "exception_type",
+  "operation",
+  "retryable",
+]);
+
+const isSafeExtra = (key: string, value: unknown): boolean => {
+  const check = EXTRA_VALUE_CHECKS.get(key);
+  if (check !== undefined) {
+    return check(value);
+  }
+  return SAFE_EXTRA_KEYS.has(key) && isScalar(value);
+};
+
+const scrubExtra = (
+  extra: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined => {
+  const safe: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(extra ?? {})) {
+    if (isSafeExtra(key, value)) {
+      safe[key] = typeof value === "string" ? redactText(value) : value;
+    }
+  }
+  return Object.keys(safe).length > 0 ? safe : undefined;
+};
+
+const hasStringProperty = (error: object, key: string): boolean =>
+  typeof (error as Record<string, unknown>)[key] === "string";
+
+const hasMsalShape = (error: unknown): error is Error =>
+  error instanceof Error &&
+  hasStringProperty(error, "errorCode") &&
+  hasStringProperty(error, "errorMessage");
+
+const isMsalError = (type: string | undefined, original: unknown): boolean =>
+  (type !== undefined && MSAL_ERROR_NAMES.has(type)) || hasMsalShape(original);
+
+interface ZodIssueLike {
+  code: unknown;
+  path: unknown;
+}
+
+const zodIssues = (error: unknown): ZodIssueLike[] | undefined => {
+  const { issues } = (error ?? {}) as { issues?: unknown };
+  return Array.isArray(issues) ? (issues as ZodIssueLike[]) : undefined;
+};
+
+// Issue codes and field paths only: never the rejected values or the messages.
+// Array indexes and keys that are not plain identifiers become "*".
+const zodPathKey = (key: unknown): string =>
+  typeof key === "string" && ZOD_PATH_KEY.test(key) ? key : "*";
+
+const zodSummary = (issues: ZodIssueLike[]): string =>
+  issues
+    .map(({ code, path }) => {
+      const safeCode =
+        typeof code === "string" && ZOD_ISSUE_CODE.test(code) ? code : "issue";
+      const keys = Array.isArray(path) ? path.map(zodPathKey) : [];
+      return `${safeCode} at ${keys.join(".") || "(root)"}`;
+    })
+    .join("; ");
+
+const sanitizeException = (
+  exception: ErrorException,
+  original: unknown,
+): void => {
+  if (exception.value === undefined) {
     return;
   }
 
-  const { "http.route": route } = traceData;
-  removeAllUrlData(traceData);
-  if (event.transaction !== undefined) {
-    event.transaction = withoutRawPath(event.transaction, rawPath, route);
+  if (isMsalError(exception.type, original)) {
+    exception.value = FILTERED;
+  } else if (
+    exception.type !== undefined &&
+    ZOD_ERROR_NAMES.has(exception.type)
+  ) {
+    const issues = zodIssues(original);
+    exception.value = issues === undefined ? FILTERED : zodSummary(issues);
+  } else {
+    exception.value = redactText(exception.value);
   }
+};
+
+// Sentry lists chained causes first and the thrown error last; only the thrown
+// error is available as hint.originalException.
+const sanitizeExceptions = (event: ErrorEvent, hint: EventHint): void => {
+  const values = event.exception?.values ?? [];
+  values.forEach((exception, index) => {
+    const isThrownError = index === values.length - 1;
+    sanitizeException(
+      exception,
+      isThrownError ? hint.originalException : undefined,
+    );
+  });
+};
+
+// Stable, non-sensitive facts about the failure that the scrubbed message no
+// longer carries.
+const errorTags = (error: unknown): Record<string, string> => {
+  const tags: Record<string, string> = {};
+  if (hasMsalShape(error)) {
+    const { errorCode } = error as unknown as { errorCode: string };
+    if (SAFE_CODE.test(errorCode)) {
+      tags.auth_error_code = errorCode;
+    }
+  }
+
+  const { isAxiosError, code, status } = (error ?? {}) as Record<
+    string,
+    unknown
+  >;
+  if (isAxiosError === true) {
+    if (typeof code === "string" && SAFE_CODE.test(code)) {
+      tags.axios_code = code;
+    }
+    if (
+      typeof status === "number" &&
+      status >= MIN_HTTP_STATUS &&
+      status <= MAX_HTTP_STATUS
+    ) {
+      tags.http_status = String(status);
+    }
+  }
+  return tags;
 };
 
 interface ApplicationErrorFields {
@@ -195,20 +385,31 @@ export const tagApplicationError = (
   event.fingerprint = ["{{ default }}", fields.type];
 };
 
-export const scrubEvent = (event: ErrorEvent, _hint: EventHint): ErrorEvent => {
+export const scrubEvent = (event: ErrorEvent, hint: EventHint): ErrorEvent => {
   const rawPath = scrubRequest(event);
   delete event.user;
-  delete event.extra;
 
-  if (
-    event.contexts?.trace?.data === undefined &&
-    event.transaction !== undefined
-  ) {
-    event.transaction = withoutRawPath(event.transaction, rawPath, undefined);
+  const extra = scrubExtra(event.extra);
+  if (extra === undefined) {
+    delete event.extra;
+  } else {
+    event.extra = extra;
   }
-  scrubTraceContext(event, rawPath);
-  filterSensitiveExceptions(event);
 
+  scrubTraceContext(event, rawPath);
+  if (event.message !== undefined) {
+    event.message = redactText(event.message);
+  }
+
+  const tags = {
+    ...referenceTags(rawPath ?? ""),
+    ...errorTags(hint.originalException),
+  };
+  if (Object.keys(tags).length > 0) {
+    event.tags = { ...event.tags, ...tags };
+  }
+
+  sanitizeExceptions(event, hint);
   return event;
 };
 
@@ -216,14 +417,17 @@ export const scrubBreadcrumb = (
   breadcrumb: Breadcrumb,
   _hint?: BreadcrumbHint,
 ): Breadcrumb => {
-  if (breadcrumb.data !== undefined) {
-    reduceUrlsToHost(breadcrumb.data);
+  const { data } = breadcrumb;
+  if (data !== undefined) {
+    const { url } = data;
+    scrubUrlData(data, typeof url === "string" && isApiUrl(url));
   }
 
   return breadcrumb;
 };
 
-// "GET https://host/path" -> "GET https://host"; a bare path is dropped.
+// "GET https://host/path" keeps the sanitized path for our own API and only the
+// host otherwise. A bare path has no known host, so it is dropped.
 const outboundSpanName = (name: string): string => {
   const separator = name.indexOf(" ");
   if (separator === -1) {
@@ -233,21 +437,27 @@ const outboundSpanName = (name: string): string => {
   const method = name.slice(0, separator);
   const target = name.slice(separator + 1);
   if (target.includes("://")) {
-    return `${method} ${hostOnly(target) ?? FILTERED}`;
+    return `${method} ${scrubUrl(target, isApiUrl(target))}`;
   }
   return target.startsWith("/") ? method : name;
 };
 
 export const scrubSpan = (span: StreamedSpan): StreamedSpan => {
   const { attributes } = span;
-  const { "url.path": urlPath, "http.route": route } = attributes;
-  const rawPath = pathOf(urlPath);
+  const { "http.route": route } = attributes;
+  const rawPath = requestPath(attributes);
+  const isOutbound = attributes["sentry.op"] === "http.client";
+  const url = firstUrl(attributes);
+  const keepPath = !isOutbound || (url !== undefined && isApiUrl(url));
 
-  if (attributes["sentry.op"] === "http.client") {
-    reduceUrlsToHost(attributes);
+  if (keepPath && rawPath !== undefined) {
+    Object.assign(attributes, referenceTags(rawPath));
+  }
+  scrubUrlData(attributes, keepPath);
+
+  if (isOutbound) {
     span.name = outboundSpanName(span.name);
-  } else {
-    removeAllUrlData(attributes);
+    return span;
   }
 
   span.name = withoutRawPath(span.name, rawPath, route);

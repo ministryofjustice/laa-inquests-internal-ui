@@ -89,15 +89,23 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 
 Sentry is a second sink for errors and must follow the same redaction rules as logs.
 
+- May be sent: case references, claim references, firm codes and firm IDs.
+  Never sent: IP addresses, emails, names, user IDs, usernames, tokens,
+  credentials, file names or other personal data.
 - Configuration is in `src/infrastructure/config/sentry.ts`; do not call
   `Sentry.init` anywhere else. `src/instrument.ts` is loaded with `node --import`.
 - Never call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
-  `addBreadcrumb` with identifiers (LAA reference, names, emails, tokens), free
-  text or objects.
+  `addBreadcrumb` with anything but an allowed reference or firm identifier, and
+  never with free text or objects. Allowed extra keys are listed in
+  `sentry.ts`; reference and firm values are checked against their expected shape.
 - Do not log through `Sentry.logger`; logs stay in the JSON logger only.
-- Exception messages are sent as-is, except for Axios, Zod and MSAL errors which
-  are filtered. Do not put identifiers or user input in `Error` or
-  `ApplicationError` messages (use `operation`, `type`, `retryable`).
+- URL paths are allow-listed word by word. A new route or Inquests API path
+  needs its literal words added to `KNOWN_SEGMENTS` in `sentryPaths.ts`;
+  otherwise they appear as `[Filtered]` and a unit test fails.
+- Exception messages are sent after redaction of emails, IP addresses and
+  tokens, which cannot catch names or file names. Do not put user input in
+  `Error` or `ApplicationError` messages (use `operation`, `type`, `retryable`).
+  MSAL error messages are always replaced, and Zod errors are summarised.
 - A new sensitive field or error type needs a scrubber update and a test in
   `tests/unit/src/infrastructure/config/sentry.spec.ts`.
 
