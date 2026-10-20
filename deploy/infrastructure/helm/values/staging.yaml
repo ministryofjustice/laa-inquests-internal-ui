@@ -95,6 +95,7 @@ env:
   RATE_WINDOW_MS: 900000
   RATE_WINDOW_PER_REPORT_MS: 5000
   NODE_ENV: "staging"
+  GA_MEASUREMENT_ID: "G-66XEG6MGRY"
 
 livenessProbe:
   httpGet:
