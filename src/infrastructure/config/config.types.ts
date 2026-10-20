@@ -60,4 +60,5 @@ export interface Config {
   csrf: CsrfConfig;
   session: SessionConfig;
   paths: PathsConfig;
+  GA_MEASUREMENT_ID: string;
 }
