@@ -19,14 +19,33 @@ describe("Cookies adaptor", () => {
       },
     } as never;
     cookiesAdaptor = new CookiesAdaptor();
+  });
 
-    it("renders reports page", () => {
-      cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+  it("renders reports page", () => {
+    cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "main/cookies",
+      { backUrl: "/" },
+    ]);
+  });
+
+  describe("saveCookiesPreferences", () => {
+    // it("redirects back after saving cookies preferences", () => {
+    //   cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
+
+    //   assert.equal(responseStub.redirect.callCount, 1);
+    //   assert.deepEqual(responseStub.redirect.firstCall.args, ["back"]);
+    // });
+
+    it("on success renders the cookies page with success banner", () => {
+      cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 1);
       assert.deepEqual(responseStub.render.firstCall.args, [
         "main/cookies",
-        { backUrl: "/" },
+        { success: true },
       ]);
     });
   });

@@ -71,32 +71,34 @@
             ]
           ]
         }) }}
-
-    {{ govukRadios({
-      classes: "govuk-radios--medium",
-      name: "changedName",
-      fieldset: {
-        legend: {
-          text: t('pages.cookies.analytics.radio.label'),
-          isPageHeading: true,
-          classes: "govuk-fieldset__legend--s"
-        }
-      },
-      items: [
-        {
-          value: "yes",
-          text: t('pages.cookies.analytics.radio.yes')
+  <form data-testid="save-cookie-preferences" method="post" action="/cookies">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+      {{ govukRadios({
+        classes: "govuk-radios--medium",
+        name: "changedName",
+        fieldset: {
+          legend: {
+            text: t('pages.cookies.analytics.radio.label'),
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--s"
+          }
         },
-        {
-          value: "no",
-          text: t('pages.cookies.analytics.radio.no')
-        }
-      ]
-    }) }}
+        items: [
+          {
+            value: "yes",
+            text: t('pages.cookies.analytics.radio.yes')
+          },
+          {
+            value: "no",
+            text: t('pages.cookies.analytics.radio.no')
+          }
+        ]
+      }) }}
 
-    {{ govukButton({
-      text: t('pages.cookies.saveButton')
-    }) }}
+      {{ govukButton({
+        text: t('pages.cookies.saveButton')
+      }) }}
+    </form>
   </div>
 </div>
 {% endblock %}

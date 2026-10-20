@@ -13,4 +13,17 @@ export class CookiesAdaptor {
     });
     res.render("main/cookies", { backUrl: "/" });
   }
+
+  saveCookiesPreferences(req: Request, res: Response): void {
+    logger.logInfo({
+      functionName: "save_cookies_preferences",
+      message: "Saving cookies preferences",
+      request: req,
+      extraContext: {
+        event: "cookies_preferences_saved",
+      },
+    });
+    // Implement the logic to save cookies preferences here
+    res.render("main/cookies", { success: true });
+  }
 }

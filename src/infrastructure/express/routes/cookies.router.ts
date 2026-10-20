@@ -16,5 +16,16 @@ export function createCookiesRouter(
     },
   );
 
+  cookiesRouter.post(
+    "/",
+    (req: Request, res: Response, next: NextFunction): void => {
+      try {
+        cookiesAdaptor.saveCookiesPreferences(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   return cookiesRouter;
 }
