@@ -31,10 +31,14 @@ const startServer = (port: number): void => {
   // Add a delay to ensure the port is released before starting a new server process
   setTimeout(() => {
     // Spawn a new server process
-    serverProcess = spawn("node", ["public/app.js"], {
-      stdio: "inherit", // Inherit stdio to display server logs in the console
-      env: { ...process.env, PORT: port.toString() }, // Pass the environment variables, including the port
-    });
+    serverProcess = spawn(
+      "node",
+      ["--import", "./public/instrument.js", "public/app.js"],
+      {
+        stdio: "inherit", // Inherit stdio to display server logs in the console
+        env: { ...process.env, PORT: port.toString() }, // Pass the environment variables, including the port
+      },
+    );
 
     // Handle server process close event
     serverProcess.on("close", (code: number | null) => {
