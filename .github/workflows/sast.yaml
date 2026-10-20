@@ -69,7 +69,8 @@ jobs:
           pip install "semgrep==1.180.0"
       - name: Run Semgrep on typescript
         run: |
-          semgrep --config p/expressjs --config p/github-actions --config p/typescript --sarif --sarif-output semgrep-results.sarif --strict --exclude deploy/infrastructure/helm/templates .
+          semgrep --version
+          semgrep --jobs 1 --config p/expressjs --config p/github-actions --config p/typescript --sarif --sarif-output semgrep-results.sarif --strict --exclude deploy/infrastructure/helm/templates .
       - name: Upload Semgrep SARIF as artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
