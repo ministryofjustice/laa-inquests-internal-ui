@@ -85,6 +85,22 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 - Include only minimal identifiers and operational metadata in `extraContext`.
 - Keep event names `snake_case` and outcome-focused.
 
+## Sentry
+
+Sentry is a second sink for errors and must follow the same redaction rules as logs.
+
+- Configuration is in `src/infrastructure/config/sentry.ts`; do not call
+  `Sentry.init` anywhere else. `src/instrument.ts` is loaded with `node --import`.
+- Never call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
+  `addBreadcrumb` with identifiers (LAA reference, names, emails, tokens), free
+  text or objects.
+- Do not log through `Sentry.logger`; logs stay in the JSON logger only.
+- Exception messages are sent as-is, except for Axios, Zod and MSAL errors which
+  are filtered. Do not put identifiers or user input in `Error` or
+  `ApplicationError` messages (use `operation`, `type`, `retryable`).
+- A new sensitive field or error type needs a scrubber update and a test in
+  `tests/unit/src/infrastructure/config/sentry.spec.ts`.
+
 ## Extra context
 
 laa_reference: <laaReference>

@@ -104,6 +104,18 @@ Retain these presenter-owned business success events at `info`:
 Emit each exactly once after confirmed success and never on validation or
 persistence failure.
 
+## Sentry Reporting
+
+Every error that reaches Express is reported to Sentry, including expected
+`ApplicationError`s (`FORBIDDEN`, `AUTHENTICATION_REQUIRED`, `NOT_FOUND`).
+
+- The `ApplicationError` message must stay `Application operation failed:
+<operation>`; it is sent to Sentry unfiltered.
+- Do not catch an error only to hide it from Sentry; if an outcome is expected and
+  should not alert, return a use-case result instead of throwing.
+- Reporting is configured in `src/infrastructure/config/sentry.ts`
+  (`shouldHandleExpressError`); change it there, not in middleware order.
+
 ## Required Tests
 
 For each migrated vertical slice:
@@ -133,6 +145,7 @@ above that boundary construct `ApplicationError` directly.
 - Expected outcomes are not generic exceptions.
 - HTTP status is set, not only passed to a template.
 - Semantic success events occur only after confirmed success.
+- No error message or Sentry call carries identifiers or user input.
 - Logs contain required safe context and exclude sensitive data.
 - Negative and accessibility tests cover the changed path.
 - Migrated code does not copy `OutboundAdapterResult`, `UpstreamAuthError`,

@@ -55,6 +55,9 @@ Create your local config file `.env` from the template file:
 cp .env.example ../.env.internal
 ```
 
+The template includes `ENVIRONMENT` and `SENTRY_DSN`; see
+[Sentry error monitoring](#sentry-error-monitoring).
+
 #### Align to the Node Version specified for this project
 
 If using Node Version Manager (nvm), use the following command to switch to the correct version:
@@ -81,6 +84,45 @@ yarn install
 yarn build
 yarn start
 ```
+
+### Sentry error monitoring
+
+Errors and traces are sent to Sentry. Configuration lives in
+`src/infrastructure/config/sentry.ts` and is initialised by
+`src/instrument.ts`.
+
+| Variable      | Purpose                                                                                                                                                        |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SENTRY_DSN`  | Sentry project DSN. **Required** when `NODE_ENV=production` (the app refuses to start without it). Optional locally and in tests; with no DSN nothing is sent. |
+| `ENVIRONMENT` | Sentry environment tag: `dev`, `staging`, `prod` or `suppliertest`. Set by `deploy.sh`.                                                                        |
+
+In deployed environments `SENTRY_DSN` comes from the `SENTRY_DSN` GitHub
+secret, through the deploy action and `deploy.sh`. The deploy fails if it is empty.
+
+`instrument.js` must be loaded **before** the app so Sentry can instrument
+Express. Always start the built app with:
+
+```shell
+node --import ./public/instrument.js public/app.js
+```
+
+`yarn start`, `yarn dev`, the Dockerfile and `start-server.ts` already do this.
+Without it, errors are still reported but route templates and Express spans
+are missing.
+
+All errors that pass through Express are reported, including expected ones
+such as 401, 403 and 404 `ApplicationError`s. Traces are sampled at 2% and
+profiles at 20% of sampled sessions.
+
+#### What is (not) sent
+
+Personal and case data must never reach Sentry. The config turns off user info,
+cookies, headers, request bodies, query strings, local variables, logs and
+console breadcrumbs. Request and outbound URLs are reduced to scheme and host,
+route paths are replaced by the route template (e.g. `/applications/:laaReference`),
+and the messages of Axios, Zod and MSAL errors are replaced with `[Filtered]`.
+Do not add `Sentry.setUser`, `setExtra`, `setContext` or tags carrying
+identifiers.
 
 ### Initialize pre-commit hooks
 
