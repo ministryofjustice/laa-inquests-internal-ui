@@ -122,3 +122,10 @@ ignore:
           the image includes npm with undici@6.29.1 or a patched version on
           another major line."
         expires: "2026-11-18T00:00:00.000Z"
+  "SNYK-JS-PICOMATCH-21248802":
+    - "*":
+        reason:
+          "Temp ignore for picomatch bundled with global npm in the Docker image.
+          The scan reports no upgrade or patch. Remove when the image includes npm
+          with a fixed picomatch version."
+        expires: "2026-11-19T00:00:00.000Z"
