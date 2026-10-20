@@ -38,6 +38,13 @@ if (
   throw new Error("REDIS_AUTH_TOKEN must be defined in environment variables.");
 }
 
+if (
+  process.env.NODE_ENV === "production" &&
+  (process.env.SENTRY_DSN == null || process.env.SENTRY_DSN === "")
+) {
+  throw new Error("SENTRY_DSN must be defined in environment variables.");
+}
+
 const missingAuthVars = [
   "AUTH_DIRECTORY_URL",
   "AUTH_CLIENT_ID",
