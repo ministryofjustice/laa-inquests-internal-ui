@@ -58,4 +58,38 @@ test.describe("View cookies page", () => {
 
     await checkAccessibility();
   });
+
+  test("should display success banner on saving cookie settings", async ({
+    page,
+  }) => {
+    await page.goto(cookiesUrl);
+
+    await page.getByRole("radio", { name: "Yes" }).check();
+    await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+    await expect(
+      page.locator("div.govuk-notification-banner", {
+        hasText: "You’ve set your cookie preferences.",
+      }),
+    ).toBeVisible();
+  });
+
+  test("should have success banner link to previous page", async ({ page }) => {
+    await page.goto("/reports");
+    await page.getByRole("link", { name: "Cookies" }).click();
+    await expect(page).toHaveURL(cookiesUrl + "?returnTo=%2Freports");
+
+    await page.getByRole("radio", { name: "Yes" }).check();
+    await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+    await expect(
+      page.locator("div.govuk-notification-banner", {
+        hasText: "You’ve set your cookie preferences.",
+      }),
+    ).toBeVisible();
+    await page
+      .getByRole("link", { name: "Go back to the page you were looking at" })
+      .click();
+    await expect(page).toHaveURL("/reports");
+  });
 });

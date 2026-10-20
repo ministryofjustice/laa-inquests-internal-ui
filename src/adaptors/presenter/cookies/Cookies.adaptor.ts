@@ -1,6 +1,10 @@
 import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
+interface CookiesPreferencesForm {
+  returnTo?: string;
+}
+
 export class CookiesAdaptor {
   renderCookiesPage(req: Request, res: Response): void {
     logger.logInfo({
@@ -11,7 +15,7 @@ export class CookiesAdaptor {
         event: "cookies_page_requested",
       },
     });
-    res.render("main/cookies", { backUrl: "/" });
+    res.render("main/cookies", { backUrl: req.query.returnTo });
   }
 
   saveCookiesPreferences(req: Request, res: Response): void {
@@ -24,6 +28,10 @@ export class CookiesAdaptor {
       },
     });
     // Implement the logic to save cookies preferences here
-    res.render("main/cookies", { success: true });
+    const form = req.body as CookiesPreferencesForm;
+    res.render("main/cookies", {
+      success: true,
+      returnTo: form.returnTo ?? "/",
+    });
   }
 }

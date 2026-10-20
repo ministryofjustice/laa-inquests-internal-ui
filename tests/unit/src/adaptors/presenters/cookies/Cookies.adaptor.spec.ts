@@ -18,10 +18,12 @@ describe("Cookies adaptor", () => {
         accessToken: "test-access-token",
       },
     } as never;
+    requestStub.query = { returnTo: "/" }; //For GET
+    requestStub.body = { returnTo: "/" }; //For POST
     cookiesAdaptor = new CookiesAdaptor();
   });
 
-  it("renders reports page", () => {
+  it("renders cookies page", () => {
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
@@ -32,20 +34,13 @@ describe("Cookies adaptor", () => {
   });
 
   describe("saveCookiesPreferences", () => {
-    // it("redirects back after saving cookies preferences", () => {
-    //   cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
-
-    //   assert.equal(responseStub.redirect.callCount, 1);
-    //   assert.deepEqual(responseStub.redirect.firstCall.args, ["back"]);
-    // });
-
     it("on success renders the cookies page with success banner", () => {
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 1);
       assert.deepEqual(responseStub.render.firstCall.args, [
         "main/cookies",
-        { success: true },
+        { success: true, returnTo: "/" },
       ]);
     });
   });

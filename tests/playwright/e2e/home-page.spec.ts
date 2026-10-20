@@ -102,8 +102,25 @@ test.describe("Home page", () => {
     test("navigates to the cookies page", async ({ page }) => {
       await page.goto("/");
 
-      await page.getByRole("link", { name: "Cookies" }).click();
-      await expect(page).toHaveURL("/cookies");
+      const cookiesLink = page.getByRole("link", { name: "Cookies" });
+      await expect(cookiesLink).toHaveAttribute(
+        "href",
+        "/cookies?returnTo=%2F",
+      );
+      await cookiesLink.click();
+      await expect(page).toHaveURL("/cookies?returnTo=%2F");
+    });
+
+    test("preserves the current page path in the cookies footer link", async ({
+      page,
+    }) => {
+      await page.goto("/reports");
+
+      const cookiesLink = page.getByRole("link", { name: "Cookies" });
+      const cookiesUrl = "/cookies?returnTo=%2Freports";
+      await expect(cookiesLink).toHaveAttribute("href", cookiesUrl);
+      await cookiesLink.click();
+      await expect(page).toHaveURL(cookiesUrl);
     });
   });
 
