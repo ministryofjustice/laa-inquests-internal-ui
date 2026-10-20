@@ -1,32 +1,32 @@
-  {% set cookiesHtml %}
-    <p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
-    <p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
-  {% endset %}
+{% set cookiesHtml %}
+<p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
+<p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
+{% endset %}
 
-  {{ govukCookieBanner({
-    ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
-    messages: [
-      {
-        headingText: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
-        html: cookiesHtml,
-        actions: [
-          {
-            text: t("components.cookieBanner.accept"),
-            type: "submit",
-            name: "cookies[additional]",
-            value: "yes"
-          },
-          {
-            text: t("components.cookieBanner.reject"),
-            type: "submit",
-            name: "cookies[additional]",
-            value: "no"
-          },
-          {
-            text: t("components.cookieBanner.view"),
-            href: cookiesHref
-          }
-        ]
-      }
+{{ govukCookieBanner({
+ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+messages: [
+    {
+    headingText: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+    html: cookiesHtml,
+    actions: [
+        {
+        text: t("components.cookieBanner.accept"),
+        type: "submit",
+        name: "cookies[additional]",
+        value: "yes"
+        },
+        {
+        text: t("components.cookieBanner.reject"),
+        type: "submit",
+        name: "cookies[additional]",
+        value: "no"
+        },
+        {
+        text: t("components.cookieBanner.view"),
+        href: cookiesHref
+        }
     ]
-  }) }}
+    }
+]
+}) }}
