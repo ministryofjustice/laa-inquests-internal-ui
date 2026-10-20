@@ -31,6 +31,13 @@
       "feedbackText": "This is a new service. Help us improve it and ",
       "feedbackLinkTextHTML": "<a class='govuk-link' href='#'>give your feedback by email</a>."
     },
+    "cookieBanner": {
+      "essentialDescription": "We use some essential cookies to make this service work.",
+      "additionalDescription": "We’d like to set additional cookies so we can remember your settings, understand how people use the service and make improvements.",
+      "accept": "Accept additional cookies",
+      "reject": "Reject additional cookies",
+      "view": "View cookies"
+    },
     "errorSummary": {
       "title": "There is a problem"
     }
