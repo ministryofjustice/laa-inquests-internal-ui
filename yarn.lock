@@ -1057,7 +1057,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^11.8.0":
+"@sentry/node-cpu-profiler@npm:^2.4.4":
+  version: 2.4.4
+  resolution: "@sentry/node-cpu-profiler@npm:2.4.4"
+  dependencies:
+    detect-libc: "npm:^2.0.3"
+    node-abi: "npm:^3.73.0"
+    node-gyp: "npm:latest"
+  checksum: 10c0/0cf6e21443ac0cee03b95fab4db852bc2163b3ec41f0e3c6e64d77ee07a25dd4ccca6b44592a39d073296f1d9f9d015373c3ed0966ba7038ca47731a37775aab
+  languageName: node
+  linkType: hard
+
+"@sentry/node@npm:11.8.0, @sentry/node@npm:^11.8.0":
   version: 11.8.0
   resolution: "@sentry/node@npm:11.8.0"
   dependencies:
@@ -1081,6 +1092,17 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ^1.9.0
   checksum: 10c0/0f9029a2c420c02f5ef89e5eb903714ab1e35dac2997b323439997ece2088db92b0283c6378fd18d7e16e51b432994ae4673943fa089e4e66b4a7b7354032364
+  languageName: node
+  linkType: hard
+
+"@sentry/profiling-node@npm:^11.8.0":
+  version: 11.8.0
+  resolution: "@sentry/profiling-node@npm:11.8.0"
+  dependencies:
+    "@sentry/core": "npm:11.8.0"
+    "@sentry/node": "npm:11.8.0"
+    "@sentry/node-cpu-profiler": "npm:^2.4.4"
+  checksum: 10c0/5c21f1c16fced097aa391e2389813a42fa5847b37caffbfafcce4be35dcdda2dcf0cd87eedb0232800f6557125d4d22d5260d645eda9c17ad0e6c6cfc5ef6146
   languageName: node
   linkType: hard
 
@@ -3946,6 +3968,7 @@ __metadata:
     "@playwright/test": "npm:^1.64.0"
     "@redis/client": "npm:^6.3.0"
     "@sentry/node": "npm:^11.8.0"
+    "@sentry/profiling-node": "npm:^11.8.0"
     "@types/chai": "npm:^5.2.3"
     "@types/compression": "npm:^1.7.5"
     "@types/connect-livereload": "npm:^0.6.3"
@@ -4432,6 +4455,15 @@ __metadata:
     just-extend: "npm:^4.0.2"
     path-to-regexp: "npm:^1.7.0"
   checksum: 10c0/63ddcb88bb979f7fccbb8094af9ffc8e12753665eae34367fc31bbbbf5f2c7694146a1379e89043a3ac8d30be77653ce1abbaa5f7aaeaab95d9578b714817e00
+  languageName: node
+  linkType: hard
+
+"node-abi@npm:^3.73.0":
+  version: 3.99.0
+  resolution: "node-abi@npm:3.99.0"
+  dependencies:
+    semver: "npm:^7.3.5"
+  checksum: 10c0/feee68e3fdeb13f37c71348e5a8df46068d2bedf0b038c46893f32dae87bb81ce36d75a169915ca445c5db3a2d060777abc2d97c9eb00bd4addd5ec47e3800b7
   languageName: node
   linkType: hard
 
