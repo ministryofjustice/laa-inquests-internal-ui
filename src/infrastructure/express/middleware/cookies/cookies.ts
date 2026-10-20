@@ -2,6 +2,18 @@ import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constant
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { Request, Response, NextFunction } from "express";
 
+const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 360;
+
+export function setCookies(res: Response, acceptCookies: boolean): void {
+  try {
+    res.cookie(
+      "cookies_policy",
+      { has_tracking_consent: acceptCookies },
+      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+    );
+  } catch (err) {}
+}
+
 export default function processCookies(
   req: Request,
   res: Response,

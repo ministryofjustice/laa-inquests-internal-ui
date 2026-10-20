@@ -19,7 +19,7 @@ describe("Cookies adaptor", () => {
       },
     } as never;
     requestStub.query = { returnTo: "/" }; //For GET
-    requestStub.body = { returnTo: "/" }; //For POST
+    requestStub.body = { returnTo: "/", acceptCookies: "yes" }; //For POST
     cookiesAdaptor = new CookiesAdaptor();
   });
 
@@ -40,7 +40,37 @@ describe("Cookies adaptor", () => {
       assert.equal(responseStub.render.callCount, 1);
       assert.deepEqual(responseStub.render.firstCall.args, [
         "main/cookies",
-        { success: true, returnTo: "/" },
+        { success: true, returnTo: "/", acceptCookies: "yes" },
+      ]);
+    });
+
+    it("assigns hasTrackingConsent to true when user selects 'yes'", () => {
+      requestStub.body = {
+        acceptCookies: "yes",
+        returnTo: "/",
+      };
+
+      cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "main/cookies",
+        { success: true, returnTo: "/", acceptCookies: "yes" },
+      ]);
+    });
+
+    it("assigns hasTrackingConsent to false when user selects 'no'", () => {
+      requestStub.body = {
+        acceptCookies: "no",
+        returnTo: "/",
+      };
+
+      cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "main/cookies",
+        { success: true, returnTo: "/", acceptCookies: "no" },
       ]);
     });
   });

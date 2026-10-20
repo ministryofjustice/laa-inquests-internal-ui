@@ -2,7 +2,9 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import sinon from "sinon";
-import processCookies from "#src/infrastructure/express/middleware/cookies/cookies.js";
+import processCookies, {
+  setCookies,
+} from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 describe("processCookies", () => {
@@ -105,5 +107,35 @@ describe("processCookies", () => {
     };
     processCookies(req, res, next);
     assert.equal(logSpy.callCount, 1);
+  });
+});
+
+describe("setCookies", () => {
+  let res: StubbedInstance<Response>;
+
+  beforeEach(() => {
+    res = stubInterface<Response>();
+  });
+
+  it("sets cookie if acceptCookies is set to true", () => {
+    setCookies(res, true);
+
+    assert.ok(res.cookie.calledOnce);
+    assert.deepEqual(res.cookie.firstCall.args, [
+      "cookies_policy",
+      { has_tracking_consent: true },
+      { maxAge: 1000 * 60 * 60 * 24 * 360, httpOnly: true, sameSite: "strict" },
+    ]);
+  });
+
+  it("sets cookie if acceptCookies is set to false", () => {
+    setCookies(res, false);
+
+    assert.ok(res.cookie.calledOnce);
+    assert.deepEqual(res.cookie.firstCall.args, [
+      "cookies_policy",
+      { has_tracking_consent: false },
+      { maxAge: 1000 * 60 * 60 * 24 * 360, httpOnly: true, sameSite: "strict" },
+    ]);
   });
 });

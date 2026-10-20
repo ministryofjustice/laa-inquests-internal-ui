@@ -1,8 +1,10 @@
 import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { setCookies } from "#src/infrastructure/express/middleware/cookies/cookies.js";
 
 interface CookiesPreferencesForm {
   returnTo?: string;
+  acceptCookies?: string;
 }
 
 export class CookiesAdaptor {
@@ -27,11 +29,14 @@ export class CookiesAdaptor {
         event: "cookies_preferences_saved",
       },
     });
-    // Implement the logic to save cookies preferences here
     const form = req.body as CookiesPreferencesForm;
+    if (form.acceptCookies === "yes") {
+      setCookies(res, true);
+    }
     res.render("main/cookies", {
       success: true,
       returnTo: form.returnTo ?? "/",
+      acceptCookies: form.acceptCookies,
     });
   }
 }
