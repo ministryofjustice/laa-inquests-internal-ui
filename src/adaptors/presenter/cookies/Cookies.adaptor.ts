@@ -7,6 +7,10 @@ interface CookiesPreferencesForm {
   acceptCookies?: string;
 }
 
+interface CookiesPreferencesForm {
+  returnTo?: string;
+}
+
 export class CookiesAdaptor {
   renderCookiesPage(req: Request, res: Response): void {
     logger.logInfo({
@@ -88,6 +92,10 @@ export class CookiesAdaptor {
       },
     });
     // Implement the logic to save cookies preferences here
-    res.render("main/cookies", { success: true });
+    const form = req.body as CookiesPreferencesForm;
+    res.render("main/cookies", {
+      success: true,
+      returnTo: form.returnTo ?? "/",
+    });
   }
 }
