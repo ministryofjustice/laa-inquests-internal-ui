@@ -33,7 +33,19 @@ export function setCookies(res: Response, acceptCookies: boolean): void {
       { has_tracking_consent: acceptCookies },
       { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
     );
+
+    res.locals.hasTrackingConsent = acceptCookies;
   } catch (err) {}
+}
+
+export function parseTrackingConsent(raw: unknown): boolean {
+  const value: unknown =
+    typeof raw === "string" ? JSON.parse(decodeURIComponent(raw)) : raw;
+  const result = cookiePolicySchema.safeParse(value);
+  if (result.success) {
+    return result.data.has_tracking_consent;
+  }
+  return false;
 }
 
 export default function processCookies(
