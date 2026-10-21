@@ -14,14 +14,14 @@ export function setCookies(res: Response, acceptCookies: boolean): void {
   res.locals.hasTrackingConsent = acceptCookies;
 }
 
-export function parseTrackingConsent(raw: unknown): boolean {
+export function parseTrackingConsent(raw: unknown): boolean | undefined {
   const value: unknown =
     typeof raw === "string" ? JSON.parse(decodeURIComponent(raw)) : raw;
   const result = cookiePolicySchema.safeParse(value);
   if (result.success) {
     return result.data.has_tracking_consent;
   }
-  return false;
+  return undefined;
 }
 
 const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 360;
@@ -55,9 +55,9 @@ export default function processCookies(
   res.locals.showCookieBanner = true;
 
   try {
-    res.locals.hasTrackingConsent = parseTrackingConsent(
-      req.cookies.cookies_policy,
-    );
+    const consent = parseTrackingConsent(req.cookies.cookies_policy);
+    res.locals.hasTrackingConsent = consent === true;
+    res.locals.showCookieBanner = consent === undefined;
   } catch (err) {
     res.locals.hasTrackingConsent = false;
     logger.logError({
