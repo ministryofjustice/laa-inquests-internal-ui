@@ -44,6 +44,7 @@ export interface Config {
   CONTACT_PHONE: string | undefined;
   DEPARTMENT_NAME: string | undefined;
   DEPARTMENT_URL: string | undefined;
+  ENVIRONMENT: string;
   INQUESTS_API_URL: string;
   RATE_LIMIT_GLOBAL_MAX: number;
   RATE_LIMIT_IP_MAX: number;
@@ -53,6 +54,7 @@ export interface Config {
   LOG_LEVEL: string | undefined;
   SERVICE_PHASE: string | undefined;
   SERVICE_URL: string | undefined;
+  SENTRY_DSN: string;
   USE_REDIS: boolean;
   REDIS_HOST_NAME: string;
   REDIS_AUTH_TOKEN: string;
@@ -60,4 +62,5 @@ export interface Config {
   csrf: CsrfConfig;
   session: SessionConfig;
   paths: PathsConfig;
+  GA_MEASUREMENT_ID: string;
 }

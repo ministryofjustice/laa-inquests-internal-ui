@@ -6,6 +6,7 @@ export const helmetConfig = {
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
+        "https://www.googletagmanager.com",
         // Dynamic nonce function for CSP - using the correct helmet function signature
         (_: IncomingMessage, res: ServerResponse) => {
           // Type guard to check if res has locals property (Express response)
@@ -25,8 +26,18 @@ export const helmetConfig = {
       ],
       styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles if needed
       fontSrc: ["'self'", "data:"], // Allow data: URIs for fonts
-      imgSrc: ["'self'", "data:"], // Allow data: URIs for images
-      connectSrc: ["'self'"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://*.google-analytics.com",
+        "https://www.googletagmanager.com",
+      ], // Allow data: URIs for images
+      connectSrc: [
+        "'self'",
+        "https://*.google-analytics.com",
+        "https://*.analytics.google.com",
+        "https://www.googletagmanager.com",
+      ],
       objectSrc: ["'none'"], // Restrict <object>, <embed>, and <applet> elements
       mediaSrc: ["'self'"], // Restrict media
       frameSrc: ["'none'"], // Restrict frames

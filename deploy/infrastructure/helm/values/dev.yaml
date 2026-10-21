@@ -106,6 +106,9 @@ env:
   RATE_WINDOW_MS: 900000
   RATE_WINDOW_PER_REPORT_MS: 5000
   NODE_ENV: "dev"
+  ENVIRONMENT: ""
+  SENTRY_DSN: ""
+  GA_MEASUREMENT_ID: "G-G8T3WNVTV5"
 
 autoscaling:
   enabled: false

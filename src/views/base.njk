@@ -9,6 +9,7 @@
   <meta name="description" content="{{config.SERVICE_NAME}}">
   <meta name="keywords" content="GOV.UK, govuk, gov, government, uk, frontend, ui, user interface, jinja, python, flask, port, template, templating, macro, component, design system, html, forms, wtf, wtforms, widget, widgets, demo, example">
   <meta name="author" content="{{config.DEPARTMENT_NAME}}">
+  {% include "partials/analytics.njk" %}
 {% endblock %}
 
 {% block bodyStart %}
@@ -58,16 +59,20 @@
     meta: {
       items: [
         {
+          href: "/help",
+          text: t('navigation.footer.help')
+        },
+        {
           href: "#",
-          text: t('navigation.footer.accessibility')
+          text: t('navigation.footer.privacyPolicy')
         },
         {
           href: "#",
           text: t('navigation.footer.cookiePolicy')
         },
         {
-          href: "#",
-          text: t('navigation.footer.privacyPolicy')
+          href: "/accessibility-statement",
+          text: t('navigation.footer.accessibility')
         }
       ],
       html: 'Built by <a href="' + config.DEPARTMENT_URL +'" class="govuk-footer__link">' + config.DEPARTMENT_NAME + '</a>'

@@ -38,6 +38,13 @@ if (
   throw new Error("REDIS_AUTH_TOKEN must be defined in environment variables.");
 }
 
+if (
+  process.env.NODE_ENV === "production" &&
+  (process.env.SENTRY_DSN == null || process.env.SENTRY_DSN === "")
+) {
+  throw new Error("SENTRY_DSN must be defined in environment variables.");
+}
+
 const missingAuthVars = [
   "AUTH_DIRECTORY_URL",
   "AUTH_CLIENT_ID",
@@ -78,6 +85,7 @@ const config: Config = {
   CONTACT_PHONE: process.env.CONTACT_PHONE,
   DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,
   DEPARTMENT_URL: process.env.DEPARTMENT_URL,
+  ENVIRONMENT: process.env.ENVIRONMENT ?? "unknown",
   INQUESTS_API_URL: process.env.INQUESTS_API_URL ?? "",
   RATE_LIMIT_GLOBAL_MAX: Number(
     process.env.RATE_LIMIT_GLOBAL_MAX ?? DEFAULT_RATE_LIMIT_MAX,
@@ -97,6 +105,7 @@ const config: Config = {
   LOG_LEVEL: process.env.LOG_LEVEL,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
+  SENTRY_DSN: process.env.SENTRY_DSN ?? "",
   USE_REDIS: useRedis,
   REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",
   REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN ?? "",
@@ -126,6 +135,7 @@ const config: Config = {
     static: "public", // Path for serving static files
     views: "src/views", // Path for Nunjucks views
   },
+  GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID ?? "",
 };
 
 export default config;
