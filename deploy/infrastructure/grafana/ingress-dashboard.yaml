@@ -750,7 +750,7 @@ data:
       },
       "timezone": "browser",
       "title": "laa-inquests-internal-ui Ingress",
-      "uid": "intuiingress__APP_ENVIRONMENT__",
+      "uid": "inquestsintuiingress__APP_ENVIRONMENT__",
       "version": 3,
       "weekStart": ""
     }
