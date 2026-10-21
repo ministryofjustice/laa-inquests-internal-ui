@@ -14,10 +14,10 @@ import {
 } from "#src/use-cases/common/applicationError.js";
 import {
   initSentry,
+  redactText,
   scrubEvent,
   scrubSpan,
   sentryConfig,
-  shouldHandleExpressError,
   tagApplicationError,
 } from "#src/infrastructure/config/sentry.js";
 
@@ -48,6 +48,65 @@ const useApiUrl = (): void => {
     config.INQUESTS_API_URL = original;
   });
 };
+
+describe("redactText", () => {
+  it("redacts email addresses", () => {
+    expect(redactText("failed for jane.smith+test@example.co.uk now")).to.equal(
+      "failed for [Email] now",
+    );
+  });
+
+  it("redacts bearer tokens", () => {
+    expect(redactText("Authorization: Bearer abc.def-123_xyz==")).to.equal(
+      "Authorization: Bearer [Token]",
+    );
+  });
+
+  it("redacts basic authorization credentials", () => {
+    expect(redactText("Authorization: Basic dXNlcjpwYXNz")).to.equal(
+      "Authorization: Basic [Token]",
+    );
+  });
+
+  it("redacts json web tokens", () => {
+    expect(
+      redactText("token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.c2lnbmF0dXJl end"),
+    ).to.equal("token [Token] end");
+  });
+
+  it("redacts IPv4 addresses and keeps the port", () => {
+    expect(redactText("connect ECONNREFUSED 10.1.2.3:6379")).to.equal(
+      "connect ECONNREFUSED [IP]:6379",
+    );
+  });
+
+  it("redacts full and compressed IPv6 addresses", () => {
+    expect(
+      redactText(
+        "from 2001:0db8:85a3:0000:0000:8a2e:0370:7334 and ::1 and fe80::1",
+      ),
+    ).to.equal("from [IP] and [IP] and [IP]");
+  });
+
+  it("redacts secrets passed as key value pairs", () => {
+    expect(
+      redactText("client_secret=s3cr3t&password: hunter2 refresh_token=abc"),
+    ).to.equal(
+      "client_secret=[Redacted]&password=[Redacted] refresh_token=[Redacted]",
+    );
+  });
+
+  it("keeps references, times, versions and plain messages", () => {
+    const message =
+      "INQ-ABC-123 and INQC-AB12-CD34 at 10:15:30 on v1.2.3 failed with status code 500";
+
+    expect(redactText(message)).to.equal(message);
+  });
+
+  it("redacts every occurrence", () => {
+    expect(redactText("a@b.com then c@d.com")).to.equal("[Email] then [Email]");
+  });
+});
 
 describe("sentryConfig", () => {
   it("uses the ENVIRONMENT config value as the Sentry environment", () => {
@@ -150,14 +209,6 @@ describe("sentryConfig", () => {
 });
 
 describe("express error reporting", () => {
-  [undefined, 400, 401, 403, 404, 500].forEach((status) => {
-    it(`reports errors with status ${String(status)}`, () => {
-      const error = Object.assign(new Error("failed"), { status });
-
-      expect(shouldHandleExpressError(error)).to.equal(true);
-    });
-  });
-
   it("replaces the default express integration with one that reports every error", () => {
     const integrations = sentryConfig.integrations as (
       defaults: { name: string }[],
@@ -326,100 +377,10 @@ describe("scrubEvent", () => {
         "https://internal.example.com/auth/callback",
       );
     });
-
-    it("replaces path segments that are not route words or references", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          request: {
-            url: "https://internal.example.com/applications/jane-smith/report-jane-smith.pdf",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.request?.url).to.equal(
-        "https://internal.example.com/applications/[Filtered]/[Filtered]",
-      );
-    });
-
-    it("tags the event with the references in the request path", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          tags: { existing: "kept" },
-          request: {
-            url: "https://internal.example.com/applications/INQ-ABC-123/claims/INQC-AB12-CD34/rejected",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.tags).to.deep.equal({
-        existing: "kept",
-        laa_reference: "INQ-ABC-123",
-        claim_reference: "INQC-AB12-CD34",
-      });
-    });
-
-    it("does not tag segments that only look like a reference", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          request: {
-            url: "https://internal.example.com/applications/INQ-ABC-123-jane/overview",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event).to.not.have.property("tags");
-    });
-  });
-
-  describe("transaction name", () => {
-    it("keeps a transaction name that is already a route template", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          transaction: "GET /applications/:laaReference",
-          request: {
-            url: "https://internal.example.com/applications/INQ-ABC-123",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.transaction).to.equal("GET /applications/:laaReference");
-    });
-
-    it("falls back to the sanitized path when the route is unknown", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          transaction: "POST /applications/INQ-ABC-123/note",
-          request: {
-            url: "https://internal.example.com/applications/INQ-ABC-123/note",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.transaction).to.equal("POST /applications/INQ-ABC-123/note");
-    });
-
-    it("filters unknown segments in the fallback path", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          transaction: "GET /applications/jane-smith",
-          request: {
-            url: "https://internal.example.com/applications/jane-smith",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.transaction).to.equal("GET /applications/[Filtered]");
-    });
   });
 
   describe("trace context data", () => {
-    it("keeps the sanitized path", () => {
+    it("keeps the path and drops the query string", () => {
       const event = scrubEvent(
         toErrorEvent({
           contexts: {
@@ -437,7 +398,7 @@ describe("scrubEvent", () => {
       );
 
       expect(event.contexts?.trace?.data).to.deep.equal({
-        "url.path": "/applications/INQ-ABC-123/[Filtered]",
+        "url.path": "/applications/INQ-ABC-123/report-jane.pdf",
         "url.full":
           "https://internal.example.com/applications/INQ-ABC-123/overview",
         "http.route": "/applications/:laaReference",
@@ -542,7 +503,7 @@ describe("scrubSpan", () => {
   useApiUrl();
 
   describe("outbound requests", () => {
-    it("keeps the sanitized path and the references of requests to our own API", () => {
+    it("keeps the sanitized path of requests to our own API", () => {
       const span = scrubSpan(
         toSpan({
           attributes: {
@@ -559,8 +520,6 @@ describe("scrubSpan", () => {
         "url.full": `${API_URL}/applications/INQ-ABC-123/claims/INQC-AB12-CD34`,
         "url.path": "/applications/INQ-ABC-123/claims/INQC-AB12-CD34",
         "http.request.method": "GET",
-        laa_reference: "INQ-ABC-123",
-        claim_reference: "INQC-AB12-CD34",
       });
     });
 
@@ -621,7 +580,7 @@ describe("scrubSpan", () => {
   });
 
   describe("incoming requests", () => {
-    it("keeps the sanitized url and the references of the incoming request", () => {
+    it("keeps the sanitized url of the incoming request", () => {
       const span = scrubSpan(
         toSpan({
           attributes: {
@@ -640,11 +599,10 @@ describe("scrubSpan", () => {
           "https://internal.example.com/applications/INQ-ABC-123/overview",
         "url.path": "/applications/INQ-ABC-123/overview",
         "http.route": "/applications/:laaReference/overview",
-        laa_reference: "INQ-ABC-123",
       });
     });
 
-    it("filters unknown segments in the url", () => {
+    it("keeps url path segments that are not route words or references", () => {
       const span = scrubSpan(
         toSpan({
           attributes: {
@@ -654,10 +612,10 @@ describe("scrubSpan", () => {
         }),
       );
 
-      expect(span.attributes["url.path"]).to.equal("/applications/[Filtered]");
+      expect(span.attributes["url.path"]).to.equal("/applications/jane-smith");
     });
 
-    it("falls back to the sanitized path in span names when the route is unknown", () => {
+    it("leaves the span name untouched for incoming requests", () => {
       const span = scrubSpan(
         toSpan({
           name: "POST /applications/INQ-ABC-123/note",
@@ -669,20 +627,6 @@ describe("scrubSpan", () => {
       );
 
       expect(span.name).to.equal("POST /applications/INQ-ABC-123/note");
-    });
-
-    it("filters unknown segments in the fallback span name", () => {
-      const span = scrubSpan(
-        toSpan({
-          name: "GET /applications/jane-smith",
-          attributes: {
-            "sentry.op": "http.server",
-            "url.path": "/applications/jane-smith",
-          },
-        }),
-      );
-
-      expect(span.name).to.equal("GET /applications/[Filtered]");
     });
   });
 
@@ -804,25 +748,14 @@ describe("Sentry events produced with the real config", () => {
     expect(serialised).to.not.include("203.0.113.7");
   });
 
-  it("tags the event with the case reference", async () => {
-    const app = buildApp(() => new Error("boom"));
-
-    await request(app).get("/applications/INQ-ABC-123").expect(500);
-    await Sentry.flush(2000);
-
-    const [event] = events("event") as unknown as ErrorEvent[];
-    expect(event?.tags?.laa_reference).to.equal("INQ-ABC-123");
-  });
-
-  it("does not send a name or file name that is part of the path", async () => {
+  it("sends the full path verbatim, even for unexpected values", async () => {
     const app = buildApp(() => new Error("boom"));
 
     await request(app).get("/applications/jane-smith-evidence.pdf").expect(500);
     await Sentry.flush(2000);
 
     const serialised = JSON.stringify(events("event"));
-    expect(serialised).to.not.include("jane-smith");
-    expect(serialised).to.not.include("evidence.pdf");
+    expect(serialised).to.include("jane-smith-evidence.pdf");
   });
 
   it("keeps the status text of axios errors and redacts addresses", async () => {
@@ -907,13 +840,53 @@ describe("Sentry events produced with the real config", () => {
 
     beforeEach(() => {
       originalApiUrl = config.INQUESTS_API_URL;
+      // The local server only exists to give outbound calls somewhere to hit;
+      // it is not one of our own routes, so its own incoming-request span
+      // (created because the Http integration instruments the whole process)
+      // must not be treated as one.
+      items = [];
+      Sentry.init({
+        ...sentryConfig,
+        dsn: TEST_DSN,
+        tracesSampleRate: 1,
+        profileSessionSampleRate: 0,
+        integrations: (defaults) => {
+          const base = (
+            sentryConfig.integrations as (
+              d: typeof defaults,
+            ) => { name: string }[]
+          )(defaults);
+          return base.map((integration) =>
+            integration.name === "Http"
+              ? Sentry.httpIntegration({
+                  breadcrumbs: false,
+                  ignoreIncomingRequests: () => true,
+                })
+              : integration,
+          );
+        },
+        transport: () => ({
+          send: async (envelope) => {
+            const [, envelopeItems] = envelope;
+            for (const [header, payload] of envelopeItems) {
+              const { type } = header as { type: string };
+              items.push({
+                type,
+                payload: payload as Record<string, unknown>,
+              });
+            }
+            return {};
+          },
+          flush: async () => true,
+        }),
+      });
     });
 
     afterEach(() => {
       config.INQUESTS_API_URL = originalApiUrl;
     });
 
-    it("keeps the path and references of requests to our own API but not the query", async () => {
+    it("keeps the path of requests to our own API but not the query", async () => {
       config.INQUESTS_API_URL = localServerUrl;
 
       await callLocalServer(

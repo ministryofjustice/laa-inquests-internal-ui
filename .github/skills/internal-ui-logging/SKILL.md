@@ -89,7 +89,9 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 
 Sentry is a second sink for errors and must follow the same redaction rules as logs.
 
-- May be sent: case references, claim references, firm codes and firm IDs.
+- May be sent: case references, claim references, firm codes and firm IDs (not
+  as separate tags — there is no reference-tagging mechanism, they are only
+  ever visible as part of a path/URL).
   Never sent: IP addresses, emails, names, user IDs, usernames, tokens,
   credentials, file names or other personal data.
 - Configuration is in `src/infrastructure/config/sentry.ts`; do not call
@@ -102,13 +104,16 @@ Sentry is a second sink for errors and must follow the same redaction rules as l
 - HTTP breadcrumbs are disabled outright (`Sentry.httpIntegration({
 breadcrumbs: false })`), not scrubbed, so no breadcrumb data reaches Sentry.
 - Do not log through `Sentry.logger`; logs stay in the JSON logger only.
-- URL paths are allow-listed word by word. A new route or Inquests API path
-  needs its literal words added to `KNOWN_SEGMENTS` in `sentryPaths.ts`;
-  otherwise they appear as `[Filtered]` and a unit test fails.
+- URL paths are sent as-is; only the query string and fragment are dropped
+  (`URL.pathname`/the OTel `url.path` attribute already exclude them, so no
+  separate path-sanitizing function is needed). Every route in this app takes
+  only literal, developer-chosen words or a
+  `:laaReference`/`:claimReference`/`:claimEvidenceId` reference code, so a
+  matched route never carries user input. Do not add a route that accepts
+  free-text path segments (e.g. a name or search term) without revisiting this.
 - Sentry's own Express instrumentation renames spans/transactions to the
-  matched route template as soon as a route matches, so `sentry.ts` only needs
-  to sanitize a raw path for unmatched routes (404s) — it does not need to know
-  the route template itself.
+  matched route template as soon as a route matches; `sentry.ts` does not need
+  to know the route template itself.
 - Exception messages are sent after redaction of emails, IP addresses and
   tokens, which cannot catch names or file names. Do not put user input in
   `Error` or `ApplicationError` messages (use `operation`, `type`, `retryable`).

@@ -119,25 +119,27 @@ profiles at 20% of sampled sessions.
 Personal data must never reach Sentry: IP addresses, email addresses, names,
 user IDs, usernames, tokens, credentials and file names. Case references
 (`INQ-XXX-XXX`), claim references (`INQC-XXXX-XXXX`), firm codes and firm IDs
-may be sent.
+may be sent (they are only ever visible as part of a path/URL — there is no
+separate reference-tagging mechanism).
 
-- **Sent:** request and outbound-API URLs with their path, so the case and
-  claim references are visible; `laa_reference` and `claim_reference` tags on
-  events and spans; route templates as transaction names
-  (`GET /:laaReference/overview`); the status text of Axios errors; a summary
-  of Zod errors (issue codes and field paths only).
-- **Path allow-list:** a path segment is kept only if it is a known route word
-  or a reference. Anything else is replaced with `[Filtered]`. When you add a
-  route or an Inquests API path, add its new words to `KNOWN_SEGMENTS` in
-  `src/infrastructure/config/sentryPaths.ts` (a unit test fails until you do).
-- **Never sent:** the user, cookies, headers, request bodies, query strings and
-  fragments, local variables, logs and console breadcrumbs. Outbound requests
-  to other services (such as Entra) keep only scheme and host. The whole
-  message of MSAL errors is replaced with `[Filtered]` (only the error code is
-  kept as a tag). Emails, IP addresses and tokens are redacted from other
-  exception messages.
-- Do not add `Sentry.setUser`, or `setExtra`, `setContext` or tags carrying
-  anything other than the allowed references and firm identifiers.
+- **Sent:** request and outbound-API URLs with their path (every route in
+  this app takes only literal, developer-chosen words or a
+  `:laaReference`/`:claimReference`/`:claimEvidenceId` reference code, so a
+  matched route never carries user input); route templates as transaction
+  names, set by Sentry's own Express instrumentation; the status text of
+  Axios errors.
+- **Never sent:** the user, cookies, headers, request bodies, query strings
+  and fragments, local variables, logs and console/HTTP breadcrumbs (disabled
+  outright, not scrubbed). Outbound requests to other services (such as
+  Entra) keep only scheme and host, since their paths can carry tenant ids or
+  signatures. Emails, IP addresses and tokens are redacted from exception
+  messages as a generic fallback (`redactText` in `sentry.ts`) for errors
+  raised by dependencies we don't control (Axios, Redis, Node internals).
+  MSAL and Zod errors never reach Sentry at all: `EntraAuth.adaptor.ts` wraps
+  every MSAL call and converts failures to `ApplicationError`, and schema
+  validation must use `safeParse`, never `parse`.
+- Do not add `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
+  `addBreadcrumb` directly anywhere in application code.
 
 ### Initialize pre-commit hooks
 

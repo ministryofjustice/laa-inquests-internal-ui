@@ -2,12 +2,6 @@ import * as Sentry from "@sentry/node";
 import type { ErrorEvent, EventHint, NodeOptions } from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import config from "#src/infrastructure/config/config.js";
-import {
-  FILTERED,
-  redactText,
-  referenceTags,
-  sanitizePath,
-} from "#src/infrastructure/config/sentryPaths.js";
 
 const TRACES_SAMPLE_RATE = 0.02;
 const PROFILE_SESSION_SAMPLE_RATE = 0.2;
@@ -20,9 +14,42 @@ const MAX_HTTP_STATUS = 599;
 type SpanData = Record<string, unknown>;
 type Integration = Extract<NodeOptions["integrations"], unknown[]>[number];
 type StreamedSpan = Parameters<NonNullable<NodeOptions["beforeSendSpan"]>>[0];
-type ErrorException = NonNullable<
-  NonNullable<ErrorEvent["exception"]>["values"]
->[number];
+
+const FILTERED = "[Filtered]";
+
+// Defence in depth for exception messages that no type specific rule covers
+// (Node and Redis connection errors, future messages with interpolated values).
+// It cannot detect names or file names.
+const REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/[\w.+\-]+@[\w\-]+(?:\.[\w\-]+)+/gv, "[Email]"],
+  [/\bBearer\s+[\w.~+\/\-]+=*/giv, "Bearer [Token]"],
+  [/\bBasic\s+[A-Za-z0-9+\/]+=*/gv, "Basic [Token]"],
+  [/\beyJ[\w\-]+\.[\w\-]+\.[\w\-]*/gv, "[Token]"],
+  [
+    /\b(client_secret|password|access_token|refresh_token|id_token)\s*[=:]\s*[^&\s]+/giv,
+    "$1=[Redacted]",
+  ],
+  [/\b(?:\d{1,3}\.){3}\d{1,3}\b/gv, "[IP]"],
+  [/\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b/gv, "[IP]"],
+  [
+    /(?<![\w:])(?:[A-Fa-f0-9]{1,4}:){1,7}:(?:[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})?(?![\w:])/gv,
+    "[IP]",
+  ],
+  [
+    /(?<![\w:])::(?:[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})(?![\w:])/gv,
+    "[IP]",
+  ],
+];
+
+export const redactText = (text: string): string =>
+  REDACTIONS.reduce(
+    (redacted, [pattern, replacement]) =>
+      redacted.replace(pattern, replacement),
+    text,
+  );
+
+// -- URL helpers: only this app's own API keeps its path; every other host
+// (MSAL, anything else) can carry tenant ids or signatures in the path --
 
 const parseUrl = (url: string): URL | undefined => {
   try {
@@ -37,9 +64,6 @@ const isApiUrl = (url: string): boolean => {
   return apiHost !== undefined && parseUrl(url)?.host === apiHost;
 };
 
-// Credentials, query string and fragment are always dropped. The path is kept
-// (sanitized) for our own services; other hosts keep only scheme and host, as
-// their paths can hold tenant ids or signatures.
 const scrubUrl = (url: string, keepPath: boolean): string => {
   const parsed = parseUrl(url);
   if (parsed === undefined) {
@@ -47,16 +71,7 @@ const scrubUrl = (url: string, keepPath: boolean): string => {
   }
 
   const origin = `${parsed.protocol}//${parsed.host}`;
-  return keepPath ? `${origin}${sanitizePath(parsed.pathname)}` : origin;
-};
-
-const requestPath = (data: SpanData): string | undefined => {
-  const { "url.path": urlPath, "url.full": url } = data;
-  if (typeof urlPath === "string") {
-    return urlPath;
-  }
-
-  return typeof url === "string" ? parseUrl(url)?.pathname : undefined;
+  return keepPath ? `${origin}${parsed.pathname}` : origin;
 };
 
 // Query strings and fragments never reach here: dataCollection.urlQueryParams
@@ -67,59 +82,35 @@ const scrubUrlData = (data: SpanData, keepPath: boolean): void => {
     data["url.full"] = scrubUrl(url, keepPath);
   }
 
-  const { "url.path": urlPath } = data;
-  if (keepPath && typeof urlPath === "string") {
-    data["url.path"] = sanitizePath(urlPath);
-  } else {
+  if (!keepPath) {
     delete data["url.path"];
   }
 };
 
-// Sentry's own Express instrumentation already renames the span/transaction to
-// the route template as soon as a route matches, so a raw path only remains
-// here for requests that never matched one (404s, unknown paths).
-const withoutRawPath = (name: string, rawPath: string | undefined): string => {
-  if (rawPath === undefined || rawPath === "/" || !name.includes(rawPath)) {
-    return name;
-  }
-  return name.replace(rawPath, sanitizePath(rawPath));
-};
+// -- Error event scrubbing --
 
 // Query string, cookies, headers and body never reach here: dataCollection
 // turns their collection off entirely, so there is nothing left to delete.
-const scrubRequest = (event: ErrorEvent): string | undefined => {
+const scrubRequest = (event: ErrorEvent): void => {
   const { request } = event;
-  if (typeof request?.url !== "string") {
-    return undefined;
+  if (typeof request?.url === "string") {
+    request.url = scrubUrl(request.url, true);
   }
-
-  const rawPath = parseUrl(request.url)?.pathname;
-  request.url = scrubUrl(request.url, true);
-  return rawPath;
 };
 
-const scrubTraceContext = (
-  event: ErrorEvent,
-  rawPath: string | undefined,
-): void => {
+const scrubTraceContext = (event: ErrorEvent): void => {
   const traceData = event.contexts?.trace?.data;
   if (traceData !== undefined) {
     scrubUrlData(traceData, true);
   }
-
-  if (event.transaction !== undefined) {
-    event.transaction = withoutRawPath(event.transaction, rawPath);
-  }
-};
-
-const sanitizeException = (exception: ErrorException): void => {
-  if (exception.value !== undefined) {
-    exception.value = redactText(exception.value);
-  }
 };
 
 const sanitizeExceptions = (event: ErrorEvent): void => {
-  event.exception?.values?.forEach(sanitizeException);
+  event.exception?.values?.forEach((exception) => {
+    if (exception.value !== undefined) {
+      exception.value = redactText(exception.value);
+    }
+  });
 };
 
 // Stable, non-sensitive facts about the failure that the scrubbed message no
@@ -145,6 +136,53 @@ const errorTags = (error: unknown): Record<string, string> => {
   }
   return tags;
 };
+
+export const scrubEvent = (event: ErrorEvent, hint: EventHint): ErrorEvent => {
+  scrubRequest(event);
+  scrubTraceContext(event);
+  if (event.message !== undefined) {
+    event.message = redactText(event.message);
+  }
+
+  const tags = errorTags(hint.originalException);
+  if (Object.keys(tags).length > 0) {
+    event.tags = { ...event.tags, ...tags };
+  }
+
+  sanitizeExceptions(event);
+  return event;
+};
+
+// -- Span scrubbing --
+
+export const scrubSpan = (span: StreamedSpan): StreamedSpan => {
+  const { attributes } = span;
+  const isOutbound = attributes["sentry.op"] === "http.client";
+  const { "url.full": url } = attributes;
+  const keepPath = !isOutbound || (typeof url === "string" && isApiUrl(url));
+
+  scrubUrlData(attributes, keepPath);
+
+  if (isOutbound) {
+    // "GET https://host/path" keeps the sanitized path for our own API and
+    // only the host otherwise. A bare path has no known host, so it is dropped.
+    const separator = span.name.indexOf(" ");
+    if (separator !== -1) {
+      const method = span.name.slice(0, separator);
+      const target = span.name.slice(separator + 1);
+      if (target.includes("://")) {
+        span.name = `${method} ${scrubUrl(target, isApiUrl(target))}`;
+      } else if (target.startsWith("/")) {
+        span.name = method;
+      }
+    }
+  }
+
+  return span;
+};
+
+// -- ApplicationError tagging: keeps distinct outcomes from the same call
+// site as separate Sentry issues --
 
 interface ApplicationErrorFields {
   type: string;
@@ -196,67 +234,6 @@ export const tagApplicationError = (
   event.fingerprint = ["{{ default }}", fields.type];
 };
 
-export const scrubEvent = (event: ErrorEvent, hint: EventHint): ErrorEvent => {
-  const rawPath = scrubRequest(event);
-  scrubTraceContext(event, rawPath);
-  if (event.message !== undefined) {
-    event.message = redactText(event.message);
-  }
-
-  const tags = {
-    ...referenceTags(rawPath ?? ""),
-    ...errorTags(hint.originalException),
-  };
-  if (Object.keys(tags).length > 0) {
-    event.tags = { ...event.tags, ...tags };
-  }
-
-  sanitizeExceptions(event);
-  return event;
-};
-
-// "GET https://host/path" keeps the sanitized path for our own API and only the
-// host otherwise. A bare path has no known host, so it is dropped.
-const outboundSpanName = (name: string): string => {
-  const separator = name.indexOf(" ");
-  if (separator === -1) {
-    return name;
-  }
-
-  const method = name.slice(0, separator);
-  const target = name.slice(separator + 1);
-  if (target.includes("://")) {
-    return `${method} ${scrubUrl(target, isApiUrl(target))}`;
-  }
-  return target.startsWith("/") ? method : name;
-};
-
-export const scrubSpan = (span: StreamedSpan): StreamedSpan => {
-  const { attributes } = span;
-  const rawPath = requestPath(attributes);
-  const isOutbound = attributes["sentry.op"] === "http.client";
-  const { "url.full": url } = attributes;
-  const keepPath = !isOutbound || (typeof url === "string" && isApiUrl(url));
-
-  if (keepPath && rawPath !== undefined) {
-    Object.assign(attributes, referenceTags(rawPath));
-  }
-  scrubUrlData(attributes, keepPath);
-
-  if (isOutbound) {
-    span.name = outboundSpanName(span.name);
-    return span;
-  }
-
-  span.name = withoutRawPath(span.name, rawPath);
-  const { "sentry.segment.name": segmentName } = attributes;
-  if (typeof segmentName === "string") {
-    attributes["sentry.segment.name"] = withoutRawPath(segmentName, rawPath);
-  }
-
-  return span;
-};
-
 export const applicationErrorTagsIntegration = (): Integration => ({
   name: "ApplicationErrorTags",
   preprocessEvent: (event, hint) => {
@@ -266,9 +243,7 @@ export const applicationErrorTagsIntegration = (): Integration => ({
   },
 });
 
-// Every error that passes through Express is reported, including the ones the
-// default only skips: errors that carry a 4xx status.
-export const shouldHandleExpressError = (_error: unknown): boolean => true;
+// -- Sentry configuration --
 
 export const sentryConfig: NodeOptions = {
   dsn: config.SENTRY_DSN,
@@ -283,7 +258,7 @@ export const sentryConfig: NodeOptions = {
       ({ name }) => !["Console", "Express", "Http"].includes(name),
     ),
     Sentry.httpIntegration({ breadcrumbs: false }),
-    Sentry.expressIntegration({ shouldHandleError: shouldHandleExpressError }),
+    Sentry.expressIntegration({ shouldHandleError: () => true }),
     applicationErrorTagsIntegration(),
     nodeProfilingIntegration(),
   ],
