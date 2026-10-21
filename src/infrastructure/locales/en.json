@@ -433,6 +433,7 @@
       "certificateStartDate": {
         "header": "Make a decision",
         "label": "Make a decision",
+        "legend": "Certificate start date",
         "hint": "For example 1 1 1990",
         "radio": {
           "hint": "When should the substantive certificate be granted from?",
