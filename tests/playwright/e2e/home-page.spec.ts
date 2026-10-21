@@ -20,6 +20,50 @@ test.describe("Home page", () => {
     await validateMojHeader(page);
   });
 
+  test("should display the service name in service navigation", async ({
+    page,
+  }) => {
+    const serviceNavigation = page.locator(".govuk-service-navigation");
+    const serviceLink = serviceNavigation.getByRole("link", {
+      name: "Manage inquest legal aid",
+    });
+
+    await expect(serviceLink).toBeVisible();
+    await expect(serviceLink).toHaveAttribute("href", "/");
+
+    await expect(
+      page.locator(".moj-header").getByRole("link", {
+        name: "Manage inquest legal aid",
+      }),
+    ).toHaveCount(0);
+  });
+
+  test("should return home when the service name is clicked", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("link", {
+        name: "Find an application or certificate",
+      })
+      .click();
+
+    await expect(page).toHaveURL("/applications/search");
+
+    await page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Manage inquest legal aid",
+      })
+      .click();
+
+    await expect(page).toHaveURL("/");
+    await expect(
+      page.getByRole("heading", {
+        name: "What do you need to do?",
+      }),
+    ).toBeVisible();
+  });
+
   test("should have the correct link for organisational label", async ({
     page,
   }) => {
@@ -30,8 +74,13 @@ test.describe("Home page", () => {
   });
 
   test("should have the correct link for service label", async ({ page }) => {
-    const inquestsLink = page.getByRole("link", { name: "Inquests" });
-    await expect(inquestsLink).toHaveAttribute("href", "/");
+    const serviceLink = page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Manage inquest legal aid",
+      });
+
+    await expect(serviceLink).toHaveAttribute("href", "/");
   });
 
   test("should have the correct link for sign out button", async ({ page }) => {

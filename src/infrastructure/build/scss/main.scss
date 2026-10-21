@@ -39,3 +39,8 @@
     }
   }
 }
+
+// Remove bottom border from moj header
+.moj-header--no-border {
+  border-bottom: 0;
+}

@@ -25,8 +25,13 @@ test.describe("All Applications page", () => {
   });
 
   test("should have the correct link for service label", async ({ page }) => {
-    const inquestsLink = page.getByRole("link", { name: "Inquests" });
-    await expect(inquestsLink).toHaveAttribute("href", "/");
+    const serviceLink = page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Manage inquest legal aid",
+      });
+
+    await expect(serviceLink).toHaveAttribute("href", "/");
   });
 
   test("should have the correct link for sign out button", async ({ page }) => {
