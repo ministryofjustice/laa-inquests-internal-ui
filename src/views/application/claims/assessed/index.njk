@@ -10,7 +10,7 @@
 {% block pageContent %}
 <div data-testid="assessed-claim">
   <h1 class="govuk-heading-l">{{ claimReference }}</h1>
-  <h3 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h3>
+  <h2 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h2>
 
   {% if assessmentDetails %}
     {{ assessmentDetailsSection(assessmentDetails) }}

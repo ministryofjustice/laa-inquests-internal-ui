@@ -121,7 +121,7 @@ for (const assessed of assessedClaimCases) {
       ).toBeVisible();
       await expect(
         page.getByRole("heading", {
-          level: 3,
+          level: 2,
           name: `Claim status: ${assessed.claimStatus}`,
         }),
       ).toBeVisible();
@@ -285,8 +285,9 @@ for (const assessment of assessmentCardsCases) {
         "Overview of the claim",
       ];
 
+      expect(titles[0]?.trim()).toMatch(/^Claim status:/);
       expect(
-        titles.slice(0, expectedTitles.length).map((title) => title.trim()),
+        titles.slice(1, expectedTitles.length + 1).map((title) => title.trim()),
       ).toStrictEqual(expectedTitles);
     });
 

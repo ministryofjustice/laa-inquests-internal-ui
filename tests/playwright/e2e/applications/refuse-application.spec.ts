@@ -54,6 +54,9 @@ test.describe.serial("Refuse application journey", () => {
 
     const form = sharedPage.getByTestId("make-a-decision");
 
+    await expect(sharedPage).toHaveTitle(
+      `${meritsLocale.header} – ${en.navigation.header.serviceLabel} – GOV.UK`,
+    );
     await validateGovPage(sharedPage, {
       headerText: meritsLocale.header,
       backUrl: overviewPage,
@@ -375,6 +378,7 @@ test.describe.serial("Refuse application journey", () => {
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(successPage);
+    await expect(sharedPage.locator(".govuk-panel br")).toHaveCount(0);
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.header }),
     ).toBeVisible();

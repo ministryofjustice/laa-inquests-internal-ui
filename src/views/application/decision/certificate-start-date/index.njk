@@ -50,7 +50,11 @@
 
   {{ govukRadios({
     name: "start-date-option",
-    hint: { text: t('pages.decision.certificateStartDate.radio.hint') },
+    fieldset: {
+      legend: {
+        text: t('pages.decision.certificateStartDate.radio.hint')
+      }
+    },
     errorMessage: errorSummaries.certificateStartDateOption,
     items: [
       {
