@@ -101,4 +101,20 @@ test.describe("View cookies page", () => {
 
     await expect(page.getByRole("radio", { name: "Yes" })).toBeChecked();
   });
+
+  test("should successfully update user preference after updating cookies preferences", async ({
+    page,
+  }) => {
+    await page.goto(cookiesUrl);
+
+    await page.getByRole("radio", { name: "Yes" }).check();
+    await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+    await expect(page.getByRole("radio", { name: "Yes" })).toBeChecked();
+
+    await page.getByRole("radio", { name: "No" }).check();
+    await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+    await expect(page.getByRole("radio", { name: "No" })).toBeChecked();
+  });
 });
