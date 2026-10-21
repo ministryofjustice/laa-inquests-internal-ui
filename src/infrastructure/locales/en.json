@@ -490,8 +490,8 @@
           "storesDevice": "the device and browser you use"
         },
         "googleAnalytics": {
-          "name": "Google Analytics",
-          "purpose": "Placeholder",
+          "name": "GoogleAnalytics_ga",
+          "purpose": "Helps us count how many people visit Manage Inquest Legal Aid by telling us if you’ve visited before.",
           "expires": "1 year"
         },
         "radio": {
