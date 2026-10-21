@@ -330,7 +330,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "avg by(pod_name) (increase(container_network_receive_bytes_total{namespace='$namespace'}[1m))/2",
+              "expr": "avg by(pod_name) (increase(container_network_receive_bytes_total{namespace='$namespace'}[1m]))/2",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Avg Bytes Recv/sec",
@@ -451,6 +451,6 @@ data:
       },
       "timezone": "browser",
       "title": "laa-inquests-internal-ui Pods",
-      "uid": "inquestsintuipods__APP_ENVIRONMENT__",
+      "uid": "laa-inquestsintuipods__APP_ENVIRONMENT__",
       "version": 1
     }
