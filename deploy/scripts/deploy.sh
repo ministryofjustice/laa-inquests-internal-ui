@@ -2,6 +2,11 @@
 
 ENVIRONMENT=$1
 
+if [[ -z "$SENTRY_DSN" ]]; then
+  echo "SENTRY_DSN must be set" >&2
+  exit 1
+fi
+
 if [[ "$ENVIRONMENT" == "suppliertest" ]]; then
   VALUES_FILE="./deploy/infrastructure/helm/values/dev.yaml"
 else
@@ -44,10 +49,12 @@ deploy_branch() {
                 --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                 --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                 --set env.CONTACT_PHONE="$CONTACT_PHONE" \
+                --set env.ENVIRONMENT="$ENVIRONMENT" \
                 --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
                 --set env.SERVICE_URL="$SERVICE_URL" \
                 --set env.SESSION_SECRET="$SESSION_SECRET" \
                 --set env.SESSION_NAME="$SESSION_NAME" \
+                --set env.SENTRY_DSN="$SENTRY_DSN" \
                 --set env.NODE_ENV="$NODE_ENV"
 }
 
@@ -80,10 +87,12 @@ deploy_main() {
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                           --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                           --set env.CONTACT_PHONE="$CONTACT_PHONE" \
+                          --set env.ENVIRONMENT="$ENVIRONMENT" \
                           --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
                           --set env.SERVICE_URL="$SERVICE_URL" \
                           --set env.SESSION_SECRET="$SESSION_SECRET" \
                           --set env.SESSION_NAME="$SESSION_NAME" \
+                          --set env.SENTRY_DSN="$SENTRY_DSN" \
                           --set env.NODE_ENV="$NODE_ENV"
 }
 
