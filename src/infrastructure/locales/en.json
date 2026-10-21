@@ -22,7 +22,8 @@
     "footer": {
       "accessibility": "Accessibility statement",
       "cookiePolicy": "Cookies",
-      "privacyPolicy": "Privacy"
+      "privacyPolicy": "Privacy",
+      "help": "Help"
     }
   },
   "components": {

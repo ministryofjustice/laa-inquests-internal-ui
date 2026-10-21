@@ -78,6 +78,8 @@ import { SearchClaimAdaptor } from "#src/adaptors/presenter/applications/SearchC
 import { SearchClaimValidator } from "#src/adaptors/presenter/applications/SearchClaim/SearchClaim.validator.js";
 import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
 import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/footer/AccessibilityStatement.adaptor.js";
+import { createHelpRouter } from "#src/infrastructure/express/routes/help.router.js";
+import { HelpAdaptor } from "#src/adaptors/presenter/footer/Help.adaptor.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -173,6 +175,8 @@ const allApplicationsAdaptor = new AllApplicationsAdaptor(
 );
 const homeAdaptor = new HomeAdaptor(new SessionHelper());
 const accessibilityStatementAdaptor = new AccessibilityStatementAdaptor();
+const helpAdaptor = new HelpAdaptor();
+
 const reportsAdaptor = new ReportsAdaptor(
   {
     downloadApplicationsBacklogReportUseCase:
@@ -275,6 +279,12 @@ router.use(
   "/reports",
   requireAuth,
   createReportsRouter(express.Router(), reportsAdaptor),
+);
+
+router.use(
+  "/help",
+  requireAuth,
+  createHelpRouter(express.Router(), helpAdaptor),
 );
 
 router.use(
