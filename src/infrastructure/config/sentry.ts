@@ -1,11 +1,5 @@
 import * as Sentry from "@sentry/node";
-import type {
-  Breadcrumb,
-  BreadcrumbHint,
-  ErrorEvent,
-  EventHint,
-  NodeOptions,
-} from "@sentry/node";
+import type { ErrorEvent, EventHint, NodeOptions } from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import config from "#src/infrastructure/config/config.js";
 import {
@@ -31,8 +25,6 @@ const MSAL_ERROR_NAMES = new Set([
 ]);
 
 const ZOD_ERROR_NAMES = new Set(["ZodError", "$ZodError"]);
-
-const URL_DATA_KEYS = ["url", "url.full", "http.url"];
 
 const SAFE_CODE = /^[A-Za-z0-9_.\-]{1,64}$/v;
 const ZOD_ISSUE_CODE = /^[a-z_]{1,40}$/v;
@@ -73,34 +65,21 @@ const scrubUrl = (url: string, keepPath: boolean): string => {
   return keepPath ? `${origin}${sanitizePath(parsed.pathname)}` : origin;
 };
 
-const firstUrl = (data: SpanData): string | undefined => {
-  for (const key of URL_DATA_KEYS) {
-    const { [key]: value } = data;
-    if (typeof value === "string") {
-      return value;
-    }
-  }
-  return undefined;
-};
-
 const requestPath = (data: SpanData): string | undefined => {
-  const { "url.path": urlPath } = data;
+  const { "url.path": urlPath, "url.full": url } = data;
   if (typeof urlPath === "string") {
     return urlPath;
   }
 
-  const url = firstUrl(data);
-  return url === undefined ? undefined : parseUrl(url)?.pathname;
+  return typeof url === "string" ? parseUrl(url)?.pathname : undefined;
 };
 
 // Query strings and fragments never reach here: dataCollection.urlQueryParams
 // is off, so the SDK never collects them in the first place.
 const scrubUrlData = (data: SpanData, keepPath: boolean): void => {
-  for (const key of URL_DATA_KEYS) {
-    const { [key]: value } = data;
-    if (typeof value === "string") {
-      data[key] = scrubUrl(value, keepPath);
-    }
+  const { "url.full": url } = data;
+  if (typeof url === "string") {
+    data["url.full"] = scrubUrl(url, keepPath);
   }
 
   const { "url.path": urlPath } = data;
@@ -111,21 +90,14 @@ const scrubUrlData = (data: SpanData, keepPath: boolean): void => {
   }
 };
 
-// Names such as "GET /applications/INQ-ABC-123" embed the raw path. The route
-// template is preferred so Sentry groups by route and not by case; without one
-// the sanitized path is used.
-const withoutRawPath = (
-  name: string,
-  rawPath: string | undefined,
-  route: unknown,
-): string => {
+// Sentry's own Express instrumentation already renames the span/transaction to
+// the route template as soon as a route matches, so a raw path only remains
+// here for requests that never matched one (404s, unknown paths).
+const withoutRawPath = (name: string, rawPath: string | undefined): string => {
   if (rawPath === undefined || rawPath === "/" || !name.includes(rawPath)) {
     return name;
   }
-  return name.replace(
-    rawPath,
-    typeof route === "string" ? route : sanitizePath(rawPath),
-  );
+  return name.replace(rawPath, sanitizePath(rawPath));
 };
 
 // Query string, cookies, headers and body never reach here: dataCollection
@@ -151,11 +123,7 @@ const scrubTraceContext = (
   }
 
   if (event.transaction !== undefined) {
-    event.transaction = withoutRawPath(
-      event.transaction,
-      rawPath,
-      traceData?.["http.route"],
-    );
+    event.transaction = withoutRawPath(event.transaction, rawPath);
   }
 };
 
@@ -328,19 +296,6 @@ export const scrubEvent = (event: ErrorEvent, hint: EventHint): ErrorEvent => {
   return event;
 };
 
-export const scrubBreadcrumb = (
-  breadcrumb: Breadcrumb,
-  _hint?: BreadcrumbHint,
-): Breadcrumb => {
-  const { data } = breadcrumb;
-  if (data !== undefined) {
-    const { url } = data;
-    scrubUrlData(data, typeof url === "string" && isApiUrl(url));
-  }
-
-  return breadcrumb;
-};
-
 // "GET https://host/path" keeps the sanitized path for our own API and only the
 // host otherwise. A bare path has no known host, so it is dropped.
 const outboundSpanName = (name: string): string => {
@@ -359,11 +314,10 @@ const outboundSpanName = (name: string): string => {
 
 export const scrubSpan = (span: StreamedSpan): StreamedSpan => {
   const { attributes } = span;
-  const { "http.route": route } = attributes;
   const rawPath = requestPath(attributes);
   const isOutbound = attributes["sentry.op"] === "http.client";
-  const url = firstUrl(attributes);
-  const keepPath = !isOutbound || (url !== undefined && isApiUrl(url));
+  const { "url.full": url } = attributes;
+  const keepPath = !isOutbound || (typeof url === "string" && isApiUrl(url));
 
   if (keepPath && rawPath !== undefined) {
     Object.assign(attributes, referenceTags(rawPath));
@@ -375,14 +329,10 @@ export const scrubSpan = (span: StreamedSpan): StreamedSpan => {
     return span;
   }
 
-  span.name = withoutRawPath(span.name, rawPath, route);
+  span.name = withoutRawPath(span.name, rawPath);
   const { "sentry.segment.name": segmentName } = attributes;
   if (typeof segmentName === "string") {
-    attributes["sentry.segment.name"] = withoutRawPath(
-      segmentName,
-      rawPath,
-      route,
-    );
+    attributes["sentry.segment.name"] = withoutRawPath(segmentName, rawPath);
   }
 
   return span;
@@ -406,17 +356,20 @@ export const sentryConfig: NodeOptions = {
   // Logs are already written to stdout as JSON; do not duplicate them in Sentry.
   beforeSendLog: () => null,
   // The console integration is removed so log output (which carries LAA
-  // references) does not become breadcrumbs. The default express integration is
-  // replaced so that errors with a 4xx status are reported too.
+  // references) does not become breadcrumbs. Http breadcrumbs are disabled
+  // outright rather than scrubbed. The default express integration is replaced
+  // so that errors with a 4xx status are reported too.
   integrations: (defaults) => [
-    ...defaults.filter(({ name }) => name !== "Console" && name !== "Express"),
+    ...defaults.filter(
+      ({ name }) => !["Console", "Express", "Http"].includes(name),
+    ),
+    Sentry.httpIntegration({ breadcrumbs: false }),
     Sentry.expressIntegration({ shouldHandleError: shouldHandleExpressError }),
     applicationErrorTagsIntegration(),
     nodeProfilingIntegration(),
   ],
   beforeSend: scrubEvent,
   beforeSendSpan: scrubSpan,
-  beforeBreadcrumb: scrubBreadcrumb,
   tracesSampleRate: TRACES_SAMPLE_RATE,
   profileSessionSampleRate: PROFILE_SESSION_SAMPLE_RATE,
   profileLifecycle: "trace",

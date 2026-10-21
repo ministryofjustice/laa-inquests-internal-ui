@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import * as Sentry from "@sentry/node";
-import type { Breadcrumb, ErrorEvent, Log } from "@sentry/node";
+import type { ErrorEvent, Log } from "@sentry/node";
 import { AxiosError } from "axios";
 import express from "express";
 import http from "node:http";
@@ -15,7 +15,6 @@ import {
 } from "#src/use-cases/common/applicationError.js";
 import {
   initSentry,
-  scrubBreadcrumb,
   scrubEvent,
   scrubSpan,
   sentryConfig,
@@ -149,7 +148,16 @@ describe("sentryConfig", () => {
     );
 
     expect(names).to.not.include("Console");
-    expect(names).to.include("Http");
+  });
+
+  it("replaces the default http integration with one that disables breadcrumbs", () => {
+    const integrations = sentryConfig.integrations as (
+      defaults: { name: string }[],
+    ) => { name: string }[];
+
+    const names = integrations([{ name: "Http" }]).map(({ name }) => name);
+
+    expect(names.filter((name) => name === "Http")).to.have.length(1);
   });
 });
 
@@ -484,15 +492,12 @@ describe("scrubEvent", () => {
   });
 
   describe("transaction name", () => {
-    it("replaces the raw path with the route template", () => {
+    it("keeps a transaction name that is already a route template", () => {
       const event = scrubEvent(
         toErrorEvent({
-          transaction: "GET /applications/INQ-ABC-123",
+          transaction: "GET /applications/:laaReference",
           request: {
             url: "https://internal.example.com/applications/INQ-ABC-123",
-          },
-          contexts: {
-            trace: { data: { "http.route": "/applications/:laaReference" } },
           },
         }),
         HINT,
@@ -527,20 +532,6 @@ describe("scrubEvent", () => {
       );
 
       expect(event.transaction).to.equal("GET /applications/[Filtered]");
-    });
-
-    it("keeps a transaction name that is already a route template", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          transaction: "GET /applications/:laaReference",
-          request: {
-            url: "https://internal.example.com/applications/INQ-ABC-123",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.transaction).to.equal("GET /applications/:laaReference");
     });
   });
 
@@ -664,62 +655,6 @@ describe("tagApplicationError", () => {
   });
 });
 
-describe("scrubBreadcrumb", () => {
-  useApiUrl();
-
-  it("keeps the sanitized path of requests to our own API", () => {
-    const breadcrumb = scrubBreadcrumb(
-      {
-        category: "http",
-        data: {
-          url: `${API_URL}/applications/INQ-ABC-123/note?token=abc#frag`,
-          method: "GET",
-        },
-      } as Breadcrumb,
-      HINT,
-    );
-
-    expect(breadcrumb.data?.url).to.equal(
-      `${API_URL}/applications/INQ-ABC-123/note`,
-    );
-    expect(breadcrumb.data?.method).to.equal("GET");
-  });
-
-  it("filters unknown segments in requests to our own API", () => {
-    const breadcrumb = scrubBreadcrumb(
-      {
-        category: "http",
-        data: { url: `${API_URL}/applications/jane-smith/note` },
-      } as Breadcrumb,
-      HINT,
-    );
-
-    expect(breadcrumb.data?.url).to.equal(
-      `${API_URL}/applications/[Filtered]/note`,
-    );
-  });
-
-  it("keeps only the host of requests to other services", () => {
-    const breadcrumb = scrubBreadcrumb(
-      {
-        category: "http",
-        data: {
-          url: "https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token",
-        },
-      } as Breadcrumb,
-      HINT,
-    );
-
-    expect(breadcrumb.data?.url).to.equal("https://login.microsoftonline.com");
-  });
-
-  it("returns breadcrumbs without data unchanged", () => {
-    const breadcrumb = scrubBreadcrumb({ category: "navigation" }, HINT);
-
-    expect(breadcrumb).to.deep.equal({ category: "navigation" });
-  });
-});
-
 describe("scrubSpan", () => {
   useApiUrl();
 
@@ -837,25 +772,6 @@ describe("scrubSpan", () => {
       );
 
       expect(span.attributes["url.path"]).to.equal("/applications/[Filtered]");
-    });
-
-    it("replaces the raw path in span names with the route template", () => {
-      const span = scrubSpan(
-        toSpan({
-          name: "GET /applications/INQ-ABC-123",
-          attributes: {
-            "sentry.op": "http.server",
-            "url.path": "/applications/INQ-ABC-123",
-            "http.route": "/applications/:laaReference",
-            "sentry.segment.name": "GET /applications/INQ-ABC-123",
-          },
-        }),
-      );
-
-      expect(span.name).to.equal("GET /applications/:laaReference");
-      expect(span.attributes["sentry.segment.name"]).to.equal(
-        "GET /applications/:laaReference",
-      );
     });
 
     it("falls back to the sanitized path in span names when the route is unknown", () => {

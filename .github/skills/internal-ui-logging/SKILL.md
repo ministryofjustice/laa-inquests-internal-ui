@@ -96,13 +96,19 @@ Sentry is a second sink for errors and must follow the same redaction rules as l
   `Sentry.init` anywhere else. `src/instrument.ts` is loaded with `node --import`.
 - Do not call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
   `addBreadcrumb` directly anywhere in application code. All data Sentry sees
-  must go through `scrubEvent`/`scrubBreadcrumb`/`scrubSpan` in `sentry.ts`. If
-  a feature needs to attach extra context, add an explicit allow-listed field
-  and a scrubbing test there first.
+  must go through `scrubEvent`/`scrubSpan` in `sentry.ts`. If a feature needs
+  to attach extra context, add an explicit allow-listed field and a scrubbing
+  test there first.
+- HTTP breadcrumbs are disabled outright (`Sentry.httpIntegration({
+  breadcrumbs: false })`), not scrubbed, so no breadcrumb data reaches Sentry.
 - Do not log through `Sentry.logger`; logs stay in the JSON logger only.
 - URL paths are allow-listed word by word. A new route or Inquests API path
   needs its literal words added to `KNOWN_SEGMENTS` in `sentryPaths.ts`;
   otherwise they appear as `[Filtered]` and a unit test fails.
+- Sentry's own Express instrumentation renames spans/transactions to the
+  matched route template as soon as a route matches, so `sentry.ts` only needs
+  to sanitize a raw path for unmatched routes (404s) — it does not need to know
+  the route template itself.
 - Exception messages are sent after redaction of emails, IP addresses and
   tokens, which cannot catch names or file names. Do not put user input in
   `Error` or `ApplicationError` messages (use `operation`, `type`, `retryable`).
