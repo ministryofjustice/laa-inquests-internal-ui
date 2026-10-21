@@ -95,7 +95,8 @@ Sentry is a second sink for errors and must follow the same redaction rules as l
   Never sent: IP addresses, emails, names, user IDs, usernames, tokens,
   credentials, file names or other personal data.
 - Configuration is in `src/infrastructure/config/sentry.ts`; do not call
-  `Sentry.init` anywhere else. `src/instrument.ts` is loaded with `node --import`.
+  `Sentry.init` anywhere else. `src/infrastructure/build/sentryInit.ts` is
+  loaded with `node --import`.
 - Do not call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
   `addBreadcrumb` directly anywhere in application code. All data Sentry sees
   must go through `scrubEvent`/`scrubSpan` in `sentry.ts`. If a feature needs

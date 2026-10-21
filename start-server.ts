@@ -33,7 +33,7 @@ const startServer = (port: number): void => {
     // Spawn a new server process
     serverProcess = spawn(
       "node",
-      ["--import", "./public/instrument.js", "public/app.js"],
+      ["--import", "./public/sentryInit.js", "public/app.js"],
       {
         stdio: "inherit", // Inherit stdio to display server logs in the console
         env: { ...process.env, PORT: port.toString() }, // Pass the environment variables, including the port

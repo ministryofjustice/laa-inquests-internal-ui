@@ -9,7 +9,7 @@
     "#*": "./*"
   },
   "scripts": {
-    "start": "node --import ./public/instrument.js public/app.js",
+    "start": "node --import ./public/sentryInit.js public/app.js",
     "clean": "rm -rf public",
     "build": "yarn clean && yarn build:ts && node public/esbuild.js",
     "lint": "yarn eslint .  --concurrency=auto && yarn prettier . --check",

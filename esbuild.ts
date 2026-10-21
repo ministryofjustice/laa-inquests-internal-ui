@@ -129,11 +129,11 @@ const buildAppJs = async (
   watch = false,
 ): Promise<esbuild.BuildContext | undefined> => {
   const options: esbuild.BuildOptions = {
-    // instrument.js is loaded before the app with `node --import`, so Sentry can
-    // patch modules such as express before they are imported.
+    // sentryInit.js is loaded before the app with `node --import`, so Sentry
+    // can patch modules such as express before they are imported.
     entryPoints: {
       app: "src/app.ts",
-      instrument: "src/instrument.ts",
+      sentryInit: "src/infrastructure/build/sentryInit.ts",
     },
     bundle: true,
     platform: "node",

@@ -443,7 +443,7 @@ describe("tagApplicationError", () => {
   });
 
   it("tags application errors created by another copy of the class", () => {
-    // instrument.js and app.js are separate bundles, so each has its own
+    // sentry-init.js and app.js are separate bundles, so each has its own
     // ApplicationError class and instanceof cannot be used.
     class BundledCopyOfApplicationError extends Error {
       readonly type = "NOT_FOUND";

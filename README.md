@@ -89,7 +89,7 @@ yarn start
 
 Errors and traces are sent to Sentry. Configuration lives in
 `src/infrastructure/config/sentry.ts` and is initialised by
-`src/instrument.ts`.
+`src/infrastructure/build/sentryInit.ts`.
 
 | Variable      | Purpose                                                                                                                                                        |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -99,11 +99,11 @@ Errors and traces are sent to Sentry. Configuration lives in
 In deployed environments `SENTRY_DSN` comes from the `SENTRY_DSN` GitHub
 secret, through the deploy action and `deploy.sh`. The deploy fails if it is empty.
 
-`instrument.js` must be loaded **before** the app so Sentry can instrument
+`sentryInit.js` must be loaded **before** the app so Sentry can instrument
 Express. Always start the built app with:
 
 ```shell
-node --import ./public/instrument.js public/app.js
+node --import ./public/sentryInit.js public/app.js
 ```
 
 `yarn start`, `yarn dev`, the Dockerfile and `start-server.ts` already do this.

@@ -190,7 +190,7 @@ interface ApplicationErrorFields {
   retryable: boolean;
 }
 
-// instrument.js and app.js are separate bundles, so each has its own
+// sentry-init.js and app.js are separate bundles, so each has its own
 // ApplicationError class and `instanceof` cannot be used.
 const asApplicationError = (
   error: unknown,

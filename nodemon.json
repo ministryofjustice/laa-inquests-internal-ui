@@ -1,5 +1,5 @@
 {
-  "watch": ["public/app.js", "public/instrument.js", "locales/**/*.json"],
+  "watch": ["public/app.js", "public/sentryInit.js", "locales/**/*.json"],
   "ext": "js,json",
   "ignore": [
     "public/assets/**/*",
@@ -21,5 +21,5 @@
   "env": {
     "NODE_ENV": "development"
   },
-  "exec": "node --import ./public/instrument.js public/app.js"
+  "exec": "node --import ./public/sentryInit.js public/app.js"
 }
