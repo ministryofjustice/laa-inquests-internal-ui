@@ -16,7 +16,9 @@
 
 {% block bodyStart %}
   <script nonce="{{ cspNonce }}">document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
-  {% include "partials/cookie-banner.njk" %}
+  {% if showCookieBanner %}
+    {% include "partials/cookie-banner.njk" %}
+  {% endif %}
 {% endblock %}
 
 {% block govukHeader %}

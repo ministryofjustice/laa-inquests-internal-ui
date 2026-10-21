@@ -135,7 +135,7 @@ const config: Config = {
     static: "public", // Path for serving static files
     views: "src/views", // Path for Nunjucks views
   },
-  GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID ?? "",
+  GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID ?? "G-G8T3WNVTV5",
 };
 
 export default config;

@@ -3,6 +3,9 @@
 <p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
 {% endset %}
 
+<form method="post" action="/cookies/banner">
+<input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+<input type="hidden" name="returnTo" value="{{ currentUrl }}" />
 {{ govukCookieBanner({
 ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
 messages: [
@@ -30,3 +33,4 @@ messages: [
     }
 ]
 }) }}
+</form>

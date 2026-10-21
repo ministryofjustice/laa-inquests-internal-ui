@@ -29,6 +29,23 @@ describe("processCookies", () => {
     assert.equal(res.locals.hasTrackingConsent, false);
   });
 
+  it("hides the cookie banner for a saved acceptance or rejection", () => {
+    for (const hasTrackingConsent of [true, false]) {
+      req.cookies = {
+        cookies_policy: encodeURIComponent(
+          JSON.stringify({
+            has_tracking_consent: hasTrackingConsent,
+          }),
+        ),
+      };
+
+      processCookies(req, res, next);
+
+      assert.equal(res.locals.showCookieBanner, false);
+      assert.equal(res.locals.hasTrackingConsent, hasTrackingConsent);
+    }
+  });
+
   it("assigns hasTrackingConsent to true when cookies_policy.has_tracking_consent is true", () => {
     req.cookies = {
       cookies_policy: encodeURIComponent(

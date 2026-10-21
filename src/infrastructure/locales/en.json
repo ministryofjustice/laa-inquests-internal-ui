@@ -473,7 +473,7 @@
           "expires": "20 hours"
         },
         "cookiePolicy": {
-          "name": "cookie_policy",
+          "name": "cookies_policy",
           "purpose": "Saves your cookie consent settings",
           "expires": "1 year"
         }

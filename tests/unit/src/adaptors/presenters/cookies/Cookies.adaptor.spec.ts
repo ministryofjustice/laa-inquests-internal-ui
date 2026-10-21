@@ -2,6 +2,9 @@ import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { CookiesAdaptor } from "#src/adaptors/presenter/cookies/Cookies.adaptor.js";
+import config from "#src/infrastructure/config/config.js";
+import sinon from "sinon";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 describe("Cookies adaptor", () => {
   let cookiesAdaptor: CookiesAdaptor;
@@ -23,7 +26,11 @@ describe("Cookies adaptor", () => {
     cookiesAdaptor = new CookiesAdaptor();
   });
 
-  it("renders cookies page without success banner on initial page load", () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("renders cookies page", () => {
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
@@ -135,6 +142,78 @@ describe("Cookies adaptor", () => {
       assert.deepEqual(responseStub.cookie.firstCall.args[1], {
         has_tracking_consent: false,
       });
+    });
+  });
+
+  describe("saveBannerPreferences", () => {
+    it("saves accepted banner consent for 365 days and redirects to the current page", () => {
+      requestStub.body = {
+        cookies: { additional: "yes" },
+        returnTo: "/reports",
+      };
+
+      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+
+      assert.equal(responseStub.cookie.callCount, 1);
+      assert.deepEqual(responseStub.cookie.firstCall.args, [
+        "cookies_policy",
+        JSON.stringify({ has_tracking_consent: true }),
+        {
+          maxAge: 365 * 24 * 60 * 60 * 1000,
+          path: "/",
+          httpOnly: true,
+          sameSite: "lax",
+          secure: config.app.useHttps,
+        },
+      ]);
+      assert.deepEqual(responseStub.redirect.firstCall.args, ["/reports"]);
+    });
+
+    it("saves rejected banner consent without enabling tracking", () => {
+      requestStub.body = {
+        cookies: { additional: "no" },
+        returnTo: "/reports",
+      };
+
+      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+
+      assert.equal(responseStub.cookie.callCount, 1);
+      assert.equal(responseStub.cookie.firstCall.args[0], "cookies_policy");
+      assert.deepEqual(JSON.parse(responseStub.cookie.firstCall.args[1]), {
+        has_tracking_consent: false,
+      });
+      assert.deepEqual(responseStub.redirect.firstCall.args, ["/reports"]);
+    });
+
+    it("uses only safe return URLs", () => {
+      for (const returnTo of [
+        undefined,
+        "",
+        ["//example.com"],
+        "https://example.com",
+        "//example.com",
+        "/\\example.com",
+        "/\t/example.com",
+      ]) {
+        responseStub.redirect.resetHistory();
+        requestStub.body = {
+          cookies: { additional: "no" },
+          returnTo,
+        };
+
+        cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+
+        assert.deepEqual(responseStub.redirect.firstCall.args, ["/"]);
+      }
+
+      requestStub.body = {
+        cookies: { additional: "yes" },
+        returnTo: "/reports?filter=current",
+      };
+      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+      assert.deepEqual(responseStub.redirect.lastCall.args, [
+        "/reports?filter=current",
+      ]);
     });
   });
 });

@@ -52,6 +52,8 @@ export default function processCookies(
   res: Response,
   next: NextFunction,
 ): void {
+  res.locals.showCookieBanner = true;
+
   try {
     res.locals.hasTrackingConsent = parseTrackingConsent(
       req.cookies.cookies_policy,
@@ -69,9 +71,6 @@ export default function processCookies(
       },
     });
   }
-
-  // TODO: Also check if the user made a choice (to conditionally show/hide the banner)
-  // res.locals.showCookieBanner = !req.cookies.cookies_preferences_set;
 
   next();
 }
