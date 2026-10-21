@@ -85,6 +85,48 @@ If `LOG_LEVEL` is invalid/missing, fallback to `info` and emit one warning event
 - Include only minimal identifiers and operational metadata in `extraContext`.
 - Keep event names `snake_case` and outcome-focused.
 
+## Sentry
+
+Sentry is a second sink for errors and must follow the same redaction rules as logs.
+
+- May be sent: case references, claim references, firm codes and firm IDs (not
+  as separate tags — there is no reference-tagging mechanism, they are only
+  ever visible as part of a path/URL).
+  Never sent: IP addresses, emails, names, user IDs, usernames, tokens,
+  credentials, file names or other personal data.
+- Configuration is in `src/infrastructure/config/sentry.ts`; do not call
+  `Sentry.init` anywhere else. `src/infrastructure/build/sentryInit.ts` is
+  loaded with `node --import`.
+- Do not call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
+  `addBreadcrumb` directly anywhere in application code. All data Sentry sees
+  must go through `scrubEvent`/`scrubSpan` in `sentry.ts`. If a feature needs
+  to attach extra context, add an explicit allow-listed field and a scrubbing
+  test there first.
+- HTTP breadcrumbs are disabled outright (`Sentry.httpIntegration({
+breadcrumbs: false })`), not scrubbed, so no breadcrumb data reaches Sentry.
+- Do not log through `Sentry.logger`; logs stay in the JSON logger only.
+- URL paths are sent as-is; only the query string and fragment are dropped
+  (`URL.pathname`/the OTel `url.path` attribute already exclude them, so no
+  separate path-sanitizing function is needed). Every route in this app takes
+  only literal, developer-chosen words or a
+  `:laaReference`/`:claimReference`/`:claimEvidenceId` reference code, so a
+  matched route never carries user input. Do not add a route that accepts
+  free-text path segments (e.g. a name or search term) without revisiting this.
+- Sentry's own Express instrumentation renames spans/transactions to the
+  matched route template as soon as a route matches; `sentry.ts` does not need
+  to know the route template itself.
+- Exception messages are sent after redaction of emails, IP addresses and
+  tokens, which cannot catch names or file names. Do not put user input in
+  `Error` or `ApplicationError` messages (use `operation`, `type`, `retryable`).
+- `sentry.ts` has no MSAL- or Zod-specific handling — it relies on outbound
+  adapters converting those upstream/auth errors to `ApplicationError` before
+  they escape (`EntraAuth.adaptor.ts` wraps every MSAL call; schema validation
+  must use `safeParse`, never `parse`, so a `ZodError` never reaches Sentry
+  directly). Do not reintroduce an unguarded `.parse()` or a raw re-throw of an
+  MSAL error.
+- A new sensitive field or error type needs a scrubber update and a test in
+  `tests/unit/src/infrastructure/config/sentry.spec.ts`.
+
 ## Extra context
 
 laa_reference: <laaReference>

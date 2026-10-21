@@ -9,7 +9,7 @@
     "#*": "./*"
   },
   "scripts": {
-    "start": "node public/app.js",
+    "start": "node --import ./public/sentryInit.js public/app.js",
     "clean": "rm -rf public",
     "build": "yarn clean && yarn build:ts && node public/esbuild.js",
     "lint": "yarn eslint .  --concurrency=auto && yarn prettier . --check",
@@ -32,6 +32,8 @@
     "@azure/msal-node": "^7.0.1",
     "@ministryofjustice/frontend": "^11.1.0",
     "@redis/client": "^6.3.0",
+    "@sentry/node": "^11.8.0",
+    "@sentry/profiling-node": "^11.8.0",
     "axios": "^1.20.0",
     "body-parser": "^2.3.0",
     "compression": "^1.8.2",
