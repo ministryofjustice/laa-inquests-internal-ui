@@ -23,13 +23,48 @@ describe("Cookies adaptor", () => {
     cookiesAdaptor = new CookiesAdaptor();
   });
 
-  it("renders cookies page", () => {
+  it("renders cookies page without success banner on initial page load", () => {
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
     assert.deepEqual(responseStub.render.firstCall.args, [
       "main/cookies",
-      { returnTo: "/" },
+      { returnTo: "/", success: false },
+    ]);
+  });
+
+  it("Does not display the success banner save failure", () => {
+    requestStub.query = { returnTo: "/", saved: "false" };
+    cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "main/cookies",
+      { returnTo: "/", success: false },
+    ]);
+  });
+
+  it("Does not display the success banner when browser blocks cookies", () => {
+    requestStub.query = { returnTo: "/", saved: "true" };
+    requestStub.cookies = {}; // Simulate browser blocking cookies
+    cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "main/cookies",
+      { returnTo: "/", success: false },
+    ]);
+  });
+
+  it("Renders the success banner on successful save of cookies", () => {
+    requestStub.query = { returnTo: "/", saved: "true" };
+    requestStub.cookies = { cookies_policy: { has_tracking_consent: true } };
+    cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "main/cookies",
+      { returnTo: "/", success: true },
     ]);
   });
 
@@ -37,10 +72,9 @@ describe("Cookies adaptor", () => {
     it("on success renders the cookies page with success banner", () => {
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepEqual(responseStub.render.firstCall.args, [
-        "main/cookies",
-        { success: true, returnTo: "/" },
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.deepEqual(responseStub.redirect.firstCall.args, [
+        "/cookies?saved=true&returnTo=%2F",
       ]);
     });
 
@@ -49,10 +83,9 @@ describe("Cookies adaptor", () => {
 
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepEqual(responseStub.render.firstCall.args, [
-        "main/cookies",
-        { success: false, returnTo: "/" },
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.deepEqual(responseStub.redirect.firstCall.args, [
+        "/cookies?saved=false&returnTo=%2F",
       ]);
     });
 
@@ -91,9 +124,8 @@ describe("Cookies adaptor", () => {
 
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
-      assert.deepEqual(responseStub.render.firstCall.args, [
-        "main/cookies",
-        { success: true, returnTo: "/" },
+      assert.deepEqual(responseStub.redirect.firstCall.args, [
+        "/cookies?saved=true&returnTo=%2F",
       ]);
     });
   });

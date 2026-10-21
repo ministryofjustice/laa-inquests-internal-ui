@@ -117,4 +117,43 @@ test.describe("View cookies page", () => {
 
     await expect(page.getByRole("radio", { name: "No" })).toBeChecked();
   });
+
+  test("handles the browser blocking cookie preferences", async ({
+    page,
+    context,
+  }) => {
+    // Simulate a browser that silently drops every Set-Cookie header
+    await page.route("**/cookies", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      const response = await route.fetch({ maxRedirects: 0 });
+
+      await context.clearCookies({ name: "cookies_policy" });
+      const headers = response
+        .headersArray()
+        .filter(({ name }) => name.toLowerCase() !== "set-cookie")
+        .reduce<Record<string, string>>(
+          (acc, { name, value }) => ({ ...acc, [name]: value }),
+          {},
+        );
+      await route.fulfill({ response, headers });
+    });
+
+    await page.goto("/cookies");
+    await page.getByRole("radio", { name: "Yes" }).check();
+    await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+    // assert the graceful behaviour you want here
+    expect(
+      (await page.context().cookies()).find((c) => c.name === "cookies_policy"),
+    ).toBeUndefined();
+
+    await expect(
+      page.locator("div.govuk-notification-banner", {
+        hasText: "You’ve set your cookie preferences.",
+      }),
+    ).not.toBeVisible();
+  });
 });
