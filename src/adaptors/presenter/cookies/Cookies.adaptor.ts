@@ -142,6 +142,8 @@ export class CookiesAdaptor {
         secure: config.app.useHttps,
       },
     );
+    req.session.cookieBannerConfirmation =
+      form.cookies.additional === "yes" ? "accepted" : "rejected";
     logger.logInfo({
       functionName: "save_banner_preferences",
       message: "Cookie banner preference saved",
@@ -150,6 +152,11 @@ export class CookiesAdaptor {
         event: "cookies_preferences_saved",
       },
     });
+    res.redirect(this.#returnUrl(form.returnTo));
+  }
+
+  hideBannerConfirmation(req: Request, res: Response): void {
+    const form = req.body as CookiesPreferencesForm;
     res.redirect(this.#returnUrl(form.returnTo));
   }
 

@@ -110,16 +110,85 @@ test.describe("Cookies banner", () => {
     });
 
     await page.reload();
-    await expect(
-      page.getByRole("region", { name: "Cookies on inquests" }),
-    ).toBeHidden();
+    const banner = page.getByRole("region", { name: "Cookies on inquests" });
+    await expect(banner).toContainText("You've rejected additional cookies.");
     await expect(page.locator(".govuk-error-summary")).toBeHidden();
+    await page.reload();
+    await expect(banner).toBeHidden();
   });
 
   for (const { buttonName, hasTrackingConsent } of [
     { buttonName: "Accept additional cookies", hasTrackingConsent: true },
     { buttonName: "Reject additional cookies", hasTrackingConsent: false },
   ]) {
+    const outcome = hasTrackingConsent ? "accepted" : "rejected";
+
+    test(`should show and dismiss the ${outcome} cookie confirmation`, async ({
+      page,
+      context,
+      checkAccessibility,
+    }) => {
+      await page.goto("/reports");
+      await page.getByRole("button", { name: buttonName }).click();
+
+      const banner = page.getByRole("region", {
+        name: "Cookies on inquests",
+      });
+      await expect(page).toHaveURL("/reports");
+      await expect(banner).toBeVisible();
+      await expect(banner).toContainText(
+        `You've ${outcome} additional cookies. You can change your cookie settings at anytime.`,
+      );
+      await expect(
+        banner.getByRole("link", { name: "change your cookie settings" }),
+      ).toHaveAttribute("href", "/cookies?returnTo=%2Freports");
+      await expect(
+        banner.getByRole("button", { name: "Accept additional cookies" }),
+      ).toBeHidden();
+      await expect(
+        banner.getByRole("button", { name: "Reject additional cookies" }),
+      ).toBeHidden();
+      await checkAccessibility();
+
+      const cookiesBeforeHiding = await context.cookies();
+      const policyBeforeHiding = cookiesBeforeHiding.find(
+        (cookie) => cookie.name === "cookies_policy",
+      );
+      assert.ok(policyBeforeHiding);
+
+      await banner.getByRole("button", { name: "Hide cookie message" }).click();
+      await expect(page).toHaveURL("/reports");
+      await expect(banner).toBeHidden();
+      const cookiesAfterHiding = await context.cookies();
+      expect(
+        cookiesAfterHiding.find((cookie) => cookie.name === "cookies_policy"),
+      ).toEqual(policyBeforeHiding);
+
+      await page.reload();
+      await expect(banner).toBeHidden();
+    });
+
+    test(`should navigate to cookie settings from the ${outcome} confirmation`, async ({
+      page,
+    }) => {
+      await page.goto("/reports");
+      await page.getByRole("button", { name: buttonName }).click();
+
+      await page
+        .getByRole("region", { name: "Cookies on inquests" })
+        .getByRole("link", { name: "change your cookie settings" })
+        .click();
+
+      await expect(page).toHaveURL("/cookies?returnTo=%2Freports");
+      await expect(
+        page.getByRole("heading", {
+          name: "Cookies",
+          level: 1,
+          exact: true,
+        }),
+      ).toBeVisible();
+    });
+
     test(`should save ${buttonName.toLowerCase()} for one year and hide the banner on subsequent pages`, async ({
       page,
       context,

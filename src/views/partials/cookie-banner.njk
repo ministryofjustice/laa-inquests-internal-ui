@@ -1,3 +1,28 @@
+{% if cookieBannerConfirmation %}
+  {% set confirmationHtml %}
+    <p class="govuk-body">
+      {{ t('components.cookieBanner.' + cookieBannerConfirmation) }}
+      {{ t('components.cookieBanner.confirmationPrefix') }}
+      <a class="govuk-link" href="{{ cookiesHref }}">{{ t('components.cookieBanner.changeSettings') }}</a>
+      {{ t('components.cookieBanner.confirmationSuffix') }}
+    </p>
+  {% endset %}
+  <form method="post" action="/cookies/banner/hide">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+    <input type="hidden" name="returnTo" value="{{ currentUrl }}" />
+    {{ govukCookieBanner({
+      ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+      messages: [{
+        html: confirmationHtml,
+        role: "alert",
+        actions: [{
+          text: t('components.cookieBanner.hide'),
+          type: "submit"
+        }]
+      }]
+    }) }}
+  </form>
+{% else %}
 {% set cookiesHtml %}
 <p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
 <p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
@@ -34,3 +59,4 @@ messages: [
 ]
 }) }}
 </form>
+{% endif %}

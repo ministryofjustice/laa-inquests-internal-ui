@@ -145,7 +145,41 @@ describe("Cookies adaptor", () => {
     });
   });
 
+  describe("hideBannerConfirmation", () => {
+    it("returns to a safe current page without setting or clearing cookies", () => {
+      for (const [returnTo, expectedUrl] of [
+        ["/reports?filter=current", "/reports?filter=current"],
+        ["//example.com", "/"],
+      ]) {
+        responseStub.redirect.resetHistory();
+        requestStub.body = { returnTo };
+
+        cookiesAdaptor.hideBannerConfirmation(requestStub, responseStub);
+
+        assert.deepEqual(responseStub.redirect.firstCall.args, [expectedUrl]);
+        assert.equal(responseStub.cookie.callCount, 0);
+        assert.equal(responseStub.clearCookie.callCount, 0);
+      }
+    });
+  });
+
   describe("saveBannerPreferences", () => {
+    it("queues the matching confirmation after saving an accepted or rejected preference", () => {
+      for (const additional of ["yes", "no"]) {
+        requestStub.body = {
+          cookies: { additional },
+          returnTo: "/reports",
+        };
+
+        cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+
+        assert.equal(
+          requestStub.session.cookieBannerConfirmation,
+          additional === "yes" ? "accepted" : "rejected",
+        );
+      }
+    });
+
     it("saves accepted banner consent for 365 days and redirects to the current page", () => {
       requestStub.body = {
         cookies: { additional: "yes" },

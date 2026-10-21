@@ -6,6 +6,17 @@ export function createCookiesRouter(
   cookiesAdaptor: CookiesAdaptor,
 ): Router {
   cookiesRouter.post(
+    "/banner/hide",
+    (req: Request, res: Response, next: NextFunction): void => {
+      try {
+        cookiesAdaptor.hideBannerConfirmation(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
+  cookiesRouter.post(
     "/banner",
     (req: Request, res: Response, next: NextFunction): void => {
       try {

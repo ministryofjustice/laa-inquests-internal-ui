@@ -36,7 +36,13 @@
       "additionalDescription": "We’d like to set additional cookies so we can remember your settings, understand how people use the service and make improvements.",
       "accept": "Accept additional cookies",
       "reject": "Reject additional cookies",
-      "view": "View cookies"
+      "view": "View cookies",
+      "accepted": "You've accepted additional cookies.",
+      "rejected": "You've rejected additional cookies.",
+      "confirmationPrefix": "You can",
+      "changeSettings": "change your cookie settings",
+      "confirmationSuffix": "at anytime.",
+      "hide": "Hide cookie message"
     },
     "errorSummary": {
       "title": "There is a problem"
