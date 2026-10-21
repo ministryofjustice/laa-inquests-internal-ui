@@ -83,9 +83,19 @@ test.describe.serial("Grant application journey", () => {
     const form = sharedPage.getByTestId("certificate-start-date");
     await validateGovForm(form, { action: certificateStartDatePage });
 
-    await expect(form.getByRole("radio", { name: "Today" })).toBeVisible();
+    const radioGroup = form.getByRole("group", {
+      name: certificateStartDateLocale.radio.hint,
+      exact: true,
+    });
+    await expect(radioGroup).toHaveJSProperty("tagName", "FIELDSET");
+    await expect(radioGroup.locator("legend")).toHaveText(
+      certificateStartDateLocale.radio.hint,
+    );
     await expect(
-      form.getByRole("radio", { name: "Another date" }),
+      radioGroup.getByRole("radio", { name: "Today" }),
+    ).toBeVisible();
+    await expect(
+      radioGroup.getByRole("radio", { name: "Another date" }),
     ).toBeVisible();
   });
 
@@ -340,6 +350,7 @@ test.describe.serial("Grant application journey", () => {
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(successPage);
+    await expect(sharedPage.locator(".govuk-panel br")).toHaveCount(0);
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.header }),
     ).toBeVisible();

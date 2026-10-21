@@ -86,7 +86,7 @@ test.describe("Assess claim page", () => {
       ).toBeVisible();
 
       const statusHeading = page.getByRole("heading", {
-        level: 3,
+        level: 2,
         name: /^Claim status:/,
       });
       const statusTag = statusHeading.locator(".govuk-tag");
@@ -147,7 +147,7 @@ test.describe("Assess claim page", () => {
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { level: 3, name: "Claim status: Submitted" }),
+      page.getByRole("heading", { level: 2, name: "Claim status: Submitted" }),
     ).toBeVisible();
 
     const pageForm = page.getByTestId("assess-claim");
