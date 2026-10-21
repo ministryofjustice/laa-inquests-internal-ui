@@ -95,11 +95,11 @@ export class CookiesAdaptor {
     const { acceptCookies, returnTo = "/" } =
       req.body as CookiesPreferencesForm;
 
-    let success = true;
+    let saved = true;
     try {
       setCookies(res, acceptCookies === "yes");
     } catch (err) {
-      success = false;
+      saved = false;
       logger.logError({
         functionName: "set_cookies",
         message: "Setting cookies failed",
@@ -112,6 +112,8 @@ export class CookiesAdaptor {
       });
     }
 
-    res.render("main/cookies", { success, returnTo });
+    res.redirect(
+      `/cookies?saved=${saved}&returnTo=${encodeURIComponent(returnTo)}`,
+    );
   }
 }
