@@ -248,6 +248,40 @@ describe("Test Application API Adaptor", () => {
     ]);
   });
 
+  it("throws a sanitized invalid-response error when application summary data is malformed", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: [
+        {
+          laa_reference: "1",
+          status: LIVE_STATUS,
+          overall_decision: "SUBMITTED",
+        },
+      ],
+    });
+
+    let thrown: unknown;
+    try {
+      await adaptor.getAllApplications("access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.type,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+      );
+      assert.equal(thrown.operation, "get_all_applications");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
+  });
+
   it("Test get Application calls axios", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;
@@ -1163,6 +1197,32 @@ describe("getPublicBodies", () => {
       `${baseUrl}/applications/public-bodies`,
     );
     assert.deepEqual(publicBodies, expectedPublicBodies);
+  });
+
+  it("throws a sanitized invalid-response error when public body data is malformed", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({ data: [{ publicBodyId: "Cabinet Office" }] });
+
+    let thrown: unknown;
+    try {
+      await adaptor.getPublicBodies("access-token-123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert.instanceOf(thrown, ApplicationError);
+    if (thrown instanceof ApplicationError) {
+      assert.equal(
+        thrown.type,
+        APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+      );
+      assert.equal(thrown.operation, "get_public_bodies");
+      assert.equal(thrown.retryable, false);
+      assert.equal(thrown.cause, undefined);
+    }
   });
 });
 

@@ -116,6 +116,10 @@ Every error that reaches Express is reported to Sentry, including expected
   should not alert, return a use-case result instead of throwing.
 - Reporting is configured in `src/infrastructure/config/sentry.ts`
   (`shouldHandleExpressError`); change it there, not in middleware order.
+- `sentry.ts` has no MSAL- or Zod-specific redaction. This relies entirely on
+  outbound adapters converting upstream/auth client errors to `ApplicationError`
+  before they escape (see the Review Checklist) — never let a raw MSAL error or
+  `ZodError` propagate past an adapter boundary; use `safeParse`, not `parse`.
 
 ## Required Tests
 

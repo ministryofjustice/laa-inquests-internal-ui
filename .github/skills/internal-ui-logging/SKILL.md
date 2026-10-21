@@ -100,7 +100,7 @@ Sentry is a second sink for errors and must follow the same redaction rules as l
   to attach extra context, add an explicit allow-listed field and a scrubbing
   test there first.
 - HTTP breadcrumbs are disabled outright (`Sentry.httpIntegration({
-  breadcrumbs: false })`), not scrubbed, so no breadcrumb data reaches Sentry.
+breadcrumbs: false })`), not scrubbed, so no breadcrumb data reaches Sentry.
 - Do not log through `Sentry.logger`; logs stay in the JSON logger only.
 - URL paths are allow-listed word by word. A new route or Inquests API path
   needs its literal words added to `KNOWN_SEGMENTS` in `sentryPaths.ts`;
@@ -112,7 +112,12 @@ Sentry is a second sink for errors and must follow the same redaction rules as l
 - Exception messages are sent after redaction of emails, IP addresses and
   tokens, which cannot catch names or file names. Do not put user input in
   `Error` or `ApplicationError` messages (use `operation`, `type`, `retryable`).
-  MSAL error messages are always replaced, and Zod errors are summarised.
+- `sentry.ts` has no MSAL- or Zod-specific handling — it relies on outbound
+  adapters converting those upstream/auth errors to `ApplicationError` before
+  they escape (`EntraAuth.adaptor.ts` wraps every MSAL call; schema validation
+  must use `safeParse`, never `parse`, so a `ZodError` never reaches Sentry
+  directly). Do not reintroduce an unguarded `.parse()` or a raw re-throw of an
+  MSAL error.
 - A new sensitive field or error type needs a scrubber update and a test in
   `tests/unit/src/infrastructure/config/sentry.spec.ts`.
 

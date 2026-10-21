@@ -13,22 +13,7 @@ const TRACES_SAMPLE_RATE = 0.02;
 const PROFILE_SESSION_SAMPLE_RATE = 0.2;
 const NO_FRAME_CONTEXT_LINES = 0;
 
-// The text of these errors can name users, tenants or token details, so the
-// whole message is replaced. This list covers the msal-node error classes; an
-// error with the msal shape (errorCode and errorMessage) is caught as well.
-const MSAL_ERROR_NAMES = new Set([
-  "AuthError",
-  "ClientAuthError",
-  "ClientConfigurationError",
-  "InteractionRequiredAuthError",
-  "ServerError",
-]);
-
-const ZOD_ERROR_NAMES = new Set(["ZodError", "$ZodError"]);
-
 const SAFE_CODE = /^[A-Za-z0-9_.\-]{1,64}$/v;
-const ZOD_ISSUE_CODE = /^[a-z_]{1,40}$/v;
-const ZOD_PATH_KEY = /^[A-Za-z_]\w{0,60}$/v;
 const MIN_HTTP_STATUS = 100;
 const MAX_HTTP_STATUS = 599;
 
@@ -127,86 +112,20 @@ const scrubTraceContext = (
   }
 };
 
-const hasStringProperty = (error: object, key: string): boolean =>
-  typeof (error as Record<string, unknown>)[key] === "string";
-
-const hasMsalShape = (error: unknown): error is Error =>
-  error instanceof Error &&
-  hasStringProperty(error, "errorCode") &&
-  hasStringProperty(error, "errorMessage");
-
-const isMsalError = (type: string | undefined, original: unknown): boolean =>
-  (type !== undefined && MSAL_ERROR_NAMES.has(type)) || hasMsalShape(original);
-
-interface ZodIssueLike {
-  code: unknown;
-  path: unknown;
-}
-
-const zodIssues = (error: unknown): ZodIssueLike[] | undefined => {
-  const { issues } = (error ?? {}) as { issues?: unknown };
-  return Array.isArray(issues) ? (issues as ZodIssueLike[]) : undefined;
-};
-
-// Issue codes and field paths only: never the rejected values or the messages.
-// Array indexes and keys that are not plain identifiers become "*".
-const zodPathKey = (key: unknown): string =>
-  typeof key === "string" && ZOD_PATH_KEY.test(key) ? key : "*";
-
-const zodSummary = (issues: ZodIssueLike[]): string =>
-  issues
-    .map(({ code, path }) => {
-      const safeCode =
-        typeof code === "string" && ZOD_ISSUE_CODE.test(code) ? code : "issue";
-      const keys = Array.isArray(path) ? path.map(zodPathKey) : [];
-      return `${safeCode} at ${keys.join(".") || "(root)"}`;
-    })
-    .join("; ");
-
-const sanitizeException = (
-  exception: ErrorException,
-  original: unknown,
-): void => {
-  if (exception.value === undefined) {
-    return;
-  }
-
-  if (isMsalError(exception.type, original)) {
-    exception.value = FILTERED;
-  } else if (
-    exception.type !== undefined &&
-    ZOD_ERROR_NAMES.has(exception.type)
-  ) {
-    const issues = zodIssues(original);
-    exception.value = issues === undefined ? FILTERED : zodSummary(issues);
-  } else {
+const sanitizeException = (exception: ErrorException): void => {
+  if (exception.value !== undefined) {
     exception.value = redactText(exception.value);
   }
 };
 
-// Sentry lists chained causes first and the thrown error last; only the thrown
-// error is available as hint.originalException.
-const sanitizeExceptions = (event: ErrorEvent, hint: EventHint): void => {
-  const values = event.exception?.values ?? [];
-  values.forEach((exception, index) => {
-    const isThrownError = index === values.length - 1;
-    sanitizeException(
-      exception,
-      isThrownError ? hint.originalException : undefined,
-    );
-  });
+const sanitizeExceptions = (event: ErrorEvent): void => {
+  event.exception?.values?.forEach(sanitizeException);
 };
 
 // Stable, non-sensitive facts about the failure that the scrubbed message no
 // longer carries.
 const errorTags = (error: unknown): Record<string, string> => {
   const tags: Record<string, string> = {};
-  if (hasMsalShape(error)) {
-    const { errorCode } = error as unknown as { errorCode: string };
-    if (SAFE_CODE.test(errorCode)) {
-      tags.auth_error_code = errorCode;
-    }
-  }
 
   const { isAxiosError, code, status } = (error ?? {}) as Record<
     string,
@@ -292,7 +211,7 @@ export const scrubEvent = (event: ErrorEvent, hint: EventHint): ErrorEvent => {
     event.tags = { ...event.tags, ...tags };
   }
 
-  sanitizeExceptions(event, hint);
+  sanitizeExceptions(event);
   return event;
 };
 

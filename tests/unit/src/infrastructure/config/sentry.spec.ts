@@ -6,7 +6,6 @@ import express from "express";
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import request from "supertest";
-import { z } from "zod";
 import config from "#src/infrastructure/config/config.js";
 import {
   APPLICATION_ERROR_TYPES,
@@ -49,17 +48,6 @@ const useApiUrl = (): void => {
     config.INQUESTS_API_URL = original;
   });
 };
-
-class FakeMsalError extends Error {
-  constructor(
-    message: string,
-    readonly errorCode: string,
-    readonly errorMessage: string,
-  ) {
-    super(message);
-    this.name = "SomeFutureMsalError";
-  }
-}
 
 describe("sentryConfig", () => {
   it("uses the ENVIRONMENT config value as the Sentry environment", () => {
@@ -209,72 +197,6 @@ describe("initSentry", () => {
 
 describe("scrubEvent", () => {
   describe("exception messages", () => {
-    [
-      "AuthError",
-      "ClientAuthError",
-      "ClientConfigurationError",
-      "InteractionRequiredAuthError",
-      "ServerError",
-    ].forEach((type) => {
-      it(`replaces the whole message of ${type} exceptions`, () => {
-        const event = scrubEvent(
-          exceptionEvent(
-            type,
-            "AADSTS70000: user jane@example.com has no access",
-          ),
-          HINT,
-        );
-
-        expect(event.exception?.values?.[0]?.value).to.equal("[Filtered]");
-      });
-    });
-
-    it("replaces the whole message of an msal error that is only recognised by its shape", () => {
-      const error = new FakeMsalError(
-        "token for jane@example.com expired",
-        "invalid_grant",
-        "token for jane@example.com expired",
-      );
-
-      const event = scrubEvent(
-        exceptionEvent(
-          "SomeFutureMsalError",
-          "token for jane@example.com expired",
-        ),
-        { originalException: error },
-      );
-
-      expect(event.exception?.values?.[0]?.value).to.equal("[Filtered]");
-    });
-
-    it("replaces the message of a wrapped msal error", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          exception: {
-            values: [
-              { type: "ClientAuthError", value: "user jane@example.com" },
-              { type: "Error", value: "sign in failed" },
-            ],
-          },
-        }),
-        { originalException: new Error("sign in failed") },
-      );
-
-      expect(event.exception?.values?.map(({ value }) => value)).to.deep.equal([
-        "[Filtered]",
-        "sign in failed",
-      ]);
-    });
-
-    it("tags msal errors with their error code only", () => {
-      const error = new FakeMsalError("x", "invalid_grant", "x");
-      const event = scrubEvent(exceptionEvent("SomeFutureMsalError", "x"), {
-        originalException: error,
-      });
-
-      expect(event.tags).to.deep.equal({ auth_error_code: "invalid_grant" });
-    });
-
     it("keeps the status text of axios errors", () => {
       const event = scrubEvent(
         exceptionEvent("AxiosError", "Request failed with status code 403"),
@@ -315,45 +237,6 @@ describe("scrubEvent", () => {
         axios_code: "ECONNABORTED",
         http_status: "504",
       });
-    });
-
-    it("summarises zod errors by issue code and path without values", () => {
-      const result = z
-        .object({ name: z.string(), items: z.array(z.number()) })
-        .safeParse({ name: 42, items: [1, "jane@example.com"] });
-
-      const event = scrubEvent(exceptionEvent("ZodError", "raw issues"), {
-        originalException: result.error,
-      });
-
-      expect(event.exception?.values?.[0]?.value).to.equal(
-        "invalid_type at name; invalid_type at items.*",
-      );
-    });
-
-    it("replaces the message of a wrapped zod error that has no issues to summarise", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          exception: {
-            values: [
-              { type: "$ZodError", value: "jane@example.com" },
-              { type: "Error", value: "validation failed" },
-            ],
-          },
-        }),
-        { originalException: new Error("validation failed") },
-      );
-
-      expect(event.exception?.values?.[0]?.value).to.equal("[Filtered]");
-    });
-
-    it("keeps the type of filtered exceptions", () => {
-      const event = scrubEvent(
-        exceptionEvent("ClientAuthError", "secret"),
-        HINT,
-      );
-
-      expect(event.exception?.values?.[0]?.type).to.equal("ClientAuthError");
     });
 
     it("keeps the message of application errors", () => {
@@ -953,23 +836,6 @@ describe("Sentry events produced with the real config", () => {
     const serialised = JSON.stringify(events("event"));
     expect(serialised).to.include("ECONNREFUSED [IP]:443");
     expect(serialised).to.not.include("10.1.2.3");
-  });
-
-  it("summarises zod validation errors without the rejected values", async () => {
-    const app = buildApp(() => {
-      const result = z
-        .object({ name: z.string() })
-        .safeParse({ name: 42, secret: "jane@example.com" });
-      return result.error;
-    });
-
-    await request(app).get("/applications/INQ-ABC-123").expect(500);
-    await Sentry.flush(2000);
-
-    const [event] = events("event") as unknown as ErrorEvent[];
-    expect(event?.exception?.values?.[0]?.value).to.equal(
-      "invalid_type at name",
-    );
   });
 
   it("reports application errors of different types separately even though Dedupe is on", async () => {
