@@ -66,6 +66,7 @@ env:
   NODE_ENV: "production"
   ENVIRONMENT: ""
   SENTRY_DSN: ""
+  GA_MEASUREMENT_ID: "G-YHCR3YTVMT"
 
 ingress:
   enabled: true

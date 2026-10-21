@@ -1,0 +1,23 @@
+<script nonce="{{ cspNonce }}">
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+</script>
+{% if config.GA_MEASUREMENT_ID %}
+    <!-- Google Consent Mode (Default Denied) -->
+    <script nonce="{{ cspNonce }}">
+        gtag('consent', 'default', {
+        'analytics_storage': hasTrackingConsent ? 'granted' : 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+        });
+    </script>
+    <script nonce="{{ cspNonce }}">window['ga-disable-{{ config.GA_MEASUREMENT_ID }}'] = {{ not hasTrackingConsent }};</script>
+
+    <!-- Google tag (gtag.js) -->
+    <script nonce="{{ cspNonce }}" async src="https://www.googletagmanager.com/gtag/js?id={{ config.GA_MEASUREMENT_ID }}"></script>
+    <script nonce="{{ cspNonce }}">
+        gtag('js', new Date());
+        gtag('config', '{{ config.GA_MEASUREMENT_ID }}');
+    </script>
+{% endif %}

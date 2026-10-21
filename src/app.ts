@@ -19,6 +19,7 @@ import bodyParser from "body-parser";
 import compression from "compression";
 import session from "express-session";
 import helmet from "helmet";
+import processCookies from "./infrastructure/express/middleware/cookies/cookies.js";
 import { helmetConfig } from "./infrastructure/config/helmet.js";
 import { setupLocaleData } from "./infrastructure/express/middleware/nunjucks/setupLocaleData.js";
 import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setupNunjucks.js";
@@ -30,6 +31,7 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import { requestLoggingContext } from "#src/infrastructure/express/middleware/requestLoggingContext.js";
 import { viewContext } from "#src/infrastructure/express/middleware/accessControl/viewContext.js";
 import { globalAccessGuard } from "#src/infrastructure/express/middleware/accessControl/globalAccessGuard.js";
+import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -72,6 +74,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(processCookies);
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
@@ -135,6 +139,7 @@ app.use(
     },
   }),
 );
+app.use(sessionLifetimeGuard);
 
 app.use(setupGeneralRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {

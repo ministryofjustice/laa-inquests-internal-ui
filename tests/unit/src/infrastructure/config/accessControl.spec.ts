@@ -12,6 +12,7 @@ import {
   isPermission,
   PERMISSIONS,
   validateRolesNotEmpty,
+  RECOGNISED_ROLES,
 } from "#src/infrastructure/config/accessControl.js";
 
 describe("Access Control Configuration", () => {
@@ -181,6 +182,14 @@ describe("Access Control Configuration", () => {
       expect(policy?.allowedRoles).to.deep.equal([
         INTERNAL_CASEWORKER_ROLES.FINANCE,
       ]);
+    });
+
+    it("allows every recognised caseworker role to access help", () => {
+      const policy = findRoutePolicy("/help");
+
+      expect(policy).to.not.be.undefined;
+      expect(policy?.prefix).to.equal("/help");
+      expect(policy?.allowedRoles).to.have.members(RECOGNISED_ROLES);
     });
   });
 
