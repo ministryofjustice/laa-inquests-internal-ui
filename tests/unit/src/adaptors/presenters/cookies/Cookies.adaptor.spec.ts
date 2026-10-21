@@ -102,6 +102,18 @@ describe("Cookies adaptor", () => {
       ]);
     });
 
+    it("on failure does not display success banner", () => {
+      responseStub.cookie.throws(new Error("Cookie failure"));
+
+      cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "main/cookies",
+        { success: false, returnTo: "/" },
+      ]);
+    });
+
     it("assigns hasTrackingConsent to true when user selects 'yes'", () => {
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 

@@ -34,8 +34,7 @@ export function setCookies(res: Response, acceptCookies: boolean): void {
       { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
     );
 
-    res.locals.hasTrackingConsent = acceptCookies;
-  } catch (err) {}
+  res.locals.hasTrackingConsent = acceptCookies;
 }
 
 export function parseTrackingConsent(raw: unknown): boolean {
