@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import sinon from "sinon";
 import { stubInterface } from "ts-sinon";
 import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 describe("setupNavigationData", () => {
   it("sets the returnTo session value for non-cookies pages", () => {

@@ -5,6 +5,8 @@ export const NOTE_MAX_CHARACTER_LENGTH = 10000;
 export const EMPTY_ARR_LENGTH = 0;
 export const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 export const COOKIE_PREFERENCE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
+export const ANALYTICS_COOKIE_NAME_PATTERN =
+  /^(?:_ga(?:_.+)?|_gid|_gat(?:_.+)?|_gac_.+)$/v;
 
 export const GRANTED_DECISION = "GRANTED";
 export const REFUSED_DECISION = "REFUSED";

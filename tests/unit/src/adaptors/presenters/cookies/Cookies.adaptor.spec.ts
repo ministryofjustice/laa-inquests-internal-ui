@@ -15,6 +15,11 @@ describe("Cookies adaptor", () => {
     responseStub = stubInterface<Response>();
     responseStub.status.returns(responseStub);
     requestStub = stubInterface<Request>();
+    requestStub.cookies = {};
+    Object.defineProperty(requestStub, "hostname", {
+      value: "localhost",
+      configurable: true,
+    });
 
     requestStub.session = {
       user: {
@@ -164,6 +169,74 @@ describe("Cookies adaptor", () => {
   });
 
   describe("saveBannerPreferences", () => {
+    it("keeps tracking disabled and propagates a cookie-writing failure without logging success", () => {
+      const error = new Error("Cookie write failed");
+      const logInfo = sinon.stub(logger, "logInfo");
+      requestStub.body = {
+        cookies: { additional: "no" },
+        returnTo: "/reports",
+      };
+      responseStub.locals = {
+        hasTrackingConsent: true,
+        showCookieBanner: false,
+      };
+      responseStub.cookie.throws(error);
+
+      assert.throws(
+        () => cookiesAdaptor.saveBannerPreferences(requestStub, responseStub),
+        (caught) => caught === error,
+      );
+
+      assert.equal(requestStub.session.cookieBannerState, "failed");
+      assert.equal(responseStub.locals.hasTrackingConsent, false);
+      assert.equal(responseStub.locals.showCookieBanner, true);
+      assert.equal(logInfo.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 0);
+    });
+
+    it("expires host-only and parent-domain analytics cookies without clearing essential or unrelated cookies", () => {
+      Object.defineProperty(requestStub, "hostname", {
+        value: "inquests.example.gov.uk",
+      });
+      requestStub.body = {
+        cookies: { additional: "no" },
+        returnTo: "/reports",
+      };
+      const analyticsNames = ["_ga", "_ga_TEST", "_gid", "_gat", "_gat_TEST"];
+      requestStub.cookies = {
+        ...Object.fromEntries(
+          analyticsNames.map((name) => [name, "analytics"]),
+        ),
+        "test-session": "essential",
+        _csrf: "security",
+        _garden: "unrelated",
+      };
+
+      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+
+      for (const name of analyticsNames) {
+        assert.ok(
+          responseStub.clearCookie.calledWithExactly(name, { path: "/" }),
+        );
+        for (const domain of [
+          "inquests.example.gov.uk",
+          "example.gov.uk",
+          "gov.uk",
+        ]) {
+          assert.ok(
+            responseStub.clearCookie.calledWithExactly(name, {
+              path: "/",
+              domain,
+            }),
+          );
+        }
+      }
+      assert.equal(
+        responseStub.clearCookie.callCount,
+        analyticsNames.length * 4,
+      );
+    });
+
     it("queues the matching confirmation after saving an accepted or rejected preference", () => {
       for (const additional of ["yes", "no"]) {
         requestStub.body = {
@@ -174,7 +247,7 @@ describe("Cookies adaptor", () => {
         cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
 
         assert.equal(
-          requestStub.session.cookieBannerConfirmation,
+          requestStub.session.cookieBannerState,
           additional === "yes" ? "accepted" : "rejected",
         );
       }

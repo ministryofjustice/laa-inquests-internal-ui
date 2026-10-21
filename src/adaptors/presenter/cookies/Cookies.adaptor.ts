@@ -3,7 +3,10 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import { setCookies } from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
 import config from "#src/infrastructure/config/config.js";
-import { COOKIE_PREFERENCE_MAX_AGE_MS } from "#src/infrastructure/locales/constants.js";
+import {
+  ANALYTICS_COOKIE_NAME_PATTERN,
+  COOKIE_PREFERENCE_MAX_AGE_MS,
+} from "#src/infrastructure/locales/constants.js";
 
 interface CookiesPreferencesForm {
   acceptCookies?: string;
@@ -128,6 +131,13 @@ export class CookiesAdaptor {
 
   saveBannerPreferences(req: Request, res: Response): void {
     const form = req.body as CookieBannerForm;
+    req.session.cookieBannerState = "failed";
+    res.locals.hasTrackingConsent = false;
+    res.locals.showCookieBanner = true;
+
+    if (form.cookies.additional !== "yes") {
+      this.#clearAnalyticsCookies(req, res);
+    }
 
     res.cookie(
       "cookies_policy",
@@ -142,14 +152,14 @@ export class CookiesAdaptor {
         secure: config.app.useHttps,
       },
     );
-    req.session.cookieBannerConfirmation =
+    req.session.cookieBannerState =
       form.cookies.additional === "yes" ? "accepted" : "rejected";
     logger.logInfo({
       functionName: "save_banner_preferences",
-      message: "Cookie banner preference saved",
+      message: "Cookie banner preference storage requested",
       request: req,
       extraContext: {
-        event: "cookies_preferences_saved",
+        event: "cookies_preferences_save_requested",
       },
     });
     res.redirect(this.#returnUrl(form.returnTo));
@@ -158,6 +168,28 @@ export class CookiesAdaptor {
   hideBannerConfirmation(req: Request, res: Response): void {
     const form = req.body as CookiesPreferencesForm;
     res.redirect(this.#returnUrl(form.returnTo));
+  }
+
+  #clearAnalyticsCookies(req: Request, res: Response): void {
+    const cookieNames = Object.keys(req.cookies).filter((name) =>
+      ANALYTICS_COOKIE_NAME_PATTERN.test(name),
+    );
+    const domains: string[] = [];
+    const { hostname } = req;
+    if (!hostname.includes(":") && !/^[\d.]+$/v.test(hostname)) {
+      const labels = hostname.split(".");
+      while (labels.length > 1) {
+        domains.push(labels.join("."));
+        labels.shift();
+      }
+    }
+
+    for (const name of cookieNames) {
+      res.clearCookie(name, { path: "/" });
+      for (const domain of domains) {
+        res.clearCookie(name, { path: "/", domain });
+      }
+    }
   }
 
   #returnUrl(value: unknown): string {

@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export function setupNavigationData(
   req: Request,
@@ -10,11 +11,42 @@ export function setupNavigationData(
     req.session.returnTo = originalUrl;
   }
 
-  // If loading a page and on previuos page got the cookie banner confirmation, remove it
-  if (method === "GET" && session.cookieBannerConfirmation) {
-    ({ cookieBannerConfirmation: res.locals.cookieBannerConfirmation } =
-      session);
-    session.cookieBannerConfirmation = undefined;
+  const { cookieBannerState } = session;
+  if (
+    method === "GET" &&
+    (cookieBannerState === "accepted" || cookieBannerState === "rejected")
+  ) {
+    const expectedConsent = cookieBannerState === "accepted";
+    if (
+      res.locals.showCookieBanner === false &&
+      res.locals.hasTrackingConsent === expectedConsent
+    ) {
+      res.locals.cookieBannerConfirmation = cookieBannerState;
+      session.cookieBannerState = undefined;
+      logger.logInfo({
+        functionName: "verify_cookie_preferences",
+        message: "Cookie preference storage confirmed",
+        request: req,
+        extraContext: {
+          event: "cookies_preferences_saved",
+        },
+      });
+    } else {
+      session.cookieBannerState = "failed";
+      logger.logError({
+        functionName: "verify_cookie_preferences",
+        message: "Cookie preference was not returned with the saved choice",
+        request: req,
+        extraContext: {
+          event: "cookies_preferences_save_failed",
+        },
+      });
+    }
+  }
+
+  if (session.cookieBannerState === "failed") {
+    res.locals.hasTrackingConsent = false;
+    res.locals.showCookieBanner = true;
   }
 
   next();
