@@ -84,10 +84,17 @@
   <form data-testid="save-cookie-preferences" method="post" action="/cookies">
     <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
     <input type="hidden" name="returnTo" value="{{ returnTo }}" />
+
+    {% if hasTrackingConsent %}
+        {% set trackingConsentPreference = "yes" %}
+    {% else %}
+        {% set trackingConsentPreference = "no" %}
+    {% endif %}
+
       {{ govukRadios({
         classes: "govuk-radios--medium",
         name: "acceptCookies",
-        value: acceptCookies if acceptCookies,
+        value: trackingConsentPreference,
         fieldset: {
           legend: {
             text: t('pages.cookies.analytics.radio.label'),

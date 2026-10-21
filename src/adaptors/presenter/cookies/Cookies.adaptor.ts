@@ -34,6 +34,6 @@ export class CookiesAdaptor {
 
     setCookies(res, acceptCookies === "yes");
 
-    res.render("main/cookies", { success: true, returnTo, acceptCookies });
+    res.render("main/cookies", { success: true, returnTo });
   }
 }

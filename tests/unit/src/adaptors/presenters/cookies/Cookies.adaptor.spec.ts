@@ -40,7 +40,7 @@ describe("Cookies adaptor", () => {
       assert.equal(responseStub.render.callCount, 1);
       assert.deepEqual(responseStub.render.firstCall.args, [
         "main/cookies",
-        { success: true, returnTo: "/", acceptCookies: "yes" },
+        { success: true, returnTo: "/" },
       ]);
     });
 
@@ -81,7 +81,7 @@ describe("Cookies adaptor", () => {
 
       assert.deepEqual(responseStub.render.firstCall.args, [
         "main/cookies",
-        { success: true, returnTo: "/", acceptCookies: "yes" },
+        { success: true, returnTo: "/" },
       ]);
     });
   });
