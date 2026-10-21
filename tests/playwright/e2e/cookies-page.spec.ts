@@ -92,4 +92,13 @@ test.describe("View cookies page", () => {
       .click();
     await expect(page).toHaveURL("/reports");
   });
+
+  test("should maintain selection after user saves", async ({ page }) => {
+    await page.goto(cookiesUrl);
+
+    await page.getByRole("radio", { name: "Yes" }).check();
+    await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+    await expect(page.getByRole("radio", { name: "Yes" })).toBeChecked();
+  });
 });

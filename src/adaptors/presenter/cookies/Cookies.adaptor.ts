@@ -29,14 +29,11 @@ export class CookiesAdaptor {
         event: "cookies_preferences_saved",
       },
     });
-    const form = req.body as CookiesPreferencesForm;
-    if (form.acceptCookies === "yes") {
-      setCookies(res, true);
-    }
-    res.render("main/cookies", {
-      success: true,
-      returnTo: form.returnTo ?? "/",
-      acceptCookies: form.acceptCookies,
-    });
+    const { acceptCookies, returnTo = "/" } =
+      req.body as CookiesPreferencesForm;
+
+    setCookies(res, acceptCookies === "yes");
+
+    res.render("main/cookies", { success: true, returnTo, acceptCookies });
   }
 }
