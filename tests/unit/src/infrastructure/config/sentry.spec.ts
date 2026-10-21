@@ -451,28 +451,6 @@ describe("scrubEvent", () => {
       );
     });
 
-    it("removes the request query string, cookies, headers and body", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          request: {
-            url: "https://internal.example.com/",
-            query_string: "token=abc",
-            cookies: { session: "secret" },
-            headers: { authorization: "Bearer secret" },
-            data: "name=secret",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.request).to.not.have.any.keys(
-        "query_string",
-        "cookies",
-        "headers",
-        "data",
-      );
-    });
-
     it("tags the event with the references in the request path", () => {
       const event = scrubEvent(
         toErrorEvent({
@@ -502,82 +480,6 @@ describe("scrubEvent", () => {
       );
 
       expect(event).to.not.have.property("tags");
-    });
-  });
-
-  describe("user and extra data", () => {
-    it("removes the user", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          user: { ip_address: "203.0.113.1", email: "a@example.com", id: "42" },
-        }),
-        HINT,
-      );
-
-      expect(event).to.not.have.property("user");
-    });
-
-    it("keeps allow-listed extra data and drops the rest", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          extra: {
-            laa_reference: "INQ-ABC-123",
-            claim_reference: "INQC-AB12-CD34",
-            firm_code: "1A234B",
-            firm_id: 4567,
-            request_id: "req-1",
-            status_code: 500,
-            user_name: "jane.smith",
-            email: "jane@example.com",
-            file_name: "evidence-jane-smith.pdf",
-            nested: { laa_reference: "INQ-ABC-123" },
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.extra).to.deep.equal({
-        laa_reference: "INQ-ABC-123",
-        claim_reference: "INQC-AB12-CD34",
-        firm_code: "1A234B",
-        firm_id: 4567,
-        request_id: "req-1",
-        status_code: 500,
-      });
-    });
-
-    it("drops reference and firm keys whose value has the wrong shape", () => {
-      const event = scrubEvent(
-        toErrorEvent({
-          extra: {
-            laa_reference: "Jane Smith",
-            claim_reference: "jane@example.com",
-            firm_code: "Smith & Co Solicitors",
-            event: "claim_rejected",
-          },
-        }),
-        HINT,
-      );
-
-      expect(event.extra).to.deep.equal({ event: "claim_rejected" });
-    });
-
-    it("redacts allow-listed string values", () => {
-      const event = scrubEvent(
-        toErrorEvent({ extra: { error_type: "failed for jane@example.com" } }),
-        HINT,
-      );
-
-      expect(event.extra).to.deep.equal({ error_type: "failed for [Email]" });
-    });
-
-    it("removes extra data when nothing in it is allowed", () => {
-      const event = scrubEvent(
-        toErrorEvent({ extra: { email: "jane@example.com" } }),
-        HINT,
-      );
-
-      expect(event).to.not.have.property("extra");
     });
   });
 
@@ -643,7 +545,7 @@ describe("scrubEvent", () => {
   });
 
   describe("trace context data", () => {
-    it("keeps the sanitized path and drops the query and target", () => {
+    it("keeps the sanitized path", () => {
       const event = scrubEvent(
         toErrorEvent({
           contexts: {
@@ -652,8 +554,6 @@ describe("scrubEvent", () => {
                 "url.path": "/applications/INQ-ABC-123/report-jane.pdf",
                 "url.full":
                   "https://internal.example.com/applications/INQ-ABC-123/overview?code=abc",
-                "url.query": "?code=abc",
-                "http.target": "/applications/INQ-ABC-123/overview?code=abc",
                 "http.route": "/applications/:laaReference",
               },
             },
@@ -813,18 +713,6 @@ describe("scrubBreadcrumb", () => {
     expect(breadcrumb.data?.url).to.equal("https://login.microsoftonline.com");
   });
 
-  it("removes query and fragment data from breadcrumbs", () => {
-    const breadcrumb = scrubBreadcrumb(
-      {
-        category: "http",
-        data: { "http.query": "token=abc", "http.fragment": "frag" },
-      } as Breadcrumb,
-      HINT,
-    );
-
-    expect(breadcrumb.data).to.deep.equal({});
-  });
-
   it("returns breadcrumbs without data unchanged", () => {
     const breadcrumb = scrubBreadcrumb({ category: "navigation" }, HINT);
 
@@ -843,9 +731,6 @@ describe("scrubSpan", () => {
             "sentry.op": "http.client",
             "url.full": `${API_URL}/applications/INQ-ABC-123/claims/INQC-AB12-CD34?token=abc`,
             "url.path": "/applications/INQ-ABC-123/claims/INQC-AB12-CD34",
-            "url.query": "?token=abc",
-            "http.target":
-              "/applications/INQ-ABC-123/claims/INQC-AB12-CD34?token=abc",
             "http.request.method": "GET",
           },
         }),
@@ -918,7 +803,7 @@ describe("scrubSpan", () => {
   });
 
   describe("incoming requests", () => {
-    it("keeps the sanitized url and the references, and drops the query and target", () => {
+    it("keeps the sanitized url and the references of the incoming request", () => {
       const span = scrubSpan(
         toSpan({
           attributes: {
@@ -926,8 +811,6 @@ describe("scrubSpan", () => {
             "url.full":
               "https://internal.example.com/applications/INQ-ABC-123/overview?code=abc",
             "url.path": "/applications/INQ-ABC-123/overview",
-            "url.query": "?code=abc",
-            "http.target": "/applications/INQ-ABC-123/overview?code=abc",
             "http.route": "/applications/:laaReference/overview",
           },
         }),

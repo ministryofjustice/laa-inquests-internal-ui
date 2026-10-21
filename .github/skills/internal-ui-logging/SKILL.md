@@ -94,10 +94,11 @@ Sentry is a second sink for errors and must follow the same redaction rules as l
   credentials, file names or other personal data.
 - Configuration is in `src/infrastructure/config/sentry.ts`; do not call
   `Sentry.init` anywhere else. `src/instrument.ts` is loaded with `node --import`.
-- Never call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
-  `addBreadcrumb` with anything but an allowed reference or firm identifier, and
-  never with free text or objects. Allowed extra keys are listed in
-  `sentry.ts`; reference and firm values are checked against their expected shape.
+- Do not call `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
+  `addBreadcrumb` directly anywhere in application code. All data Sentry sees
+  must go through `scrubEvent`/`scrubBreadcrumb`/`scrubSpan` in `sentry.ts`. If
+  a feature needs to attach extra context, add an explicit allow-listed field
+  and a scrubbing test there first.
 - Do not log through `Sentry.logger`; logs stay in the JSON logger only.
 - URL paths are allow-listed word by word. A new route or Inquests API path
   needs its literal words added to `KNOWN_SEGMENTS` in `sentryPaths.ts`;

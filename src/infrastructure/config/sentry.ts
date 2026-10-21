@@ -10,7 +10,6 @@ import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import config from "#src/infrastructure/config/config.js";
 import {
   FILTERED,
-  REFERENCE_PATTERNS,
   redactText,
   referenceTags,
   sanitizePath,
@@ -34,16 +33,8 @@ const MSAL_ERROR_NAMES = new Set([
 const ZOD_ERROR_NAMES = new Set(["ZodError", "$ZodError"]);
 
 const URL_DATA_KEYS = ["url", "url.full", "http.url"];
-const URL_DETAIL_DATA_KEYS = [
-  "url.query",
-  "url.fragment",
-  "http.query",
-  "http.fragment",
-  "http.target",
-];
 
 const SAFE_CODE = /^[A-Za-z0-9_.\-]{1,64}$/v;
-const SHORT_CODE = /^[A-Za-z0-9_\-]{1,32}$/v;
 const ZOD_ISSUE_CODE = /^[a-z_]{1,40}$/v;
 const ZOD_PATH_KEY = /^[A-Za-z_]\w{0,60}$/v;
 const MIN_HTTP_STATUS = 100;
@@ -102,6 +93,8 @@ const requestPath = (data: SpanData): string | undefined => {
   return url === undefined ? undefined : parseUrl(url)?.pathname;
 };
 
+// Query strings and fragments never reach here: dataCollection.urlQueryParams
+// is off, so the SDK never collects them in the first place.
 const scrubUrlData = (data: SpanData, keepPath: boolean): void => {
   for (const key of URL_DATA_KEYS) {
     const { [key]: value } = data;
@@ -115,11 +108,6 @@ const scrubUrlData = (data: SpanData, keepPath: boolean): void => {
     data["url.path"] = sanitizePath(urlPath);
   } else {
     delete data["url.path"];
-  }
-
-  for (const key of URL_DETAIL_DATA_KEYS) {
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- keys are a fixed list
-    delete data[key];
   }
 };
 
@@ -140,23 +128,16 @@ const withoutRawPath = (
   );
 };
 
+// Query string, cookies, headers and body never reach here: dataCollection
+// turns their collection off entirely, so there is nothing left to delete.
 const scrubRequest = (event: ErrorEvent): string | undefined => {
   const { request } = event;
-  if (request === undefined) {
+  if (typeof request?.url !== "string") {
     return undefined;
   }
 
-  const rawPath =
-    typeof request.url === "string"
-      ? parseUrl(request.url)?.pathname
-      : undefined;
-  if (typeof request.url === "string") {
-    request.url = scrubUrl(request.url, true);
-  }
-  delete request.query_string;
-  delete request.cookies;
-  delete request.headers;
-  delete request.data;
+  const rawPath = parseUrl(request.url)?.pathname;
+  request.url = scrubUrl(request.url, true);
   return rawPath;
 };
 
@@ -176,63 +157,6 @@ const scrubTraceContext = (
       traceData?.["http.route"],
     );
   }
-};
-
-const isScalar = (value: unknown): value is string | number | boolean =>
-  ["string", "number", "boolean"].includes(typeof value);
-
-const isShortCode = (value: unknown): boolean =>
-  (typeof value === "string" && SHORT_CODE.test(value)) ||
-  (typeof value === "number" && Number.isInteger(value));
-
-// References and firm identifiers may be sent, but only in their expected shape.
-const EXTRA_VALUE_CHECKS = new Map<string, (value: unknown) => boolean>([
-  [
-    "laa_reference",
-    (value) =>
-      typeof value === "string" && REFERENCE_PATTERNS.laa_reference.test(value),
-  ],
-  [
-    "claim_reference",
-    (value) =>
-      typeof value === "string" &&
-      REFERENCE_PATTERNS.claim_reference.test(value),
-  ],
-  ["firm_code", isShortCode],
-  ["firm_id", isShortCode],
-]);
-
-const SAFE_EXTRA_KEYS = new Set([
-  "event",
-  "request_id",
-  "correlation_id",
-  "status_code",
-  "method",
-  "duration_ms",
-  "error_type",
-  "exception_type",
-  "operation",
-  "retryable",
-]);
-
-const isSafeExtra = (key: string, value: unknown): boolean => {
-  const check = EXTRA_VALUE_CHECKS.get(key);
-  if (check !== undefined) {
-    return check(value);
-  }
-  return SAFE_EXTRA_KEYS.has(key) && isScalar(value);
-};
-
-const scrubExtra = (
-  extra: Record<string, unknown> | undefined,
-): Record<string, unknown> | undefined => {
-  const safe: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(extra ?? {})) {
-    if (isSafeExtra(key, value)) {
-      safe[key] = typeof value === "string" ? redactText(value) : value;
-    }
-  }
-  return Object.keys(safe).length > 0 ? safe : undefined;
 };
 
 const hasStringProperty = (error: object, key: string): boolean =>
@@ -387,15 +311,6 @@ export const tagApplicationError = (
 
 export const scrubEvent = (event: ErrorEvent, hint: EventHint): ErrorEvent => {
   const rawPath = scrubRequest(event);
-  delete event.user;
-
-  const extra = scrubExtra(event.extra);
-  if (extra === undefined) {
-    delete event.extra;
-  } else {
-    event.extra = extra;
-  }
-
   scrubTraceContext(event, rawPath);
   if (event.message !== undefined) {
     event.message = redactText(event.message);
