@@ -5,15 +5,13 @@ import type { Request, Response, NextFunction } from "express";
 import { ONE_YEAR_MS } from "#src/infrastructure/locales/constants.js";
 
 export function setCookies(res: Response, acceptCookies: boolean): void {
-  try {
-    res.cookie(
-      "cookies_policy",
-      { has_tracking_consent: acceptCookies },
-      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
-    );
+  res.cookie(
+    "cookies_policy",
+    { has_tracking_consent: acceptCookies },
+    { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+  );
 
-    res.locals.hasTrackingConsent = acceptCookies;
-  } catch (err) {}
+  res.locals.hasTrackingConsent = acceptCookies;
 }
 
 export function parseTrackingConsent(raw: unknown): boolean {

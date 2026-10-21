@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { setCookies } from "#src/infrastructure/express/middleware/cookies/cookies.js";
+import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
 
 interface CookiesPreferencesForm {
   returnTo?: string;
@@ -32,8 +33,23 @@ export class CookiesAdaptor {
     const { acceptCookies, returnTo = "/" } =
       req.body as CookiesPreferencesForm;
 
-    setCookies(res, acceptCookies === "yes");
+    let success = true;
+    try {
+      setCookies(res, acceptCookies === "yes");
+    } catch (err) {
+      success = false;
+      logger.logError({
+        functionName: "set_cookies",
+        message: "Setting cookies failed",
+        request: req,
+        extraContext: {
+          event: "set_cookies_failed",
+          method: req.method,
+          status_code: HTTP_INTERNAL_SERVER_ERROR,
+        },
+      });
+    }
 
-    res.render("main/cookies", { success: true, returnTo });
+    res.render("main/cookies", { success, returnTo });
   }
 }
