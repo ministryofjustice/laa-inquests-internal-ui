@@ -191,14 +191,6 @@ Prerequisites, Docker Desktop
   docker stop {container_id}
   ```
 
-## Cookies Footer Navigation
-
-The cookies footer link includes the current request path and query string as
-an encoded `returnTo` parameter. The `setupNavigationData` middleware exposes
-this link as `cookiesHref` to templates. This stage only generates the link;
-it does not validate or use `returnTo` in the cookies handlers or persist it
-through the preferences form.
-
 ## Application History Notes
 
 Submitting an empty note on the application overview displays an error summary

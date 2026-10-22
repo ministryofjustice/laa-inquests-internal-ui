@@ -1,9 +1,9 @@
-{% if cookieBannerConfirmation %}
+{% if cookieBannerState in ["accepted", "rejected"] %}
   {% set confirmationHtml %}
     <p class="govuk-body">
       {{ t('components.cookieBanner.' + cookieBannerConfirmation) }}
       {{ t('components.cookieBanner.confirmationPrefix') }}
-      <a class="govuk-link" href="{{ cookiesHref }}">{{ t('components.cookieBanner.changeSettings') }}</a>
+      <a class="govuk-link" href="/cookies">{{ t('components.cookieBanner.changeSettings') }}</a>
       {{ t('components.cookieBanner.confirmationSuffix') }}
     </p>
   {% endset %}
@@ -22,7 +22,7 @@
       }]
     }) }}
   </form>
-{% else %}
+{% elif cookieBannerState == "initial" %}
 {% set cookiesHtml %}
 <p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
 <p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
@@ -52,7 +52,7 @@ messages: [
         },
         {
         text: t("components.cookieBanner.view"),
-        href: cookiesHref
+        href: "/cookies"
         }
     ]
     }

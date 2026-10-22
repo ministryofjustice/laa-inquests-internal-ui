@@ -121,7 +121,7 @@ describe("Cookies adaptor", () => {
 
       assert.equal(responseStub.redirect.callCount, 1);
       assert.deepEqual(responseStub.redirect.firstCall.args, [
-        "/cookies?saved=false&returnTo=%2F",
+        "/cookies?saved=false",
       ]);
     });
 

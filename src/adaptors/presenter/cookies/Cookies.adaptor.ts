@@ -8,9 +8,6 @@ import {
   COOKIE_PREFERENCE_MAX_AGE_MS,
 } from "#src/infrastructure/locales/constants.js";
 
-interface CookiesPreferencesForm {
-  acceptCookies?: string;
-}
 
 interface CookiesPreferencesForm {
   returnTo?: string;
@@ -95,40 +92,6 @@ export class CookiesAdaptor {
     res.redirect(`/cookies?saved=${saved}`);
   }
 
-  saveCookiesPreferences(req: Request, res: Response): void {
-    logger.logInfo({
-      functionName: "save_cookies_preferences",
-      message: "Saving cookies preferences",
-      request: req,
-      extraContext: {
-        event: "cookies_preferences_saved",
-      },
-    });
-    const { acceptCookies, returnTo = "/" } =
-      req.body as CookiesPreferencesForm;
-
-    let saved = true;
-    try {
-      setCookies(res, acceptCookies === "yes");
-    } catch (err) {
-      saved = false;
-      logger.logError({
-        functionName: "set_cookies",
-        message: "Setting cookies failed",
-        request: req,
-        extraContext: {
-          event: "set_cookies_failed",
-          method: req.method,
-          status_code: HTTP_INTERNAL_SERVER_ERROR,
-        },
-      });
-    }
-
-    res.redirect(
-      `/cookies?saved=${saved}&returnTo=${encodeURIComponent(returnTo)}`,
-    );
-  }
-
   saveBannerPreferences(req: Request, res: Response): void {
     const form = req.body as CookieBannerForm;
     req.session.cookieBannerState = "failed";
@@ -162,12 +125,13 @@ export class CookiesAdaptor {
         event: "cookies_preferences_save_requested",
       },
     });
-    res.redirect(this.#returnUrl(form.returnTo));
+    res.redirect(this.#returnUrl(req.session.returnTo));
   }
 
   hideBannerConfirmation(req: Request, res: Response): void {
     const form = req.body as CookiesPreferencesForm;
-    res.redirect(this.#returnUrl(form.returnTo));
+    req.session.cookieBannerState = "closed";
+    res.redirect(this.#returnUrl(req.session.returnTo));
   }
 
   #clearAnalyticsCookies(req: Request, res: Response): void {
