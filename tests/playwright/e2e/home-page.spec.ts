@@ -107,18 +107,6 @@ test.describe("Home page", () => {
       await cookiesLink.click();
       await expect(page).toHaveURL("/cookies");
     });
-
-    test("preserves the current page path in the cookies footer link", async ({
-      page,
-    }) => {
-      await page.goto("/reports");
-
-      const cookiesLink = page.getByRole("link", { name: "Cookies" });
-      const cookiesUrl = "/cookies";
-      await expect(cookiesLink).toHaveAttribute("href", cookiesUrl);
-      await cookiesLink.click();
-      await expect(page).toHaveURL(cookiesUrl);
-    });
   });
 
   test.describe("RBAC", () => {

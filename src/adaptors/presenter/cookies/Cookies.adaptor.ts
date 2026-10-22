@@ -52,6 +52,15 @@ export class CookiesAdaptor {
     let saved = true;
     try {
       setCookies(res, acceptCookies === "yes");
+      logger.logInfo({
+        functionName: "set_cookies",
+        message: "Cookies set successfully",
+        request: req,
+        extraContext: {
+          event: "set_cookies_success",
+          method: req.method,
+        },
+      });
     } catch (err) {
       saved = false;
       logger.logError({

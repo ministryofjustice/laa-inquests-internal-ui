@@ -118,7 +118,7 @@ describe("setCookies", () => {
     res = stubInterface<Response>();
   });
 
-  it("sets cookie if acceptCookies is set to true", () => {
+  it("sets has_tracking_consent true if acceptCookies is set to true", () => {
     setCookies(res, true);
 
     assert.ok(res.cookie.calledOnce);
@@ -129,7 +129,7 @@ describe("setCookies", () => {
     ]);
   });
 
-  it("sets cookie if acceptCookies is set to false", () => {
+  it("sets has_tracking_consent false if acceptCookies is set to false", () => {
     setCookies(res, false);
 
     assert.ok(res.cookie.calledOnce);

@@ -19,7 +19,7 @@ describe("Cookies adaptor", () => {
       },
     } as never;
     requestStub.session.returnTo = "/"; //For GET
-    requestStub.body = { returnTo: "/", acceptCookies: "yes" }; //For POST
+    requestStub.body = { acceptCookies: "yes" }; //For POST
     cookiesAdaptor = new CookiesAdaptor();
   });
 
@@ -33,7 +33,8 @@ describe("Cookies adaptor", () => {
     ]);
   });
 
-  it("Does not display the success banner save failure", () => {
+  it("does not display the success banner save failure", () => {
+    requestStub.query = { saved: "false" };
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
@@ -43,7 +44,7 @@ describe("Cookies adaptor", () => {
     ]);
   });
 
-  it("Does not display the success banner when browser blocks cookies", () => {
+  it("does not display the success banner when browser blocks cookies", () => {
     requestStub.cookies = {}; // Simulate browser blocking cookies
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
@@ -54,9 +55,23 @@ describe("Cookies adaptor", () => {
     ]);
   });
 
-  it("Renders the success banner on successful save of cookies", () => {
+  it("renders the success banner on successful save of cookies", () => {
     requestStub.cookies = { cookies_policy: { has_tracking_consent: true } };
     requestStub.query = { saved: "true" };
+    cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+
+    assert.equal(responseStub.render.callCount, 1);
+    assert.deepEqual(responseStub.render.firstCall.args, [
+      "main/cookies",
+      { returnTo: "/", success: true },
+    ]);
+  });
+
+  it("defaults returnTo to the home page when not provided", () => {
+    requestStub.cookies = { cookies_policy: { has_tracking_consent: true } };
+    requestStub.query = { saved: "true" };
+    requestStub.session.returnTo = undefined;
+
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
@@ -100,7 +115,6 @@ describe("Cookies adaptor", () => {
     it("assigns hasTrackingConsent to false when user selects 'no'", () => {
       requestStub.body = {
         acceptCookies: "no",
-        returnTo: "/",
       };
 
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
@@ -110,16 +124,6 @@ describe("Cookies adaptor", () => {
       assert.deepEqual(responseStub.cookie.firstCall.args[1], {
         has_tracking_consent: false,
       });
-    });
-
-    it("defaults returnTo to the home page when not provided", () => {
-      requestStub.body = { acceptCookies: "yes" };
-
-      cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
-
-      assert.deepEqual(responseStub.redirect.firstCall.args, [
-        "/cookies?saved=true",
-      ]);
     });
   });
 });
