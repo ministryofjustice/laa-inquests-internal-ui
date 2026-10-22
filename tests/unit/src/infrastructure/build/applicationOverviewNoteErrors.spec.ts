@@ -3,6 +3,82 @@ import { JSDOM } from "jsdom";
 import { initialiseApplicationOverviewNoteErrors } from "#src/infrastructure/build/applicationOverviewNoteErrors.js";
 
 describe("application overview note errors", () => {
+  const overLimitErrorMarkup = `
+    <div id="history-note-error-summary">Note must be 10,000 characters or less</div>
+    <div id="application-overview-tabs">
+      <a class="govuk-tabs__tab" href="#history">History</a>
+      <a class="govuk-tabs__tab" href="#people">People</a>
+      <div id="history">
+        <form>
+          <div class="govuk-form-group govuk-character-count govuk-form-group--error"
+            data-module="govuk-character-count" data-maxlength="5">
+            <p id="note-text-error" class="govuk-error-message">Note must be 10,000 characters or less</p>
+            <textarea id="note-text" class="govuk-textarea govuk-textarea--error"
+              aria-describedby="note-text-error note-text-info">abcdef</textarea>
+            <p id="note-text-info">Character count</p>
+          </div>
+        </form>
+      </div>
+      <div id="people"></div>
+    </div>
+  `;
+
+  it("keeps server note errors while the user edits the note", () => {
+    const dom = new JSDOM(overLimitErrorMarkup, {
+      url: "https://example.test/applications/1/overview",
+    });
+
+    try {
+      const { document } = dom.window;
+      initialiseApplicationOverviewNoteErrors(document, dom.window);
+
+      const noteTextarea =
+        document.querySelector<HTMLTextAreaElement>("#note-text");
+      assert.ok(noteTextarea);
+      noteTextarea.value = "abc";
+      noteTextarea.dispatchEvent(new dom.window.Event("input"));
+
+      assert.ok(document.getElementById("history-note-error-summary"));
+      assert.ok(document.getElementById("note-text-error"));
+      assert.ok(noteTextarea.classList.contains("govuk-textarea--error"));
+    } finally {
+      dom.window.close();
+    }
+  });
+
+  it("toggles the over-limit border on input after note errors are cleared", () => {
+    const dom = new JSDOM(overLimitErrorMarkup, {
+      url: "https://example.test/applications/1/overview",
+    });
+
+    try {
+      const { document } = dom.window;
+      initialiseApplicationOverviewNoteErrors(document, dom.window);
+
+      dom.window.history.pushState(null, "", "#people");
+      dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
+
+      const noteTextarea =
+        document.querySelector<HTMLTextAreaElement>("#note-text");
+      assert.ok(noteTextarea);
+      assert.equal(document.getElementById("note-text-error"), null);
+      assert.ok(noteTextarea.classList.contains("govuk-textarea--error"));
+
+      noteTextarea.value = "abcde";
+      noteTextarea.dispatchEvent(new dom.window.Event("input"));
+      assert.equal(
+        noteTextarea.classList.contains("govuk-textarea--error"),
+        false,
+      );
+
+      noteTextarea.value = "abcdefg";
+      noteTextarea.dispatchEvent(new dom.window.Event("input"));
+      assert.ok(noteTextarea.classList.contains("govuk-textarea--error"));
+    } finally {
+      dom.window.close();
+    }
+  });
+
   it("clears note errors when leaving History without discarding the draft or other descriptions", () => {
     const dom = new JSDOM(
       `

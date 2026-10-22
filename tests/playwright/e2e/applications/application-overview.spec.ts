@@ -978,6 +978,44 @@ test.describe("History tab", () => {
       await checkAccessibility();
     });
 
+    test("keeps the server note error until resubmission and restores the over-limit border after errors clear", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${laaReference}/overview`);
+      await page.getByRole("tab", { name: "History", exact: true }).click();
+
+      const noteTextarea = page.locator("#note-text");
+      const addNoteButton = page
+        .locator("#history")
+        .getByRole("button", { name: "Add to application history" });
+
+      await noteTextarea.fill("a".repeat(10005));
+      await addNoteButton.click();
+      await expect(page.locator("#note-text-error")).toBeVisible();
+
+      await noteTextarea.fill("a".repeat(10000));
+      await expect(page.locator(".govuk-error-summary")).toContainText(
+        en.pages.applicationOverview.history.validationErrors.tooLong,
+      );
+      await expect(page.locator("#note-text-error")).toBeVisible();
+      await expect(page.locator(".govuk-character-count__status")).toHaveText(
+        "You have 0 characters remaining",
+      );
+
+      await page.getByRole("tab", { name: "People", exact: true }).click();
+      await page.getByRole("tab", { name: "History", exact: true }).click();
+      await expect(page.locator("#note-text-error")).toHaveCount(0);
+      await expect(noteTextarea).not.toHaveClass(/govuk-textarea--error/v);
+
+      await noteTextarea.fill("a".repeat(10001));
+      await expect(noteTextarea).toHaveClass(/govuk-textarea--error/v);
+
+      await noteTextarea.fill("a".repeat(10000));
+      await expect(noteTextarea).not.toHaveClass(/govuk-textarea--error/v);
+      await checkAccessibility();
+    });
+
     test("should successfully submit a free note containing HTML without error", async ({
       page,
     }) => {

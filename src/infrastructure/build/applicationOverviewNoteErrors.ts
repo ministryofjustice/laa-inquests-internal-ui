@@ -31,6 +31,29 @@ const clearNoteValidationErrors = (
   }
 };
 
+// GOV.UK character count stops toggling the textarea error border once a server error
+// message has rendered, even after we remove that message, so we take over the toggle.
+const syncNoteOverLimitBorder = (noteTextarea: HTMLTextAreaElement): void => {
+  const maxLength = Number(
+    noteTextarea.closest<HTMLElement>(".govuk-character-count")?.dataset
+      .maxlength,
+  );
+
+  if (!Number.isFinite(maxLength)) {
+    return;
+  }
+
+  const toggleBorder = (): void => {
+    noteTextarea.classList.toggle(
+      "govuk-textarea--error",
+      noteTextarea.value.length > maxLength,
+    );
+  };
+
+  toggleBorder();
+  noteTextarea.addEventListener("input", toggleBorder);
+};
+
 export const initialiseApplicationOverviewNoteErrors = (
   pageDocument: Document,
   pageWindow: Pick<
@@ -69,6 +92,7 @@ export const initialiseApplicationOverviewNoteErrors = (
 
     if (errorSummary) {
       clearNoteValidationErrors(tabs, noteTextarea, errorSummary);
+      syncNoteOverLimitBorder(noteTextarea);
     }
 
     pageWindow.removeEventListener("hashchange", handleTabChange);
