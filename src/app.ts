@@ -32,6 +32,7 @@ import { requestLoggingContext } from "#src/infrastructure/express/middleware/re
 import { viewContext } from "#src/infrastructure/express/middleware/accessControl/viewContext.js";
 import { globalAccessGuard } from "#src/infrastructure/express/middleware/accessControl/globalAccessGuard.js";
 import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
+import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -141,6 +142,7 @@ app.use(
 );
 app.use(sessionLifetimeGuard);
 
+app.use(setupNavigationData);
 app.use(setupGeneralRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;

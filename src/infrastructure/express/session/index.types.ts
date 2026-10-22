@@ -28,5 +28,6 @@ declare module "express-session" {
     user: UserSessionData;
     roles?: CaseworkerRole[];
     lifetime?: SessionLifetime;
+    returnTo?: string;
   }
 }

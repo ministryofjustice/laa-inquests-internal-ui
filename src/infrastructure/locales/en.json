@@ -451,6 +451,56 @@
     },
     "nonProduction": {
       "heading": "User roles"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "description": "Cookies are small files saved on your phone, tablet or computer when you visit a website.",
+      "purpose": "We use cookies to make this site work and collect information about how you use our service.",
+      "essential": {
+        "heading": "Essential cookies",
+        "body": "We use as essential cookie to remember when you accept or reject cookies on our website, and another to remember your answers as you complete forms.",
+        "tableCaption": "Essential cookies we use",
+        "sessionCookie": {
+          "name": "session_cookie",
+          "purpose": "Used to keep you signed in",
+          "expires": "20 hours"
+        },
+        "cookiePolicy": {
+          "name": "cookie_policy",
+          "purpose": "Saves your cookie consent settings",
+          "expires": "1 year"
+        }
+      },
+      "table": {
+        "name": "Name",
+        "purpose": "Purpose",
+        "expires": "Expires"
+      },
+      "analytics": {
+        "heading": "Analytics cookies (optional)",
+        "purpose": "We use Google Analytics software to understand how people use legal aid at inquests. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
+        "collection": "We do not collect or store your personal information (for example your name or address) so this information cannot be used to identify who you are.",
+        "dataSharing": "We do not allow Google to use or share our analytics data.",
+        "googleStorage": {
+          "description": "Google Analytics stores information about:",
+          "storesPages": "the pages you visit",
+          "storesTime": "how long you spend on each page",
+          "storesArrival": "how you arrived at the site",
+          "storesClicks": "what you click on while you visit the site",
+          "storesDevice": "the device and browser you use"
+        },
+        "googleAnalytics": {
+          "name": "GoogleAnalytics_ga",
+          "purpose": "Helps us count how many people visit Manage Inquest Legal Aid by telling us if you’ve visited before.",
+          "expires": "1 year"
+        },
+        "radio": {
+          "label": "Do you want to accept analytics cookies?",
+          "yes": "Yes",
+          "no": "No"
+        }
+      },
+      "saveButton": "Save cookie settings"
     }
   },
   "forms": {
