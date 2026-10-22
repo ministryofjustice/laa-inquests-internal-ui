@@ -6,6 +6,16 @@ import type { Request, Response } from "express";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import type { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { RECOGNISED_ROLES } from "#src/infrastructure/config/accessControl.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+
+const TEST_SESSION_ID = "test-login-session-id";
+
+const buildTestLoginRequest = (): Request => {
+  const req = stubInterface<Request>();
+  (req as unknown as { sessionID: string }).sessionID = TEST_SESSION_ID;
+  return req;
+};
 
 interface RouteLayer {
   route?: {
@@ -49,7 +59,7 @@ describe("createAuthRouter", () => {
       process.env.NODE_ENV = "test";
       const router = createAuthRouter(express.Router(), authAdaptor);
       const route = findRoute(router, "/test-login");
-      const req = stubInterface<Request>();
+      const req = buildTestLoginRequest();
       const res = stubInterface<Response>();
       req.session = { cookie: {} } as never;
 
@@ -69,7 +79,7 @@ describe("createAuthRouter", () => {
       process.env.NODE_ENV = "test";
       const router = createAuthRouter(express.Router(), authAdaptor);
       const route = findRoute(router, "/test-login");
-      const req = stubInterface<Request>();
+      const req = buildTestLoginRequest();
       const res = stubInterface<Response>();
       req.session = { cookie: {} } as never;
       req.query = { tokenExpirySeconds: "120" } as never;
@@ -91,7 +101,7 @@ describe("createAuthRouter", () => {
       process.env.NODE_ENV = "test";
       const router = createAuthRouter(express.Router(), authAdaptor);
       const route = findRoute(router, "/test-login");
-      const req = stubInterface<Request>();
+      const req = buildTestLoginRequest();
       const res = stubInterface<Response>();
       req.session = { cookie: {} } as never;
       req.query = { idleSeconds: "5", absoluteSeconds: "30" } as never;
@@ -105,6 +115,27 @@ describe("createAuthRouter", () => {
         30_000,
       );
       assert.equal(req.session.cookie.maxAge, 5_000);
+    });
+
+    it("logs session creation with the test login method", () => {
+      process.env.NODE_ENV = "test";
+      const logAuditStub = sinon.stub(logger, "logAudit");
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = buildTestLoginRequest();
+      const res = stubInterface<Response>();
+      req.session = { cookie: {} } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.equal(logAuditStub.callCount, 1);
+      const { extraContext } = logAuditStub.firstCall.args[0] as {
+        extraContext: Record<string, unknown>;
+      };
+      assert.equal(extraContext.event, "session_created");
+      assert.equal(extraContext.session_hash, hashSessionId(TEST_SESSION_ID));
+      assert.equal(extraContext.login_method, "test");
+      assert.equal("role_count" in extraContext, false);
     });
   });
 
