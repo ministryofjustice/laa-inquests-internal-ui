@@ -122,7 +122,27 @@ describe("ConfirmProfitCostsValidator", () => {
     });
   });
 
-  it("treats a value of 0 as filled in", () => {
+  it("returns an error on the gross total when the gross total equals the net total", () => {
+    const errors = validator.validateConfirmProfitCostsForm(
+      buildForm({ "net-total": "300", "gross-total": "300" }),
+    );
+
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossLessThanNet },
+    });
+  });
+
+  it("returns an error on the gross total when the gross total is 0 and the net total is positive", () => {
+    const errors = validator.validateConfirmProfitCostsForm(
+      buildForm({ "net-total": "10", "gross-total": "0" }),
+    );
+
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossLessThanNet },
+    });
+  });
+
+  it("allows a nil bill where the net and gross totals are both 0", () => {
     const errors = validator.validateConfirmProfitCostsForm(
       buildForm({ "net-total": "0", "gross-total": "0" }),
     );
