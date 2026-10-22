@@ -156,4 +156,15 @@ test.describe("View cookies page", () => {
       }),
     ).not.toBeVisible();
   });
+
+  test("Selects No by default if no cookie is set", async ({
+    page,
+    context,
+  }) => {
+    await context.clearCookies({ name: "cookies_policy" });
+
+    await page.goto(cookiesUrl);
+
+    await expect(page.getByRole("radio", { name: "No" })).toBeChecked();
+  });
 });

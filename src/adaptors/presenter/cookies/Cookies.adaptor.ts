@@ -19,6 +19,19 @@ export class CookiesAdaptor {
     });
     const saved = req.query.saved === "true";
     const success = saved && req.cookies.cookies_policy !== undefined;
+    if (saved && !success) {
+      logger.logError({
+        functionName: "set_cookies",
+        message: "Setting cookies failed, dropped by browser",
+        request: req,
+        extraContext: {
+          event: "set_cookies_failed",
+          method: req.method,
+          status_code: HTTP_INTERNAL_SERVER_ERROR,
+        },
+      });
+    }
+
     res.render("main/cookies", {
       returnTo: req.session.returnTo ?? "/",
       success,
