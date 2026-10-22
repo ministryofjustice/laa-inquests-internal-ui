@@ -55,8 +55,10 @@ export async function validateMojHeader(page: Page): Promise<void> {
   const laaLink = header.getByRole("link", { name: "Legal Aid Agency" });
   await expect(laaLink).toBeVisible();
 
-  const inquestsLink = header.getByRole("link", { name: "Inquests" });
-  await expect(inquestsLink).toBeVisible();
+  const serviceLink = page
+    .locator(".govuk-service-navigation")
+    .getByRole("link", { name: "Manage inquest legal aid" });
+  await expect(serviceLink).toBeVisible();
 
   const navigation = header.getByRole("navigation", {
     name: "Account navigation",

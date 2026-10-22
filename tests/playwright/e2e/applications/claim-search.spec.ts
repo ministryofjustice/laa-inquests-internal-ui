@@ -11,7 +11,9 @@ test.describe("Claim Search", () => {
     page,
     checkAccessibility,
   }) => {
-    await expect(page).toHaveTitle("Search for a claim – Inquests – GOV.UK");
+    await expect(page).toHaveTitle(
+      "Search for a claim – Manage inquest legal aid – GOV.UK",
+    );
 
     const headerText = "Search for a claim";
     await validateGovPage(page, { headerText: headerText, backUrl: "/" });

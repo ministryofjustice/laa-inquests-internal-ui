@@ -1,6 +1,7 @@
 {% extends "govuk/template.njk" %}
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
 {% block pageTitle %}{{ (pageTitle + " – " + t('navigation.header.serviceLabel') + " – GOV.UK") if pageTitle else t('navigation.header.serviceLabel') + " – GOV.UK" }}{% endblock %}
 
@@ -19,12 +20,9 @@
 
 {% block govukHeader %}
   {{ mojHeader({
+    classes: "moj-header--no-border",
     organisationLabel: {
       text: t('navigation.header.organisationLabel'),
-      href: "/"
-    },
-    serviceLabel: {
-      text: t('navigation.header.serviceLabel'),
       href: "/"
     },
     navigation: {
@@ -39,6 +37,14 @@
       }]
     }
   }) }}
+{% endblock %}
+
+{% block govukServiceNavigation %}
+{{ govukServiceNavigation({
+  classes: "govuk-!-padding-top-1 govuk-!-padding-bottom-1",
+  serviceName: t('navigation.header.serviceLabel'),
+  serviceUrl: "/"
+}) }}
 {% endblock %}
 
 {% block headerEnd %}
