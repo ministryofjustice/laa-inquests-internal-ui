@@ -33,35 +33,35 @@ ignore:
         expires: 2026-11-07T00:00:00.000Z
         created: 2026-10-08T00:00:00.000Z
         reason:
-          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           new docker image is released with upgraded npm version"
   "SNYK-JS-HTTPCACHESEMANTICS-19964068":
     - "*":
         expires: 2026-11-07T00:00:00.000Z
         created: 2026-10-08T00:00:00.000Z
         reason:
-          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           new docker image is released with upgraded npm version"
   "SNYK-JS-BRACEEXPANSION-20244948":
     - "*":
         expires: 2026-11-07T00:00:00.000Z
         created: 2026-10-08T00:00:00.000Z
         reason:
-          "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+          "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           new docker image is released with upgraded npm version"
   "SNYK-JS-BRACEEXPANSION-20244952":
       - "*":
           expires: 2026-11-07T00:00:00.000Z
           created: 2026-10-08T00:00:00.000Z
           reason:
-            "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+            "Temp ignore as bundled with npm with no direct upgrade. Resolved when
             new docker image is released with upgraded npm version"
   "SNYK-JS-POSTCSSSELECTORPARSER-20510276":
       - "*":
           expires: 2026-11-07T00:00:00.000Z
           created: 2026-10-08T00:00:00.000Z
           reason:
-            "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+            "Temp ignore as bundled with npm with no direct upgrade. Resolved when
             new docker image is released with upgraded npm version"
   "SNYK-JS-ZOD-20510278":
       - "*":
