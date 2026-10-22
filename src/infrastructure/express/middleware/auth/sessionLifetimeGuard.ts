@@ -6,7 +6,11 @@ import {
   evaluateSession,
   SessionExpiryReason,
 } from "#src/infrastructure/express/session/sessionExpiry.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+import {
+  logSessionTerminated,
+  toTerminationReason,
+} from "#src/infrastructure/express/session/sessionAudit.js";
 
 export function sessionLifetimeGuard(
   req: Request,
@@ -45,16 +49,12 @@ function expireSession(
   next: NextFunction,
   reason: SessionExpiryReason,
 ): void {
-  logger.logInfo({
-    functionName: "session_lifetime_guard",
-    message: "Session expired",
-    request: req,
-    extraContext: {
-      event: "session_expired",
-      reason,
-      route: req.path,
-    },
-  });
+  logSessionTerminated(
+    req,
+    "session_lifetime_guard",
+    hashSessionId(req.sessionID),
+    toTerminationReason(reason),
+  );
 
   req.session.destroy((err: unknown) => {
     res.clearCookie(config.session.name);

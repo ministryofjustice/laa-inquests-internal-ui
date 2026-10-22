@@ -58,6 +58,7 @@ export interface Config {
   USE_REDIS: boolean;
   REDIS_HOST_NAME: string;
   REDIS_AUTH_TOKEN: string;
+  SESSION_LOG_HASH_SECRET: string;
   app: AppConfig;
   csrf: CsrfConfig;
   session: SessionConfig;
