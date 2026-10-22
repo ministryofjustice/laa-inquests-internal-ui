@@ -83,9 +83,19 @@ test.describe.serial("Grant application journey", () => {
     const form = sharedPage.getByTestId("certificate-start-date");
     await validateGovForm(form, { action: certificateStartDatePage });
 
-    await expect(form.getByRole("radio", { name: "Today" })).toBeVisible();
+    const radioGroup = form.getByRole("group", {
+      name: certificateStartDateLocale.radio.hint,
+      exact: true,
+    });
+    await expect(radioGroup).toHaveJSProperty("tagName", "FIELDSET");
+    await expect(radioGroup.locator(":scope > legend")).toHaveText(
+      certificateStartDateLocale.radio.hint,
+    );
     await expect(
-      form.getByRole("radio", { name: "Another date" }),
+      radioGroup.getByRole("radio", { name: "Today" }),
+    ).toBeVisible();
+    await expect(
+      radioGroup.getByRole("radio", { name: "Another date" }),
     ).toBeVisible();
   });
 
@@ -133,6 +143,22 @@ test.describe.serial("Grant application journey", () => {
     await expect(form.getByLabel("Day", { exact: true })).toBeVisible();
     await expect(form.getByLabel("Month", { exact: true })).toBeVisible();
     await expect(form.getByLabel("Year", { exact: true })).toBeVisible();
+
+    const dateGroup = form.getByRole("group", {
+      name: certificateStartDateLocale.legend,
+      exact: true,
+    });
+    await expect(dateGroup).toHaveJSProperty("tagName", "FIELDSET");
+    await expect(dateGroup).toHaveAttribute(
+      "aria-describedby",
+      "start-date-hint",
+    );
+    await expect(dateGroup).toHaveAccessibleDescription(
+      certificateStartDateLocale.hint,
+    );
+    await expect(dateGroup.getByLabel("Day", { exact: true })).toBeVisible();
+    await expect(dateGroup.getByLabel("Month", { exact: true })).toBeVisible();
+    await expect(dateGroup.getByLabel("Year", { exact: true })).toBeVisible();
   });
 
   test("caseworker sees a validation error when Another date is selected but fields are empty", async () => {
@@ -149,6 +175,18 @@ test.describe.serial("Grant application journey", () => {
       "#start-date",
     );
     await expect(form.locator(".govuk-error-message")).toBeVisible();
+
+    const dateGroup = form.getByRole("group", {
+      name: certificateStartDateLocale.legend,
+      exact: true,
+    });
+    await expect(dateGroup).toHaveAttribute(
+      "aria-describedby",
+      "start-date-hint start-date-error",
+    );
+    await expect(dateGroup).toHaveAccessibleDescription(
+      `${certificateStartDateLocale.hint} Error: ${certificateStartDateLocale.validationErrors.notEmpty}`,
+    );
   });
 
   test("caseworker enters a valid date with Another date option and continues to confirmation page", async () => {
@@ -340,6 +378,7 @@ test.describe.serial("Grant application journey", () => {
     await continueToNextPage(form, sharedPage);
 
     await expect(sharedPage).toHaveURL(successPage);
+    await expect(sharedPage.locator(".govuk-panel br")).toHaveCount(0);
     await expect(
       sharedPage.getByRole("heading", { name: successLocale.header }),
     ).toBeVisible();

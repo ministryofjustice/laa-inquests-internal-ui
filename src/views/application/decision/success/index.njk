@@ -7,7 +7,7 @@
 {% block content %}
   {{ govukPanel({
     titleText: t('pages.decision.success.header'),
-    html: t('pages.decision.success.referenceLabel') + ": <br><strong>" + laaReference + "</strong>"
+    html: "<div>" + t('pages.decision.success.referenceLabel') + ":</div><div><strong>" + laaReference + "</strong></div>"
   }) }}
 
   <h2 class="govuk-heading-s govuk-!-padding-top-6">{{ t('pages.decision.success.whatHappensNext') }}</h2>

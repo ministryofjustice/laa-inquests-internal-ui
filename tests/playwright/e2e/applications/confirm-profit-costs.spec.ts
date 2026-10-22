@@ -57,6 +57,7 @@ test.describe("Confirm the total profit costs page", () => {
 
     const netTotalInput = form.getByLabel(confirmProfitCostsLocale.netLabel);
     await expect(netTotalInput).toBeVisible();
+    await expect(netTotalInput).toHaveAttribute("autocomplete", "off");
     await expect(netTotalInput).toHaveValue("");
     await expect(
       form.getByText(confirmProfitCostsLocale.netHint),
@@ -66,6 +67,7 @@ test.describe("Confirm the total profit costs page", () => {
       confirmProfitCostsLocale.grossLabel,
     );
     await expect(grossTotalInput).toBeVisible();
+    await expect(grossTotalInput).toHaveAttribute("autocomplete", "off");
     await expect(grossTotalInput).toHaveValue("");
     await expect(
       form.getByText(confirmProfitCostsLocale.grossHint),
@@ -75,6 +77,7 @@ test.describe("Confirm the total profit costs page", () => {
       confirmProfitCostsLocale.zeroLabel,
     );
     await expect(zeroVatTotalInput).toBeVisible();
+    await expect(zeroVatTotalInput).toHaveAttribute("autocomplete", "off");
     await expect(zeroVatTotalInput).toHaveValue("");
     await expect(
       form.getByText(confirmProfitCostsLocale.zeroHint),
