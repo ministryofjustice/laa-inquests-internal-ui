@@ -83,7 +83,6 @@
         }) }}
   <form data-testid="save-cookie-preferences" method="post" action="/cookies">
     <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-    <input type="hidden" name="returnTo" value="{{ returnTo }}" />
 
     {% if hasTrackingConsent %}
         {% set trackingConsentPreference = "yes" %}

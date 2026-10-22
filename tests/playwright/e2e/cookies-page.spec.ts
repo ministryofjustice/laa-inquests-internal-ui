@@ -77,7 +77,7 @@ test.describe("View cookies page", () => {
   test("should have success banner link to previous page", async ({ page }) => {
     await page.goto("/reports");
     await page.getByRole("link", { name: "Cookies" }).click();
-    await expect(page).toHaveURL(cookiesUrl + "?returnTo=%2Freports");
+    await expect(page).toHaveURL(cookiesUrl);
 
     await page.getByRole("radio", { name: "Yes" }).check();
     await page.getByRole("button", { name: "Save cookie settings" }).click();

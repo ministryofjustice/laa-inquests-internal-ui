@@ -5,7 +5,10 @@ export function setupNavigationData(
   res: Response,
   next: NextFunction,
 ): void {
-  res.locals.cookiesHref = `/cookies?returnTo=${encodeURIComponent(req.originalUrl)}`;
+  const { originalUrl, method } = req;
+  if (method === "GET" && !originalUrl.startsWith("/cookies")) {
+    req.session.returnTo = originalUrl;
+  }
 
   next();
 }

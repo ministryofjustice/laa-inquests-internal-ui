@@ -4,7 +4,6 @@ import { setCookies } from "#src/infrastructure/express/middleware/cookies/cooki
 import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
 
 interface CookiesPreferencesForm {
-  returnTo?: string;
   acceptCookies?: string;
 }
 
@@ -20,7 +19,10 @@ export class CookiesAdaptor {
     });
     const saved = req.query.saved === "true";
     const success = saved && req.cookies.cookies_policy !== undefined;
-    res.render("main/cookies", { returnTo: req.query.returnTo, success });
+    res.render("main/cookies", {
+      returnTo: req.session.returnTo ?? "/",
+      success,
+    });
   }
 
   saveCookiesPreferences(req: Request, res: Response): void {
@@ -32,8 +34,7 @@ export class CookiesAdaptor {
         event: "cookies_preferences_saved",
       },
     });
-    const { acceptCookies, returnTo = "/" } =
-      req.body as CookiesPreferencesForm;
+    const { acceptCookies } = req.body as CookiesPreferencesForm;
 
     let saved = true;
     try {
@@ -52,8 +53,6 @@ export class CookiesAdaptor {
       });
     }
 
-    res.redirect(
-      `/cookies?saved=${saved}&returnTo=${encodeURIComponent(returnTo)}`,
-    );
+    res.redirect(`/cookies?saved=${saved}`);
   }
 }

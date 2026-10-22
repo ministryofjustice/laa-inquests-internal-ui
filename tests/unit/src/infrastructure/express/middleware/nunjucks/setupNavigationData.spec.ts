@@ -5,16 +5,18 @@ import { stubInterface } from "ts-sinon";
 import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
 
 describe("setupNavigationData", () => {
-  it("exposes the cookies link with the encoded current page and continues the request", () => {
+  it("sets the returnTo session value for non-cookies pages", () => {
     const req = stubInterface<Request>();
     const res = stubInterface<Response>();
     const next = sinon.stub();
     req.originalUrl = "/reports";
+    req.session = {} as any;
     res.locals = {};
+    req.method = "GET";
 
     setupNavigationData(req, res, next);
 
-    assert.equal(res.locals.cookiesHref, "/cookies?returnTo=%2Freports");
+    assert.equal(req.session.returnTo, "/reports");
     sinon.assert.calledOnceWithExactly(next);
   });
 });

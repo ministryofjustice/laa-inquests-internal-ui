@@ -103,12 +103,9 @@ test.describe("Home page", () => {
       await page.goto("/");
 
       const cookiesLink = page.getByRole("link", { name: "Cookies" });
-      await expect(cookiesLink).toHaveAttribute(
-        "href",
-        "/cookies?returnTo=%2F",
-      );
+      await expect(cookiesLink).toHaveAttribute("href", "/cookies");
       await cookiesLink.click();
-      await expect(page).toHaveURL("/cookies?returnTo=%2F");
+      await expect(page).toHaveURL("/cookies");
     });
 
     test("preserves the current page path in the cookies footer link", async ({
@@ -117,7 +114,7 @@ test.describe("Home page", () => {
       await page.goto("/reports");
 
       const cookiesLink = page.getByRole("link", { name: "Cookies" });
-      const cookiesUrl = "/cookies?returnTo=%2Freports";
+      const cookiesUrl = "/cookies";
       await expect(cookiesLink).toHaveAttribute("href", cookiesUrl);
       await cookiesLink.click();
       await expect(page).toHaveURL(cookiesUrl);

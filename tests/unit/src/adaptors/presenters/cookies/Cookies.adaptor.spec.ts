@@ -18,7 +18,7 @@ describe("Cookies adaptor", () => {
         accessToken: "test-access-token",
       },
     } as never;
-    requestStub.query = { returnTo: "/" }; //For GET
+    requestStub.session.returnTo = "/"; //For GET
     requestStub.body = { returnTo: "/", acceptCookies: "yes" }; //For POST
     cookiesAdaptor = new CookiesAdaptor();
   });
@@ -34,7 +34,6 @@ describe("Cookies adaptor", () => {
   });
 
   it("Does not display the success banner save failure", () => {
-    requestStub.query = { returnTo: "/", saved: "false" };
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
@@ -45,7 +44,6 @@ describe("Cookies adaptor", () => {
   });
 
   it("Does not display the success banner when browser blocks cookies", () => {
-    requestStub.query = { returnTo: "/", saved: "true" };
     requestStub.cookies = {}; // Simulate browser blocking cookies
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
@@ -57,8 +55,8 @@ describe("Cookies adaptor", () => {
   });
 
   it("Renders the success banner on successful save of cookies", () => {
-    requestStub.query = { returnTo: "/", saved: "true" };
     requestStub.cookies = { cookies_policy: { has_tracking_consent: true } };
+    requestStub.query = { saved: "true" };
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
@@ -74,7 +72,7 @@ describe("Cookies adaptor", () => {
 
       assert.equal(responseStub.redirect.callCount, 1);
       assert.deepEqual(responseStub.redirect.firstCall.args, [
-        "/cookies?saved=true&returnTo=%2F",
+        "/cookies?saved=true",
       ]);
     });
 
@@ -85,16 +83,11 @@ describe("Cookies adaptor", () => {
 
       assert.equal(responseStub.redirect.callCount, 1);
       assert.deepEqual(responseStub.redirect.firstCall.args, [
-        "/cookies?saved=false&returnTo=%2F",
+        "/cookies?saved=false",
       ]);
     });
 
     it("assigns hasTrackingConsent to true when user selects 'yes'", () => {
-      requestStub.body = {
-        acceptCookies: "yes",
-        returnTo: "/",
-      };
-
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
       assert.equal(responseStub.cookie.callCount, 1);
@@ -125,7 +118,7 @@ describe("Cookies adaptor", () => {
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
       assert.deepEqual(responseStub.redirect.firstCall.args, [
-        "/cookies?saved=true&returnTo=%2F",
+        "/cookies?saved=true",
       ]);
     });
   });
