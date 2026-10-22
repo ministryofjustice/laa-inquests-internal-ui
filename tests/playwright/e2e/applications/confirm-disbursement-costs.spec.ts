@@ -178,6 +178,23 @@ test.describe("Confirm the total disbursement costs page", () => {
     ).toBeVisible();
   });
 
+  test("shows the gross-not-greater-than-net error when gross is 0 and net is positive", async ({
+    page,
+  }) => {
+    await page.goto(confirmDisbursementCostsPage);
+    const form = page.getByTestId("confirm-disbursement-costs");
+
+    await setTotals(form, { net: "10", gross: "0" });
+    await submitForm(form, page);
+
+    await expect(page).toHaveURL(confirmDisbursementCostsPage);
+    await expect(
+      form.locator(".govuk-error-message", {
+        hasText: validationErrors.grossLessThanNet,
+      }),
+    ).toBeVisible();
+  });
+
   for (const { scenario, gross } of [
     { scenario: "less than", gross: "20" },
     { scenario: "equal to", gross: "40" },

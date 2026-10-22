@@ -186,6 +186,16 @@ describe("ConfirmDisbursementCostsValidator", () => {
     });
   });
 
+  it("returns an error on the gross total when gross is 0 and the net total is positive", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({ "net-total": "10", "gross-total": "0" }),
+    );
+
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossLessThanNet },
+    });
+  });
+
   it("allows a nil bill where the net and gross totals are both 0", () => {
     const errors = validator.validateConfirmDisbursementCostsForm(
       buildForm({ "net-total": "0", "gross-total": "0" }),
@@ -206,10 +216,24 @@ describe("ConfirmDisbursementCostsValidator", () => {
     assert.deepStrictEqual(errors, {});
   });
 
-  it("preserves the gross-zero exception when net and 0% VAT totals are positive", () => {
+  it("returns a gross error when gross is 0 and the net total is positive alongside a 0% VAT total", () => {
     const errors = validator.validateConfirmDisbursementCostsForm(
       buildForm({
         "net-total": "10",
+        "gross-total": "0",
+        "zero-vat-total": "30",
+      }),
+    );
+
+    assert.deepStrictEqual(errors, {
+      grossTotal: { text: validationErrors.grossLessThanNet },
+    });
+  });
+
+  it("preserves the gross-zero exception when net is 0 and the 0% VAT total is positive", () => {
+    const errors = validator.validateConfirmDisbursementCostsForm(
+      buildForm({
+        "net-total": "0",
         "gross-total": "0",
         "zero-vat-total": "30",
       }),

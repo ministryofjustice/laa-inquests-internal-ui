@@ -165,7 +165,7 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
     return undefined;
   }
 
-  // Gross must exceed net whenever both the net and gross totals are provided; a nil (0) gross is allowed.
+  // Gross must exceed net whenever both are provided; only a nil bill (net and gross both 0) is allowed.
   #checkgrossLessThanNet(
     totals: DisbursementCostsTotals,
     emptiness: {
@@ -180,12 +180,13 @@ export class ConfirmDisbursementCostsValidator extends FormValidator {
       return undefined;
     }
 
+    const netValue = Number(totals.netTotal);
     const grossValue = Number(totals.grossTotal);
-    if (grossValue === NIL_TOTAL) {
+    if (netValue === NIL_TOTAL && grossValue === NIL_TOTAL) {
       return undefined;
     }
 
-    if (grossValue <= Number(totals.netTotal)) {
+    if (grossValue <= netValue) {
       return {
         grossTotal: {
           text: en.pages.claimAssessment.confirmDisbursementCosts
