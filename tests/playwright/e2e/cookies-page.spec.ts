@@ -13,7 +13,9 @@ test.describe("View cookies page", () => {
   test("should have the correct title", async ({ page }) => {
     await page.goto(cookiesUrl);
 
-    await expect(page).toHaveTitle("Cookies – Inquests – GOV.UK");
+    await expect(page).toHaveTitle(
+      "Cookies – Manage inquest legal aid – GOV.UK",
+    );
   });
 
   test("should display the page heading", async ({ page }) => {
