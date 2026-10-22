@@ -21,8 +21,7 @@ jobs:
       # only required for workflows in private repositories
       actions: read
       contents: read
-    runs-on:
-      ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
 
     strategy:
       fail-fast: false
