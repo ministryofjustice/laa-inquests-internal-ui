@@ -11,7 +11,7 @@ test.describe("Application Search", () => {
     checkAccessibility,
   }) => {
     await expect(page).toHaveTitle(
-      "Search for Application – Inquests – GOV.UK",
+      "Search for Application – Manage inquest legal aid – GOV.UK",
     );
 
     const headerText = "Search for an application or certificate";

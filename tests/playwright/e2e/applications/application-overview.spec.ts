@@ -16,7 +16,7 @@ test.describe("Application overview page", () => {
   }) => {
     await page.goto(`/applications/${laaReference}/overview`);
 
-    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+    await expect(page).toHaveTitle(/Manage inquest legal aid – GOV.UK$/);
     await validateGovPage(page, { headerText: laaReference, backUrl: "/" });
 
     await checkAccessibility();

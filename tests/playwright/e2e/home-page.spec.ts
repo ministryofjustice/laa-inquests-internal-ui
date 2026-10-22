@@ -13,7 +13,7 @@ test.describe("Home page", () => {
   });
 
   test("should have the correct title", async ({ page }) => {
-    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+    await expect(page).toHaveTitle(/Manage inquest legal aid – GOV.UK$/);
   });
 
   test("should display correct navigation content", async ({ page }) => {
