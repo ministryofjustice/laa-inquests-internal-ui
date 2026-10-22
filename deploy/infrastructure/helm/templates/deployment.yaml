@@ -115,6 +115,10 @@ spec:
               value: "{{ .Values.env.RATE_WINDOW_MS }}"
             - name: NODE_ENV
               value: "{{ .Values.env.NODE_ENV }}"
+            - name: ENVIRONMENT
+              value: "{{ .Values.env.ENVIRONMENT }}"
+            - name: SENTRY_DSN
+              value: "{{ .Values.env.SENTRY_DSN }}"
             - name: GA_MEASUREMENT_ID
               value: "{{ .Values.env.GA_MEASUREMENT_ID }}"
       {{- with .Values.volumes }}

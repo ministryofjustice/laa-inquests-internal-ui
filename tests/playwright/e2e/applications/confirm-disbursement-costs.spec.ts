@@ -83,6 +83,17 @@ test.describe("Confirm the total disbursement costs page", () => {
       form.getByLabel(confirmDisbursementCostsLocale.zeroLabel),
     ).toBeVisible();
 
+    for (const label of [
+      confirmDisbursementCostsLocale.netLabel,
+      confirmDisbursementCostsLocale.grossLabel,
+      confirmDisbursementCostsLocale.zeroLabel,
+    ]) {
+      await expect(form.getByLabel(label)).toHaveAttribute(
+        "autocomplete",
+        "off",
+      );
+    }
+
     await validateSubmitButton(form, confirmDisbursementCostsLocale.continue);
     await validateBackButton(page, confirmProfitCostsPage);
 

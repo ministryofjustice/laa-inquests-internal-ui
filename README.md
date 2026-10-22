@@ -55,6 +55,9 @@ Create your local config file `.env` from the template file:
 cp .env.example ../.env.internal
 ```
 
+The template includes `ENVIRONMENT` and `SENTRY_DSN`; see
+[Sentry error monitoring](#sentry-error-monitoring).
+
 #### Align to the Node Version specified for this project
 
 If using Node Version Manager (nvm), use the following command to switch to the correct version:
@@ -81,6 +84,62 @@ yarn install
 yarn build
 yarn start
 ```
+
+### Sentry error monitoring
+
+Errors and traces are sent to Sentry. Configuration lives in
+`src/infrastructure/config/sentry.ts` and is initialised by
+`src/infrastructure/build/sentryInit.ts`.
+
+| Variable      | Purpose                                                                                                                                                        |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SENTRY_DSN`  | Sentry project DSN. **Required** when `NODE_ENV=production` (the app refuses to start without it). Optional locally and in tests; with no DSN nothing is sent. |
+| `ENVIRONMENT` | Sentry environment tag: `dev`, `staging`, `prod` or `suppliertest`. Set by `deploy.sh`.                                                                        |
+
+In deployed environments `SENTRY_DSN` comes from the `SENTRY_DSN` GitHub
+secret, through the deploy action and `deploy.sh`. The deploy fails if it is empty.
+
+`sentryInit.js` must be loaded **before** the app so Sentry can instrument
+Express. Always start the built app with:
+
+```shell
+node --import ./public/sentryInit.js public/app.js
+```
+
+`yarn start`, `yarn dev`, the Dockerfile and `start-server.ts` already do this.
+Without it, errors are still reported but route templates and Express spans
+are missing.
+
+All errors that pass through Express are reported, including expected ones
+such as 401, 403 and 404 `ApplicationError`s. Traces are sampled at 2% and
+profiles at 20% of sampled sessions.
+
+#### What is (not) sent
+
+Personal data must never reach Sentry: IP addresses, email addresses, names,
+user IDs, usernames, tokens, credentials and file names. Case references
+(`INQ-XXX-XXX`), claim references (`INQC-XXXX-XXXX`), firm codes and firm IDs
+may be sent (they are only ever visible as part of a path/URL — there is no
+separate reference-tagging mechanism).
+
+- **Sent:** request and outbound-API URLs with their path (every route in
+  this app takes only literal, developer-chosen words or a
+  `:laaReference`/`:claimReference`/`:claimEvidenceId` reference code, so a
+  matched route never carries user input); route templates as transaction
+  names, set by Sentry's own Express instrumentation; the status text of
+  Axios errors.
+- **Never sent:** the user, cookies, headers, request bodies, query strings
+  and fragments, local variables, logs and console/HTTP breadcrumbs (disabled
+  outright, not scrubbed). Outbound requests to other services (such as
+  Entra) keep only scheme and host, since their paths can carry tenant ids or
+  signatures. Emails, IP addresses and tokens are redacted from exception
+  messages as a generic fallback (`redactText` in `sentry.ts`) for errors
+  raised by dependencies we don't control (Axios, Redis, Node internals).
+  MSAL and Zod errors never reach Sentry at all: `EntraAuth.adaptor.ts` wraps
+  every MSAL call and converts failures to `ApplicationError`, and schema
+  validation must use `safeParse`, never `parse`.
+- Do not add `Sentry.setUser`, `setExtra`, `setContext`, `setTag` or
+  `addBreadcrumb` directly anywhere in application code.
 
 ### Initialize pre-commit hooks
 

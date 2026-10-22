@@ -41,6 +41,18 @@ const GET_CERTIFICATE = {
   route: "/applications/:id/certificate",
 };
 
+const GET_ALL_APPLICATIONS = {
+  operation: "get_all_applications",
+  method: "GET",
+  route: "/applications",
+};
+
+const GET_PUBLIC_BODIES = {
+  operation: "get_public_bodies",
+  method: "GET",
+  route: "/applications/public-bodies",
+};
+
 export class ApplicationAPIAdaptor {
   constructor(
     private readonly http: AxiosStatic = axios,
@@ -82,7 +94,30 @@ export class ApplicationAPIAdaptor {
         status: mapApplicationStatusForDisplay(application.status),
         overallDecision: application.overall_decision,
       }))
-      .map((application) => ApplicationSummarySchema.parse(application));
+      .map((application) => {
+        const result = ApplicationSummarySchema.safeParse(application);
+        if (!result.success) {
+          logger.logError({
+            functionName: "application_api_adaptor",
+            message: "Application summary response validation failed",
+            extraContext: {
+              event: "outbound_api_request_failed",
+              operation: GET_ALL_APPLICATIONS.operation,
+              upstream_method: GET_ALL_APPLICATIONS.method,
+              upstream_route: GET_ALL_APPLICATIONS.route,
+              failure_reason: "invalid_response",
+              retryable: false,
+              duration_ms: Date.now() - startedAt,
+            },
+          });
+          throw new ApplicationError(
+            APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+            GET_ALL_APPLICATIONS.operation,
+            false,
+          );
+        }
+        return result.data;
+      });
   }
 
   async getApplication(
@@ -327,7 +362,29 @@ export class ApplicationAPIAdaptor {
       accessToken,
     });
 
-    return data.map((publicBody) => PublicBodySchema.parse(publicBody));
+    return data.map((publicBody) => {
+      const result = PublicBodySchema.safeParse(publicBody);
+      if (!result.success) {
+        logger.logError({
+          functionName: "application_api_adaptor",
+          message: "Public body response validation failed",
+          extraContext: {
+            event: "outbound_api_request_failed",
+            operation: GET_PUBLIC_BODIES.operation,
+            upstream_method: GET_PUBLIC_BODIES.method,
+            upstream_route: GET_PUBLIC_BODIES.route,
+            failure_reason: "invalid_response",
+            retryable: false,
+          },
+        });
+        throw new ApplicationError(
+          APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+          GET_PUBLIC_BODIES.operation,
+          false,
+        );
+      }
+      return result.data;
+    });
   }
 
   async updateApplicationPublicBodies(

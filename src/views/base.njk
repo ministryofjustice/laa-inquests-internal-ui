@@ -3,7 +3,7 @@
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
-{% block pageTitle %}{{ (pageTitle + " – Inquests – GOV.UK") if pageTitle else "Inquests – GOV.UK" }}{% endblock %}
+{% block pageTitle %}{{ (pageTitle + " – " + t('navigation.header.serviceLabel') + " – GOV.UK") if pageTitle else t('navigation.header.serviceLabel') + " – GOV.UK" }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="/css/{{getAsset('main','css')}}">
