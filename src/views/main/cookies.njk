@@ -1,0 +1,122 @@
+{% extends "base.njk" %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% set pageTitle = t('pages.cookies.title') %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+  {% if success %}
+    {{ govukNotificationBanner({
+      type: "success",
+      html: '<p class="govuk-notification-banner__heading">' + 
+          'You’ve set your cookie preferences. <a class="govuk-notification-banner__link" href=' + returnTo + '>Go back to the page you were looking at</a>.' +
+        '</p>'
+    }) }}
+  {% endif %}
+
+    <h1 class="govuk-heading-l">{{ t('pages.cookies.title') }}</h1>
+    <p class="govuk-body">{{ t('pages.cookies.description') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.purpose') }}</p>
+
+    <h2 class="govuk-heading-m">{{ t('pages.cookies.essential.heading') }}</h2>
+    <p class="govuk-body">{{ t('pages.cookies.essential.body') }}</p>
+    {{ govukTable({
+      caption: t('pages.cookies.essential.tableCaption'),
+      captionClasses: "govuk-table__caption--s",
+      firstCellIsHeader: false,
+      attributes: {
+         "data-testId": "essential-cookies-table"
+      },
+      head: [
+        { text: t('pages.cookies.table.name') },
+        { text: t('pages.cookies.table.purpose') },
+        { text: t('pages.cookies.table.expires') }
+      ],
+      rows: [
+        [
+          { text: t('pages.cookies.essential.sessionCookie.name') },
+          { text: t('pages.cookies.essential.sessionCookie.purpose') },
+          { text: t('pages.cookies.essential.sessionCookie.expires') }
+        ],
+        [
+          { text: t('pages.cookies.essential.cookiePolicy.name') },
+          { text: t('pages.cookies.essential.cookiePolicy.purpose') },
+          { text: t('pages.cookies.essential.cookiePolicy.expires') }
+        ]
+      ]
+    }) }}
+
+    <h2 class="govuk-heading-m">{{ t('pages.cookies.analytics.heading') }}</h2>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.purpose') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.collection') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.dataSharing') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.googleStorage.description') }}</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesPages') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesTime') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesArrival') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesClicks') }}</li>
+      <li>{{ t('pages.cookies.analytics.googleStorage.storesDevice') }}</li>
+    </ul>
+
+     {{ govukTable({
+          attributes: {
+              "data-testId": "analytics-cookies-table"
+          },
+          firstCellIsHeader: false,
+          head: [
+            { text: t('pages.cookies.table.name') },
+            { text: t('pages.cookies.table.purpose') },
+            { text: t('pages.cookies.table.expires') }
+          ],
+          rows: [
+            [
+              { text: t('pages.cookies.analytics.googleAnalytics.name') },
+              { text: t('pages.cookies.analytics.googleAnalytics.purpose') },
+              { text: t('pages.cookies.analytics.googleAnalytics.expires') }
+            ]
+          ]
+        }) }}
+  <form data-testid="save-cookie-preferences" method="post" action="/cookies">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+
+    {% if hasTrackingConsent %}
+        {% set trackingConsentPreference = "yes" %}
+    {% else %}
+        {% set trackingConsentPreference = "no" %}
+    {% endif %}
+
+      {{ govukRadios({
+        classes: "govuk-radios--medium",
+        name: "acceptCookies",
+        value: trackingConsentPreference,
+        fieldset: {
+          legend: {
+            text: t('pages.cookies.analytics.radio.label'),
+            isPageHeading: true,
+            classes: "govuk-fieldset__legend--s"
+          }
+        },
+        items: [
+          {
+            value: "yes",
+            text: t('pages.cookies.analytics.radio.yes')
+          },
+          {
+            value: "no",
+            text: t('pages.cookies.analytics.radio.no')
+          }
+        ]
+      }) }}
+
+      {{ govukButton({
+        text: t('pages.cookies.saveButton')
+      }) }}
+    </form>
+  </div>
+</div>
+{% endblock %}

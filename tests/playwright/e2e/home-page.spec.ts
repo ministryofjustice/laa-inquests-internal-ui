@@ -98,6 +98,17 @@ test.describe("Home page", () => {
     await expect(reportsPanelLink).toHaveAttribute("href", "/reports");
   });
 
+  test.describe("Footer", () => {
+    test("navigates to the cookies page", async ({ page }) => {
+      await page.goto("/");
+
+      const cookiesLink = page.getByRole("link", { name: "Cookies" });
+      await expect(cookiesLink).toHaveAttribute("href", "/cookies");
+      await cookiesLink.click();
+      await expect(page).toHaveURL("/cookies");
+    });
+  });
+
   test.describe("RBAC", () => {
     test.afterEach(async ({ page }) => {
       await page.goto("/auth/test-login");
