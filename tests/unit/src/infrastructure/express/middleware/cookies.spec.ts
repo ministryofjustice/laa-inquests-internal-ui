@@ -2,8 +2,11 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import sinon from "sinon";
-import processCookies from "#src/infrastructure/express/middleware/cookies/cookies.js";
+import processCookies, {
+  setCookies,
+} from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { ONE_YEAR_MS } from "#src/infrastructure/locales/constants.js";
 
 describe("processCookies", () => {
   let req: StubbedInstance<Request>;
@@ -105,5 +108,35 @@ describe("processCookies", () => {
     };
     processCookies(req, res, next);
     assert.equal(logSpy.callCount, 1);
+  });
+});
+
+describe("setCookies", () => {
+  let res: StubbedInstance<Response>;
+
+  beforeEach(() => {
+    res = stubInterface<Response>();
+  });
+
+  it("sets has_tracking_consent true if acceptCookies is set to true", () => {
+    setCookies(res, true);
+
+    assert.ok(res.cookie.calledOnce);
+    assert.deepEqual(res.cookie.firstCall.args, [
+      "cookies_policy",
+      { has_tracking_consent: true },
+      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+    ]);
+  });
+
+  it("sets has_tracking_consent false if acceptCookies is set to false", () => {
+    setCookies(res, false);
+
+    assert.ok(res.cookie.calledOnce);
+    assert.deepEqual(res.cookie.firstCall.args, [
+      "cookies_policy",
+      { has_tracking_consent: false },
+      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+    ]);
   });
 });

@@ -1,6 +1,28 @@
 import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { cookiePolicySchema } from "#src/adaptors/models/cookies.schema.js";
 import type { Request, Response, NextFunction } from "express";
+import { ONE_YEAR_MS } from "#src/infrastructure/locales/constants.js";
+
+export function setCookies(res: Response, acceptCookies: boolean): void {
+  res.cookie(
+    "cookies_policy",
+    { has_tracking_consent: acceptCookies },
+    { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+  );
+
+  res.locals.hasTrackingConsent = acceptCookies;
+}
+
+export function parseTrackingConsent(raw: unknown): boolean {
+  const value: unknown =
+    typeof raw === "string" ? JSON.parse(decodeURIComponent(raw)) : raw;
+  const result = cookiePolicySchema.safeParse(value);
+  if (result.success) {
+    return result.data.has_tracking_consent;
+  }
+  return false;
+}
 
 export default function processCookies(
   req: Request,
@@ -8,25 +30,9 @@ export default function processCookies(
   next: NextFunction,
 ): void {
   try {
-    let hasTrackingConsent = false;
-    const cookiePolicy: string | undefined = req.cookies.cookies_policy as
-      string | undefined;
-
-    if (cookiePolicy !== undefined) {
-      const parsedPolicy: unknown = JSON.parse(
-        decodeURIComponent(cookiePolicy),
-      );
-      if (
-        typeof parsedPolicy === "object" &&
-        parsedPolicy !== null &&
-        "has_tracking_consent" in parsedPolicy &&
-        typeof parsedPolicy.has_tracking_consent === "boolean"
-      ) {
-        ({ has_tracking_consent: hasTrackingConsent } = parsedPolicy);
-      }
-    }
-
-    res.locals.hasTrackingConsent = hasTrackingConsent;
+    res.locals.hasTrackingConsent = parseTrackingConsent(
+      req.cookies.cookies_policy,
+    );
   } catch (err) {
     res.locals.hasTrackingConsent = false;
     logger.logError({
