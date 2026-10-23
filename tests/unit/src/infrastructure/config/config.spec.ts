@@ -9,7 +9,7 @@ const REQUIRED_ENV = {
   AUTH_CLIENT_SECRET: "client-secret",
   AUTH_REDIRECT_URI: "http://localhost/auth/callback",
   AUTH_POST_LOGOUT_URI: "http://localhost",
-  SESSION_LOG_HASH_SECRET: "log-hash-secret",
+  SESSION_LOG_SECRET: "log-secret",
 };
 
 let importCounter = 0;
@@ -95,29 +95,29 @@ describe("config SENTRY_DSN", () => {
   });
 });
 
-describe("config SESSION_LOG_HASH_SECRET", () => {
-  it("throws outside test when SESSION_LOG_HASH_SECRET is missing", async () => {
+describe("config SESSION_LOG_SECRET", () => {
+  it("throws outside test when SESSION_LOG_SECRET is missing", async () => {
     let error: Error | undefined;
     try {
       await importConfig({
         NODE_ENV: "development",
-        SESSION_LOG_HASH_SECRET: undefined,
+        SESSION_LOG_SECRET: undefined,
       });
     } catch (err) {
       error = err as Error;
     }
 
     expect(error?.message).to.equal(
-      "The following environment variables must be defined: SESSION_LOG_HASH_SECRET",
+      "The following environment variables must be defined: SESSION_LOG_SECRET",
     );
   });
 
-  it("does not require SESSION_LOG_HASH_SECRET in test", async () => {
+  it("does not require SESSION_LOG_SECRET in test", async () => {
     const module = (await importConfig({
       NODE_ENV: "test",
-      SESSION_LOG_HASH_SECRET: undefined,
-    })) as { default: { SESSION_LOG_HASH_SECRET: string } };
+      SESSION_LOG_SECRET: undefined,
+    })) as { default: { SESSION_LOG_SECRET: string } };
 
-    expect(module.default.SESSION_LOG_HASH_SECRET).to.equal("");
+    expect(module.default.SESSION_LOG_SECRET).to.equal("");
   });
 });
