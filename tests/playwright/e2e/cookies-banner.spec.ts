@@ -64,8 +64,7 @@ test.describe("Cookies banner", () => {
   }) => {
     const response = await page.request.post("/cookies/banner", {
       form: {
-        "cookies[additional]": "yes",
-        returnTo: "/",
+        acceptCookies: "yes",
       },
     });
 
@@ -94,8 +93,7 @@ test.describe("Cookies banner", () => {
     const response = await page.request.post("/cookies/banner", {
       form: {
         _csrf: csrfToken,
-        "cookies[additional]": "unexpected",
-        returnTo: "/reports",
+        acceptCookies: "unexpected",
       },
       maxRedirects: 0,
     });
@@ -166,8 +164,7 @@ test.describe("Cookies banner", () => {
     const response = await page.request.post("/cookies/banner", {
       form: {
         _csrf: csrfToken,
-        "cookies[additional]": "no",
-        returnTo: "/",
+        acceptCookies: "no",
       },
       maxRedirects: 0,
     });
@@ -207,8 +204,7 @@ test.describe("Cookies banner", () => {
       await page.request.post("/cookies/banner", {
         form: {
           _csrf: csrfToken,
-          "cookies[additional]": hasTrackingConsent ? "yes" : "no",
-          returnTo: "/reports",
+          acceptCookies: hasTrackingConsent ? "yes" : "no",
         },
         maxRedirects: 0,
       });

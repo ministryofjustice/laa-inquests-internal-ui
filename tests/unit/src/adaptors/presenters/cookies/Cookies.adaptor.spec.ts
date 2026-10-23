@@ -130,7 +130,7 @@ describe("Cookies adaptor", () => {
 
       assert.equal(responseStub.cookie.callCount, 1);
       assert.equal(responseStub.cookie.firstCall.args[0], "cookies_policy");
-      assert.deepEqual(responseStub.cookie.firstCall.args[1], {
+      assert.deepEqual(JSON.parse(responseStub.cookie.firstCall.args[1]), {
         has_tracking_consent: true,
       });
     });
@@ -144,7 +144,7 @@ describe("Cookies adaptor", () => {
 
       assert.equal(responseStub.cookie.callCount, 1);
       assert.equal(responseStub.cookie.firstCall.args[0], "cookies_policy");
-      assert.deepEqual(responseStub.cookie.firstCall.args[1], {
+      assert.deepEqual(JSON.parse(responseStub.cookie.firstCall.args[1]), {
         has_tracking_consent: false,
       });
     });
@@ -158,7 +158,6 @@ describe("Cookies adaptor", () => {
       ]) {
         requestStub.session.returnTo = returnTo;
         responseStub.redirect.resetHistory();
-        requestStub.body = { returnTo };
 
         cookiesAdaptor.hideBannerConfirmation(requestStub, responseStub);
 
@@ -216,7 +215,7 @@ describe("Cookies adaptor", () => {
       assert.equal(responseStub.cookie.callCount, 1);
       assert.deepEqual(responseStub.cookie.firstCall.args, [
         "cookies_policy",
-        { has_tracking_consent: true },
+        JSON.stringify({ has_tracking_consent: true }),
         {
           maxAge: 365 * 24 * 60 * 60 * 1000,
           httpOnly: true,
@@ -234,7 +233,7 @@ describe("Cookies adaptor", () => {
 
       assert.equal(responseStub.cookie.callCount, 1);
       assert.equal(responseStub.cookie.firstCall.args[0], "cookies_policy");
-      assert.deepEqual(responseStub.cookie.firstCall.args[1], {
+      assert.deepEqual(JSON.parse(responseStub.cookie.firstCall.args[1]), {
         has_tracking_consent: false,
       });
       assert.deepEqual(responseStub.redirect.firstCall.args, ["/reports"]);

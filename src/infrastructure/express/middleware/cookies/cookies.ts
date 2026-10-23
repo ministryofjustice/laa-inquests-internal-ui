@@ -1,10 +1,11 @@
 import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { cookiePolicySchema } from "#src/adaptors/models/cookies.schema.js";
-import { ANALYTICS_COOKIE_NAME_PATTERN } from "#src/infrastructure/locales/constants.js";
 import type { Request, Response, NextFunction } from "express";
 
-const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
+export const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
+const ANALYTICS_COOKIE_NAME_PATTERN =
+  /^(?:_ga(?:_.+)?|_gid|_gat(?:_.+)?|_gac_.+)$/v;
 
 function clearAnalyticsCookies(req: Request, res: Response): void {
   const cookieNames = Object.keys(req.cookies).filter((name) =>
@@ -39,7 +40,7 @@ export function setCookies(
 
   res.cookie(
     "cookies_policy",
-    { has_tracking_consent: acceptCookies },
+    JSON.stringify({ has_tracking_consent: acceptCookies }),
     { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
   );
 

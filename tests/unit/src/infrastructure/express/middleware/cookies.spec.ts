@@ -3,10 +3,10 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import sinon from "sinon";
 import processCookies, {
+  ONE_YEAR_MS,
   setCookies,
 } from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
-import { ONE_YEAR_MS } from "#src/infrastructure/locales/constants.js";
 import config from "#src/infrastructure/config/config.js";
 
 describe("processCookies", () => {
@@ -203,7 +203,7 @@ describe("setCookies", () => {
     assert.ok(res.cookie.calledOnce);
     assert.deepEqual(res.cookie.firstCall.args, [
       "cookies_policy",
-      { has_tracking_consent: true },
+      JSON.stringify({ has_tracking_consent: true }),
       {
         maxAge: ONE_YEAR_MS,
         httpOnly: true,
@@ -218,7 +218,7 @@ describe("setCookies", () => {
     assert.ok(res.cookie.calledOnce);
     assert.deepEqual(res.cookie.firstCall.args, [
       "cookies_policy",
-      { has_tracking_consent: false },
+      JSON.stringify({ has_tracking_consent: false }),
       {
         maxAge: ONE_YEAR_MS,
         httpOnly: true,

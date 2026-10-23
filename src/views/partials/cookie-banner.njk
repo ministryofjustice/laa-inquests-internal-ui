@@ -9,7 +9,6 @@
   {% endset %}
   <form method="post" action="/cookies/banner/hide">
     <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-    <input type="hidden" name="returnTo" value="{{ currentUrl }}" />
     {{ govukCookieBanner({
       ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
       messages: [{
@@ -30,7 +29,6 @@
 
   <form method="post" action="/cookies/banner">
     <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-    <input type="hidden" name="returnTo" value="{{ currentUrl }}" />
     {{ govukCookieBanner({
       ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
       messages: [
@@ -41,13 +39,13 @@
           {
           text: t("components.cookieBanner.accept"),
           type: "submit",
-          name: "cookies[additional]",
+          name: "acceptCookies",
           value: "yes"
           },
           {
           text: t("components.cookieBanner.reject"),
           type: "submit",
-          name: "cookies[additional]",
+          name: "acceptCookies",
           value: "no"
           },
           {
