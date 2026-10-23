@@ -271,6 +271,15 @@ describe("globalAccessGuard", () => {
         allowedRoles: [INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER],
       },
       {
+        description: "Only authenticated requests to claims evidence",
+        path: "/applications/INQ-123-456/claims/INQC-1234-5678/evidence",
+        allowedRoles: [
+          INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+          INTERNAL_CASEWORKER_ROLES.CUSTOMER_SERVICE_AGENT,
+        ],
+      },
+      {
         description: "Only authenticated requests to reports page",
         path: "/reports",
         allowedRoles: [
