@@ -8,6 +8,8 @@ import {
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+import { SESSION_TERMINATION_REASONS } from "#src/infrastructure/locales/constants.js";
 import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import {
   APPLICATION_ERROR_TYPES,
@@ -174,7 +176,33 @@ describe("error middleware", () => {
       destroy = sinon.stub().callsArg(0);
       req.query = {};
       req.session = { destroy } as never;
+      (req as unknown as { sessionID: string }).sessionID = "api-session-id";
       res.status.returns(res as unknown as Response);
+    });
+
+    it("logs a credential_rejected session termination when unauthenticated", () => {
+      const logAuditStub = sinon.stub(logger, "logAudit");
+
+      callMiddleware(buildAuthError("UNAUTHENTICATED"));
+
+      assert.equal(logAuditStub.callCount, 1);
+      const { extraContext } = logAuditStub.firstCall.args[0] as {
+        extraContext: Record<string, unknown>;
+      };
+      assert.equal(extraContext.event, "session_terminated");
+      assert.equal(extraContext.session_hash, hashSessionId("api-session-id"));
+      assert.equal(
+        extraContext.reason,
+        SESSION_TERMINATION_REASONS.CREDENTIAL_REJECTED,
+      );
+    });
+
+    it("does not log a session termination when forbidden", () => {
+      const logAuditStub = sinon.stub(logger, "logAudit");
+
+      callMiddleware(buildAuthError("FORBIDDEN"));
+
+      assert.equal(logAuditStub.callCount, 0);
     });
 
     it("signs the user out and redirects to the login route when unauthenticated", () => {

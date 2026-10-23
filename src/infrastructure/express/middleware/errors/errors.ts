@@ -11,7 +11,12 @@ import {
   HTTP_NOT_FOUND,
   HTTP_UNAUTHORIZED,
 } from "#src/infrastructure/express/constants.js";
-import { SESSION_EXPIRED_QUERY_FLAG } from "#src/infrastructure/locales/constants.js";
+import {
+  SESSION_EXPIRED_QUERY_FLAG,
+  SESSION_TERMINATION_REASONS,
+} from "#src/infrastructure/locales/constants.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+import { logSessionTerminated } from "#src/infrastructure/express/session/sessionAudit.js";
 
 const getRequestRoutePath = (req: Request): string => {
   const route = req.route as { path?: unknown } | undefined;
@@ -78,6 +83,12 @@ const handleApiAuthErrors = (
     req.query[SESSION_EXPIRED_QUERY_FLAG] === undefined
   ) {
     logAuthFailure("auth_session_expired", HTTP_UNAUTHORIZED);
+    logSessionTerminated(
+      req,
+      "api_auth_error_middleware",
+      hashSessionId(req.sessionID),
+      SESSION_TERMINATION_REASONS.CREDENTIAL_REJECTED,
+    );
     // Destroying the session is best effort; the credentials are stale either way.
     req.session.destroy(() => {
       res.redirect(`/auth/login?${SESSION_EXPIRED_QUERY_FLAG}=true`);

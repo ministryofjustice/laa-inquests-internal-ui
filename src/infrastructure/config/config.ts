@@ -51,6 +51,7 @@ const missingAuthVars = [
   "AUTH_CLIENT_SECRET",
   "AUTH_REDIRECT_URI",
   "AUTH_POST_LOGOUT_URI",
+  "SESSION_LOG_SECRET",
 ].filter(
   (key) =>
     process.env[key] == null ||
@@ -109,6 +110,7 @@ const config: Config = {
   USE_REDIS: useRedis,
   REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",
   REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN ?? "",
+  SESSION_LOG_SECRET: process.env.SESSION_LOG_SECRET ?? "",
   session: {
     secret: process.env.SESSION_SECRET,
     name: process.env.SESSION_NAME,

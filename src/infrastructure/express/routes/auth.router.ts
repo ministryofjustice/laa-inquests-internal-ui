@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { startSessionLifetime } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { logSessionCreated } from "#src/infrastructure/express/session/sessionAudit.js";
 import { RECOGNISED_ROLES } from "#src/infrastructure/config/accessControl.js";
 import {
   SESSION_ABSOLUTE_TIMEOUT_MS,
@@ -131,6 +132,7 @@ export function createAuthRouter(
           absoluteTimeoutMs,
         },
       );
+      logSessionCreated(req, "auth_route", "test");
 
       res.redirect("/");
     });

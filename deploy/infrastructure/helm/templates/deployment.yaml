@@ -81,6 +81,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.AWS_SECRETS_REDIS_SECRET}}
                   key: "auth_token"
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_SESSION_SECRET }}
+                  key: SESSION_SECRET
+            - name: SESSION_LOG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_SESSION_SECRET }}
+                  key: SESSION_LOG_SECRET
             - name: AUTH_POST_LOGOUT_URI
               value: "{{ .Values.env.AUTH_POST_LOGOUT_URI }}"
             - name: AUTH_REDIRECT_URI
@@ -101,8 +111,6 @@ spec:
               value: "{{ .Values.env.INQUESTS_API_URL }}"
             - name: SERVICE_URL
               value: "{{ .Values.env.SERVICE_URL }}"
-            - name: SESSION_SECRET
-              value: "{{ .Values.env.SESSION_SECRET }}"
             - name: SESSION_NAME
               value: "{{ .Values.env.SESSION_NAME }}"
             - name: RATE_LIMIT_GLOBAL_MAX
