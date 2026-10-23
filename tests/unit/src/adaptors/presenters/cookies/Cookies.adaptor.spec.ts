@@ -169,9 +169,10 @@ describe("Cookies adaptor", () => {
   });
 
   describe("saveBannerPreferences", () => {
-    it("keeps tracking disabled and propagates a cookie-writing failure without logging success", () => {
+    it("keeps tracking disabled and catches a cookie-writing failure without logging success", () => {
       const error = new Error("Cookie write failed");
       const logInfo = sinon.stub(logger, "logInfo");
+      const logError = sinon.stub(logger, "logError");
       requestStub.body.acceptCookies = "no";
       requestStub.session.returnTo = "/reports";
       responseStub.locals = {
@@ -179,7 +180,7 @@ describe("Cookies adaptor", () => {
       };
       responseStub.cookie.throws(error);
 
-      assert.throws(
+      assert.doesNotThrow(
         () => cookiesAdaptor.saveBannerPreference(requestStub, responseStub),
         (caught) => caught === error,
       );
@@ -187,7 +188,8 @@ describe("Cookies adaptor", () => {
       assert.equal(requestStub.session.cookieBannerState, "failed");
       assert.equal(responseStub.locals.hasTrackingConsent, false);
       assert.equal(logInfo.callCount, 0);
-      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(logError.callCount, 1);
+      assert.equal(responseStub.redirect.callCount, 1);
     });
 
     it("queues the matching confirmation after saving an accepted or rejected preference", () => {
