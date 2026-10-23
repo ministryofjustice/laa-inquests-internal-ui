@@ -35,7 +35,7 @@ describe("Cookies adaptor", () => {
     sinon.restore();
   });
 
-  it("renders cookies page", () => {
+  it("renders cookies page without success banner on initial page load", () => {
     cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
 
     assert.equal(responseStub.render.callCount, 1);
