@@ -156,6 +156,7 @@ describe("Cookies adaptor", () => {
         ["/reports?filter=current", "/reports?filter=current"],
         ["//example.com", "/"],
       ]) {
+        requestStub.session.returnTo = returnTo;
         responseStub.redirect.resetHistory();
         requestStub.body = { returnTo };
 
@@ -258,6 +259,7 @@ describe("Cookies adaptor", () => {
         cookies: { additional: "yes" },
         returnTo: "/reports",
       };
+      requestStub.session.returnTo = "/reports";
 
       cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
 
@@ -281,6 +283,7 @@ describe("Cookies adaptor", () => {
         cookies: { additional: "no" },
         returnTo: "/reports",
       };
+      requestStub.session.returnTo = "/reports";
 
       cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
 
@@ -294,14 +297,13 @@ describe("Cookies adaptor", () => {
 
     it("uses only safe return URLs", () => {
       for (const returnTo of [
-        undefined,
         "",
-        ["//example.com"],
         "https://example.com",
         "//example.com",
         "/\\example.com",
         "/\t/example.com",
       ]) {
+        requestStub.session.returnTo = returnTo as string;
         responseStub.redirect.resetHistory();
         requestStub.body = {
           cookies: { additional: "no" },
@@ -315,12 +317,10 @@ describe("Cookies adaptor", () => {
 
       requestStub.body = {
         cookies: { additional: "yes" },
-        returnTo: "/reports?filter=current",
+        returnTo: "/reports?filter=current", // TODO: remove
       };
       cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
-      assert.deepEqual(responseStub.redirect.lastCall.args, [
-        "/reports?filter=current",
-      ]);
+      assert.deepEqual(responseStub.redirect.lastCall.args, ["/"]);
     });
   });
 });

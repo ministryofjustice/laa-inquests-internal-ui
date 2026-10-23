@@ -1,7 +1,7 @@
 {% if cookieBannerState in ["accepted", "rejected"] %}
   {% set confirmationHtml %}
     <p class="govuk-body">
-      {{ t('components.cookieBanner.' + cookieBannerConfirmation) }}
+      {{ t('components.cookieBanner.' + cookieBannerState) }}
       {{ t('components.cookieBanner.confirmationPrefix') }}
       <a class="govuk-link" href="/cookies">{{ t('components.cookieBanner.changeSettings') }}</a>
       {{ t('components.cookieBanner.confirmationSuffix') }}

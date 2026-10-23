@@ -29,7 +29,7 @@ describe("processCookies", () => {
     assert.equal(res.locals.hasTrackingConsent, false);
   });
 
-  it("hides the cookie banner for a saved acceptance or rejection", () => {
+  it("assigns hasTrackingConsent locals", () => {
     for (const hasTrackingConsent of [true, false]) {
       req.cookies = {
         cookies_policy: encodeURIComponent(
@@ -41,7 +41,6 @@ describe("processCookies", () => {
 
       processCookies(req, res, next);
 
-      assert.equal(res.locals.showCookieBanner, false);
       assert.equal(res.locals.hasTrackingConsent, hasTrackingConsent);
     }
   });

@@ -8,9 +8,8 @@ import {
   COOKIE_PREFERENCE_MAX_AGE_MS,
 } from "#src/infrastructure/locales/constants.js";
 
-
 interface CookiesPreferencesForm {
-  returnTo?: string;
+  returnTo?: string; // TODO: remove
   acceptCookies?: string;
 }
 
@@ -18,7 +17,7 @@ interface CookieBannerForm {
   cookies: {
     additional: string;
   };
-  returnTo: string;
+  returnTo: string; // TODO: remove. Maybe remove entire form
 }
 
 export class CookiesAdaptor {
@@ -129,7 +128,6 @@ export class CookiesAdaptor {
   }
 
   hideBannerConfirmation(req: Request, res: Response): void {
-    const form = req.body as CookiesPreferencesForm;
     req.session.cookieBannerState = "closed";
     res.redirect(this.#returnUrl(req.session.returnTo));
   }

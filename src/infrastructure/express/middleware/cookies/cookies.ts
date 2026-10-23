@@ -3,7 +3,6 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import { cookiePolicySchema } from "#src/adaptors/models/cookies.schema.js";
 import type { Request, Response, NextFunction } from "express";
 
-
 const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 
 export function setCookies(res: Response, acceptCookies: boolean): void {

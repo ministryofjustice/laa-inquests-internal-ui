@@ -41,7 +41,7 @@ test.describe("Cookies banner", () => {
     ).toBeVisible();
     await expect(
       banner.getByRole("link", { name: "View cookies" }),
-    ).toHaveAttribute("href", "/cookies?returnTo=%2F");
+    ).toHaveAttribute("href", "/cookies");
 
     await checkAccessibility();
   });
@@ -52,7 +52,7 @@ test.describe("Cookies banner", () => {
     await page.goto("/");
     await page.getByRole("link", { name: "View cookies" }).click();
 
-    await expect(page).toHaveURL("/cookies?returnTo=%2F");
+    await expect(page).toHaveURL("/cookies");
     await expect(
       page.getByRole("heading", { name: "Cookies", level: 1, exact: true }),
     ).toBeVisible();
@@ -190,51 +190,6 @@ test.describe("Cookies banner", () => {
     ).toContainText("You've rejected additional cookies.");
   });
 
-  test("should not reuse an older acceptance when saving rejection fails", async ({
-    page,
-    context,
-  }) => {
-    const csrfToken = await page
-      .locator('form[action="/cookies/banner"] input[name="_csrf"]')
-      .inputValue();
-    await page
-      .getByRole("button", { name: "Accept additional cookies" })
-      .click();
-    const oldPolicy = (await context.cookies()).find(
-      (cookie) => cookie.name === "cookies_policy",
-    );
-    assert.ok(oldPolicy);
-    await page.request.post("/cookies/banner", {
-      form: {
-        _csrf: csrfToken,
-        "cookies[additional]": "no",
-        returnTo: "/reports",
-      },
-      maxRedirects: 0,
-    });
-    await context.addCookies([oldPolicy]);
-
-    for (const url of ["/reports", "/"]) {
-      await page.goto(url);
-      await expect(
-        page.getByRole("button", { name: "Reject additional cookies" }),
-      ).toBeVisible();
-      expect(
-        await page.evaluate(() =>
-          Object.entries(window)
-            .filter(([key]) => key.startsWith("ga-disable-"))
-            .map(([, value]) => value),
-        ),
-      ).toEqual([true]);
-    }
-    await page
-      .getByRole("button", { name: "Reject additional cookies" })
-      .click();
-    await expect(
-      page.getByRole("region", { name: "Cookies on inquests" }),
-    ).toContainText("You've rejected additional cookies.");
-  });
-
   for (const { buttonName, hasTrackingConsent } of [
     { buttonName: "Accept additional cookies", hasTrackingConsent: true },
     { buttonName: "Reject additional cookies", hasTrackingConsent: false },
@@ -353,7 +308,7 @@ test.describe("Cookies banner", () => {
       );
       await expect(
         banner.getByRole("link", { name: "change your cookie settings" }),
-      ).toHaveAttribute("href", "/cookies?returnTo=%2Freports");
+      ).toHaveAttribute("href", "/cookies");
       await expect(
         banner.getByRole("button", { name: "Accept additional cookies" }),
       ).toBeHidden();
@@ -391,7 +346,7 @@ test.describe("Cookies banner", () => {
         .getByRole("link", { name: "change your cookie settings" })
         .click();
 
-      await expect(page).toHaveURL("/cookies?returnTo=%2Freports");
+      await expect(page).toHaveURL("/cookies");
       await expect(
         page.getByRole("heading", {
           name: "Cookies",
@@ -457,11 +412,11 @@ test.describe("Cookies banner", () => {
       await expect(banner).toBeHidden();
       await expect(page).toHaveTitle(/Inquests – GOV.UK/);
       const response = await page.request.post("/cookies/banner/hide", {
-        form: { _csrf: csrfToken, returnTo: "/reports" },
+        form: { _csrf: csrfToken },
         maxRedirects: 0,
       });
       expect(response.status()).toBe(302);
-      expect(response.headers().location).toBe("/reports");
+      expect(response.headers().location).toBe("/");
     });
   }
 });

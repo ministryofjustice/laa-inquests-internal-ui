@@ -10,12 +10,14 @@ export function setupNavigationData(
     if (!originalUrl.startsWith("/cookies")) {
       req.session.returnTo = originalUrl;
     }
-    const { cookieBannerState } = req.session;
+    const {
+      session: { cookieBannerState },
+    } = req;
     res.locals.cookieBannerState = cookieBannerState;
     if (["accepted", "rejected"].includes(cookieBannerState as string)) {
       req.session.cookieBannerState = "closed";
     }
-  
+
     if (req.session.cookieBannerState === "failed") {
       res.locals.hasTrackingConsent = false;
       res.locals.showCookieBanner = true;
