@@ -86,11 +86,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.AWS_SECRETS_SESSION_SECRET }}
                   key: SESSION_SECRET
-            - name: SESSION_LOG_HASH_SECRET
+            - name: SESSION_LOG_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.env.AWS_SECRETS_SESSION_LOG_HASH_SECRET }}
-                  key: SESSION_LOG_HASH_SECRET
+                  name: {{ .Values.env.AWS_SECRETS_SESSION_LOG_SECRET }}
+                  key: SESSION_LOG_SECRET
             - name: AUTH_POST_LOGOUT_URI
               value: "{{ .Values.env.AUTH_POST_LOGOUT_URI }}"
             - name: AUTH_REDIRECT_URI
