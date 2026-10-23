@@ -41,7 +41,7 @@
       "rejected": "You've rejected additional cookies.",
       "confirmationPrefix": "You can",
       "changeSettings": "change your cookie settings",
-      "confirmationSuffix": "at anytime.",
+      "confirmationSuffix": "at any time.",
       "hide": "Hide cookie message"
     },
     "errorSummary": {

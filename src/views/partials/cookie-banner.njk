@@ -23,40 +23,40 @@
     }) }}
   </form>
 {% elif cookieBannerState == "initial" %}
-{% set cookiesHtml %}
-<p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
-<p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
-{% endset %}
+  {% set cookiesHtml %}
+  <p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
+  <p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
+  {% endset %}
 
-<form method="post" action="/cookies/banner">
-<input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-<input type="hidden" name="returnTo" value="{{ currentUrl }}" />
-{{ govukCookieBanner({
-ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
-messages: [
-    {
-    headingText: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
-    html: cookiesHtml,
-    actions: [
+  <form method="post" action="/cookies/banner">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+    <input type="hidden" name="returnTo" value="{{ currentUrl }}" />
+    {{ govukCookieBanner({
+      ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+      messages: [
         {
-        text: t("components.cookieBanner.accept"),
-        type: "submit",
-        name: "cookies[additional]",
-        value: "yes"
-        },
-        {
-        text: t("components.cookieBanner.reject"),
-        type: "submit",
-        name: "cookies[additional]",
-        value: "no"
-        },
-        {
-        text: t("components.cookieBanner.view"),
-        href: "/cookies"
+        headingText: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+        html: cookiesHtml,
+        actions: [
+          {
+          text: t("components.cookieBanner.accept"),
+          type: "submit",
+          name: "cookies[additional]",
+          value: "yes"
+          },
+          {
+          text: t("components.cookieBanner.reject"),
+          type: "submit",
+          name: "cookies[additional]",
+          value: "no"
+          },
+          {
+          text: t("components.cookieBanner.view"),
+          href: "/cookies"
+          }
+        ]
         }
-    ]
-    }
-]
-}) }}
-</form>
+      ]
+    }) }}
+  </form>
 {% endif %}

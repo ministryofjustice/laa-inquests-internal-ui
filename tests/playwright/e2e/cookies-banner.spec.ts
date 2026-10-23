@@ -349,7 +349,7 @@ test.describe("Cookies banner", () => {
       await expect(page).toHaveURL("/reports");
       await expect(banner).toBeVisible();
       await expect(banner).toContainText(
-        `You've ${outcome} additional cookies. You can change your cookie settings at anytime.`,
+        `You've ${outcome} additional cookies. You can change your cookie settings at any time.`,
       );
       await expect(
         banner.getByRole("link", { name: "change your cookie settings" }),
