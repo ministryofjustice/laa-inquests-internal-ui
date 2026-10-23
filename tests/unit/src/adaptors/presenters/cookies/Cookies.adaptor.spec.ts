@@ -180,7 +180,7 @@ describe("Cookies adaptor", () => {
       responseStub.cookie.throws(error);
 
       assert.throws(
-        () => cookiesAdaptor.saveBannerPreferences(requestStub, responseStub),
+        () => cookiesAdaptor.saveBannerPreference(requestStub, responseStub),
         (caught) => caught === error,
       );
 
@@ -195,7 +195,7 @@ describe("Cookies adaptor", () => {
         requestStub.body.acceptCookies = additional;
         requestStub.session.returnTo = "/reports";
 
-        cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+        cookiesAdaptor.saveBannerPreference(requestStub, responseStub);
 
         assert.equal(
           requestStub.session.cookieBannerState,
@@ -208,7 +208,7 @@ describe("Cookies adaptor", () => {
       requestStub.body.acceptCookies = "yes";
       requestStub.session.returnTo = "/reports";
 
-      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+      cookiesAdaptor.saveBannerPreference(requestStub, responseStub);
 
       assert.equal(responseStub.cookie.callCount, 1);
       assert.deepEqual(responseStub.cookie.firstCall.args, [
@@ -227,7 +227,7 @@ describe("Cookies adaptor", () => {
       requestStub.body.acceptCookies = "no";
       requestStub.session.returnTo = "/reports";
 
-      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+      cookiesAdaptor.saveBannerPreference(requestStub, responseStub);
 
       assert.equal(responseStub.cookie.callCount, 1);
       assert.equal(responseStub.cookie.firstCall.args[0], "cookies_policy");
@@ -249,14 +249,14 @@ describe("Cookies adaptor", () => {
         requestStub.body.acceptCookies = "no";
         requestStub.session.returnTo = returnTo;
 
-        cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+        cookiesAdaptor.saveBannerPreference(requestStub, responseStub);
 
         assert.deepEqual(responseStub.redirect.firstCall.args, ["/"]);
       }
 
       requestStub.body.acceptCookies = "yes";
       requestStub.session.returnTo = "/reports?filter=current";
-      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
+      cookiesAdaptor.saveBannerPreference(requestStub, responseStub);
       assert.deepEqual(responseStub.redirect.lastCall.args, [
         "/reports?filter=current",
       ]);

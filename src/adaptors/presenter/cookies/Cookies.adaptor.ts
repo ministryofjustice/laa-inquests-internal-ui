@@ -78,24 +78,36 @@ export class CookiesAdaptor {
     res.redirect(`/cookies?saved=${saved}`);
   }
 
-  saveBannerPreferences(req: Request, res: Response): void {
+  saveBannerPreference(req: Request, res: Response): void {
     const form = req.body as CookiesPreferencesForm;
     req.session.cookieBannerState = "failed";
     res.locals.hasTrackingConsent = false;
+    try {
+      setCookies(req, res, form.acceptCookies === "yes");
+      req.session.cookieBannerState =
+        form.acceptCookies === "yes" ? "accepted" : "rejected";
+      logger.logInfo({
+        functionName: "save_banner_preference",
+        message: "Cookie preference from banner saved",
+        request: req,
+        extraContext: {
+          event: "cookies_preference_banner_save_success",
+        },
+      });
+    } catch (err) {
+      logger.logError({
+        functionName: "save_banner_preference",
+        message: "Cookie preference from banner save failed",
+        err,
+        request: req,
+        extraContext: {
+          event: "cookie_preference_banner_save_failed",
+          method: req.method,
+          status_code: HTTP_INTERNAL_SERVER_ERROR,
+        },
+      });
+    }
 
-    setCookies(req, res, form.acceptCookies === "yes");
-
-    req.session.cookieBannerState =
-      form.acceptCookies === "yes" ? "accepted" : "rejected";
-
-    logger.logInfo({
-      functionName: "save_banner_preferences",
-      message: "Cookie banner preference storage requested",
-      request: req,
-      extraContext: {
-        event: "cookies_preferences_save_requested",
-      },
-    });
     res.redirect(this.#returnUrl(req.session.returnTo));
   }
 

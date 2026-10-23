@@ -20,7 +20,7 @@ export function createCookiesRouter(
     "/banner",
     (req: Request, res: Response, next: NextFunction): void => {
       try {
-        cookiesAdaptor.saveBannerPreferences(req, res);
+        cookiesAdaptor.saveBannerPreference(req, res);
       } catch (err: unknown) {
         next(err);
       }
