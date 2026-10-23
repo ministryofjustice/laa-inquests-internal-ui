@@ -155,14 +155,50 @@ describe("processCookies", () => {
 });
 
 describe("setCookies", () => {
+  let req: StubbedInstance<Request>;
   let res: StubbedInstance<Response>;
 
   beforeEach(() => {
+    req = stubInterface<Request>();
+    req.cookies = {};
+    Object.defineProperty(req, "hostname", {
+      value: "localhost",
+      configurable: true,
+    });
     res = stubInterface<Response>();
   });
 
+  it("expires host-only and parent-domain analytics cookies without clearing essential or unrelated cookies", () => {
+    Object.defineProperty(req, "hostname", {
+      value: "inquests.example.gov.uk",
+    });
+    const analyticsNames = ["_ga", "_ga_TEST", "_gid", "_gat", "_gat_TEST"];
+    req.cookies = {
+      ...Object.fromEntries(analyticsNames.map((name) => [name, "analytics"])),
+      "test-session": "essential",
+      _csrf: "security",
+      _garden: "unrelated",
+    };
+
+    setCookies(req, res, false);
+
+    for (const name of analyticsNames) {
+      assert.ok(res.clearCookie.calledWithExactly(name, { path: "/" }));
+      for (const domain of [
+        "inquests.example.gov.uk",
+        "example.gov.uk",
+        "gov.uk",
+      ]) {
+        assert.ok(
+          res.clearCookie.calledWithExactly(name, { path: "/", domain }),
+        );
+      }
+    }
+    assert.equal(res.clearCookie.callCount, analyticsNames.length * 4);
+  });
+
   it("sets has_tracking_consent true if acceptCookies is set to true", () => {
-    setCookies(res, true);
+    setCookies(req, res, true);
 
     assert.ok(res.cookie.calledOnce);
     assert.deepEqual(res.cookie.firstCall.args, [
@@ -177,7 +213,7 @@ describe("setCookies", () => {
   });
 
   it("sets has_tracking_consent false if acceptCookies is set to false", () => {
-    setCookies(res, false);
+    setCookies(req, res, false);
 
     assert.ok(res.cookie.calledOnce);
     assert.deepEqual(res.cookie.firstCall.args, [

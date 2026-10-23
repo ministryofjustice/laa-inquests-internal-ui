@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { setCookies } from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
-import { ANALYTICS_COOKIE_NAME_PATTERN } from "#src/infrastructure/locales/constants.js";
 
 interface CookiesPreferencesForm {
   acceptCookies?: string;
@@ -52,7 +51,7 @@ export class CookiesAdaptor {
 
     let saved = true;
     try {
-      setCookies(res, acceptCookies === "yes");
+      setCookies(req, res, acceptCookies === "yes");
       logger.logInfo({
         functionName: "set_cookies",
         message: "Cookies set successfully",
@@ -85,11 +84,7 @@ export class CookiesAdaptor {
     res.locals.hasTrackingConsent = false;
     res.locals.showCookieBanner = true;
 
-    if (form.acceptCookies !== "yes") {
-      this.#clearAnalyticsCookies(req, res);
-    }
-
-    setCookies(res, form.acceptCookies === "yes");
+    setCookies(req, res, form.acceptCookies === "yes");
 
     req.session.cookieBannerState =
       form.acceptCookies === "yes" ? "accepted" : "rejected";
@@ -108,29 +103,6 @@ export class CookiesAdaptor {
   hideBannerConfirmation(req: Request, res: Response): void {
     req.session.cookieBannerState = "closed";
     res.redirect(this.#returnUrl(req.session.returnTo));
-  }
-
-  // TODO: Move to setCookies middleware
-  #clearAnalyticsCookies(req: Request, res: Response): void {
-    const cookieNames = Object.keys(req.cookies).filter((name) =>
-      ANALYTICS_COOKIE_NAME_PATTERN.test(name),
-    );
-    const domains: string[] = [];
-    const { hostname } = req;
-    if (!hostname.includes(":") && !/^[\d.]+$/v.test(hostname)) {
-      const labels = hostname.split(".");
-      while (labels.length > 1) {
-        domains.push(labels.join("."));
-        labels.shift();
-      }
-    }
-
-    for (const name of cookieNames) {
-      res.clearCookie(name, { path: "/" });
-      for (const domain of domains) {
-        res.clearCookie(name, { path: "/", domain });
-      }
-    }
   }
 
   #returnUrl(value: unknown): string {

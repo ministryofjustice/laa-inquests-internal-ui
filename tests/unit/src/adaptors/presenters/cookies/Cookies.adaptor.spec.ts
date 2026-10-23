@@ -193,47 +193,6 @@ describe("Cookies adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("expires host-only and parent-domain analytics cookies without clearing essential or unrelated cookies", () => {
-      Object.defineProperty(requestStub, "hostname", {
-        value: "inquests.example.gov.uk",
-      });
-      requestStub.body.acceptCookies = "no";
-      requestStub.session.returnTo = "/reports";
-      const analyticsNames = ["_ga", "_ga_TEST", "_gid", "_gat", "_gat_TEST"];
-      requestStub.cookies = {
-        ...Object.fromEntries(
-          analyticsNames.map((name) => [name, "analytics"]),
-        ),
-        "test-session": "essential",
-        _csrf: "security",
-        _garden: "unrelated",
-      };
-
-      cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
-
-      for (const name of analyticsNames) {
-        assert.ok(
-          responseStub.clearCookie.calledWithExactly(name, { path: "/" }),
-        );
-        for (const domain of [
-          "inquests.example.gov.uk",
-          "example.gov.uk",
-          "gov.uk",
-        ]) {
-          assert.ok(
-            responseStub.clearCookie.calledWithExactly(name, {
-              path: "/",
-              domain,
-            }),
-          );
-        }
-      }
-      assert.equal(
-        responseStub.clearCookie.callCount,
-        analyticsNames.length * 4,
-      );
-    });
-
     it("queues the matching confirmation after saving an accepted or rejected preference", () => {
       for (const additional of ["yes", "no"]) {
         requestStub.body.acceptCookies = additional;
