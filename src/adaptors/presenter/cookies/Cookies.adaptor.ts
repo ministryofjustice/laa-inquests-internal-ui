@@ -114,8 +114,10 @@ export class CookiesAdaptor {
         secure: config.app.useHttps,
       },
     );
+
     req.session.cookieBannerState =
       form.cookies.additional === "yes" ? "accepted" : "rejected";
+
     logger.logInfo({
       functionName: "save_banner_preferences",
       message: "Cookie banner preference storage requested",

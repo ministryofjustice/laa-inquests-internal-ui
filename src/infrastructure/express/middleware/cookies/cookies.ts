@@ -15,7 +15,7 @@ export function setCookies(res: Response, acceptCookies: boolean): void {
   res.locals.hasTrackingConsent = acceptCookies;
 }
 
-export function parseTrackingConsent(raw: unknown): boolean | undefined {
+function parseTrackingConsent(raw: unknown): boolean | undefined {
   const value: unknown =
     typeof raw === "string" ? JSON.parse(decodeURIComponent(raw)) : raw;
   const result = cookiePolicySchema.safeParse(value);
@@ -30,27 +30,40 @@ export default function processCookies(
   res: Response,
   next: NextFunction,
 ): void {
-  res.locals.showCookieBanner = true;
+  if (req.method === "GET") {
+    try {
+      const consent = parseTrackingConsent(req.cookies.cookies_policy);
+      res.locals.hasTrackingConsent = consent === true;
 
-  try {
-    const consent = parseTrackingConsent(req.cookies.cookies_policy);
-    res.locals.hasTrackingConsent = consent === true;
-    if (consent === undefined) {
-      req.session.cookieBannerState = "initial";
+      if (consent === undefined) {
+        req.session.cookieBannerState = "initial";
+      }
+      const {
+        session: { cookieBannerState },
+      } = req;
+      res.locals.cookieBannerState = cookieBannerState;
+
+      if (
+        ["accepted", "rejected"].includes(
+          req.session.cookieBannerState as string,
+        )
+      ) {
+        req.session.cookieBannerState = "closed"; // For next load
+      }
+    } catch (err) {
+      res.locals.hasTrackingConsent = false;
+      logger.logError({
+        functionName: "process_cookies_middleware",
+        message: "Processing cookies failed",
+        err,
+        request: req,
+        extraContext: {
+          event: "processing_cookies_failed",
+          method: req.method,
+          status_code: HTTP_INTERNAL_SERVER_ERROR,
+        },
+      });
     }
-  } catch (err) {
-    console.log("Error occurred while processing cookies:", err);
-    res.locals.hasTrackingConsent = false;
-    logger.logError({
-      functionName: "process_cookies_middleware",
-      message: "Processing cookies failed",
-      request: req,
-      extraContext: {
-        event: "processing_cookies_failed",
-        method: req.method,
-        status_code: HTTP_INTERNAL_SERVER_ERROR,
-      },
-    });
   }
 
   next();

@@ -15,6 +15,7 @@ describe("processCookies", () => {
 
   beforeEach(() => {
     req = stubInterface<Request>();
+    req.method = "GET";
     res = stubInterface<Response>();
     next = sinon.stub();
   });
@@ -23,14 +24,28 @@ describe("processCookies", () => {
     sinon.restore();
   });
 
+  it("does not assign locals or session if method is not GET", () => {
+    req.method = "POST";
+    req.cookies = {
+      cookies_policy: encodeURIComponent(
+        JSON.stringify({
+          has_tracking_consent: true,
+        }),
+      ),
+    };
+    processCookies(req, res, next);
+    assert.equal(res.locals.hasTrackingConsent, undefined);
+    assert.equal(req.session.cookieBannerState, undefined);
+  });
+
   it("assigns hasTrackingConsent to false when cookies_policy undefined", () => {
     assert.equal(res.locals.hasTrackingConsent, undefined);
     processCookies(req, res, next);
     assert.equal(res.locals.hasTrackingConsent, false);
   });
 
-  it("assigns hasTrackingConsent locals", () => {
-    for (const hasTrackingConsent of [true, false]) {
+  for (const hasTrackingConsent of [true, false]) {
+    it(`assigns hasTrackingConsent locals to ${hasTrackingConsent} correctly`, () => {
       req.cookies = {
         cookies_policy: encodeURIComponent(
           JSON.stringify({
@@ -42,32 +57,8 @@ describe("processCookies", () => {
       processCookies(req, res, next);
 
       assert.equal(res.locals.hasTrackingConsent, hasTrackingConsent);
-    }
-  });
-
-  it("assigns hasTrackingConsent to true when cookies_policy.has_tracking_consent is true", () => {
-    req.cookies = {
-      cookies_policy: encodeURIComponent(
-        JSON.stringify({
-          has_tracking_consent: true,
-        }),
-      ),
-    };
-    processCookies(req, res, next);
-    assert.equal(res.locals.hasTrackingConsent, true);
-  });
-
-  it("assigns hasTrackingConsent to false when cookies_policy.has_tracking_consent is false", () => {
-    req.cookies = {
-      cookies_policy: encodeURIComponent(
-        JSON.stringify({
-          has_tracking_consent: false,
-        }),
-      ),
-    };
-    processCookies(req, res, next);
-    assert.equal(res.locals.hasTrackingConsent, false);
-  });
+    });
+  }
 
   it("assigns hasTrackingConsent to false when cookies_policy is invalid JSON", () => {
     req.cookies = {
@@ -125,6 +116,41 @@ describe("processCookies", () => {
     processCookies(req, res, next);
     assert.equal(logSpy.callCount, 1);
   });
+
+  it("sets cookieBannerState to initial if cookies_policy.has_tracking_consent is undefined", () => {
+    processCookies(req, res, next);
+    assert.equal(res.locals.cookieBannerState, "initial");
+  });
+
+  for (const state of ["accepted", "rejected", "closed", "failed", undefined]) {
+    it("sets res.locals.cookieBannerState to req.session.cookieBannerState if cookies_policy.has_tracking_consent is defined", () => {
+      req.cookies = {
+        cookies_policy: encodeURIComponent(
+          JSON.stringify({ has_tracking_consent: state === "accepted" }),
+        ),
+      };
+      req.session.cookieBannerState = state;
+
+      processCookies(req, res, next);
+
+      assert.equal(res.locals.cookieBannerState, state);
+    });
+  }
+
+  for (const state of ["accepted", "rejected"]) {
+    it(`sets req.session.cookieBannerState to closed if last state is ${state}`, () => {
+      req.cookies = {
+        cookies_policy: encodeURIComponent(
+          JSON.stringify({ has_tracking_consent: state === "accepted" }),
+        ),
+      };
+      req.session.cookieBannerState = state;
+
+      processCookies(req, res, next);
+
+      assert.equal(req.session.cookieBannerState, "closed");
+    });
+  }
 });
 
 describe("setCookies", () => {

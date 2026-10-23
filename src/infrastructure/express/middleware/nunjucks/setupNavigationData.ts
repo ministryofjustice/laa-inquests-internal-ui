@@ -6,22 +6,8 @@ export function setupNavigationData(
   next: NextFunction,
 ): void {
   const { originalUrl, method } = req;
-  if (method === "GET") {
-    if (!originalUrl.startsWith("/cookies")) {
-      req.session.returnTo = originalUrl;
-    }
-    const {
-      session: { cookieBannerState },
-    } = req;
-    res.locals.cookieBannerState = cookieBannerState;
-    if (["accepted", "rejected"].includes(cookieBannerState as string)) {
-      req.session.cookieBannerState = "closed";
-    }
-
-    if (req.session.cookieBannerState === "failed") {
-      res.locals.hasTrackingConsent = false;
-      res.locals.showCookieBanner = true;
-    }
+  if (method === "GET" && !originalUrl.startsWith("/cookies")) {
+    req.session.returnTo = originalUrl;
   }
 
   next();
