@@ -101,6 +101,7 @@ export class CookiesAdaptor {
       this.#clearAnalyticsCookies(req, res);
     }
 
+    setCookies(res, form.cookies.additional === "yes");
     res.cookie(
       "cookies_policy",
       JSON.stringify({

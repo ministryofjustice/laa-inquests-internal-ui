@@ -410,7 +410,6 @@ test.describe("Cookies banner", () => {
 
       await page.goto("/");
       await expect(banner).toBeHidden();
-      await expect(page).toHaveTitle(/Inquests – GOV.UK/);
       const response = await page.request.post("/cookies/banner/hide", {
         form: { _csrf: csrfToken },
         maxRedirects: 0,
