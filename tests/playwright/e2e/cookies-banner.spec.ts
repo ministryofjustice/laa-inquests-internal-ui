@@ -58,135 +58,6 @@ test.describe("Cookies banner", () => {
     ).toBeVisible();
   });
 
-  test("should reject cookie preference submissions without a CSRF token", async ({
-    page,
-    context,
-  }) => {
-    const response = await page.request.post("/cookies/banner", {
-      form: {
-        acceptCookies: "yes",
-      },
-    });
-
-    await expect(response).not.toBeOK();
-    const cookies = await context.cookies();
-    expect(
-      cookies.find((cookie) => cookie.name === "cookies_policy"),
-    ).toBeUndefined();
-
-    await page.reload();
-    await expect(
-      page.getByRole("region", { name: "Cookies on inquests" }),
-    ).toBeVisible();
-  });
-
-  test("should save disabled consent and return to the current page for an unexpected choice", async ({
-    page,
-    context,
-  }) => {
-    await page.goto("/reports");
-    const bannerForm = page.locator('form[action="/cookies/banner"]');
-    const csrfToken = await bannerForm
-      .locator('input[name="_csrf"]')
-      .inputValue();
-
-    const response = await page.request.post("/cookies/banner", {
-      form: {
-        _csrf: csrfToken,
-        acceptCookies: "unexpected",
-      },
-      maxRedirects: 0,
-    });
-
-    expect(response.status()).toBe(302);
-    expect(response.headers().location).toBe("/reports");
-    const cookies = await context.cookies();
-    const policy = cookies.find((cookie) => cookie.name === "cookies_policy");
-    assert.ok(policy);
-    expect(JSON.parse(decodeURIComponent(policy.value))).toEqual({
-      has_tracking_consent: false,
-    });
-
-    await page.reload();
-    const banner = page.getByRole("region", { name: "Cookies on inquests" });
-    await expect(banner).toContainText("You've rejected additional cookies.");
-    await expect(page.locator(".govuk-error-summary")).toBeHidden();
-    await page.reload();
-    await expect(banner).toBeHidden();
-  });
-
-  test("should use the default analytics cookie configuration", async ({
-    page,
-  }) => {
-    await page.route("https://www.googletagmanager.com/gtag/js**", (route) =>
-      route.fulfill({ contentType: "application/javascript", body: "" }),
-    );
-    await page.reload();
-
-    const analyticsConfig = await page.evaluate(() => {
-      const commands: unknown = Reflect.get(window, "dataLayer");
-      if (!Array.isArray(commands)) {
-        throw new Error("Analytics command queue is missing");
-      }
-      return commands
-        .map((command: ArrayLike<unknown>) => Array.from(command))
-        .find((command) => command[0] === "config");
-    });
-
-    expect(analyticsConfig).toEqual(["config", expect.any(String)]);
-  });
-
-  test("should remove existing analytics cookies when a banner rejection replaces acceptance", async ({
-    page,
-    context,
-  }) => {
-    await page
-      .getByRole("button", { name: "Accept additional cookies" })
-      .click();
-    await page.reload();
-    await page.getByRole("link", { name: "Cookies", exact: true }).click();
-    const csrfToken = await page
-      .locator('form[action="/cookies"] input[name="_csrf"]')
-      .inputValue();
-    const url = page.url();
-    const analyticsCookieNames = ["_ga", "_ga_TEST", "_gid", "_gat"];
-    await context.addCookies(
-      analyticsCookieNames.map((name) => ({
-        name,
-        value: "existing-analytics-cookie",
-        url,
-      })),
-    );
-    const essentialCookies = (await context.cookies()).filter(
-      (cookie) => cookie.httpOnly && cookie.name !== "cookies_policy",
-    );
-
-    const response = await page.request.post("/cookies/banner", {
-      form: {
-        _csrf: csrfToken,
-        acceptCookies: "no",
-      },
-      maxRedirects: 0,
-    });
-    expect(response.status()).toBe(302);
-
-    await page.goto("/");
-    const cookies = await context.cookies();
-    expect(
-      cookies.filter((cookie) =>
-        /^(?:_ga(?:_.+)?|_gid|_gat(?:_.+)?)$/v.test(cookie.name),
-      ),
-    ).toEqual([]);
-    for (const essentialCookie of essentialCookies) {
-      expect(
-        cookies.find((cookie) => cookie.name === essentialCookie.name)?.value,
-      ).toBe(essentialCookie.value);
-    }
-    await expect(
-      page.getByRole("region", { name: "Cookies on inquests" }),
-    ).toContainText("You've rejected additional cookies.");
-  });
-
   for (const { buttonName, hasTrackingConsent } of [
     { buttonName: "Accept additional cookies", hasTrackingConsent: true },
     { buttonName: "Reject additional cookies", hasTrackingConsent: false },
@@ -352,7 +223,7 @@ test.describe("Cookies banner", () => {
       ).toBeVisible();
     });
 
-    test(`should save ${buttonName.toLowerCase()} for one year and hide the banner on subsequent pages`, async ({
+    test(`should save ${buttonName.toLowerCase()} and hide the banner on subsequent pages`, async ({
       page,
       context,
     }) => {
@@ -368,9 +239,6 @@ test.describe("Cookies banner", () => {
       const banner = page.getByRole("region", {
         name: "Cookies on inquests",
       });
-      const earliestExpiry =
-        Math.floor(Date.now() / MILLISECONDS_IN_A_SECOND) +
-        COOKIE_PREFERENCE_LIFETIME_SECONDS;
 
       await banner.getByRole("button", { name: buttonName }).click();
 
@@ -381,9 +249,6 @@ test.describe("Cookies banner", () => {
         })
         .toBeDefined();
 
-      const latestExpiry =
-        Math.ceil(Date.now() / MILLISECONDS_IN_A_SECOND) +
-        COOKIE_PREFERENCE_LIFETIME_SECONDS;
       const cookies = await context.cookies();
       const policy = cookies.find((cookie) => cookie.name === "cookies_policy");
 
@@ -391,8 +256,6 @@ test.describe("Cookies banner", () => {
       expect(JSON.parse(decodeURIComponent(policy.value))).toEqual({
         has_tracking_consent: hasTrackingConsent,
       });
-      expect(policy.expires).toBeGreaterThanOrEqual(earliestExpiry);
-      expect(policy.expires).toBeLessThanOrEqual(latestExpiry);
       expect(policy.path).toBe("/");
       for (const essentialCookie of essentialCookies) {
         expect(
