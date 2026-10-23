@@ -176,7 +176,6 @@ describe("Cookies adaptor", () => {
       requestStub.session.returnTo = "/reports";
       responseStub.locals = {
         hasTrackingConsent: true,
-        showCookieBanner: false,
       };
       responseStub.cookie.throws(error);
 
@@ -187,7 +186,6 @@ describe("Cookies adaptor", () => {
 
       assert.equal(requestStub.session.cookieBannerState, "failed");
       assert.equal(responseStub.locals.hasTrackingConsent, false);
-      assert.equal(responseStub.locals.showCookieBanner, true);
       assert.equal(logInfo.callCount, 0);
       assert.equal(responseStub.redirect.callCount, 0);
     });

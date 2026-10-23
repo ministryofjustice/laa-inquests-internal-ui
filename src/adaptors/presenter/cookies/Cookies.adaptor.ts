@@ -82,7 +82,6 @@ export class CookiesAdaptor {
     const form = req.body as CookiesPreferencesForm;
     req.session.cookieBannerState = "failed";
     res.locals.hasTrackingConsent = false;
-    res.locals.showCookieBanner = true;
 
     setCookies(req, res, form.acceptCookies === "yes");
 
