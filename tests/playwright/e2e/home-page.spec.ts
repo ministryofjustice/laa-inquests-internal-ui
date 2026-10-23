@@ -156,6 +156,16 @@ test.describe("Home page", () => {
       await cookiesLink.click();
       await expect(page).toHaveURL("/cookies");
     });
+
+    test("navigates to the privacy page", async ({ page }) => {
+      await page.goto("/");
+
+      const privacyLink = page.getByRole("link", { name: "Privacy" });
+      await expect(privacyLink).toHaveAttribute(
+        "href",
+        "https://assets.publishing.service.gov.uk/media/68c7f1b553f33f9d46e206a1/LAA_User_Privacy_Notice.pdf",
+      );
+    });
   });
 
   test.describe("RBAC", () => {
