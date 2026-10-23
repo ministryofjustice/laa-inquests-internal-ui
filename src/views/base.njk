@@ -1,4 +1,5 @@
 {% extends "govuk/template.njk" %}
+{% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner %}
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
@@ -15,7 +16,7 @@
 
 {% block bodyStart %}
   <script nonce="{{ cspNonce }}">document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');</script>
-  {# cookie policy #}
+  {% include "partials/cookie-banner.njk" %}
 {% endblock %}
 
 {% block govukHeader %}

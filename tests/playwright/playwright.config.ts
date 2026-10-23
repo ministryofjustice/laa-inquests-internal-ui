@@ -87,6 +87,7 @@ export default defineConfig({
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
       INQUESTS_API_CLIENT_ID: process.env.INQUESTS_API_CLIENT_ID ?? "",
       INQUESTS_API_URL: TEST_CONFIG.INQUESTS_API_URL,
+      GA_MEASUREMENT_ID: "G-1234567",
     },
   },
 });
