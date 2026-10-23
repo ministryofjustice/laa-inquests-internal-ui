@@ -114,7 +114,8 @@
     "typescript": "^6.0.3"
   },
   "resolutions": {
-    "proxy-addr": "^2.0.8"
+    "proxy-addr": "^2.0.8",
+    "body-parser": "^2.4.0"
   },
   "packageManager": "yarn@4.10.3"
 }
