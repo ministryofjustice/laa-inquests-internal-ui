@@ -7,6 +7,7 @@ import processCookies, {
 } from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { ONE_YEAR_MS } from "#src/infrastructure/locales/constants.js";
+import config from "#src/infrastructure/config/config.js";
 
 describe("processCookies", () => {
   let req: StubbedInstance<Request>;
@@ -167,7 +168,11 @@ describe("setCookies", () => {
     assert.deepEqual(res.cookie.firstCall.args, [
       "cookies_policy",
       { has_tracking_consent: true },
-      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+      {
+        maxAge: ONE_YEAR_MS,
+        httpOnly: true,
+        sameSite: "strict",
+      },
     ]);
   });
 
@@ -178,7 +183,11 @@ describe("setCookies", () => {
     assert.deepEqual(res.cookie.firstCall.args, [
       "cookies_policy",
       { has_tracking_consent: false },
-      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+      {
+        maxAge: ONE_YEAR_MS,
+        httpOnly: true,
+        sameSite: "strict",
+      },
     ]);
   });
 });

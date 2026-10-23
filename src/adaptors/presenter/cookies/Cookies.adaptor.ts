@@ -2,22 +2,10 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { setCookies } from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
-import config from "#src/infrastructure/config/config.js";
-import {
-  ANALYTICS_COOKIE_NAME_PATTERN,
-  COOKIE_PREFERENCE_MAX_AGE_MS,
-} from "#src/infrastructure/locales/constants.js";
+import { ANALYTICS_COOKIE_NAME_PATTERN } from "#src/infrastructure/locales/constants.js";
 
 interface CookiesPreferencesForm {
-  returnTo?: string; // TODO: remove
   acceptCookies?: string;
-}
-
-interface CookieBannerForm {
-  cookies: {
-    additional: string;
-  };
-  returnTo: string; // TODO: remove. Maybe remove entire form
 }
 
 export class CookiesAdaptor {
@@ -92,32 +80,19 @@ export class CookiesAdaptor {
   }
 
   saveBannerPreferences(req: Request, res: Response): void {
-    const form = req.body as CookieBannerForm;
+    const form = req.body as CookiesPreferencesForm;
     req.session.cookieBannerState = "failed";
     res.locals.hasTrackingConsent = false;
     res.locals.showCookieBanner = true;
 
-    if (form.cookies.additional !== "yes") {
+    if (form.acceptCookies !== "yes") {
       this.#clearAnalyticsCookies(req, res);
     }
 
-    setCookies(res, form.cookies.additional === "yes");
-    res.cookie(
-      "cookies_policy",
-      JSON.stringify({
-        has_tracking_consent: form.cookies.additional === "yes",
-      }),
-      {
-        maxAge: COOKIE_PREFERENCE_MAX_AGE_MS,
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        secure: config.app.useHttps,
-      },
-    );
+    setCookies(res, form.acceptCookies === "yes");
 
     req.session.cookieBannerState =
-      form.cookies.additional === "yes" ? "accepted" : "rejected";
+      form.acceptCookies === "yes" ? "accepted" : "rejected";
 
     logger.logInfo({
       functionName: "save_banner_preferences",
@@ -135,6 +110,7 @@ export class CookiesAdaptor {
     res.redirect(this.#returnUrl(req.session.returnTo));
   }
 
+  // TODO: Move to setCookies middleware
   #clearAnalyticsCookies(req: Request, res: Response): void {
     const cookieNames = Object.keys(req.cookies).filter((name) =>
       ANALYTICS_COOKIE_NAME_PATTERN.test(name),

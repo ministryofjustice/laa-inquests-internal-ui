@@ -173,10 +173,8 @@ describe("Cookies adaptor", () => {
     it("keeps tracking disabled and propagates a cookie-writing failure without logging success", () => {
       const error = new Error("Cookie write failed");
       const logInfo = sinon.stub(logger, "logInfo");
-      requestStub.body = {
-        cookies: { additional: "no" },
-        returnTo: "/reports",
-      };
+      requestStub.body.acceptCookies = "no";
+      requestStub.session.returnTo = "/reports";
       responseStub.locals = {
         hasTrackingConsent: true,
         showCookieBanner: false,
@@ -199,10 +197,8 @@ describe("Cookies adaptor", () => {
       Object.defineProperty(requestStub, "hostname", {
         value: "inquests.example.gov.uk",
       });
-      requestStub.body = {
-        cookies: { additional: "no" },
-        returnTo: "/reports",
-      };
+      requestStub.body.acceptCookies = "no";
+      requestStub.session.returnTo = "/reports";
       const analyticsNames = ["_ga", "_ga_TEST", "_gid", "_gat", "_gat_TEST"];
       requestStub.cookies = {
         ...Object.fromEntries(
@@ -240,10 +236,8 @@ describe("Cookies adaptor", () => {
 
     it("queues the matching confirmation after saving an accepted or rejected preference", () => {
       for (const additional of ["yes", "no"]) {
-        requestStub.body = {
-          cookies: { additional },
-          returnTo: "/reports",
-        };
+        requestStub.body.acceptCookies = additional;
+        requestStub.session.returnTo = "/reports";
 
         cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
 
@@ -255,10 +249,7 @@ describe("Cookies adaptor", () => {
     });
 
     it("saves accepted banner consent for 365 days and redirects to the current page", () => {
-      requestStub.body = {
-        cookies: { additional: "yes" },
-        returnTo: "/reports",
-      };
+      requestStub.body.acceptCookies = "yes";
       requestStub.session.returnTo = "/reports";
 
       cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
@@ -266,30 +257,25 @@ describe("Cookies adaptor", () => {
       assert.equal(responseStub.cookie.callCount, 1);
       assert.deepEqual(responseStub.cookie.firstCall.args, [
         "cookies_policy",
-        JSON.stringify({ has_tracking_consent: true }),
+        { has_tracking_consent: true },
         {
           maxAge: 365 * 24 * 60 * 60 * 1000,
-          path: "/",
           httpOnly: true,
-          sameSite: "lax",
-          secure: config.app.useHttps,
+          sameSite: "strict",
         },
       ]);
       assert.deepEqual(responseStub.redirect.firstCall.args, ["/reports"]);
     });
 
     it("saves rejected banner consent without enabling tracking", () => {
-      requestStub.body = {
-        cookies: { additional: "no" },
-        returnTo: "/reports",
-      };
+      requestStub.body.acceptCookies = "no";
       requestStub.session.returnTo = "/reports";
 
       cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
 
       assert.equal(responseStub.cookie.callCount, 1);
       assert.equal(responseStub.cookie.firstCall.args[0], "cookies_policy");
-      assert.deepEqual(JSON.parse(responseStub.cookie.firstCall.args[1]), {
+      assert.deepEqual(responseStub.cookie.firstCall.args[1], {
         has_tracking_consent: false,
       });
       assert.deepEqual(responseStub.redirect.firstCall.args, ["/reports"]);
@@ -303,24 +289,21 @@ describe("Cookies adaptor", () => {
         "/\\example.com",
         "/\t/example.com",
       ]) {
-        requestStub.session.returnTo = returnTo as string;
         responseStub.redirect.resetHistory();
-        requestStub.body = {
-          cookies: { additional: "no" },
-          returnTo,
-        };
+        requestStub.body.acceptCookies = "no";
+        requestStub.session.returnTo = returnTo;
 
         cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
 
         assert.deepEqual(responseStub.redirect.firstCall.args, ["/"]);
       }
 
-      requestStub.body = {
-        cookies: { additional: "yes" },
-        returnTo: "/reports?filter=current", // TODO: remove
-      };
+      requestStub.body.acceptCookies = "yes";
+      requestStub.session.returnTo = "/reports?filter=current";
       cookiesAdaptor.saveBannerPreferences(requestStub, responseStub);
-      assert.deepEqual(responseStub.redirect.lastCall.args, ["/"]);
+      assert.deepEqual(responseStub.redirect.lastCall.args, [
+        "/reports?filter=current",
+      ]);
     });
   });
 });
