@@ -151,7 +151,10 @@ test.describe("Home page", () => {
     test("navigates to the cookies page", async ({ page }) => {
       await page.goto("/");
 
-      const cookiesLink = page.getByRole("link", { name: "Cookies" });
+      const cookiesLink = page.getByRole("link", {
+        name: "Cookies",
+        exact: true,
+      });
       await expect(cookiesLink).toHaveAttribute("href", "/cookies");
       await cookiesLink.click();
       await expect(page).toHaveURL("/cookies");
