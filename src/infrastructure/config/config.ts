@@ -125,7 +125,7 @@ const config: Config = {
   app: {
     port: Number(process.env.PORT ?? DEFAULT_PORT),
     environment: process.env.NODE_ENV ?? "development",
-    appName: process.env.SERVICE_NAME ?? "Inquests",
+    appName: process.env.SERVICE_NAME ?? "Manage inquest legal aid",
     useHttps: process.env.NODE_ENV === "production", // Use HTTPS in production
   },
   csrf: {
