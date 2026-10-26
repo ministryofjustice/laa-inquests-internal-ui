@@ -1016,6 +1016,45 @@ test.describe("History tab", () => {
       await checkAccessibility();
     });
 
+    test("submits a corrected multiline note at exactly 10,000 characters", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${laaReference}/overview`);
+      await page.getByRole("tab", { name: "History", exact: true }).click();
+
+      const noteTextarea = page.locator("#note-text");
+      const addNoteButton = page
+        .locator("#history")
+        .getByRole("button", { name: "Add to application history" });
+      const noteAtLimit = `<b>&</b>${"a".repeat(4991)}\n${"b".repeat(5000)}`;
+      const noteOverLimit = `${noteAtLimit}c`;
+
+      await noteTextarea.fill(noteOverLimit);
+      await addNoteButton.click();
+      await expect(page.locator("#note-text-error")).toContainText(
+        en.pages.applicationOverview.history.validationErrors.tooLong,
+      );
+      await expect(noteTextarea).toHaveValue(noteOverLimit);
+      await expect(page.locator(".govuk-character-count__status")).toHaveText(
+        "You have 1 character too many",
+      );
+      await checkAccessibility();
+
+      await noteTextarea.fill(noteAtLimit);
+      await expect(page.locator(".govuk-character-count__status")).toHaveText(
+        "You have 0 characters remaining",
+      );
+      await expect(page.locator("#note-text-error")).toBeVisible();
+      await addNoteButton.click();
+
+      await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+      await expect(
+        page.locator(".govuk-notification-banner--success"),
+      ).toContainText(en.pages.applicationOverview.history.noteSuccessBanner);
+      await checkAccessibility();
+    });
+
     test("should successfully submit a free note containing HTML without error", async ({
       page,
     }) => {

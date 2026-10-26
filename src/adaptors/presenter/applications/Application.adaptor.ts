@@ -320,6 +320,7 @@ export class ApplicationAdaptor {
     laaReference: string,
   ): Promise<void> {
     const form = req.body as AddHistoryNoteForm;
+    const noteText = form["note-text"].replaceAll(/\r\n/gv, "\n");
 
     logger.logInfo({
       functionName: "submit_history_note",
@@ -332,7 +333,9 @@ export class ApplicationAdaptor {
     });
 
     const validationResult =
-      this.addHistoryNoteValidator.validateAddHistoryNoteForm(form);
+      this.addHistoryNoteValidator.validateAddHistoryNoteForm({
+        "note-text": noteText,
+      });
 
     if (Object.keys(validationResult.errors).length > 0) {
       const errorSummaries = Object.values(validationResult.errors).map(
@@ -344,12 +347,10 @@ export class ApplicationAdaptor {
 
       await this.renderApplicationPage(req, res, laaReference, {
         errorSummaries,
-        noteText: form["note-text"],
+        noteText,
       });
       return;
     }
-
-    const { "note-text": noteText } = form;
 
     const result = await this.addHistoryNoteUseCase.execute({
       laaReference,

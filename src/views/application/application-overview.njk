@@ -339,7 +339,7 @@
                         name: "note-text",
                         id: "note-text",
                         maxlength: 10000,
-                        value: noteText,
+                        value: noteText | escape | replace("\n", "&#10;") | safe,
                         label: {
                             text: t('pages.applicationOverview.history.noteLabel'),
                             classes: "govuk-label--m"
