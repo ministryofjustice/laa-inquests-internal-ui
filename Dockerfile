@@ -4,8 +4,8 @@ FROM node:26.12.1-alpine
 # Set the working directory inside the container
 WORKDIR /app
 
-# Force install of corepack (necessary with node >=v25.0.0)
-RUN npm install -g corepack --force
+# Install latest npm and force install of corepack (necessary with node >=v25.0.0)
+RUN npm install -g npm@latest corepack --force
 
 # Enable Corepack and prepare Yarn version
 RUN corepack enable
