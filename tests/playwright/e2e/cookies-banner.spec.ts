@@ -19,10 +19,14 @@ test.describe("Cookies banner", () => {
     await page.goto("/");
 
     const banner = page.getByRole("region", {
-      name: "Cookies on inquests",
+      name: "Cookies on manage inquest legal aid",
     });
 
     await expect(banner).toBeVisible();
+    await expect(banner).toHaveAttribute(
+      "aria-label",
+      "Cookies on manage inquest legal aid",
+    );
     await expect(
       banner.getByText(
         "We use some essential cookies to make this service work.",
@@ -84,7 +88,7 @@ test.describe("Cookies banner", () => {
 
       await page.goto("/reports");
       const banner = page.getByRole("region", {
-        name: "Cookies on inquests",
+        name: "Cookies on manage inquest legal aid",
       });
       await expect(
         banner.getByRole("button", { name: "Accept additional cookies" }),
@@ -132,7 +136,7 @@ test.describe("Cookies banner", () => {
 
       await page.goto("/reports");
       const banner = page.getByRole("region", {
-        name: "Cookies on inquests",
+        name: "Cookies on manage inquest legal aid",
       });
       await expect(
         banner.getByRole("button", { name: buttonName }),
@@ -166,7 +170,7 @@ test.describe("Cookies banner", () => {
       await page.getByRole("button", { name: buttonName }).click();
 
       const banner = page.getByRole("region", {
-        name: "Cookies on inquests",
+        name: "Cookies on manage inquest legal aid",
       });
       await expect(page).toHaveURL("/reports");
       await expect(banner).toBeVisible();
@@ -209,7 +213,9 @@ test.describe("Cookies banner", () => {
       await page.getByRole("button", { name: buttonName }).click();
 
       await page
-        .getByRole("region", { name: "Cookies on inquests" })
+        .getByRole("region", {
+          name: "Cookies on manage inquest legal aid",
+        })
         .getByRole("link", { name: "change your cookie settings" })
         .click();
 
@@ -237,7 +243,7 @@ test.describe("Cookies banner", () => {
         .inputValue();
 
       const banner = page.getByRole("region", {
-        name: "Cookies on inquests",
+        name: "Cookies on manage inquest legal aid",
       });
 
       await banner.getByRole("button", { name: buttonName }).click();
