@@ -55,7 +55,7 @@ test.describe.serial("Refuse application journey", () => {
     const form = sharedPage.getByTestId("make-a-decision");
 
     await expect(sharedPage).toHaveTitle(
-      `${meritsLocale.header} – ${en.navigation.header.serviceLabel} – GOV.UK`,
+      `${meritsLocale.header} – Manage inquest legal aid – GOV.UK`,
     );
     await validateGovPage(sharedPage, {
       headerText: meritsLocale.header,

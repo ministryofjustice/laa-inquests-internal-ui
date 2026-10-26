@@ -29,7 +29,7 @@ process.env.NODE_ENV = "test";
 process.env.PORT = TEST_PORT;
 process.env.SESSION_SECRET ??= "test-secret-key";
 process.env.SESSION_NAME ??= "test-session";
-process.env.SERVICE_NAME ??= "Inquests";
+process.env.SERVICE_NAME ??= "Manage inquest legal aid";
 process.env.AUTH_DIRECTORY_URL ??=
   "https://login.microsoftonline.com/test-tenant-id";
 process.env.AUTH_CLIENT_ID ??= "test-client-id";

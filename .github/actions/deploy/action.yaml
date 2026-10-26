@@ -106,7 +106,7 @@ runs:
         AUTH_POST_LOGOUT_URI: ${{ inputs.auth_post_logout_uri || '' }}
         AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
         INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
-        SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
+        SERVICE_NAME: ${{ inputs.service_name || 'Manage inquest legal aid' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
         SENTRY_DSN: ${{ inputs.sentry_dsn }}
       run: |

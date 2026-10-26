@@ -4,7 +4,7 @@
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
-{% block pageTitle %}{{ (pageTitle + " – " + t('navigation.header.serviceLabel') + " – GOV.UK") if pageTitle else t('navigation.header.serviceLabel') + " – GOV.UK" }}{% endblock %}
+{% block pageTitle %}{{ (pageTitle + " – " + config.SERVICE_NAME + " – GOV.UK") if pageTitle else config.SERVICE_NAME + " – GOV.UK" }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="/css/{{getAsset('main','css')}}">
@@ -43,7 +43,7 @@
 {% block govukServiceNavigation %}
 {{ govukServiceNavigation({
   classes: "govuk-!-padding-top-1 govuk-!-padding-bottom-1",
-  serviceName: t('navigation.header.serviceLabel'),
+  serviceName: config.SERVICE_NAME,
   serviceUrl: "/"
 }) }}
 {% endblock %}

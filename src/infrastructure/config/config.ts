@@ -7,6 +7,7 @@ const DEFAULT_RATE_WINDOW_PER_REPORT_MS = 5000;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
 const DEFAULT_PORT = 3000;
+const DEFAULT_SERVICE_NAME = "Manage inquest legal aid";
 const useRedis = process.env.USE_REDIS !== "false";
 
 // Validate required env vars
@@ -67,6 +68,8 @@ if (missingAuthVars.length > 0 && process.env.NODE_ENV !== "test") {
 
 /* eslint-enable eqeqeq */
 
+const serviceName = process.env.SERVICE_NAME ?? DEFAULT_SERVICE_NAME;
+
 // Get environment variables
 const config: Config = {
   /* eslint-disable @typescript-eslint/no-non-null-assertion -- validated non-null parameters above */
@@ -102,7 +105,7 @@ const config: Config = {
     process.env.RATE_WINDOW_MS ??
       DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
   ),
-  SERVICE_NAME: process.env.SERVICE_NAME,
+  SERVICE_NAME: serviceName,
   LOG_LEVEL: process.env.LOG_LEVEL,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
@@ -125,7 +128,7 @@ const config: Config = {
   app: {
     port: Number(process.env.PORT ?? DEFAULT_PORT),
     environment: process.env.NODE_ENV ?? "development",
-    appName: process.env.SERVICE_NAME ?? "Inquests",
+    appName: serviceName,
     useHttps: process.env.NODE_ENV === "production", // Use HTTPS in production
   },
   csrf: {
