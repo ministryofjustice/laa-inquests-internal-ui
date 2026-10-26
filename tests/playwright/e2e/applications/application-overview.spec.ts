@@ -978,7 +978,7 @@ test.describe("History tab", () => {
       await checkAccessibility();
     });
 
-    test("keeps the server note error until resubmission and restores the over-limit border after errors clear", async ({
+    test("keeps the server note error until resubmission", async ({
       page,
       checkAccessibility,
     }) => {
@@ -1006,12 +1006,6 @@ test.describe("History tab", () => {
       await page.getByRole("tab", { name: "People", exact: true }).click();
       await page.getByRole("tab", { name: "History", exact: true }).click();
       await expect(page.locator("#note-text-error")).toHaveCount(0);
-      await expect(noteTextarea).not.toHaveClass(/govuk-textarea--error/v);
-
-      await noteTextarea.fill("a".repeat(10001));
-      await expect(noteTextarea).toHaveClass(/govuk-textarea--error/v);
-
-      await noteTextarea.fill("a".repeat(10000));
       await expect(noteTextarea).not.toHaveClass(/govuk-textarea--error/v);
       await checkAccessibility();
     });

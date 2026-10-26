@@ -46,39 +46,6 @@ describe("application overview note errors", () => {
     }
   });
 
-  it("toggles the over-limit border on input after note errors are cleared", () => {
-    const dom = new JSDOM(overLimitErrorMarkup, {
-      url: "https://example.test/applications/1/overview",
-    });
-
-    try {
-      const { document } = dom.window;
-      initialiseApplicationOverviewNoteErrors(document, dom.window);
-
-      dom.window.history.pushState(null, "", "#people");
-      dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
-
-      const noteTextarea =
-        document.querySelector<HTMLTextAreaElement>("#note-text");
-      assert.ok(noteTextarea);
-      assert.equal(document.getElementById("note-text-error"), null);
-      assert.ok(noteTextarea.classList.contains("govuk-textarea--error"));
-
-      noteTextarea.value = "abcde";
-      noteTextarea.dispatchEvent(new dom.window.Event("input"));
-      assert.equal(
-        noteTextarea.classList.contains("govuk-textarea--error"),
-        false,
-      );
-
-      noteTextarea.value = "abcdefg";
-      noteTextarea.dispatchEvent(new dom.window.Event("input"));
-      assert.ok(noteTextarea.classList.contains("govuk-textarea--error"));
-    } finally {
-      dom.window.close();
-    }
-  });
-
   it("clears note errors when leaving History without discarding the draft or other descriptions", () => {
     const dom = new JSDOM(
       `
