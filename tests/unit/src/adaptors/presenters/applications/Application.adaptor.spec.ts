@@ -1285,6 +1285,82 @@ describe("Application adaptor", () => {
         assert.equal(viewData.noteText, "a".repeat(10005));
       });
 
+      it("sends LF line breaks to the use case without trimming the note", async () => {
+        requestStub.body = { "note-text": "  First line\r\nSecond line  " };
+        addHistoryNoteUseCaseStub.execute.resolves({
+          status: "SUCCESS",
+          data: undefined,
+        });
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(addHistoryNoteUseCaseStub.execute.callCount, 1);
+        assert.equal(
+          addHistoryNoteUseCaseStub.execute.firstCall.args[0].noteText,
+          "  First line\nSecond line  ",
+        );
+        assert.equal(responseStub.render.callCount, 0);
+      });
+
+      it("accepts a multiline note at exactly 10,000 browser characters", async () => {
+        const noteText = `${"a".repeat(4999)}\n${"b".repeat(5000)}`;
+        requestStub.body = {
+          "note-text": noteText.replaceAll("\n", "\r\n"),
+        };
+        addHistoryNoteUseCaseStub.execute.resolves({
+          status: "SUCCESS",
+          data: undefined,
+        });
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(addHistoryNoteUseCaseStub.execute.callCount, 1);
+        assert.equal(
+          addHistoryNoteUseCaseStub.execute.firstCall.args[0].noteText,
+          noteText,
+        );
+        assert.equal(responseStub.render.callCount, 0);
+        assert.equal(
+          responseStub.redirect.firstCall.args[0],
+          "/applications/123/overview",
+        );
+      });
+
+      it("rejects a multiline note one character over the limit and retains normalized text", async () => {
+        const noteText = `${"a".repeat(5000)}\n${"b".repeat(5000)}`;
+        requestStub.body = {
+          "note-text": noteText.replaceAll("\n", "\r\n"),
+        };
+
+        await applicationAdaptor.submitHistoryNote(
+          requestStub,
+          responseStub,
+          "123",
+        );
+
+        assert.equal(addHistoryNoteUseCaseStub.execute.callCount, 0);
+        assert.equal(responseStub.render.callCount, 1);
+        const viewData: unknown = responseStub.render.firstCall.args[1];
+        assert.ok(typeof viewData === "object" && viewData !== null);
+        assert.ok("errorSummaries" in viewData);
+        assert.deepEqual(viewData.errorSummaries, [
+          {
+            text: en.pages.applicationOverview.history.validationErrors.tooLong,
+            href: "#note-text",
+          },
+        ]);
+        assert.ok("noteText" in viewData);
+        assert.equal(viewData.noteText, noteText);
+      });
+
       it("redirects and sets session flash when use case succeeds", async () => {
         requestStub.body = { "note-text": "This is a valid note" };
         addHistoryNoteUseCaseStub.execute.resolves({
