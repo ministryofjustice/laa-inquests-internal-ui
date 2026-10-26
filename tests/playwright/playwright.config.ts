@@ -29,11 +29,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 2 : 0,
-  workers: 1,
+  workers: process.env.CI === "true" ? 2 : "75%",
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,
-    trace: process.env.CI === "true" ? "on" : "on-first-retry",
+    trace: process.env.CI === "true" ? "retain-on-failure" : "on-first-retry",
   },
   projects: [
     {

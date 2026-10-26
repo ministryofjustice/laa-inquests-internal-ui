@@ -3,6 +3,7 @@ import { test, expect } from "../../fixtures/index.js";
 import { TEST_CONFIG } from "../../playwright.config.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { continueToNextPage } from "../../utils/govuk-validators.js";
+import { startFreshTestSession } from "../../utils/testSession.js";
 import {
   CLAIM_APPLICATION_REFERENCE,
   PAY_IN_FULL_MIXED_VAT_CLAIM_ID,
@@ -62,6 +63,7 @@ test.describe
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {
@@ -113,6 +115,7 @@ test.describe
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {
@@ -159,6 +162,7 @@ test.describe
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {
@@ -213,6 +217,7 @@ test.describe
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {

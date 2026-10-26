@@ -8,6 +8,7 @@ import {
   validateGovPage,
   validateSubmitButton,
 } from "../../utils/govuk-validators.js";
+import { startFreshTestSession } from "../../utils/testSession.js";
 
 const checkYourAnswersLocale = en.pages.claimAssessment.checkYourAnswers;
 const confirmProfitCostsLocale = en.pages.claimAssessment.confirmProfitCosts;
@@ -36,6 +37,7 @@ test.describe.serial("Check your answers page", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {

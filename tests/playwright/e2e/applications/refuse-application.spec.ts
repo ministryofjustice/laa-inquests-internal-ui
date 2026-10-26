@@ -9,6 +9,7 @@ import {
   validateGovPage,
   validateSubmitButton,
 } from "../../utils/govuk-validators.js";
+import { startFreshTestSession } from "../../utils/testSession.js";
 
 const meritsLocale = en.pages.decision.merits;
 const justificationLocale = en.pages.decision.justification;
@@ -35,6 +36,7 @@ test.describe.serial("Refuse application journey", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {
