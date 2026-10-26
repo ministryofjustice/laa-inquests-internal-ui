@@ -225,6 +225,39 @@ describe("logger output", () => {
     assert.equal(warnSpy.callCount, 1);
   });
 
+  it("emits audit logs at info level even when the configured threshold is higher", () => {
+    const subject = new Logger("warn");
+
+    config.app.environment = "prod";
+    subject.logAudit({
+      functionName: "test-function",
+      message: "audit message",
+      extraContext: { event: "session_created" },
+    });
+
+    assert.equal(logSpy.callCount, 1);
+    const [rawOutput] = logSpy.firstCall.args as [string];
+    const output = JSON.parse(rawOutput) as Record<string, unknown>;
+    assert.equal(output.level, "info");
+    assert.equal(output.event, "session_created");
+    assert.equal(output.log_type, "audit");
+  });
+
+  it("does not let extra context override the audit log type", () => {
+    const subject = new Logger("info");
+
+    config.app.environment = "prod";
+    subject.logAudit({
+      functionName: "test-function",
+      message: "audit message",
+      extraContext: { log_type: "application" },
+    });
+
+    const [rawOutput] = logSpy.firstCall.args as [string];
+    const output = JSON.parse(rawOutput) as Record<string, unknown>;
+    assert.equal(output.log_type, "audit");
+  });
+
   it("emits safe error metadata without stack traces", () => {
     const requestStub = stubInterface<Request>();
     requestStub.headers = {

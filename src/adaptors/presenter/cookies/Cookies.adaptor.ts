@@ -51,7 +51,7 @@ export class CookiesAdaptor {
 
     let saved = true;
     try {
-      setCookies(res, acceptCookies === "yes");
+      setCookies(req, res, acceptCookies === "yes");
       logger.logInfo({
         functionName: "set_cookies",
         message: "Cookies set successfully",
@@ -76,5 +76,57 @@ export class CookiesAdaptor {
     }
 
     res.redirect(`/cookies?saved=${saved}`);
+  }
+
+  saveBannerPreference(req: Request, res: Response): void {
+    const form = req.body as CookiesPreferencesForm;
+    req.session.cookieBannerState = "failed";
+    res.locals.hasTrackingConsent = false;
+    try {
+      setCookies(req, res, form.acceptCookies === "yes");
+      req.session.cookieBannerState =
+        form.acceptCookies === "yes" ? "accepted" : "rejected";
+      logger.logInfo({
+        functionName: "save_banner_preference",
+        message: "Cookie preference from banner saved",
+        request: req,
+        extraContext: {
+          event: "cookies_preference_banner_save_success",
+        },
+      });
+    } catch (err) {
+      logger.logError({
+        functionName: "save_banner_preference",
+        message: "Cookie preference from banner save failed",
+        err,
+        request: req,
+        extraContext: {
+          event: "cookie_preference_banner_save_failed",
+          method: req.method,
+          status_code: HTTP_INTERNAL_SERVER_ERROR,
+        },
+      });
+    }
+
+    res.redirect(this.#returnUrl(req.session.returnTo));
+  }
+
+  hideBannerConfirmation(req: Request, res: Response): void {
+    req.session.cookieBannerState = "closed";
+    res.redirect(this.#returnUrl(req.session.returnTo));
+  }
+
+  #returnUrl(value: unknown): string {
+    if (
+      typeof value === "string" &&
+      value.startsWith("/") &&
+      !value.startsWith("//") &&
+      !value.includes("\\") &&
+      !/\p{Control}/v.test(value)
+    ) {
+      return value;
+    }
+
+    return "/";
   }
 }

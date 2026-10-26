@@ -1,0 +1,60 @@
+{% if cookieBannerState in ["accepted", "rejected"] %}
+  {% set confirmationHtml %}
+    <p class="govuk-body">
+      {{ t('components.cookieBanner.' + cookieBannerState) }}
+      {{ t('components.cookieBanner.confirmationPrefix') }}
+      <a class="govuk-link" href="/cookies">{{ t('components.cookieBanner.changeSettings') }}</a>
+      {{ t('components.cookieBanner.confirmationSuffix') }}
+    </p>
+  {% endset %}
+  <form method="post" action="/cookies/banner/hide">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+    {{ govukCookieBanner({
+      ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+      messages: [{
+        html: confirmationHtml,
+        role: "alert",
+        actions: [{
+          text: t('components.cookieBanner.hide'),
+          type: "submit"
+        }]
+      }]
+    }) }}
+  </form>
+{% elif cookieBannerState == "initial" %}
+  {% set cookiesHtml %}
+  <p class="govuk-body">{{ t('components.cookieBanner.essentialDescription') }}</p>
+  <p class="govuk-body">{{ t('components.cookieBanner.additionalDescription') }}</p>
+  {% endset %}
+
+  <form method="post" action="/cookies/banner">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+    {{ govukCookieBanner({
+      ariaLabel: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+      messages: [
+        {
+        headingText: "Cookies on " + config.SERVICE_NAME.toLowerCase(),
+        html: cookiesHtml,
+        actions: [
+          {
+          text: t("components.cookieBanner.accept"),
+          type: "submit",
+          name: "acceptCookies",
+          value: "yes"
+          },
+          {
+          text: t("components.cookieBanner.reject"),
+          type: "submit",
+          name: "acceptCookies",
+          value: "no"
+          },
+          {
+          text: t("components.cookieBanner.view"),
+          href: "/cookies"
+          }
+        ]
+        }
+      ]
+    }) }}
+  </form>
+{% endif %}

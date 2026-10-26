@@ -151,10 +151,23 @@ test.describe("Home page", () => {
     test("navigates to the cookies page", async ({ page }) => {
       await page.goto("/");
 
-      const cookiesLink = page.getByRole("link", { name: "Cookies" });
+      const cookiesLink = page.getByRole("link", {
+        name: "Cookies",
+        exact: true,
+      });
       await expect(cookiesLink).toHaveAttribute("href", "/cookies");
       await cookiesLink.click();
       await expect(page).toHaveURL("/cookies");
+    });
+
+    test("navigates to the privacy page", async ({ page }) => {
+      await page.goto("/");
+
+      const privacyLink = page.getByRole("link", { name: "Privacy" });
+      await expect(privacyLink).toHaveAttribute(
+        "href",
+        "https://assets.publishing.service.gov.uk/media/68c7f1b553f33f9d46e206a1/LAA_User_Privacy_Notice.pdf",
+      );
     });
   });
 

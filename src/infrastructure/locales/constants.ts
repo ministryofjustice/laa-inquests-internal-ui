@@ -3,7 +3,6 @@ export const JUSTIFICATION_MAX_CHARACTER_LENGTH = 1500;
 export const REJECTION_REASON_MAX_CHARACTER_LENGTH = 500;
 export const NOTE_MAX_CHARACTER_LENGTH = 10000;
 export const EMPTY_ARR_LENGTH = 0;
-export const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 
 export const GRANTED_DECISION = "GRANTED";
 export const REFUSED_DECISION = "REFUSED";
@@ -124,3 +123,36 @@ export const SESSION_ABSOLUTE_TIMEOUT_MS = 43_200_000;
 
 // Marks a request that has already been redirected to sign in, so it is not redirected again.
 export const SESSION_EXPIRED_QUERY_FLAG = "sessionExpired";
+
+export const SESSION_TERMINATION_REASONS = {
+  USER_LOGOUT: "user_logout",
+  IDLE_TIMEOUT: "idle_timeout",
+  ABSOLUTE_TIMEOUT: "absolute_timeout",
+  CREDENTIAL_EXPIRY: "credential_expiry",
+  INVALID_SESSION: "invalid_session",
+  CREDENTIAL_REJECTED: "credential_rejected",
+} as const;
+
+export const AUTH_FAILURE_REASONS = {
+  IDP_ERROR: "idp_error",
+  MISSING_CODE: "missing_code",
+  TOKEN_ACQUISITION_FAILED: "token_acquisition_failed",
+  SESSION_REGENERATION_FAILED: "session_regeneration_failed",
+  INVALID_CREDENTIAL_EXPIRY: "invalid_credential_expiry",
+} as const;
+
+// OAuth 2.0 / OIDC error codes; anything else is logged as "other" to keep free text out of logs.
+export const ALLOWED_IDP_ERROR_CODES: readonly string[] = [
+  "access_denied",
+  "invalid_request",
+  "unauthorized_client",
+  "unsupported_response_type",
+  "invalid_scope",
+  "server_error",
+  "temporarily_unavailable",
+  "interaction_required",
+  "login_required",
+  "consent_required",
+];
+
+export const UNRECOGNISED_IDP_ERROR_CODE = "other";

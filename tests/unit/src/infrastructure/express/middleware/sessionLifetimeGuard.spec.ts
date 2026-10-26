@@ -8,11 +8,15 @@ import config from "#src/infrastructure/config/config.js";
 import {
   SESSION_ABSOLUTE_TIMEOUT_MS,
   SESSION_IDLE_TIMEOUT_MS,
+  SESSION_TERMINATION_REASONS,
 } from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
 
 const NOW = 1_800_000_000_000;
 const ONE_MINUTE_MS = 60_000;
 const ONE_DAY_MS = 86_400_000;
+const SESSION_ID = "guard-session-id";
 
 describe("sessionLifetimeGuard", () => {
   let req: StubbedInstance<Request>;
@@ -39,6 +43,7 @@ describe("sessionLifetimeGuard", () => {
     next = sinon.stub();
     destroy = sinon.stub().callsArg(0);
     setPath("/");
+    (req as unknown as { sessionID: string }).sessionID = SESSION_ID;
     req.session = {
       cookie: {},
       destroy,
@@ -146,5 +151,68 @@ describe("sessionLifetimeGuard", () => {
     assert.equal(next.firstCall.args[0], destroyError);
     assert.equal(res.clearCookie.callCount, 1);
     assert.equal(res.redirect.callCount, 0);
+  });
+
+  describe("audit logging", () => {
+    let logAuditStub: sinon.SinonStub;
+
+    const terminationEvent = (): Record<string, unknown> =>
+      (
+        logAuditStub.firstCall.args[0] as {
+          extraContext: Record<string, unknown>;
+        }
+      ).extraContext;
+
+    beforeEach(() => {
+      logAuditStub = sinon.stub(logger, "logAudit");
+    });
+
+    it("logs an idle_timeout termination with the session hash", () => {
+      clock.tick(SESSION_IDLE_TIMEOUT_MS);
+
+      sessionLifetimeGuard(req, res, next as NextFunction);
+
+      assert.equal(logAuditStub.callCount, 1);
+      assert.deepEqual(terminationEvent(), {
+        event: "session_terminated",
+        session_hash: hashSessionId(SESSION_ID),
+        reason: SESSION_TERMINATION_REASONS.IDLE_TIMEOUT,
+        route: "/",
+      });
+    });
+
+    it("logs a credential_expiry termination when the credential expires first", () => {
+      req.session.lifetime = {
+        ...lifetime(),
+        credentialExpiresAt: NOW + ONE_MINUTE_MS,
+      };
+      clock.tick(ONE_MINUTE_MS);
+
+      sessionLifetimeGuard(req, res, next as NextFunction);
+
+      assert.equal(
+        terminationEvent().reason,
+        SESSION_TERMINATION_REASONS.CREDENTIAL_EXPIRY,
+      );
+    });
+
+    it("logs an invalid_session termination for a signed-in session without a lifetime", () => {
+      req.session.lifetime = undefined;
+
+      sessionLifetimeGuard(req, res, next as NextFunction);
+
+      assert.equal(
+        terminationEvent().reason,
+        SESSION_TERMINATION_REASONS.INVALID_SESSION,
+      );
+    });
+
+    it("does not log a termination for a valid session", () => {
+      clock.tick(ONE_MINUTE_MS);
+
+      sessionLifetimeGuard(req, res, next as NextFunction);
+
+      assert.equal(logAuditStub.callCount, 0);
+    });
   });
 });

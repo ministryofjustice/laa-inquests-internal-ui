@@ -6,7 +6,27 @@ import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import config from "#src/infrastructure/config/config.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
-import { SESSION_IDLE_TIMEOUT_MS } from "#src/infrastructure/locales/constants.js";
+import {
+  AUTH_FAILURE_REASONS,
+  SESSION_IDLE_TIMEOUT_MS,
+  SESSION_TERMINATION_REASONS,
+} from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+
+const PRE_LOGIN_SESSION_ID = "pre-login-session-id";
+const POST_LOGIN_SESSION_ID = "post-login-session-id";
+
+const auditEvents = (
+  logAuditStub: sinon.SinonStub,
+): Array<Record<string, unknown>> =>
+  logAuditStub
+    .getCalls()
+    .map(
+      (call) =>
+        (call.args[0] as { extraContext: Record<string, unknown> })
+          .extraContext,
+    );
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
@@ -31,6 +51,7 @@ describe("AuthAdaptor", () => {
     res.status.returns(res);
     next = sinon.stub();
     req.session = {} as any;
+    (req as unknown as { sessionID: string }).sessionID = PRE_LOGIN_SESSION_ID;
     adaptor = new AuthAdaptor(
       authPort,
       REDIRECT_URI,
@@ -243,6 +264,147 @@ describe("AuthAdaptor", () => {
       ]);
       assert.equal(res.redirect.callCount, 0);
     });
+
+    describe("audit logging", () => {
+      let logAuditStub: sinon.SinonStub;
+
+      const resolveToken = (): void => {
+        authPort.acquireTokenByCode.resolves({
+          userId: "user-oid-abc",
+          userName: "Test User",
+          accessToken: "access-token-xyz",
+          accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+          roles: ["Inquests - Claims Caseworker"],
+        });
+      };
+
+      beforeEach(() => {
+        logAuditStub = sinon.stub(logger, "logAudit");
+        regenerate.callsFake((cb: (err?: unknown) => void) => {
+          (req as unknown as { sessionID: string }).sessionID =
+            POST_LOGIN_SESSION_ID;
+          cb();
+        });
+      });
+
+      it("logs the session id rotation and session creation on a successful login", async () => {
+        req.query = { code: "auth-code-123" } as any;
+        resolveToken();
+
+        await adaptor.callback(req, res);
+
+        const [rotated, created] = auditEvents(logAuditStub);
+        assert.equal(rotated.event, "session_id_rotated");
+        assert.equal(
+          rotated.previous_session_hash,
+          hashSessionId(PRE_LOGIN_SESSION_ID),
+        );
+        assert.equal(
+          rotated.session_hash,
+          hashSessionId(POST_LOGIN_SESSION_ID),
+        );
+        assert.equal(rotated.previous_session_authenticated, false);
+        assert.equal(created.event, "session_created");
+        assert.equal(
+          created.session_hash,
+          hashSessionId(POST_LOGIN_SESSION_ID),
+        );
+        assert.equal(created.login_method, "entra");
+        assert.equal("role_count" in created, false);
+      });
+
+      it("logs an idp_error login failure with the sanitised error code when Entra returns an error", async () => {
+        req.query = { error: "access_denied" } as any;
+
+        await adaptor.callback(req, res);
+
+        assert.deepEqual(auditEvents(logAuditStub), [
+          {
+            event: "auth_login_failed",
+            session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+            reason: AUTH_FAILURE_REASONS.IDP_ERROR,
+            idp_error_code: "access_denied",
+          },
+        ]);
+      });
+
+      it("logs a missing_code login failure when there is no code or error", async () => {
+        req.query = {} as any;
+
+        await adaptor.callback(req, res);
+
+        assert.equal(
+          auditEvents(logAuditStub)[0].reason,
+          AUTH_FAILURE_REASONS.MISSING_CODE,
+        );
+      });
+
+      it("logs a token_acquisition_failed login failure and rethrows", async () => {
+        req.query = { code: "auth-code-123" } as any;
+        authPort.acquireTokenByCode.rejects(new Error("token exchange failed"));
+
+        await assert.rejects(() => adaptor.callback(req, res));
+
+        assert.deepEqual(
+          auditEvents(logAuditStub).map((event) => event.reason),
+          [AUTH_FAILURE_REASONS.TOKEN_ACQUISITION_FAILED],
+        );
+      });
+
+      it("logs a session_regeneration_failed login failure and rethrows", async () => {
+        req.query = { code: "auth-code-123" } as any;
+        resolveToken();
+        regenerate.callsArgWith(0, new Error("store failure"));
+
+        await assert.rejects(() => adaptor.callback(req, res));
+
+        assert.deepEqual(
+          auditEvents(logAuditStub).map((event) => event.reason),
+          [AUTH_FAILURE_REASONS.SESSION_REGENERATION_FAILED],
+        );
+      });
+
+      it("logs an invalid_credential_expiry login failure and rethrows", async () => {
+        req.query = { code: "auth-code-123" } as any;
+        authPort.acquireTokenByCode.resolves({
+          userId: "user-oid-abc",
+          accessToken: "access-token-xyz",
+          roles: [],
+        });
+
+        await assert.rejects(() => adaptor.callback(req, res));
+
+        const events = auditEvents(logAuditStub);
+        assert.equal(events.at(-1)?.event, "auth_login_failed");
+        assert.equal(
+          events.at(-1)?.reason,
+          AUTH_FAILURE_REASONS.INVALID_CREDENTIAL_EXPIRY,
+        );
+        assert.equal(
+          events.some((event) => event.event === "session_created"),
+          false,
+        );
+      });
+
+      it("never logs user details, tokens or raw session ids", async () => {
+        req.query = { code: "auth-code-123" } as any;
+        resolveToken();
+
+        await adaptor.callback(req, res);
+
+        const serialised = JSON.stringify(auditEvents(logAuditStub));
+        for (const value of [
+          "user-oid-abc",
+          "Test User",
+          "access-token-xyz",
+          "auth-code-123",
+          PRE_LOGIN_SESSION_ID,
+          POST_LOGIN_SESSION_ID,
+        ]) {
+          assert.equal(serialised.includes(value), false, value);
+        }
+      });
+    });
   });
 
   describe("logout", () => {
@@ -269,6 +431,49 @@ describe("AuthAdaptor", () => {
       assert.equal(next.callCount, 1);
       assert.equal(next.firstCall.args[0], destroyError);
       assert.equal(res.redirect.callCount, 0);
+    });
+
+    describe("audit logging", () => {
+      let logAuditStub: sinon.SinonStub;
+
+      beforeEach(() => {
+        logAuditStub = sinon.stub(logger, "logAudit");
+        req.session.user = { userId: "user-oid-abc" };
+      });
+
+      it("logs a user_logout termination with the hash of the destroyed session", () => {
+        req.session.destroy = sinon.stub().callsFake((cb: () => void) => {
+          (req as unknown as { sessionID: string }).sessionID = "another-id";
+          cb();
+        }) as any;
+
+        adaptor.logout(req, res, next as NextFunction);
+
+        assert.equal(logAuditStub.callCount, 1);
+        const [event] = auditEvents(logAuditStub);
+        assert.equal(event.event, "session_terminated");
+        assert.equal(event.session_hash, hashSessionId(PRE_LOGIN_SESSION_ID));
+        assert.equal(event.reason, SESSION_TERMINATION_REASONS.USER_LOGOUT);
+      });
+
+      it("does not log a termination when destroying the session fails", () => {
+        req.session.destroy = sinon
+          .stub()
+          .callsArgWith(0, new Error("store failure")) as any;
+
+        adaptor.logout(req, res, next as NextFunction);
+
+        assert.equal(logAuditStub.callCount, 0);
+      });
+
+      it("does not log a termination when no user was signed in", () => {
+        req.session.user = undefined as any;
+        req.session.destroy = sinon.stub().callsArg(0) as any;
+
+        adaptor.logout(req, res, next as NextFunction);
+
+        assert.equal(logAuditStub.callCount, 0);
+      });
     });
   });
 });
