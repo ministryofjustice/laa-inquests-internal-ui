@@ -5,6 +5,28 @@ export function createCookiesRouter(
   cookiesRouter: Router,
   cookiesAdaptor: CookiesAdaptor,
 ): Router {
+  cookiesRouter.post(
+    "/banner/hide",
+    (req: Request, res: Response, next: NextFunction): void => {
+      try {
+        cookiesAdaptor.hideBannerConfirmation(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
+  cookiesRouter.post(
+    "/banner",
+    (req: Request, res: Response, next: NextFunction): void => {
+      try {
+        cookiesAdaptor.saveBannerPreference(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+
   cookiesRouter.get(
     "/",
     (req: Request, res: Response, next: NextFunction): void => {

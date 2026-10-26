@@ -76,8 +76,6 @@ app.use(express.static(config.paths.static));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(processCookies);
-
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
   res.on("finish", () => {
@@ -142,6 +140,7 @@ app.use(
 );
 app.use(sessionLifetimeGuard);
 
+app.use(processCookies);
 app.use(setupNavigationData);
 app.use(setupGeneralRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {
