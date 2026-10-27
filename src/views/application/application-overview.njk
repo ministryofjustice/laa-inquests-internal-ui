@@ -52,6 +52,13 @@
         }) }}
         <section>
             <h2 class="govuk-heading-m" id="potential-duplicates-heading">{{ t('pages.applicationOverview.duplicateWarning.title') }}</h2>
+            {% set duplicateRows = [] %}
+            {% for duplicate in potentialDuplicateApplications %}
+                {% set duplicateRows = duplicateRows.concat([[
+                    { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laaReference | urlencode) ~ '/overview">' ~ (duplicate.laaReference | escape) ~ '</a>' },
+                    { html: meritsDecisionTag(duplicate.overallDecision) }
+                ]]) %}
+            {% endfor %}
             {{ govukTable({
                 classes: "app-potential-duplicates-table",
                 attributes: { "aria-labelledby": "potential-duplicates-heading" },
@@ -59,16 +66,7 @@
                     { text: t('pages.applicationOverview.duplicateWarning.referenceColumn') },
                     { text: t('pages.applicationOverview.duplicateWarning.statusColumn') }
                 ],
-                rows: [
-                    [
-                        { html: '<a class="govuk-link" href="/applications/INQ-YYY-005/overview">INQ-YYY-005</a>' },
-                        { html: meritsDecisionTag("GRANTED") }
-                    ],
-                    [
-                        { html: '<a class="govuk-link" href="/applications/INQ-YYY-009/overview">INQ-YYY-009</a>' },
-                        { html: meritsDecisionTag("SUBMITTED") }
-                    ]
-                ]
+                rows: duplicateRows
             }) }}
         </section>
         <div class="govuk-grid-column-one-half">

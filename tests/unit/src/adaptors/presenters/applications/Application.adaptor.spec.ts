@@ -258,6 +258,27 @@ describe("Application adaptor", () => {
       });
     });
 
+    it("passes example duplicate applications to the overview template", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves(application);
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(
+        responseStub.render.firstCall.args[0],
+        "application/application-overview",
+      );
+      assert.partialDeepStrictEqual(responseStub.render.firstCall.args[1], {
+        potentialDuplicateApplications: [
+          { laaReference: "INQ-YYY-005", overallDecision: "GRANTED" },
+          { laaReference: "INQ-YYY-009", overallDecision: "SUBMITTED" },
+        ],
+      });
+    });
+
     it("render application overview page passes people tab data", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       await applicationAdaptor.renderApplicationPage(
