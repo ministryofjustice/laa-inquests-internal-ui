@@ -52,6 +52,7 @@ export class CookiesAdaptor {
     let saved = true;
     try {
       setCookies(req, res, acceptCookies === "yes");
+      req.session.cookieBannerState = "closed";
       logger.logInfo({
         functionName: "set_cookies",
         message: "Cookies set successfully",

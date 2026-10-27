@@ -114,6 +114,17 @@ describe("Cookies adaptor", () => {
       ]);
     });
 
+    it("closes the cookie banner when user selects 'yes' or 'no'", () => {
+      for (const acceptCookies of ["yes", "no"]) {
+        requestStub.session.cookieBannerState = "initial";
+        requestStub.body = { acceptCookies };
+
+        cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
+
+        assert.equal(requestStub.session.cookieBannerState, "closed");
+      }
+    });
+
     it("assigns hasTrackingConsent to true when user selects 'yes'", () => {
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
