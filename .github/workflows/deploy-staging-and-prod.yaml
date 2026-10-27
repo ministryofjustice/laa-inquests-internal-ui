@@ -55,7 +55,7 @@ jobs:
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_STAGING }}
           pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
 
-  deploy-production:
+  deploy-prod:
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
@@ -65,7 +65,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
-      - name: Deploy to production
+      - name: Deploy to prod
         uses: ./.github/actions/deploy
         with:
           app-environment: prod
@@ -91,8 +91,8 @@ jobs:
   notify-slack-prod:
     permissions:
       contents: read
-    environment: production
-    needs: deploy-production
+    environment: prod
+    needs: deploy-prod
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:

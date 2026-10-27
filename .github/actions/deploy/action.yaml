@@ -5,7 +5,8 @@ inputs:
     description: "IP allow list"
     required: true
   app-environment:
-    description: "Environment to which the app is being deployed [staging, production, etc]"
+    description:
+      "Environment to which the app is being deployed [staging, prod, etc]"
     required: true
   auth_directory_url:
     description: "Entra Authority URL"
