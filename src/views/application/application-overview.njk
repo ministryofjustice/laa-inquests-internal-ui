@@ -50,6 +50,27 @@
             text: t('pages.applicationOverview.duplicateWarning.text'),
             showTitleAsHeading: true
         }) }}
+        <section>
+            <h2 class="govuk-heading-m" id="potential-duplicates-heading">{{ t('pages.applicationOverview.duplicateWarning.title') }}</h2>
+            {{ govukTable({
+                classes: "app-potential-duplicates-table",
+                attributes: { "aria-labelledby": "potential-duplicates-heading" },
+                head: [
+                    { text: t('pages.applicationOverview.duplicateWarning.referenceColumn') },
+                    { text: t('pages.applicationOverview.duplicateWarning.statusColumn') }
+                ],
+                rows: [
+                    [
+                        { html: '<a class="govuk-link" href="/applications/INQ-YYY-005/overview">INQ-YYY-005</a>' },
+                        { html: meritsDecisionTag("GRANTED") }
+                    ],
+                    [
+                        { html: '<a class="govuk-link" href="/applications/INQ-YYY-009/overview">INQ-YYY-009</a>' },
+                        { html: meritsDecisionTag("SUBMITTED") }
+                    ]
+                ]
+            }) }}
+        </section>
         <div class="govuk-grid-column-one-half">
             <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
             {% if hasLiveCertificate %}

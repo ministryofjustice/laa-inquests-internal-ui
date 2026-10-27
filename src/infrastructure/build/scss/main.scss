@@ -1,6 +1,18 @@
 @use "@ministryofjustice/frontend/moj/all";
 @use "govuk-frontend/dist/govuk/index";
 
+.app-potential-duplicates-table {
+  .govuk-table__header,
+  .govuk-table__cell {
+    border: 1px solid index.$govuk-border-colour;
+    padding: index.govuk-spacing(2);
+  }
+
+  .govuk-table__header {
+    background-color: index.govuk-colour("light-grey");
+  }
+}
+
 #history .govuk-table {
   table-layout: fixed;
   word-wrap: break-word;

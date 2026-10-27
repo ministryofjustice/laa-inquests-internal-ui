@@ -22,13 +22,13 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
-  test("shows a potential duplicate applications warning in application details", async ({
+  test("shows a potential duplicate applications warning above the application reference", async ({
     page,
     checkAccessibility,
   }) => {
     await page.goto(`/applications/${laaReference}/overview`);
 
-    const warning = page.locator("#application-details").getByRole("region", {
+    const warning = page.getByRole("region", {
       name: "warning: Potential duplicate applications",
     });
 
@@ -46,6 +46,67 @@ test.describe("Application overview page", () => {
     await expect(warning.locator("svg.moj-alert__icon")).toBeVisible();
 
     await checkAccessibility();
+  });
+
+  test("lists example duplicate applications below the warning with status tags and overview links", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    const duplicateList = page.locator(".moj-alert + section");
+    await expect(
+      duplicateList.getByRole("heading", {
+        name: "Potential duplicate applications",
+        level: 2,
+      }),
+    ).toBeVisible();
+
+    const table = duplicateList.getByRole("table", {
+      name: "Potential duplicate applications",
+    });
+    await expect(table.getByRole("columnheader")).toHaveText([
+      "Reference",
+      "Status",
+    ]);
+    await expect(table.getByRole("row")).toHaveCount(3);
+
+    for (const header of await table.getByRole("columnheader").all()) {
+      await expect(header).toHaveCSS("background-color", "rgb(243, 243, 243)");
+    }
+
+    for (const cell of await table.locator("th, td").all()) {
+      for (const side of ["top", "right", "bottom", "left"]) {
+        await expect(cell).toHaveCSS(`border-${side}-width`, "1px");
+        await expect(cell).toHaveCSS(`border-${side}-style`, "solid");
+        await expect(cell).toHaveCSS(
+          `border-${side}-color`,
+          "rgb(206, 206, 206)",
+        );
+      }
+    }
+
+    for (const example of [
+      { reference: "INQ-YYY-005", status: "Granted", colour: "green" },
+      { reference: "INQ-YYY-009", status: "Submitted", colour: "blue" },
+    ]) {
+      const row = table.getByRole("row").filter({ hasText: example.reference });
+      await expect(
+        row.getByRole("link", { name: example.reference, exact: true }),
+      ).toHaveAttribute("href", `/applications/${example.reference}/overview`);
+      await expect(row.locator(".govuk-tag")).toHaveText(example.status);
+      await expect(row.locator(".govuk-tag")).toHaveClass(
+        `govuk-tag govuk-tag--${example.colour}`,
+      );
+    }
+
+    await checkAccessibility();
+
+    await table.getByRole("link", { name: "INQ-YYY-005" }).click();
+    await expect(page).toHaveURL("/applications/INQ-YYY-005/overview");
+    await expect(
+      page.getByRole("heading", { name: "INQ-YYY-005", level: 1 }),
+    ).toBeVisible();
   });
 
   test("does not show an assessment tag above the application reference", async ({

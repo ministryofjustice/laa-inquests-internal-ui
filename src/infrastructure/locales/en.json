@@ -126,7 +126,9 @@
       "liveCertificateStatus": "Live",
       "duplicateWarning": {
         "title": "Potential duplicate applications",
-        "text": "This application has potential duplicates. Check each related application before making an assessment."
+        "text": "This application has potential duplicates. Check each related application before making an assessment.",
+        "referenceColumn": "Reference",
+        "statusColumn": "Status"
       },
       "details": {
         "viewCertificate": "View certificate"
