@@ -10,6 +10,7 @@
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
+{% from "moj/components/alert/macro.njk" import mojAlert %}
 
 {% set pageTitle = "Application " + application.laaReference %}
 
@@ -43,6 +44,12 @@
     {% endif %}
 
     <div class="govuk-grid-row">
+        {{ mojAlert({
+            variant: "warning",
+            title: t('pages.applicationOverview.duplicateWarning.title'),
+            text: t('pages.applicationOverview.duplicateWarning.text'),
+            showTitleAsHeading: true
+        }) }}
         <div class="govuk-grid-column-one-half">
             <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
             {% if hasLiveCertificate %}

@@ -22,6 +22,32 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
+  test("shows a potential duplicate applications warning in application details", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    const warning = page.locator("#application-details").getByRole("region", {
+      name: "warning: Potential duplicate applications",
+    });
+
+    await expect(warning).toBeVisible();
+    await expect(warning).toHaveClass(/moj-alert--warning/);
+    await expect(
+      warning.getByRole("heading", {
+        name: "Potential duplicate applications",
+        level: 2,
+      }),
+    ).toBeVisible();
+    await expect(warning).toContainText(
+      "This application has potential duplicates. Check each related application before making an assessment.",
+    );
+    await expect(warning.locator("svg.moj-alert__icon")).toBeVisible();
+
+    await checkAccessibility();
+  });
+
   test("does not show an assessment tag above the application reference", async ({
     page,
   }) => {

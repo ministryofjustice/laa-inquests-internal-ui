@@ -124,6 +124,10 @@
     "applicationOverview": {
       "invalidRequest": "Invalid application request.",
       "liveCertificateStatus": "Live",
+      "duplicateWarning": {
+        "title": "Potential duplicate applications",
+        "text": "This application has potential duplicates. Check each related application before making an assessment."
+      },
       "details": {
         "viewCertificate": "View certificate"
       },
