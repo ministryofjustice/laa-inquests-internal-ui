@@ -76,6 +76,24 @@ test.describe("View cookies page", () => {
     ).toBeVisible();
   });
 
+  for (const choice of ["Yes", "No"]) {
+    test(`should close the cookie banner after saving "${choice}"`, async ({
+      page,
+    }) => {
+      const banner = page.getByRole("region", {
+        name: "Cookies on manage inquest legal aid",
+      });
+      await page.goto(cookiesUrl);
+      await expect(banner).toBeVisible();
+
+      await page.getByRole("radio", { name: choice }).check();
+      await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+      await expect(page.getByRole("radio", { name: choice })).toBeChecked();
+      await expect(banner).toBeHidden();
+    });
+  }
+
   test("should have success banner link to previous page", async ({ page }) => {
     await page.goto("/reports");
     await page.getByRole("link", { name: "Cookies", exact: true }).click();

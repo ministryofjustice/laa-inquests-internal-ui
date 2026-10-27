@@ -74,6 +74,7 @@ export default defineConfig({
       SESSION_SECRET: "test-secret-key-for-playwright-tests",
       SESSION_NAME: "test-session",
       SERVICE_NAME: "Manage inquest legal aid",
+      SERVICE_PHASE: "Beta",
       // Auth is faked via the /auth/test-login route, so real Entra credentials
       // are never used in test env. MSAL still requires a non-empty client credential to
       // construct, so fall back to dummy values when none are provided (e.g. CI).
