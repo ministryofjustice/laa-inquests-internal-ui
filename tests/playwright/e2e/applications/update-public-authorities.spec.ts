@@ -8,6 +8,7 @@ import {
   validateCSRFToken,
   validateSubmitButton,
 } from "../../utils/govuk-validators.js";
+import { startFreshTestSession } from "../../utils/testSession.js";
 
 const publicAuthorityLocale = en.pages.applicationOverview.publicAuthority;
 const notificationBannerLocale = publicAuthorityLocale.notificationBanner;
@@ -27,6 +28,7 @@ test.describe.serial("Update public authorities journey", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {

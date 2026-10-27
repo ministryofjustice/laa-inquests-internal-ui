@@ -8,6 +8,7 @@ import {
   validateGovPage,
   validateSubmitButton,
 } from "../../utils/govuk-validators.js";
+import { startFreshTestSession } from "../../utils/testSession.js";
 
 const meritsLocale = en.pages.decision.merits;
 const certificateStartDateLocale = en.pages.decision.certificateStartDate;
@@ -47,6 +48,7 @@ test.describe.serial("Grant application journey", () => {
       baseURL: TEST_CONFIG.BASE_URL,
     });
     sharedPage = await sharedContext.newPage();
+    await startFreshTestSession(sharedPage);
   });
 
   test.afterEach(async ({ checkPageAccessibility }) => {
@@ -199,11 +201,6 @@ test.describe.serial("Grant application journey", () => {
   });
 
   test("caseworker views the Check your answers page for a grant", async () => {
-    await validateGovPage(sharedPage, {
-      headerText: confirmationLocale.header,
-      backUrl: certificateStartDatePage,
-    });
-
     const form = sharedPage.getByTestId("check-your-answers");
     const summaryCard = form.locator(".govuk-summary-card");
     const cardTitle = summaryCard.locator(".govuk-summary-card__title");
@@ -220,6 +217,10 @@ test.describe.serial("Grant application journey", () => {
     await expect(
       meritsAssessmentRow.getByText("Granted", { exact: true }),
     ).toBeVisible();
+    await validateGovPage(sharedPage, {
+      headerText: confirmationLocale.header,
+      backUrl: certificateStartDatePage,
+    });
     await expect(
       meritsAssessmentRow.getByRole("link", { name: /change/i }),
     ).toHaveAttribute("href", makeADecisionFromCheckAnswersPage);

@@ -27,9 +27,24 @@ interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   checkPageAccessibility: (page: Page) => Promise<void>;
   pages: PageFactory;
+  freshSession: void;
 }
 
 export const test = base.extend<TestFixtures>({
+  freshSession: [
+    async ({ page, context }, use): Promise<void> => {
+      const cookies = await context.cookies();
+      if (cookies.length > 0) {
+        await context.clearCookies();
+        await page.goto("/auth/test-login");
+      }
+      await page.goto("/");
+
+      await use();
+    },
+    { auto: true },
+  ],
+
   page: async ({ page }, use): Promise<void> => {
     await use(page);
   },
