@@ -27,8 +27,8 @@
   },
   "components": {
     "phaseBanner": {
-      "feedbackText": "This is a new service. Help us improve it and ",
-      "feedbackLinkTextHTML": "<a class='govuk-link' href='#'>give your feedback by email</a>."
+      "feedbackText": "This is a new service – your ",
+      "feedbackLinkTextHTML": "<a class='govuk-link' href='https://www.smartsurvey.co.uk/t/FGH4ZO/' target='_blank' rel='noopener noreferrer'>feedback</a> will help us to improve it."
     },
     "cookieBanner": {
       "essentialDescription": "We use some essential cookies to make this service work.",
