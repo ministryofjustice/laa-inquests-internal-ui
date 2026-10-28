@@ -12,8 +12,6 @@ import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
 import {
   CLAIM_STATUSES,
   CLAIM_STATUS_TAG_CLASSES,
-  GRANTED_DECISION,
-  SUBMITTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
@@ -161,10 +159,9 @@ export class ApplicationAdaptor {
 
     const noteFlash = this.sessionHelper?.consumeFlash(req, "history");
 
-    const potentialDuplicateApplications = [
-      { laaReference: "INQ-YYY-005", overallDecision: GRANTED_DECISION },
-      { laaReference: "INQ-YYY-009", overallDecision: SUBMITTED_DECISION },
-    ];
+    const potentialDuplicateApplications =
+      overviewViewResult.data.application.potential_duplicate_applications ??
+      [];
 
     res.render("application/application-overview", {
       application,

@@ -44,6 +44,7 @@
     {% endif %}
 
     <div class="govuk-grid-row">
+        {% if potentialDuplicateApplications | length %}
         {{ mojAlert({
             variant: "warning",
             title: t('pages.applicationOverview.duplicateWarning.title'),
@@ -55,8 +56,8 @@
             {% set duplicateRows = [] %}
             {% for duplicate in potentialDuplicateApplications %}
                 {% set duplicateRows = duplicateRows.concat([[
-                    { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laaReference | urlencode) ~ '/overview">' ~ (duplicate.laaReference | escape) ~ '</a>' },
-                    { html: meritsDecisionTag(duplicate.overallDecision) }
+                    { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laa_reference | urlencode) ~ '/overview">' ~ (duplicate.laa_reference | escape) ~ '</a>' },
+                    { html: meritsDecisionTag(duplicate.status) }
                 ]]) %}
             {% endfor %}
             {{ govukTable({
@@ -69,6 +70,7 @@
                 rows: duplicateRows
             }) }}
         </section>
+        {% endif %}
         <div class="govuk-grid-column-one-half">
             <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
             {% if hasLiveCertificate %}

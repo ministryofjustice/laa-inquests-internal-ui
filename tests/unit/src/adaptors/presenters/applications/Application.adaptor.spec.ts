@@ -258,8 +258,14 @@ describe("Application adaptor", () => {
       });
     });
 
-    it("passes example duplicate applications to the overview template", async () => {
-      viewApplicationAdaptorStub.getApplication.resolves(application);
+    it("passes API duplicate applications to the overview template", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        potential_duplicate_applications: [
+          { laa_reference: "INQ-YYY-006", status: "GRANTED" },
+          { laa_reference: "INQ-YYY-010", status: "SUBMITTED" },
+        ],
+      });
 
       await applicationAdaptor.renderApplicationPage(
         requestStub,
@@ -273,8 +279,8 @@ describe("Application adaptor", () => {
       );
       assert.partialDeepStrictEqual(responseStub.render.firstCall.args[1], {
         potentialDuplicateApplications: [
-          { laaReference: "INQ-YYY-005", overallDecision: "GRANTED" },
-          { laaReference: "INQ-YYY-009", overallDecision: "SUBMITTED" },
+          { laa_reference: "INQ-YYY-006", status: "GRANTED" },
+          { laa_reference: "INQ-YYY-010", status: "SUBMITTED" },
         ],
       });
     });

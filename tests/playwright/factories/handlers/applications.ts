@@ -699,6 +699,13 @@ export const applicationHandlers = [
 
     return HttpResponse.json({
       ...appToReturn,
+      potential_duplicate_applications:
+        params.id === "1"
+          ? [
+              { laa_reference: "INQ-YYY-006", status: GRANTED_DECISION },
+              { laa_reference: "INQ-YYY-010", status: SUBMITTED_DECISION },
+            ]
+          : [],
       overallDecision: matchingSummary
         ? matchingSummary.overall_decision
         : decision,

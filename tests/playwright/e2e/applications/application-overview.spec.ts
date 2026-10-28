@@ -48,7 +48,7 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
-  test("lists example duplicate applications below the warning with status tags and overview links", async ({
+  test("lists API duplicate applications below the warning with status tags and overview links", async ({
     page,
     checkAccessibility,
   }) => {
@@ -87,8 +87,8 @@ test.describe("Application overview page", () => {
     }
 
     for (const example of [
-      { reference: "INQ-YYY-005", status: "Granted", colour: "green" },
-      { reference: "INQ-YYY-009", status: "Submitted", colour: "blue" },
+      { reference: "INQ-YYY-006", status: "Granted", colour: "green" },
+      { reference: "INQ-YYY-010", status: "Submitted", colour: "blue" },
     ]) {
       const row = table.getByRole("row").filter({ hasText: example.reference });
       await expect(
@@ -102,11 +102,29 @@ test.describe("Application overview page", () => {
 
     await checkAccessibility();
 
-    await table.getByRole("link", { name: "INQ-YYY-005" }).click();
-    await expect(page).toHaveURL("/applications/INQ-YYY-005/overview");
+    await table.getByRole("link", { name: "INQ-YYY-006" }).click();
+    await expect(page).toHaveURL("/applications/INQ-YYY-006/overview");
     await expect(
-      page.getByRole("heading", { name: "INQ-YYY-005", level: 1 }),
+      page.getByRole("heading", { name: "INQ-YYY-006", level: 1 }),
     ).toBeVisible();
+  });
+
+  test("does not show the duplicate warning or table when the API returns no duplicates", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-006/overview");
+
+    await expect(
+      page.getByRole("region", {
+        name: "warning: Potential duplicate applications",
+      }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("table", { name: "Potential duplicate applications" }),
+    ).toHaveCount(0);
+
+    await checkAccessibility();
   });
 
   test("does not show an assessment tag above the application reference", async ({
