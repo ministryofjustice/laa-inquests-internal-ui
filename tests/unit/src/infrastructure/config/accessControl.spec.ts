@@ -177,9 +177,10 @@ describe("Access Control Configuration", () => {
       );
     });
 
-    it("restricts the payment extract download to finance", () => {
+    it("restricts the payment extract download to assurance and finance", () => {
       const policy = findRoutePolicy("/reports/payment-extract");
       expect(policy?.allowedRoles).to.deep.equal([
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
         INTERNAL_CASEWORKER_ROLES.FINANCE,
       ]);
     });

@@ -341,7 +341,10 @@ test.describe("Payment extract report", () => {
   });
 
   test.describe("RBAC behaviour", () => {
-    const allowedRoles: string[] = [INTERNAL_CASEWORKER_ROLES.FINANCE];
+    const allowedRoles: string[] = [
+      INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+      INTERNAL_CASEWORKER_ROLES.FINANCE,
+    ];
 
     // The session is shared across spec files, so restore full roles for later tests.
     test.afterEach(async ({ page }) => {

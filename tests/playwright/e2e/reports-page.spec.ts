@@ -146,6 +146,76 @@ test.describe("Reports page", () => {
         }
       }
     });
+
+    test("displays payment extract form to permitted roles", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      const allowedRoles = [
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        INTERNAL_CASEWORKER_ROLES.FINANCE,
+      ];
+      for (const role of allowedRoles) {
+        await page.goto(`/auth/test-login?overrideRoles=${role}`);
+        await page.goto(`/reports`);
+        await expect(
+          page.getByRole("heading", { name: "Payment extract" }),
+        ).toBeVisible();
+        await expect(page.getByRole("group", { name: "From" })).toBeVisible();
+        await expect(page.getByRole("group", { name: "To" })).toBeVisible();
+        await checkAccessibility();
+      }
+    });
+
+    test("does not display payment extract form to unauthorised roles", async ({
+      page,
+    }) => {
+      const allowedRoles = [
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        INTERNAL_CASEWORKER_ROLES.FINANCE,
+      ];
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+        if (!allowedRoles.includes(role)) {
+          await page.goto(`/auth/test-login?overrideRoles=${role}`);
+          await page.goto(`/reports`);
+          await expect(
+            page.getByRole("heading", { name: "Payment extract" }),
+          ).not.toBeVisible();
+        }
+      }
+    });
+
+    test("collapses the reports list to only the reports available to the role", async ({
+      page,
+    }) => {
+      await page.goto(
+        `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING}`,
+      );
+      await page.goto(`/reports`);
+      await expect(
+        page.getByRole("link", { name: "Download Applications Backlog" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "Download Claims Backlog" }),
+      ).not.toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Payment extract" }),
+      ).not.toBeVisible();
+      await expect(page.locator("main hr")).toHaveCount(0);
+    });
+
+    test("does not render a divider when payment extract is the only report", async ({
+      page,
+    }) => {
+      await page.goto(
+        `/auth/test-login?overrideRoles=${INTERNAL_CASEWORKER_ROLES.ASSURANCE}`,
+      );
+      await page.goto(`/reports`);
+      await expect(
+        page.getByRole("heading", { name: "Payment extract" }),
+      ).toBeVisible();
+      await expect(page.locator("main hr")).toHaveCount(0);
+    });
   });
 
   test.describe("Rate limiting behaviour", () => {
