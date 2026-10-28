@@ -1,4 +1,7 @@
+import { strict as assert } from "assert";
 import { test, expect } from "../fixtures/index.js";
+
+const MILLISECONDS_IN_A_SECOND = 1000;
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -186,5 +189,34 @@ test.describe("View cookies page", () => {
     await page.goto(cookiesUrl);
 
     await expect(page.getByRole("radio", { name: "No" })).toBeChecked();
+  });
+
+  test.describe("Cookies preference expires and sets option back to No", () => {
+    test("should revert to No after cookie expiry", async ({
+      page,
+      context,
+    }) => {
+      await context.clearCookies({ name: "cookies_policy" });
+
+      await page.goto(cookiesUrl);
+      await page.getByRole("radio", { name: "Yes" }).check();
+      await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+      await expect(page.getByRole("radio", { name: "Yes" })).toBeChecked();
+
+      const cookies = await context.cookies();
+      const policy = cookies.find((cookie) => cookie.name === "cookies_policy");
+      assert.ok(policy);
+      await context.addCookies([
+        {
+          ...policy,
+          expires: Math.floor(Date.now() / MILLISECONDS_IN_A_SECOND) - 1,
+        },
+      ]);
+
+      await page.reload();
+
+      await expect(page.getByRole("radio", { name: "No" })).toBeChecked();
+    });
   });
 });
