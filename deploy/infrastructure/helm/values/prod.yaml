@@ -2,9 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# this is set as 2 prior to launch, we should increase this to 5 when the service is launched
-# and we are ready for live users, staging replicaCount should match production
-replicaCount: 2
+# Cloud Platform recommends 4 replicas for production
+replicaCount: 4
 
 image:
   repository: nginx
