@@ -235,17 +235,19 @@ const authAdaptor = new AuthAdaptor(
  * Routes
  */
 
-router.get(
-  "/dev/all-applications",
-  requireAuth,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      await allApplicationsAdaptor.renderHomePage(req, res);
-    } catch (err: unknown) {
-      next(err);
-    }
-  },
-);
+if (config.ENVIRONMENT === "dev" || config.ENVIRONMENT === "local") {
+  router.get(
+    "/dev/all-applications",
+    requireAuth,
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        await allApplicationsAdaptor.renderHomePage(req, res);
+      } catch (err: unknown) {
+        next(err);
+      }
+    },
+  );
+}
 
 router.get(
   "/",
