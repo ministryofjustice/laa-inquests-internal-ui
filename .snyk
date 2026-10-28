@@ -67,9 +67,3 @@ ignore:
           image. The scan reports no upgrade or patch. Remove when the image
           includes npm with a fixed picomatch version."
         expires: "2026-11-26T00:00:00.000Z"
-  "SNYK-JS-FOLLOWREDIRECTS-21762031":
-    - "*":
-        reason:
-          "Temp ignore for follow-redirects in the Docker image.
-          Remove when fixed upstream."
-        expires: "2026-11-26T00:00:00.000Z"
