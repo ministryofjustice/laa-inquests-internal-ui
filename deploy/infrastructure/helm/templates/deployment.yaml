@@ -127,6 +127,8 @@ spec:
               value: "{{ .Values.env.ENVIRONMENT }}"
             - name: SENTRY_DSN
               value: "{{ .Values.env.SENTRY_DSN }}"
+            - name: LOG_LEVEL
+              value: "{{ .Values.env.LOG_LEVEL }}"
             - name: GA_MEASUREMENT_ID
               value: "{{ .Values.env.GA_MEASUREMENT_ID }}"
       {{- with .Values.volumes }}

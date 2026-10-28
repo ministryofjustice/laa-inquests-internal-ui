@@ -99,6 +99,7 @@ env:
   NODE_ENV: "staging"
   ENVIRONMENT: ""
   SENTRY_DSN: ""
+  LOG_LEVEL: "info"
   GA_MEASUREMENT_ID: "G-66XEG6MGRY"
 
 livenessProbe:
