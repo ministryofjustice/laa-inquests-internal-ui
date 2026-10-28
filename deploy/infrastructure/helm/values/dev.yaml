@@ -110,6 +110,7 @@ env:
   NODE_ENV: "dev"
   ENVIRONMENT: ""
   SENTRY_DSN: ""
+  LOG_LEVEL: "info"
   GA_MEASUREMENT_ID: "G-G8T3WNVTV5"
 
 autoscaling:

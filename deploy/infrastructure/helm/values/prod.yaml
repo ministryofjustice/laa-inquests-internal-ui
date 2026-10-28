@@ -68,6 +68,7 @@ env:
   NODE_ENV: "production"
   ENVIRONMENT: ""
   SENTRY_DSN: ""
+  LOG_LEVEL: "warn"
   GA_MEASUREMENT_ID: "G-YHCR3YTVMT"
 
 ingress:
