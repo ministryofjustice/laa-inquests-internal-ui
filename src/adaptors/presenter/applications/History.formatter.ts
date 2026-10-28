@@ -134,7 +134,7 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       heading: "Claim approved email sent",
     }),
     [HISTORY_EVENT_REFERENCE.EVT_COM_CLM_003]: () => ({
-      heading: "Claim rejected email sent",
+      heading: "Claim rejection email sent",
     }),
   };
 
