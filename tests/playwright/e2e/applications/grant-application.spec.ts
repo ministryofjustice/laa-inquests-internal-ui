@@ -65,6 +65,16 @@ test.describe.serial("Grant application journey", () => {
       sharedPage.locator("#application-details .govuk-tag"),
     ).toHaveText("Submitted");
     await expect(sharedPage.locator("h1 + .govuk-tag")).toHaveCount(0);
+    await expect(
+      sharedPage.getByRole("region", {
+        name: `warning: ${overviewLocale.duplicateWarning.title}`,
+      }),
+    ).toBeVisible();
+    await expect(
+      sharedPage
+        .getByRole("table", { name: overviewLocale.duplicateWarning.title })
+        .getByRole("link", { name: "INQ-YYY-004", exact: true }),
+    ).toHaveAttribute("href", "/applications/INQ-YYY-004/overview");
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -413,6 +423,14 @@ test.describe.serial("Grant application journey", () => {
     const certificateTag = sharedPage.locator("h1 + .govuk-tag");
     await expect(meritsTag).toHaveText("Granted");
     await expect(certificateTag).toHaveText("Live");
+    const duplicateWarning = sharedPage.getByRole("region", {
+      name: `warning: ${overviewLocale.duplicateWarning.title}`,
+    });
+    const duplicateTable = sharedPage.getByRole("table", {
+      name: overviewLocale.duplicateWarning.title,
+    });
+    await expect(duplicateWarning).toHaveCount(0);
+    await expect(duplicateTable).toHaveCount(0);
     await expect(
       sharedPage.locator("#application-details .govuk-tag", {
         hasText: "Submitted",
@@ -421,6 +439,8 @@ test.describe.serial("Grant application journey", () => {
     await sharedPage.reload();
     await expect(meritsTag).toHaveText("Granted");
     await expect(certificateTag).toHaveText("Live");
+    await expect(duplicateWarning).toHaveCount(0);
+    await expect(duplicateTable).toHaveCount(0);
     await expect(
       sharedPage.locator("#application-details .govuk-tag", {
         hasText: "Submitted",
@@ -435,5 +455,26 @@ test.describe.serial("Grant application journey", () => {
     await viewCertificateLink.click();
     await sharedPage.waitForLoadState("domcontentloaded");
     await expect(sharedPage).toHaveURL(certificateUrl);
+  });
+
+  test("related Submitted application still shows the potential duplicate after granting", async () => {
+    await sharedPage.goto("/applications/INQ-YYY-004/overview");
+
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag"),
+    ).toHaveText("Submitted");
+    await expect(
+      sharedPage.getByRole("region", {
+        name: `warning: ${overviewLocale.duplicateWarning.title}`,
+      }),
+    ).toBeVisible();
+    const row = sharedPage
+      .getByRole("table", { name: overviewLocale.duplicateWarning.title })
+      .getByRole("row")
+      .filter({ hasText: laaReference });
+    await expect(
+      row.getByRole("link", { name: laaReference, exact: true }),
+    ).toHaveAttribute("href", overviewPage);
+    await expect(row.locator(".govuk-tag")).toHaveText("Granted");
   });
 });

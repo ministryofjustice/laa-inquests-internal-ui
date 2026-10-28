@@ -52,6 +52,16 @@ test.describe.serial("Refuse application journey", () => {
     await expect(
       sharedPage.locator("#application-details .govuk-tag"),
     ).toHaveText("Submitted");
+    await expect(
+      sharedPage.getByRole("region", {
+        name: `warning: ${overviewLocale.duplicateWarning.title}`,
+      }),
+    ).toBeVisible();
+    await expect(
+      sharedPage
+        .getByRole("table", { name: overviewLocale.duplicateWarning.title })
+        .getByRole("link", { name: "INQ-YYY-004", exact: true }),
+    ).toHaveAttribute("href", "/applications/INQ-YYY-004/overview");
     await sharedPage.goto(makeADecisionPage);
 
     const form = sharedPage.getByTestId("make-a-decision");
@@ -414,6 +424,14 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage).toHaveURL(overviewPage);
     const meritsTag = sharedPage.locator("#application-details .govuk-tag");
     await expect(meritsTag).toHaveText("Refused");
+    const duplicateWarning = sharedPage.getByRole("region", {
+      name: `warning: ${overviewLocale.duplicateWarning.title}`,
+    });
+    const duplicateTable = sharedPage.getByRole("table", {
+      name: overviewLocale.duplicateWarning.title,
+    });
+    await expect(duplicateWarning).toHaveCount(0);
+    await expect(duplicateTable).toHaveCount(0);
     await expect(
       sharedPage.locator("#application-details .govuk-tag", {
         hasText: "Submitted",
@@ -422,6 +440,8 @@ test.describe.serial("Refuse application journey", () => {
     await expect(sharedPage.locator("h1 + .govuk-tag")).toHaveCount(0);
     await sharedPage.reload();
     await expect(meritsTag).toHaveText("Refused");
+    await expect(duplicateWarning).toHaveCount(0);
+    await expect(duplicateTable).toHaveCount(0);
     await expect(
       sharedPage.locator("#application-details .govuk-tag", {
         hasText: "Submitted",
@@ -432,5 +452,26 @@ test.describe.serial("Refuse application journey", () => {
       name: overviewLocale.details.viewCertificate,
     });
     await expect(viewCertificateLink).toBeHidden();
+  });
+
+  test("related Submitted application still shows the potential duplicate after refusing", async () => {
+    await sharedPage.goto("/applications/INQ-YYY-004/overview");
+
+    await expect(
+      sharedPage.locator("#application-details .govuk-tag"),
+    ).toHaveText("Submitted");
+    await expect(
+      sharedPage.getByRole("region", {
+        name: `warning: ${overviewLocale.duplicateWarning.title}`,
+      }),
+    ).toBeVisible();
+    const row = sharedPage
+      .getByRole("table", { name: overviewLocale.duplicateWarning.title })
+      .getByRole("row")
+      .filter({ hasText: laaReference });
+    await expect(
+      row.getByRole("link", { name: laaReference, exact: true }),
+    ).toHaveAttribute("href", overviewPage);
+    await expect(row.locator(".govuk-tag")).toHaveText("Refused");
   });
 });

@@ -109,11 +109,45 @@ test.describe("Application overview page", () => {
     ).toBeVisible();
   });
 
-  test("does not show the duplicate warning or table when the API returns no duplicates", async ({
+  test("shows each related Submitted application when either potential duplicate is viewed", async ({
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/applications/INQ-YYY-006/overview");
+    for (const [reference, relatedReference] of [
+      [laaReference, "INQ-YYY-010"],
+      ["INQ-YYY-010", laaReference],
+    ]) {
+      await page.goto(`/applications/${reference}/overview`);
+
+      await expect(page.locator("#application-details .govuk-tag")).toHaveText(
+        "Submitted",
+      );
+      await expect(
+        page.getByRole("region", {
+          name: "warning: Potential duplicate applications",
+        }),
+      ).toBeVisible();
+      const table = page.getByRole("table", {
+        name: "Potential duplicate applications",
+      });
+      const row = table.getByRole("row").filter({ hasText: relatedReference });
+      await expect(
+        row.getByRole("link", { name: relatedReference, exact: true }),
+      ).toHaveAttribute("href", `/applications/${relatedReference}/overview`);
+      await expect(row.locator(".govuk-tag")).toHaveText("Submitted");
+      await checkAccessibility();
+    }
+  });
+
+  test("does not show the duplicate warning or table when a Submitted application has no duplicates", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-001/overview");
+
+    await expect(page.locator("#application-details .govuk-tag")).toHaveText(
+      "Submitted",
+    );
 
     await expect(
       page.getByRole("region", {
@@ -126,6 +160,31 @@ test.describe("Application overview page", () => {
 
     await checkAccessibility();
   });
+
+  for (const [reference, decision] of [
+    ["INQ-YYY-006", "Granted"],
+    ["INQ-YYY-012", "Refused"],
+  ]) {
+    test(`does not show the duplicate warning or table for a ${decision} application`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${reference}/overview`);
+
+      await expect(page.locator("#application-details .govuk-tag")).toHaveText(
+        decision,
+      );
+      await expect(
+        page.getByRole("region", {
+          name: "warning: Potential duplicate applications",
+        }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole("table", { name: "Potential duplicate applications" }),
+      ).toHaveCount(0);
+      await checkAccessibility();
+    });
+  }
 
   test("does not show an assessment tag above the application reference", async ({
     page,
