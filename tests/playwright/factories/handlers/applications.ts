@@ -709,7 +709,7 @@ export const applicationHandlers = [
 
     return HttpResponse.json({
       ...appToReturn,
-      potential_duplicate_applications:
+      potentialDuplicateApplications:
         decision.toUpperCase() === SUBMITTED_DECISION
           ? (duplicateApplicationReferences[params.id as string] ?? []).map(
               (reference) => ({

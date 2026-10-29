@@ -261,7 +261,7 @@ describe("Application adaptor", () => {
     it("passes API duplicate applications to the overview template", async () => {
       viewApplicationAdaptorStub.getApplication.resolves({
         ...application,
-        potential_duplicate_applications: [
+        potentialDuplicateApplications: [
           { laa_reference: "INQ-YYY-006", status: "GRANTED" },
           { laa_reference: "INQ-YYY-010", status: "SUBMITTED" },
         ],

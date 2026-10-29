@@ -325,7 +325,7 @@ describe("Test Application API Adaptor", () => {
     axiosGetStub.resolves({
       data: {
         ...expectedApplication,
-        potential_duplicate_applications: potentialDuplicates,
+        potentialDuplicateApplications: potentialDuplicates,
       },
     });
 
@@ -333,7 +333,7 @@ describe("Test Application API Adaptor", () => {
 
     assert.deepEqual(application, {
       ...expectedApplication,
-      potential_duplicate_applications: potentialDuplicates,
+      potentialDuplicateApplications: potentialDuplicates,
     });
   });
 
