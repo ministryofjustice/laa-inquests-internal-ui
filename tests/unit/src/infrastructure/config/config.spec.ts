@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { createConfig } from "#src/infrastructure/config/config.js";
 
 const REQUIRED_ENV = {
   SESSION_SECRET: "secret",
@@ -12,30 +13,14 @@ const REQUIRED_ENV = {
   SESSION_LOG_SECRET: "log-secret",
 };
 
-let importCounter = 0;
-
 const importConfig = async (
   env: Record<string, string | undefined>,
 ): Promise<unknown> => {
-  const originalEnv = { ...process.env };
-  Object.assign(process.env, REQUIRED_ENV);
-  for (const [key, value] of Object.entries(env)) {
-    if (value === undefined) {
-      delete process.env[key];
-    } else {
-      process.env[key] = value;
-    }
-  }
+  // Merge required env with test-specific env
+  const testEnv = { ...REQUIRED_ENV, ...env };
 
-  try {
-    // The query string forces a fresh evaluation of the module on every call.
-    importCounter += 1;
-    return await import(
-      `../../../../../src/infrastructure/config/config.ts?case=${importCounter}`
-    );
-  } finally {
-    process.env = originalEnv;
-  }
+  // Return the config object directly from the factory
+  return { default: { ...createConfig(testEnv) } };
 };
 
 describe("config SENTRY_DSN", () => {
