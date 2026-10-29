@@ -13,11 +13,11 @@ const configSchema = z
   .object({
     SESSION_SECRET: z.string().min(1),
     SESSION_NAME: z.string().min(1),
-    AUTH_DIRECTORY_URL: z.string().min(1),
-    AUTH_CLIENT_ID: z.string().min(1),
-    AUTH_CLIENT_SECRET: z.string().min(1),
-    AUTH_REDIRECT_URI: z.string().min(1),
-    AUTH_POST_LOGOUT_URI: z.string().min(1),
+    AUTH_DIRECTORY_URL: z.string().optional(),
+    AUTH_CLIENT_ID: z.string().optional(),
+    AUTH_CLIENT_SECRET: z.string().optional(),
+    AUTH_REDIRECT_URI: z.string().optional(),
+    AUTH_POST_LOGOUT_URI: z.string().optional(),
     SESSION_LOG_SECRET: z.string().optional(),
     INQUESTS_API_CLIENT_ID: z.string().optional(),
     NODE_ENV: z.string().optional(),
@@ -45,17 +45,27 @@ const configSchema = z
   .superRefine((env, ctx) => {
     const nodeEnv = env.NODE_ENV ?? "development";
 
-    // Check SESSION_LOG_SECRET requirement
-    if (
-      nodeEnv !== "test" &&
-      (!env.SESSION_LOG_SECRET || env.SESSION_LOG_SECRET === "")
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["SESSION_LOG_SECRET"],
-        message:
-          "The following environment variables must be defined: SESSION_LOG_SECRET",
-      });
+    // Check AUTH vars requirement (only required outside test)
+    if (nodeEnv !== "test") {
+      const missingAuthVars = [
+        "AUTH_DIRECTORY_URL",
+        "AUTH_CLIENT_ID",
+        "AUTH_CLIENT_SECRET",
+        "AUTH_REDIRECT_URI",
+        "AUTH_POST_LOGOUT_URI",
+        "SESSION_LOG_SECRET",
+      ].filter(
+        (key) =>
+          !env[key as keyof typeof env] || env[key as keyof typeof env] === "",
+      );
+
+      if (missingAuthVars.length > 0) {
+        ctx.addIssue({
+          code: "custom",
+          path: missingAuthVars,
+          message: `The following environment variables must be defined: ${missingAuthVars.join(", ")}`,
+        });
+      }
     }
 
     validateRedisConfig(env, ctx);
@@ -148,11 +158,11 @@ export function createConfig(env: Record<string, string | undefined>): Config {
 
   // Get environment variables
   const config: Config = {
-    AUTH_DIRECTORY_URL: validated.AUTH_DIRECTORY_URL,
-    AUTH_CLIENT_ID: validated.AUTH_CLIENT_ID,
-    AUTH_CLIENT_SECRET: validated.AUTH_CLIENT_SECRET,
-    AUTH_REDIRECT_URI: validated.AUTH_REDIRECT_URI,
-    AUTH_POST_LOGOUT_URI: validated.AUTH_POST_LOGOUT_URI,
+    AUTH_DIRECTORY_URL: validated.AUTH_DIRECTORY_URL ?? "",
+    AUTH_CLIENT_ID: validated.AUTH_CLIENT_ID ?? "",
+    AUTH_CLIENT_SECRET: validated.AUTH_CLIENT_SECRET ?? "",
+    AUTH_REDIRECT_URI: validated.AUTH_REDIRECT_URI ?? "",
+    AUTH_POST_LOGOUT_URI: validated.AUTH_POST_LOGOUT_URI ?? "",
     AUTH_SCOPES: [
       "openid",
       "profile",
@@ -222,6 +232,14 @@ export function createConfig(env: Record<string, string | undefined>): Config {
 
 // Load .env.internal and create default config for application startup
 dotenv.config({ path: "../.env.internal" });
+
+// Provide sensible defaults for test environments when env vars are missing
+if (process.env.NODE_ENV === "test") {
+  process.env.SESSION_SECRET ??= "test-secret";
+  process.env.SESSION_NAME ??= "sessionId";
+  process.env.USE_REDIS ??= "false";
+}
+
 const config = createConfig(process.env);
 
 export default config;
