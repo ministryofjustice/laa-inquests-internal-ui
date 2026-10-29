@@ -122,6 +122,47 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     }
   });
 
+  it("only presents retained potential duplicates for submitted applications", async () => {
+    const applicationPortStub = stubInterface<ApplicationPort>();
+    const useCase = new BuildApplicationOverviewViewUseCase(
+      applicationPortStub,
+    );
+    const potentialDuplicateApplications = [
+      { laaReference: "INQ-YYY-004", status: "SUBMITTED" },
+    ];
+    const decisions = [
+      {
+        overallDecision: "SUBMITTED",
+        expectedDuplicates: potentialDuplicateApplications,
+      },
+      { overallDecision: "GRANTED", expectedDuplicates: [] },
+      { overallDecision: "REFUSED", expectedDuplicates: [] },
+    ];
+
+    for (const { overallDecision, expectedDuplicates } of decisions) {
+      applicationPortStub.getApplication.resolves({
+        ...application,
+        overallDecision,
+        potentialDuplicateApplications,
+      });
+
+      const result = await useCase.execute({ laaReference: "123" });
+
+      if (result.status !== "SUCCESS") {
+        throw new Error("Expected application overview data");
+      }
+
+      assert.deepEqual(
+        result.data.potentialDuplicateApplications,
+        expectedDuplicates,
+      );
+      assert.deepEqual(
+        result.data.application.potentialDuplicateApplications,
+        potentialDuplicateApplications,
+      );
+    }
+  });
+
   it("returns INVALID_INPUT without calling the port when input is incomplete", async () => {
     const applicationPortStub = stubInterface<ApplicationPort>();
     const useCase = new BuildApplicationOverviewViewUseCase(

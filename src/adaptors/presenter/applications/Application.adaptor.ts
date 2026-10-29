@@ -159,12 +159,10 @@ export class ApplicationAdaptor {
 
     const noteFlash = this.sessionHelper?.consumeFlash(req, "history");
 
-    const potentialDuplicateApplications =
-      overviewViewResult.data.application.potentialDuplicateApplications ?? [];
-
     res.render("application/application-overview", {
       application,
-      potentialDuplicateApplications,
+      potentialDuplicateApplications:
+        overviewViewResult.data.potentialDuplicateApplications,
       hasLiveCertificate: overviewViewResult.data.hasLiveCertificate,
       proceeding,
       clientHomeAddressDisplay,

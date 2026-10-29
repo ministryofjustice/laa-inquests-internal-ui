@@ -186,6 +186,30 @@ test.describe("Application overview page", () => {
     });
   }
 
+  test("keeps showing a Submitted application's potential duplicate after the related application is decided", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-004/overview");
+
+    await expect(
+      page.getByRole("region", {
+        name: "warning: Potential duplicate applications",
+      }),
+    ).toBeVisible();
+
+    const row = page
+      .getByRole("table", { name: "Potential duplicate applications" })
+      .getByRole("row")
+      .filter({ hasText: "INQ-YYY-012" });
+    await expect(
+      row.getByRole("link", { name: "INQ-YYY-012", exact: true }),
+    ).toHaveAttribute("href", "/applications/INQ-YYY-012/overview");
+    await expect(row.locator(".govuk-tag")).toHaveText("Refused");
+
+    await checkAccessibility();
+  });
+
   test("does not show an assessment tag above the application reference", async ({
     page,
   }) => {

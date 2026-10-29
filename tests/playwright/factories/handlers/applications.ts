@@ -709,18 +709,15 @@ export const applicationHandlers = [
 
     return HttpResponse.json({
       ...appToReturn,
-      potentialDuplicateApplications:
-        decision.toUpperCase() === SUBMITTED_DECISION
-          ? (duplicateApplicationReferences[params.id as string] ?? []).map(
-              (reference) => ({
-                laaReference: reference,
-                status:
-                  applicationSummaries.find(
-                    (summary) => summary.laa_reference === reference,
-                  )?.overall_decision ?? SUBMITTED_DECISION,
-              }),
-            )
-          : [],
+      potentialDuplicateApplications: (
+        duplicateApplicationReferences[params.id as string] ?? []
+      ).map((reference) => ({
+        laaReference: reference,
+        status:
+          applicationSummaries.find(
+            (summary) => summary.laa_reference === reference,
+          )?.overall_decision ?? SUBMITTED_DECISION,
+      })),
       overallDecision: matchingSummary
         ? matchingSummary.overall_decision
         : decision,
