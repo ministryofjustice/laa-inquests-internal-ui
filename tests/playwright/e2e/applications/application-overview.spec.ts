@@ -48,7 +48,7 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
-  test("lists API duplicate applications below the warning with status tags and overview links", async ({
+  test("lists API duplicate applications with camelCase references below the warning", async ({
     page,
     checkAccessibility,
   }) => {

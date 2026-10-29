@@ -56,7 +56,7 @@
             {% set duplicateRows = [] %}
             {% for duplicate in potentialDuplicateApplications %}
                 {% set duplicateRows = duplicateRows.concat([[
-                    { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laa_reference | urlencode) ~ '/overview">' ~ (duplicate.laa_reference | escape) ~ '</a>' },
+                    { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laaReference | urlencode) ~ '/overview">' ~ (duplicate.laaReference | escape) ~ '</a>' },
                     { html: meritsDecisionTag(duplicate.status) }
                 ]]) %}
             {% endfor %}

@@ -262,8 +262,8 @@ describe("Application adaptor", () => {
       viewApplicationAdaptorStub.getApplication.resolves({
         ...application,
         potentialDuplicateApplications: [
-          { laa_reference: "INQ-YYY-006", status: "GRANTED" },
-          { laa_reference: "INQ-YYY-010", status: "SUBMITTED" },
+          { laaReference: "INQ-YYY-006", status: "GRANTED" },
+          { laaReference: "INQ-YYY-010", status: "SUBMITTED" },
         ],
       });
 
@@ -279,8 +279,8 @@ describe("Application adaptor", () => {
       );
       assert.partialDeepStrictEqual(responseStub.render.firstCall.args[1], {
         potentialDuplicateApplications: [
-          { laa_reference: "INQ-YYY-006", status: "GRANTED" },
-          { laa_reference: "INQ-YYY-010", status: "SUBMITTED" },
+          { laaReference: "INQ-YYY-006", status: "GRANTED" },
+          { laaReference: "INQ-YYY-010", status: "SUBMITTED" },
         ],
       });
     });

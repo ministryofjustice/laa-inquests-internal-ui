@@ -319,8 +319,8 @@ describe("Test Application API Adaptor", () => {
     const fakeAxios = { get: axiosGetStub } as any;
     const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
     const potentialDuplicates = [
-      { laa_reference: "INQ-YYY-006", status: "GRANTED" },
-      { laa_reference: "INQ-YYY-010", status: "SUBMITTED" },
+      { laaReference: "INQ-YYY-006", status: "GRANTED" },
+      { laaReference: "INQ-YYY-010", status: "SUBMITTED" },
     ];
     axiosGetStub.resolves({
       data: {

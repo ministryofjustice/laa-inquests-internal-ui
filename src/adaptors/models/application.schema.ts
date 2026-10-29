@@ -82,7 +82,7 @@ export const ApplicationSchema = z.object({
   potentialDuplicateApplications: z
     .array(
       z.object({
-        laa_reference: z.string(),
+        laaReference: z.string(),
         status: z.string(),
       }),
     )

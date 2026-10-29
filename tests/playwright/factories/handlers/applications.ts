@@ -713,7 +713,7 @@ export const applicationHandlers = [
         decision.toUpperCase() === SUBMITTED_DECISION
           ? (duplicateApplicationReferences[params.id as string] ?? []).map(
               (reference) => ({
-                laa_reference: reference,
+                laaReference: reference,
                 status:
                   applicationSummaries.find(
                     (summary) => summary.laa_reference === reference,
