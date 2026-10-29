@@ -12,6 +12,8 @@ interface ProfitCostsTotals {
   zeroVatTotal: string;
 }
 
+const NIL_TOTAL = 0;
+
 export class ConfirmProfitCostsValidator extends FormValidator {
   validateConfirmProfitCostsForm(
     form: ConfirmProfitCostsForm,
@@ -147,6 +149,7 @@ export class ConfirmProfitCostsValidator extends FormValidator {
     };
   }
 
+  // Gross must exceed net whenever both are provided; only a nil bill (net and gross both 0) is allowed.
   #checkGrossLessThanNet(
     totals: ProfitCostsTotals,
     emptiness: { isNetEmpty: boolean; isGrossEmpty: boolean },
@@ -157,7 +160,13 @@ export class ConfirmProfitCostsValidator extends FormValidator {
       return undefined;
     }
 
-    if (Number(totals.netTotal) > Number(totals.grossTotal)) {
+    const netValue = Number(totals.netTotal);
+    const grossValue = Number(totals.grossTotal);
+    if (netValue === NIL_TOTAL && grossValue === NIL_TOTAL) {
+      return undefined;
+    }
+
+    if (grossValue <= netValue) {
       return {
         grossTotal: {
           text: en.pages.claimAssessment.confirmProfitCosts.validationErrors
