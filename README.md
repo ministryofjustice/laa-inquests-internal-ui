@@ -8,6 +8,25 @@
 
 View the [full technical documentation here](https://ministryofjustice.github.io/laa-express-typescript-template/)
 
+### MI report permissions (IDDS-822)
+
+`PERMISSIONS.VIEW_MI_REPORTS` grants MI report visibility to Assurance, Policy
+and Finance. The existing permission helper combines roles: any permitted role
+grants access, while no roles or only unrelated roles do not.
+
+Future MI report links and associated date-range forms should use
+`hasPermission(permissions.VIEW_MI_REPORTS)` through the existing view context.
+Conditionally render each complete report block, including its spacing and
+separators, so unavailable reports leave no placeholders. Keep business logic
+out of templates and add role-based E2E and accessibility coverage when the
+components are introduced.
+
+This permission does not change Reports page access or existing workflow and
+payment report permissions. Future download routes must declare their own
+specific route policy; UI visibility never replaces the API's independent
+`REPORTS_MI_READ` enforcement. No report components or routes are added by this
+preparatory change.
+
 ## Get Started
 
 ### Prerequisites

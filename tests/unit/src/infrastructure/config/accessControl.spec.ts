@@ -1,3 +1,4 @@
+import { strict as assert } from "assert";
 import { expect } from "chai";
 import {
   INTERNAL_CASEWORKER_ROLES,
@@ -248,6 +249,45 @@ describe("Access Control Configuration", () => {
   });
 
   describe("hasPermission", () => {
+    it("grants MI report visibility only when at least one role permits it", () => {
+      const permission = PERMISSIONS.VIEW_MI_REPORTS;
+      const allowedRoles: CaseworkerRole[] = [
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        INTERNAL_CASEWORKER_ROLES.POLICY,
+        INTERNAL_CASEWORKER_ROLES.FINANCE,
+      ];
+
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+        assert.equal(
+          hasPermission([role], permission),
+          allowedRoles.includes(role),
+          role,
+        );
+      }
+
+      assert.equal(hasPermission([], permission), false);
+      assert.equal(
+        hasPermission(
+          [
+            INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER,
+            INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
+          ],
+          permission,
+        ),
+        false,
+      );
+
+      for (const role of allowedRoles) {
+        assert.equal(
+          hasPermission(
+            [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER, role],
+            permission,
+          ),
+          true,
+        );
+      }
+    });
+
     it("should return true when the user has a role granted the permission", () => {
       const userRoles: CaseworkerRole[] = [
         INTERNAL_CASEWORKER_ROLES.CLAIMS_CASEWORKER,
