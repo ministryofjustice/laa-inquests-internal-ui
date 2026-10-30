@@ -161,6 +161,8 @@ export class ApplicationAdaptor {
 
     res.render("application/application-overview", {
       application,
+      potentialDuplicateApplications:
+        overviewViewResult.data.potentialDuplicateApplications,
       hasLiveCertificate: overviewViewResult.data.hasLiveCertificate,
       proceeding,
       clientHomeAddressDisplay,

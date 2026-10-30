@@ -671,6 +671,16 @@ export const PAYMENT_EXTRACT_CSV =
   "Claim Reference,Firm Account Number,Amount,Paid Date\n" +
   "INQC-0001-0001,1473,1200.00,2025-04-10\n";
 
+const duplicateApplicationReferences: Record<string, string[]> = {
+  "1": ["INQ-YYY-006", "INQ-YYY-010"],
+  "INQ-YYY-002": ["INQ-YYY-004"],
+  "INQ-YYY-003": ["INQ-YYY-004"],
+  "INQ-YYY-004": ["INQ-YYY-002", "INQ-YYY-003", "INQ-YYY-012"],
+  "INQ-YYY-006": ["1"],
+  "INQ-YYY-010": ["1"],
+  "INQ-YYY-012": ["INQ-YYY-004"],
+};
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -699,6 +709,15 @@ export const applicationHandlers = [
 
     return HttpResponse.json({
       ...appToReturn,
+      potentialDuplicateApplications: (
+        duplicateApplicationReferences[params.id as string] ?? []
+      ).map((reference) => ({
+        laaReference: reference,
+        status:
+          applicationSummaries.find(
+            (summary) => summary.laa_reference === reference,
+          )?.overall_decision ?? SUBMITTED_DECISION,
+      })),
       overallDecision: matchingSummary
         ? matchingSummary.overall_decision
         : decision,

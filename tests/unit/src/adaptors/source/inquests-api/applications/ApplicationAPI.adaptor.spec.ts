@@ -314,6 +314,29 @@ describe("Test Application API Adaptor", () => {
     assert.deepEqual(expectedApplication, application);
   });
 
+  it("returns potential duplicate applications from the get by id response", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+    const potentialDuplicates = [
+      { laaReference: "INQ-YYY-006", status: "GRANTED" },
+      { laaReference: "INQ-YYY-010", status: "SUBMITTED" },
+    ];
+    axiosGetStub.resolves({
+      data: {
+        ...expectedApplication,
+        potentialDuplicateApplications: potentialDuplicates,
+      },
+    });
+
+    const application = await adaptor.getApplication("123", "access-token-123");
+
+    assert.deepEqual(application, {
+      ...expectedApplication,
+      potentialDuplicateApplications: potentialDuplicates,
+    });
+  });
+
   it("throws application not found error when retrieval returns 404", async () => {
     const baseUrl = "https://localhost";
     const fakeAxios = { get: axiosGetStub } as any;

@@ -22,6 +22,194 @@ test.describe("Application overview page", () => {
     await checkAccessibility();
   });
 
+  test("shows a potential duplicate applications warning above the application reference", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    const warning = page.getByRole("region", {
+      name: "warning: Potential duplicate applications",
+    });
+
+    await expect(warning).toBeVisible();
+    await expect(warning).toHaveClass(/moj-alert--warning/);
+    await expect(
+      warning.getByRole("heading", {
+        name: "Potential duplicate applications",
+        level: 2,
+      }),
+    ).toBeVisible();
+    await expect(warning).toContainText(
+      "This application has potential duplicates. Check each related application before making an assessment.",
+    );
+    await expect(warning.locator("svg.moj-alert__icon")).toBeVisible();
+
+    await checkAccessibility();
+  });
+
+  test("lists duplicate applications in table", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    const duplicateList = page.locator(".moj-alert + section");
+    await expect(
+      duplicateList.getByRole("heading", {
+        name: "Potential duplicate applications",
+        level: 2,
+      }),
+    ).toBeVisible();
+
+    const table = duplicateList.getByRole("table", {
+      name: "Potential duplicate applications",
+    });
+    await expect(table.getByRole("columnheader")).toHaveText([
+      "Reference",
+      "Status",
+    ]);
+    await expect(table.getByRole("row")).toHaveCount(3);
+
+    for (const header of await table.getByRole("columnheader").all()) {
+      await expect(header).toHaveCSS("background-color", "rgb(243, 243, 243)");
+    }
+
+    for (const cell of await table.locator("th, td").all()) {
+      for (const side of ["top", "right", "bottom", "left"]) {
+        await expect(cell).toHaveCSS(`border-${side}-width`, "1px");
+        await expect(cell).toHaveCSS(`border-${side}-style`, "solid");
+        await expect(cell).toHaveCSS(
+          `border-${side}-color`,
+          "rgb(206, 206, 206)",
+        );
+      }
+    }
+
+    for (const example of [
+      { reference: "INQ-YYY-006", status: "Granted", colour: "green" },
+      { reference: "INQ-YYY-010", status: "Submitted", colour: "blue" },
+    ]) {
+      const row = table.getByRole("row").filter({ hasText: example.reference });
+      await expect(
+        row.getByRole("link", { name: example.reference, exact: true }),
+      ).toHaveAttribute("href", `/applications/${example.reference}/overview`);
+      await expect(row.locator(".govuk-tag")).toHaveText(example.status);
+      await expect(row.locator(".govuk-tag")).toHaveClass(
+        `govuk-tag govuk-tag--${example.colour}`,
+      );
+    }
+
+    await checkAccessibility();
+
+    await table.getByRole("link", { name: "INQ-YYY-006" }).click();
+    await expect(page).toHaveURL("/applications/INQ-YYY-006/overview");
+    await expect(
+      page.getByRole("heading", { name: "INQ-YYY-006", level: 1 }),
+    ).toBeVisible();
+  });
+
+  test("shows each related Submitted application when either potential duplicate is viewed", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    for (const [reference, relatedReference] of [
+      [laaReference, "INQ-YYY-010"],
+      ["INQ-YYY-010", laaReference],
+    ]) {
+      await page.goto(`/applications/${reference}/overview`);
+
+      await expect(page.locator("#application-details .govuk-tag")).toHaveText(
+        "Submitted",
+      );
+      await expect(
+        page.getByRole("region", {
+          name: "warning: Potential duplicate applications",
+        }),
+      ).toBeVisible();
+      const table = page.getByRole("table", {
+        name: "Potential duplicate applications",
+      });
+      const row = table.getByRole("row").filter({ hasText: relatedReference });
+      await expect(
+        row.getByRole("link", { name: relatedReference, exact: true }),
+      ).toHaveAttribute("href", `/applications/${relatedReference}/overview`);
+      await expect(row.locator(".govuk-tag")).toHaveText("Submitted");
+      await checkAccessibility();
+    }
+  });
+
+  test("does not show the duplicate warning or table when a Submitted application has no duplicates", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-001/overview");
+
+    await expect(page.locator("#application-details .govuk-tag")).toHaveText(
+      "Submitted",
+    );
+
+    await expect(
+      page.getByRole("region", {
+        name: "warning: Potential duplicate applications",
+      }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("table", { name: "Potential duplicate applications" }),
+    ).toHaveCount(0);
+
+    await checkAccessibility();
+  });
+
+  for (const [reference, decision] of [
+    ["INQ-YYY-006", "Granted"],
+    ["INQ-YYY-012", "Refused"],
+  ]) {
+    test(`does not show the duplicate warning or table for a ${decision} application`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${reference}/overview`);
+
+      await expect(page.locator("#application-details .govuk-tag")).toHaveText(
+        decision,
+      );
+      await expect(
+        page.getByRole("region", {
+          name: "warning: Potential duplicate applications",
+        }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole("table", { name: "Potential duplicate applications" }),
+      ).toHaveCount(0);
+      await checkAccessibility();
+    });
+  }
+
+  test("keeps showing a Submitted application's potential duplicate after the related application is decided", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/applications/INQ-YYY-004/overview");
+
+    await expect(
+      page.getByRole("region", {
+        name: "warning: Potential duplicate applications",
+      }),
+    ).toBeVisible();
+
+    const row = page
+      .getByRole("table", { name: "Potential duplicate applications" })
+      .getByRole("row")
+      .filter({ hasText: "INQ-YYY-012" });
+    await expect(
+      row.getByRole("link", { name: "INQ-YYY-012", exact: true }),
+    ).toHaveAttribute("href", "/applications/INQ-YYY-012/overview");
+    await expect(row.locator(".govuk-tag")).toHaveText("Refused");
+
+    await checkAccessibility();
+  });
+
   test("does not show an assessment tag above the application reference", async ({
     page,
   }) => {

@@ -258,6 +258,33 @@ describe("Application adaptor", () => {
       });
     });
 
+    it("passes API duplicate applications to the overview template", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        potentialDuplicateApplications: [
+          { laaReference: "INQ-YYY-006", status: "GRANTED" },
+          { laaReference: "INQ-YYY-010", status: "SUBMITTED" },
+        ],
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(
+        responseStub.render.firstCall.args[0],
+        "application/application-overview",
+      );
+      assert.partialDeepStrictEqual(responseStub.render.firstCall.args[1], {
+        potentialDuplicateApplications: [
+          { laaReference: "INQ-YYY-006", status: "GRANTED" },
+          { laaReference: "INQ-YYY-010", status: "SUBMITTED" },
+        ],
+      });
+    });
+
     it("render application overview page passes people tab data", async () => {
       viewApplicationAdaptorStub.getApplication.resolves(application);
       await applicationAdaptor.renderApplicationPage(

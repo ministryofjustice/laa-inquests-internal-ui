@@ -10,6 +10,7 @@
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
+{% from "moj/components/alert/macro.njk" import mojAlert %}
 
 {% set pageTitle = "Application " + application.laaReference %}
 
@@ -42,8 +43,35 @@
       }) }}
     {% endif %}
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
+    <div class="govuk-grid-row govuk-grid-column-full">
+        {% if potentialDuplicateApplications | length %}
+            {{ mojAlert({
+                variant: "warning",
+                title: t('pages.applicationOverview.duplicateWarning.title'),
+                text: t('pages.applicationOverview.duplicateWarning.text'),
+                showTitleAsHeading: true
+            }) }}
+            <section>
+                <h2 class="govuk-heading-m" id="potential-duplicates-heading">{{ t('pages.applicationOverview.duplicateWarning.title') }}</h2>
+                {% set duplicateRows = [] %}
+                {% for duplicate in potentialDuplicateApplications %}
+                    {% set duplicateRows = duplicateRows.concat([[
+                        { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laaReference | urlencode) ~ '/overview">' ~ (duplicate.laaReference | escape) ~ '</a>' },
+                        { html: meritsDecisionTag(duplicate.status) }
+                    ]]) %}
+                {% endfor %}
+                {{ govukTable({
+                    classes: "app-potential-duplicates-table govuk-!-static-margin-bottom-8",
+                    attributes: { "aria-labelledby": "potential-duplicates-heading" },
+                    head: [
+                        { text: t('pages.applicationOverview.duplicateWarning.referenceColumn') },
+                        { text: t('pages.applicationOverview.duplicateWarning.statusColumn') }
+                    ],
+                    rows: duplicateRows
+                }) }}
+            </section>
+        {% endif %}
+        <div class="govuk-grid-column-one-half govuk-!-static-padding-left-0">
             <h1 class="govuk-heading-xl">{{ application.laaReference }}</h1>
             {% if hasLiveCertificate %}
                 {{ govukTag({
