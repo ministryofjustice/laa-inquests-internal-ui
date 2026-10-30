@@ -233,7 +233,6 @@ export function createConfig(env: Record<string, string | undefined>): Config {
 // Load .env.internal and create default config for application startup
 dotenv.config({ path: "../.env.internal" });
 
-
 const config = createConfig(process.env);
 
 export default config;
