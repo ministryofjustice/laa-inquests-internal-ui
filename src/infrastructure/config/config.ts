@@ -233,12 +233,6 @@ export function createConfig(env: Record<string, string | undefined>): Config {
 // Load .env.internal and create default config for application startup
 dotenv.config({ path: "../.env.internal" });
 
-// Provide sensible defaults for test environments when env vars are missing
-if (process.env.NODE_ENV === "test") {
-  process.env.SESSION_SECRET ??= "test-secret";
-  process.env.SESSION_NAME ??= "sessionId";
-  process.env.USE_REDIS ??= "false";
-}
 
 const config = createConfig(process.env);
 
