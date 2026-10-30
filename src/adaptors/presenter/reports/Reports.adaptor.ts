@@ -77,10 +77,18 @@ export class ReportsAdaptor {
       );
 
     res.setHeader("Content-Type", contentType);
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace("T", "-")
+      .replaceAll(":", "")
+      .slice(0, 17);
+
     res.setHeader(
       "Content-Disposition",
-      'attachment; filename="applications-backlog.csv"',
+      `attachment; filename="${timestamp} - Report - IDDS Applications Backlog - OFFICIAL-SENSITIVE - LAA Use Only.csv"`,
     );
+
     res.send(data);
   }
 
