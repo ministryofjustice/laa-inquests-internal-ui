@@ -269,9 +269,9 @@ describe("Access Control Configuration", () => {
       expectedRoles: CaseworkerRole[],
     ): void => {
       // Get all roles that actually have this permission
-      const rolesWithPermission = Object.values(INTERNAL_CASEWORKER_ROLES).filter(
-        (role) => hasPermission([role], permission),
-      );
+      const rolesWithPermission = Object.values(
+        INTERNAL_CASEWORKER_ROLES,
+      ).filter((role) => hasPermission([role], permission));
 
       // Compare as sets (order-agnostic) to avoid false CI failures
       // due to non-deterministic Object.values() iteration order
