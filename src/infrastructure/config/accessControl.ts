@@ -26,7 +26,13 @@ export interface RoutePolicy {
 
 export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
 
-const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
+const PUBLIC_EXACT_PATHS: readonly string[] = [
+  "/health",
+  "/status",
+  "/error",
+  "/accessibility-statement",
+  "/cookies",
+];
 
 const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
 
@@ -118,6 +124,14 @@ export const PERMISSION_ROLE_MAP: Readonly<
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
+    prefix: "/",
+    allowedRoles: Object.values(INTERNAL_CASEWORKER_ROLES),
+  },
+  {
+    prefix: "/cookies",
+    allowedRoles: Object.values(INTERNAL_CASEWORKER_ROLES),
+  },
+  {
     prefix: "/applications/search",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS],
   },
@@ -173,6 +187,16 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
     prefix: "/claims/search",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_TAB],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/note",
+    allowedRoles:
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
+  },
+  {
+    prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/coroners-letter",
+    allowedRoles:
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
   },
   {
     prefix: "/help",

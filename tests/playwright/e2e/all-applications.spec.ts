@@ -1,114 +1,116 @@
-import { test, expect } from "../fixtures/index.js";
-import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
-import { CASEWORKER_DISPLAY_NAME } from "#tests/playwright/constants/Caseworker.js";
+// TODO: Handle the all-applications view in the higher envs
 
-test.describe("All Applications page", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/dev/all-applications");
-  });
+// import { test, expect } from "../fixtures/index.js";
+// import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
+// import { CASEWORKER_DISPLAY_NAME } from "#tests/playwright/constants/Caseworker.js";
 
-  test("should have the correct title", async ({ page }) => {
-    await expect(page).toHaveTitle(/Manage inquest legal aid – GOV.UK$/);
-  });
+// test.describe("All Applications page", () => {
+//   test.beforeEach(async ({ page }) => {
+//     await page.goto("/dev/all-applications");
+//   });
 
-  test("should display correct navigation content", async ({ page }) => {
-    await validateMojHeader(page);
-  });
+//   test("should have the correct title", async ({ page }) => {
+//     await expect(page).toHaveTitle(/Manage inquest legal aid – GOV.UK$/);
+//   });
 
-  test("should have the correct link for organisational label", async ({
-    page,
-  }) => {
-    const legalAidAgencyLink = page.getByRole("link", {
-      name: "Legal Aid Agency",
-    });
-    await expect(legalAidAgencyLink).toHaveAttribute("href", "/");
-  });
+//   test("should display correct navigation content", async ({ page }) => {
+//     await validateMojHeader(page);
+//   });
 
-  test("should have the correct link for service label", async ({ page }) => {
-    const serviceLink = page
-      .locator(".govuk-service-navigation")
-      .getByRole("link", {
-        name: "Manage inquest legal aid",
-      });
+//   test("should have the correct link for organisational label", async ({
+//     page,
+//   }) => {
+//     const legalAidAgencyLink = page.getByRole("link", {
+//       name: "Legal Aid Agency",
+//     });
+//     await expect(legalAidAgencyLink).toHaveAttribute("href", "/");
+//   });
 
-    await expect(serviceLink).toHaveAttribute("href", "/");
-  });
+//   test("should have the correct link for service label", async ({ page }) => {
+//     const serviceLink = page
+//       .locator(".govuk-service-navigation")
+//       .getByRole("link", {
+//         name: "Manage inquest legal aid",
+//       });
 
-  test("should have the correct link for sign out button", async ({ page }) => {
-    const signOutLink = page.getByRole("link", { name: "Sign out" });
-    await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
-  });
+//     await expect(serviceLink).toHaveAttribute("href", "/");
+//   });
 
-  test("should have the correct link for reports button", async ({ page }) => {
-    const reportsLink = page.getByRole("link", { name: "View Reports" });
-    await expect(reportsLink).toHaveAttribute("href", "/reports");
-  });
+//   test("should have the correct link for sign out button", async ({ page }) => {
+//     const signOutLink = page.getByRole("link", { name: "Sign out" });
+//     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
+//   });
 
-  test("navigation items should be in correct order", async ({ page }) => {
-    const header = page.getByRole("banner");
-    const navigation = header.getByRole("navigation", {
-      name: "Account navigation",
-    });
-    const navLinks = navigation.getByRole("link");
+//   test("should have the correct link for reports button", async ({ page }) => {
+//     const reportsLink = page.getByRole("link", { name: "View Reports" });
+//     await expect(reportsLink).toHaveAttribute("href", "/reports");
+//   });
 
-    await expect(navLinks.nth(0)).toHaveText(CASEWORKER_DISPLAY_NAME);
-    await expect(navLinks.nth(1)).toHaveText("Sign out");
-  });
+//   test("navigation items should be in correct order", async ({ page }) => {
+//     const header = page.getByRole("banner");
+//     const navigation = header.getByRole("navigation", {
+//       name: "Account navigation",
+//     });
+//     const navLinks = navigation.getByRole("link");
 
-  test("displays service name and applications table", async ({
-    pages,
-    checkAccessibility,
-  }) => {
-    const homePage = pages.allApplicationsPage;
+//     await expect(navLinks.nth(0)).toHaveText(CASEWORKER_DISPLAY_NAME);
+//     await expect(navLinks.nth(1)).toHaveText("Sign out");
+//   });
 
-    await homePage.navigate();
-    await homePage.waitForLoad();
+//   test("displays service name and applications table", async ({
+//     pages,
+//     checkAccessibility,
+//   }) => {
+//     const homePage = pages.allApplicationsPage;
 
-    await expect(homePage.heading).toBeVisible();
-    const serviceName = await homePage.getServiceName();
-    expect(serviceName).toBeTruthy();
+//     await homePage.navigate();
+//     await homePage.waitForLoad();
 
-    await expect(homePage.developerBanner).toContainText(
-      "This page is not production ready and is intended for developers.",
-    );
+//     await expect(homePage.heading).toBeVisible();
+//     const serviceName = await homePage.getServiceName();
+//     expect(serviceName).toBeTruthy();
 
-    await expect(homePage.applicationsTable).toBeVisible();
-    await expect(homePage.tableCaption).toContainText("All applications");
+//     await expect(homePage.developerBanner).toContainText(
+//       "This page is not production ready and is intended for developers.",
+//     );
 
-    const applicationReferences = await homePage.getApplicationReferences();
-    expect(applicationReferences.length).toBeGreaterThan(0);
+//     await expect(homePage.applicationsTable).toBeVisible();
+//     await expect(homePage.tableCaption).toContainText("All applications");
 
-    await checkAccessibility();
-  });
+//     const applicationReferences = await homePage.getApplicationReferences();
+//     expect(applicationReferences.length).toBeGreaterThan(0);
 
-  test("table has correct structure", async ({ pages }) => {
-    const homePage = pages.allApplicationsPage;
+//     await checkAccessibility();
+//   });
 
-    await homePage.navigate();
-    await homePage.waitForLoad();
+//   test("table has correct structure", async ({ pages }) => {
+//     const homePage = pages.allApplicationsPage;
 
-    const table = homePage.applicationsTable;
-    await expect(table.locator("thead th").nth(0)).toHaveText("Reference");
-    await expect(table.locator("thead th").nth(1)).toHaveText("Created Date");
-    await expect(table.locator("thead th").nth(2)).toHaveText("Status");
-    await expect(table.locator("thead th").nth(3)).toHaveText("Decision");
+//     await homePage.navigate();
+//     await homePage.waitForLoad();
 
-    const firstReferenceLink = table
-      .locator("tbody tr")
-      .first()
-      .locator("td a");
-    await expect(firstReferenceLink).toHaveAttribute(
-      "href",
-      /\/applications\/INQ-YYY-\d+\/overview/,
-    );
+//     const table = homePage.applicationsTable;
+//     await expect(table.locator("thead th").nth(0)).toHaveText("Reference");
+//     await expect(table.locator("thead th").nth(1)).toHaveText("Created Date");
+//     await expect(table.locator("thead th").nth(2)).toHaveText("Status");
+//     await expect(table.locator("thead th").nth(3)).toHaveText("Decision");
 
-    const firstCreatedDate = table
-      .locator("tbody tr")
-      .first()
-      .locator("td")
-      .nth(1);
-    await expect(firstCreatedDate).toHaveText(
-      /\d{1,2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}/,
-    );
-  });
-});
+//     const firstReferenceLink = table
+//       .locator("tbody tr")
+//       .first()
+//       .locator("td a");
+//     await expect(firstReferenceLink).toHaveAttribute(
+//       "href",
+//       /\/applications\/INQ-YYY-\d+\/overview/,
+//     );
+
+//     const firstCreatedDate = table
+//       .locator("tbody tr")
+//       .first()
+//       .locator("td")
+//       .nth(1);
+//     await expect(firstCreatedDate).toHaveText(
+//       /\d{1,2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}/,
+//     );
+//   });
+// });

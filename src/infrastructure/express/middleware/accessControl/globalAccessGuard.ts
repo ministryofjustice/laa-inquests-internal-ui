@@ -8,7 +8,7 @@ import {
 import { HTTP_FORBIDDEN } from "#src/infrastructure/express/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
-type DenyReason = "insufficient_role";
+type DenyReason = "insufficient_role" | "unconfigured_route";
 
 /**
  * Central, default-deny page-level authorisation.
@@ -40,8 +40,7 @@ export function globalAccessGuard(
 
   const policy = findRoutePolicy(req.path);
   if (policy === undefined) {
-    next();
-    // TODO: Deny unconfigured routes in the future once route policies have been configured
+    denyAccess(req, res, "unconfigured_route");
     return;
   }
 

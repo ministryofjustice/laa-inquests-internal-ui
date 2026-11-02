@@ -15,7 +15,7 @@ import {
   HTTP_INTERNAL_SERVER_ERROR,
 } from "#tests/playwright/constants/httpStatus.js";
 
-const laaReference = "1";
+const laaReference = "INQ-YYY-001";
 const certificateLocale = en.pages.applicationCertificate;
 
 const applicationOverviewUrl = `/applications/${laaReference}/overview`;
