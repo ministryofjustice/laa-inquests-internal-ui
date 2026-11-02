@@ -264,21 +264,36 @@ describe("Access Control Configuration", () => {
       assert.equal(hasPermission([], permission), false);
     };
 
+    const expectRolesToHaveExactPermission = (
+      permission: string,
+      expectedRoles: CaseworkerRole[],
+    ): void => {
+      // Get all roles that actually have this permission
+      const rolesWithPermission = Object.values(INTERNAL_CASEWORKER_ROLES).filter(
+        (role) => hasPermission([role], permission),
+      );
+
+      // Compare as sets (order-agnostic) to avoid false CI failures
+      // due to non-deterministic Object.values() iteration order
+      expect(rolesWithPermission).to.have.members(expectedRoles);
+      expect(rolesWithPermission).to.have.lengthOf(expectedRoles.length);
+    };
+
     it("grants OGD costs report access only to finance and policy", () => {
-      expectOnlyRolesHavePermission(PERMISSIONS.VIEW_OGD_COSTS_REPORT, [
+      expectRolesToHaveExactPermission(PERMISSIONS.VIEW_OGD_COSTS_REPORT, [
         INTERNAL_CASEWORKER_ROLES.FINANCE,
         INTERNAL_CASEWORKER_ROLES.POLICY,
       ]);
     });
 
     it("grants audit trail report access only to assurance", () => {
-      expectOnlyRolesHavePermission(PERMISSIONS.VIEW_AUDIT_TRAIL_REPORT, [
+      expectRolesToHaveExactPermission(PERMISSIONS.VIEW_AUDIT_TRAIL_REPORT, [
         INTERNAL_CASEWORKER_ROLES.ASSURANCE,
       ]);
     });
 
     it("grants reports page access to exactly the roles with at least one report permission", () => {
-      expectOnlyRolesHavePermission(PERMISSIONS.VIEW_REPORTS_PAGE, [
+      expectRolesToHaveExactPermission(PERMISSIONS.VIEW_REPORTS_PAGE, [
         INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
         INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
         INTERNAL_CASEWORKER_ROLES.ASSURANCE,
