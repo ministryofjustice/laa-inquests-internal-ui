@@ -78,11 +78,26 @@ export class ReportsAdaptor {
 
     res.setHeader("Content-Type", contentType);
 
-    const timestamp = new Date()
-      .toISOString()
-      .replace("T", "-")
-      .replaceAll(":", "")
-      .slice(0, 17);
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/London",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23",
+    });
+
+    const parts = Object.fromEntries(
+      formatter
+        .formatToParts(new Date())
+        .map(({ type, value }) => [type, value]),
+    );
+
+    const timestamp =
+      `${parts.year}-${parts.month}-${parts.day}-` +
+      `${parts.hour}${parts.minute}${parts.second}`;
 
     res.setHeader(
       "Content-Disposition",

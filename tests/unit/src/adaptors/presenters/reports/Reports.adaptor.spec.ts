@@ -109,6 +109,32 @@ describe("Reports adaptor", () => {
     }
   });
 
+  it("uses London summer time in the applications backlog filename", async () => {
+    const clock = sinon.useFakeTimers({
+      now: Date.UTC(2026, 6, 30, 10, 10, 10),
+      toFake: ["Date"],
+    });
+
+    try {
+      downloadApplicationsBacklogReportUseCaseStub.execute.resolves({
+        data: Buffer.from("col1,col2\n1,2"),
+        contentType: "text/csv",
+      });
+
+      await reportsAdaptor.downloadApplicationsBacklog(
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        'attachment; filename="2026-07-30-111010 - Report - IDDS Applications Backlog - OFFICIAL-SENSITIVE - LAA Use Only.csv"',
+      ]);
+    } finally {
+      clock.restore();
+    }
+  });
+
   it("propagates applications report failures without writing a response", async () => {
     const error = new Error("API error");
     downloadApplicationsBacklogReportUseCaseStub.execute.rejects(error);
