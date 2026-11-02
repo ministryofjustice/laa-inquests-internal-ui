@@ -130,9 +130,7 @@ test.describe("Reports page", () => {
         });
       }
 
-      test("grants MI report access for combined roles", async ({
-        page,
-      }) => {
+      test("grants MI report access for combined roles", async ({ page }) => {
         // This test verifies that roles with MI report permissions
         // can access the reports page alongside workflow reporting roles
         const roles = [
