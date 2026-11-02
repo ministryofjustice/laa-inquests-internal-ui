@@ -98,7 +98,6 @@ test.describe("Reports page", () => {
       for (const role of permittedRoles) {
         test(`grants MI report access for ${role}`, async ({ page }) => {
           // This test verifies backend permission configuration
-          // The UI implementation for MI report links is in a separate ticket
           await page.goto(
             `/auth/test-login?overrideRoles=${encodeURIComponent(role)}`,
           );
