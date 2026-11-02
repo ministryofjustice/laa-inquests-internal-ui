@@ -97,3 +97,19 @@ requests to routes missing from the policy return `403 Forbidden` by design.
 2. Add a matching entry to `PERMISSION_ROLE_MAP` listing the roles that grant
    it.
 3. Use `{{ hasPermission(permissions.YOUR_KEY) }}` in the template.
+
+## MI report placeholders (IDDS-822)
+
+The Reports page shows User Audit Trail, Claim and Applications Processing,
+and Costs links only to users with Assurance, Policy, or Finance roles. A user
+with any one of these roles retains access when combined with other roles.
+The entire link markup is omitted for users without MI reporting permission,
+so hidden reports leave no placeholders or empty spacing.
+
+These links use named `#PLACEHOLDER-FOR-...-LINK` fragments and
+`aria-disabled="true"` and do not download CSVs. Replace each placeholder `href`
+and remove `aria-disabled` when its report destination is ready.
+Date-range forms, download routes, and API permission
+alignment remain follow-up work; this change does not complete those acceptance
+criteria. Payment Extract and backlog report permissions and behaviour are
+unchanged.
