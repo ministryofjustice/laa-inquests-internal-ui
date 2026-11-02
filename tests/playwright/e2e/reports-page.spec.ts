@@ -87,6 +87,85 @@ test.describe("Reports page", () => {
 
   test.describe("RBAC behaviour", () => {
     test.afterEach(async ({ page }) => await page.goto("/auth/test-login"));
+
+    test.describe("MI report links", () => {
+      const reportNames = [
+        "User Audit Trail",
+        "Claim and Applications Processing",
+        "Costs",
+      ];
+      const permittedRoles = [
+        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
+        INTERNAL_CASEWORKER_ROLES.POLICY,
+        INTERNAL_CASEWORKER_ROLES.FINANCE,
+      ];
+
+      for (const role of permittedRoles) {
+        test(`displays all MI report links for ${role}`, async ({
+          page,
+          checkAccessibility,
+        }) => {
+          await page.goto(
+            `/auth/test-login?overrideRoles=${encodeURIComponent(role)}`,
+          );
+          await page.goto("/reports");
+
+          for (const name of reportNames) {
+            await expect(
+              page.getByRole("link", { name, exact: true }),
+            ).toBeVisible();
+          }
+
+          await checkAccessibility();
+        });
+      }
+
+      for (const role of Object.values(INTERNAL_CASEWORKER_ROLES).filter(
+        (role) => !permittedRoles.includes(role),
+      )) {
+        test(`omits all MI report links for ${role}`, async ({ page }) => {
+          await page.goto(
+            `/auth/test-login?overrideRoles=${encodeURIComponent(role)}`,
+          );
+          await page.goto("/reports");
+
+          for (const name of reportNames) {
+            await expect(
+              page.getByRole("link", { name, exact: true }),
+            ).toHaveCount(0);
+          }
+        });
+      }
+
+      test("displays MI and workflow report links for combined roles", async ({
+        page,
+        checkAccessibility,
+      }) => {
+        const roles = [
+          INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+          INTERNAL_CASEWORKER_ROLES.POLICY,
+        ];
+        await page.goto(
+          `/auth/test-login?overrideRoles=${encodeURIComponent(roles.join(","))}`,
+        );
+        await page.goto("/reports");
+
+        for (const name of reportNames) {
+          await expect(
+            page.getByRole("link", { name, exact: true }),
+          ).toBeVisible();
+        }
+        await expect(
+          page.getByRole("link", { name: "Download Applications Backlog" }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole("link", { name: "Download Claims Backlog" }),
+        ).toHaveCount(0);
+
+        await checkAccessibility();
+      });
+    });
+
     test("displays applications backlog download link only to permitted roles", async ({
       page,
     }) => {
