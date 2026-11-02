@@ -37,6 +37,18 @@
         </p>
     {% endif %}
 
+    {% if hasPermission(permissions.VIEW_MI_REPORTS) %}
+        <p class="govuk-body">
+          <a class="govuk-link" href="#PLACEHOLDER-FOR-AUDIT-TRAIL-LINK" aria-disabled="true">{{ t('pages.reports.userAuditTrailLink') }}</a>
+        </p>
+        <p class="govuk-body">
+          <a class="govuk-link" href="#PLACEHOLDER-FOR-CLAIM-AND-APPLICATIONS-PROCESSING-LINK" aria-disabled="true">{{ t('pages.reports.claimAndApplicationsProcessingLink') }}</a>
+        </p>
+        <p class="govuk-body">
+          <a class="govuk-link" href="#PLACEHOLDER-FOR-COSTS-LINK" aria-disabled="true">{{ t('pages.reports.costsLink') }}</a>
+        </p>
+    {% endif %}
+
     {% if hasPermission(permissions.VIEW_PAYMENT_EXTRACT_REPORT) %}
         {% set formValues = formValues or {} %}
         {% if hasPermission(permissions.VIEW_APPLICATIONS_REPORTS) or hasPermission(permissions.VIEW_CLAIMS_REPORTS) %}

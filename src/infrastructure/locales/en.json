@@ -67,6 +67,9 @@
       "heading": "Reports",
       "downloadApplicationsBacklogLink": "Download Applications Backlog",
       "downloadClaimsBacklogLink": "Download Claims Backlog",
+      "userAuditTrailLink": "User Audit Trail",
+      "claimAndApplicationsProcessingLink": "Claim and Applications Processing",
+      "costsLink": "Costs",
       "paymentExtract": {
         "heading": "Payment extract",
         "description": "Download a CSV of a payment extract within a date range.",
