@@ -125,15 +125,23 @@ export const PERMISSION_ROLE_MAP: Readonly<
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
     prefix: "/",
-    allowedRoles: Object.values(INTERNAL_CASEWORKER_ROLES),
+    allowedRoles: RECOGNISED_ROLES,
   },
   {
     prefix: "/cookies",
-    allowedRoles: Object.values(INTERNAL_CASEWORKER_ROLES),
+    allowedRoles: RECOGNISED_ROLES,
+  },
+  {
+    prefix: "/help",
+    allowedRoles: RECOGNISED_ROLES,
   },
   {
     prefix: "/applications/search",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.SEARCH_APPLICATIONS],
+  },
+  {
+    prefix: "/dev/all-applications",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.MANAGE_APPLICATION],
   },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview",
@@ -197,10 +205,6 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/coroners-letter",
     allowedRoles:
       PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE],
-  },
-  {
-    prefix: "/help",
-    allowedRoles: RECOGNISED_ROLES,
   },
 ];
 

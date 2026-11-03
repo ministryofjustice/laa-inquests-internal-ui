@@ -51,7 +51,7 @@ describe("Home adaptor", () => {
 
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "main/all-applications");
+    assert.equal(renderArgs[0], "non-production/all-applications");
     assert.deepEqual(renderArgs[1], {
       tableRows: [
         [
