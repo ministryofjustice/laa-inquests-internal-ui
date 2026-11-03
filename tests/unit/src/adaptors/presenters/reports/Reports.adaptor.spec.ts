@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
+import sinon from "sinon";
 import type { Request, Response } from "express";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import type { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
@@ -67,33 +68,71 @@ describe("Reports adaptor", () => {
   });
 
   it("downloads applications backlog report with attachment headers", async () => {
-    const mockBuffer = Buffer.from("col1,col2\n1,2");
-    downloadApplicationsBacklogReportUseCaseStub.execute.resolves({
-      data: mockBuffer,
-      contentType: "text/csv",
+    const clock = sinon.useFakeTimers({
+      now: Date.UTC(2026, 9, 30, 10, 10, 10),
+      toFake: ["Date"],
     });
 
-    await reportsAdaptor.downloadApplicationsBacklog(requestStub, responseStub);
+    try {
+      const mockBuffer = Buffer.from("col1,col2\n1,2");
+      downloadApplicationsBacklogReportUseCaseStub.execute.resolves({
+        data: mockBuffer,
+        contentType: "text/csv",
+      });
 
-    assert.equal(
-      downloadApplicationsBacklogReportUseCaseStub.execute.callCount,
-      1,
-    );
-    assert.deepEqual(
-      downloadApplicationsBacklogReportUseCaseStub.execute.firstCall.args,
-      ["test-access-token"],
-    );
-    assert.equal(responseStub.setHeader.callCount, 2);
-    assert.deepEqual(responseStub.setHeader.getCall(0).args, [
-      "Content-Type",
-      "text/csv",
-    ]);
-    assert.deepEqual(responseStub.setHeader.getCall(1).args, [
-      "Content-Disposition",
-      'attachment; filename="applications-backlog.csv"',
-    ]);
-    assert.equal(responseStub.send.callCount, 1);
-    assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
+      await reportsAdaptor.downloadApplicationsBacklog(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(
+        downloadApplicationsBacklogReportUseCaseStub.execute.callCount,
+        1,
+      );
+      assert.deepEqual(
+        downloadApplicationsBacklogReportUseCaseStub.execute.firstCall.args,
+        ["test-access-token"],
+      );
+      assert.equal(responseStub.setHeader.callCount, 2);
+      assert.deepEqual(responseStub.setHeader.getCall(0).args, [
+        "Content-Type",
+        "text/csv",
+      ]);
+      assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        'attachment; filename="2026-10-30-101010 - Report - IDDS Applications Backlog - OFFICIAL-SENSITIVE - LAA Use Only.csv"',
+      ]);
+      assert.equal(responseStub.send.callCount, 1);
+      assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
+    } finally {
+      clock.restore();
+    }
+  });
+
+  it("uses London summer time in the applications backlog filename", async () => {
+    const clock = sinon.useFakeTimers({
+      now: Date.UTC(2026, 6, 30, 10, 10, 10),
+      toFake: ["Date"],
+    });
+
+    try {
+      downloadApplicationsBacklogReportUseCaseStub.execute.resolves({
+        data: Buffer.from("col1,col2\n1,2"),
+        contentType: "text/csv",
+      });
+
+      await reportsAdaptor.downloadApplicationsBacklog(
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        'attachment; filename="2026-07-30-111010 - Report - IDDS Applications Backlog - OFFICIAL-SENSITIVE - LAA Use Only.csv"',
+      ]);
+    } finally {
+      clock.restore();
+    }
   });
 
   it("propagates applications report failures without writing a response", async () => {
