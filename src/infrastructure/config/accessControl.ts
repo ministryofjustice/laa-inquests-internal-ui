@@ -31,7 +31,6 @@ const PUBLIC_EXACT_PATHS: readonly string[] = [
   "/status",
   "/error",
   "/accessibility-statement",
-  "/cookies",
 ];
 
 const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
