@@ -107,9 +107,9 @@ const fullApplications = [
     autoGrant: true,
     overallDecision: SUBMITTED_DECISION,
     proceeding: {
-      proceedingId: "IQPC",
-      proceedingName: "Death in police custody",
-      proceedingDescription: "Death in police custody",
+      proceedingId: "IQ011",
+      proceedingName: "An individual has died in police custody",
+      proceedingDescription: "An individual has died in police custody",
       categoryOfLaw: "INQUESTS",
       certificateType: "SUBSTANTIVE",
       levelOfService: "FULL_REPRESENTATION",
@@ -950,9 +950,9 @@ export const applicationHandlers = [
     () => {
       const backlogCsv = Buffer.from(
         "Application / Case Reference Number,Current Application Status,Application Received Date,Firm Name,Firm Account Number,Proceeding Code,Matter Type\n" +
-          "1,SUBMITTED,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
-          "2,SUBMITTED,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
-          "10,SUBMITTED,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
+          "1,SUBMITTED,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQ011,INQUESTS\n" +
+          "2,SUBMITTED,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQ012,INQUESTS\n" +
+          "10,SUBMITTED,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQ012,INQUESTS\n",
       );
       return new HttpResponse(backlogCsv, {
         status: 200,
@@ -966,9 +966,9 @@ export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/reports/claims/backlog`, () => {
     const claimsBacklogCsv = Buffer.from(
       "Application / Case Reference Number,Current Application Status,Application Received Date,Firm Name,Firm Account Number,Proceeding Code,Matter Type\n" +
-        "1,SUBMITTED,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQPO,INQUESTS\n" +
-        "2,SUBMITTED,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQOT,INQUESTS\n" +
-        "10,SUBMITTED,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQOT,INQUESTS\n",
+        "1,SUBMITTED,2026-07-27 08:49:34,YOUNG SWISTAK,1473,IQ011,INQUESTS\n" +
+        "2,SUBMITTED,2026-07-27 10:18:22,YOUNG SWISTAK,1473,IQ012,INQUESTS\n" +
+        "10,SUBMITTED,2026-07-28 13:48:32,SWITALSKI'S SOLICITORS LTD,3637,IQ012,INQUESTS\n",
     );
 
     return new HttpResponse(claimsBacklogCsv, {

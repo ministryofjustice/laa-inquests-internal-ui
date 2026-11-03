@@ -18,9 +18,9 @@ describe("BuildApplicationOverviewViewUseCase", () => {
     autoGrant: true,
     overallDecision: "SUBMITTED",
     proceeding: {
-      proceedingId: "IQPC",
-      proceedingName: "Death in police custody",
-      proceedingDescription: "Death in police custody",
+      proceedingId: "IQ011",
+      proceedingName: "An individual has died in police custody",
+      proceedingDescription: "An individual has died in police custody",
       categoryOfLaw: "INQUESTS",
       certificateType: "SUBSTANTIVE",
       levelOfService: "FULL_REPRESENTATION",

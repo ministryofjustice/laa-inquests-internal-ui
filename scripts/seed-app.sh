@@ -82,7 +82,7 @@ VALUES (
   'RESPONDENT',
   'PENDING',
   12345,
-  'IQPC'
+  'IQ011'
 )
 ON CONFLICT (application_proceeding_id) DO NOTHING;
 SQL

@@ -49,9 +49,9 @@ describe("Application adaptor", () => {
     autoGrant: true,
     overallDecision: "SUBMITTED",
     proceeding: {
-      proceedingId: "IQPC",
-      proceedingName: "Death in police custody",
-      proceedingDescription: "Death in police custody",
+      proceedingId: "IQ011",
+      proceedingName: "An individual has died in police custody",
+      proceedingDescription: "An individual has died in police custody",
       categoryOfLaw: "INQUESTS",
       certificateType: "SUBSTANTIVE",
       levelOfService: "FULL_REPRESENTATION",
@@ -248,7 +248,7 @@ describe("Application adaptor", () => {
           applicationType: "Initial application",
         },
         proceeding: {
-          proceedingName: "Death in police custody",
+          proceedingName: "An individual has died in police custody",
           certificateType: "Substantive",
           clientInvolvementType: "Respondent",
           levelOfService: "Full representation",
