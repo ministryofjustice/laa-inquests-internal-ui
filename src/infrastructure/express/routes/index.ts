@@ -52,9 +52,7 @@ import { BuildApplicationsListViewUseCase } from "#src/use-cases/home/BuildAppli
 import { AddHistoryNoteUseCase } from "#src/use-cases/applications/history/AddHistoryNote.useCase.js";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import { CookiesAdaptor } from "#src/adaptors/presenter/cookies/Cookies.adaptor.js";
-import { UserRolesAdaptor } from "#src/adaptors/presenter/userRoles/UserRoles.adaptor.js";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
-import { createUserRolesRouter } from "#src/infrastructure/express/routes/userRoles.router.js";
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
 import { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
@@ -192,7 +190,6 @@ const reportsAdaptor = new ReportsAdaptor(
   new PaymentExtractValidator(),
 );
 const cookiesAdaptor = new CookiesAdaptor();
-const userRolesAdaptor = new UserRolesAdaptor();
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(
   viewApplicationAdaptor,
   new SessionHelper(),
@@ -303,12 +300,6 @@ router.use(
     express.Router(),
     accessibilityStatementAdaptor,
   ),
-);
-
-router.use(
-  "/user-roles",
-  requireAuth,
-  createUserRolesRouter(express.Router(), userRolesAdaptor),
 );
 
 router.use("/claims", requireAuth, [

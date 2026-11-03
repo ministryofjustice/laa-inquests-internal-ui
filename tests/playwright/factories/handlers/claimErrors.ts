@@ -12,13 +12,13 @@ import {
 
 export const CLAIM_APPLICATION_REFERENCE = "INQ-YYY-005";
 export const MISSING_CLAIM_REFERENCE = "INQC-4040-4040";
-export const UNAUTHORISED_CLAIM_ID = "claim-401";
-export const FORBIDDEN_CLAIM_ID = "claim-403";
-export const MISSING_CLAIM_ID = "claim-404";
-export const FAILED_CLAIM_ID = "claim-500";
-export const INVALID_CLAIM_ID = "claim-invalid";
-export const FAILED_REJECTION_CLAIM_ID = "reject-500";
-const FAILED_REJECTION_CLAIM_API_ID = "999";
+export const UNAUTHORISED_CLAIM_ID = "INQC-YYYY-0401";
+export const FORBIDDEN_CLAIM_ID = "INQC-YYYY-0403";
+export const MISSING_CLAIM_ID = "INQC-YYYY-0404";
+export const FAILED_CLAIM_ID = "INQC-YYYY-0500";
+export const INVALID_CLAIM_ID = "INQC-YYYY-INVD";
+export const FAILED_REJECTION_CLAIM_ID = "INQC-REJC-0500";
+const FAILED_REJECTION_CLAIM_API_ID = "INQC-YYYY-9999";
 export const PAY_IN_FULL_MIXED_VAT_CLAIM_ID = "INQC-0020-0020";
 export const PAY_IN_FULL_UNKNOWN_CODE_CLAIM_ID = "INQC-0021-0021";
 export const PAY_IN_FULL_MIXED_VAT_ERROR_CODE = "PROFIT_COST_MIXED_VAT";
@@ -28,9 +28,9 @@ export const PAY_IN_FULL_DISBURSEMENT_GROSS_UPSTREAM_MESSAGE =
   "The gross total must be greater than the 0% VAT and net total combined";
 export const PAY_IN_FULL_422_UNKNOWN_CODE_UPSTREAM_MESSAGE =
   "An unprocessable upstream message we should not surface";
-export const UNAUTHORISED_EVIDENCE_ID = "evidence-401";
-export const MISSING_EVIDENCE_ID = "evidence-404";
-export const FAILED_EVIDENCE_ID = "evidence-500";
+export const UNAUTHORISED_EVIDENCE_ID = "INQC-EVID-0401";
+export const MISSING_EVIDENCE_ID = "INQC-EVID-0404";
+export const FAILED_EVIDENCE_ID = "INQC-EVID-0500";
 
 const claimUrl = (claimReference: string): string =>
   `${TEST_CONFIG.INQUESTS_API_URL}/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimReference}`;

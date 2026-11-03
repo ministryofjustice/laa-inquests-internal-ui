@@ -38,7 +38,7 @@ export class AllApplicationsAdaptor {
         accessToken: req.session.user?.accessToken,
       });
 
-    res.render("main/all-applications", {
+    res.render("non-production/all-applications", {
       tableRows: sortApplicationsByCreatedAtDesc(
         applicationsListResult.data.applications,
       )

@@ -7,11 +7,11 @@ import {
   HTTP_INTERNAL_SERVER_ERROR,
 } from "#tests/playwright/constants/httpStatus.js";
 
-export const UNAUTHORISED_CERTIFICATE_REFERENCE = "INQ-CERT-401";
-export const FORBIDDEN_CERTIFICATE_REFERENCE = "INQ-CERT-403";
-export const MISSING_CERTIFICATE_REFERENCE = "INQ-CERT-404";
-export const FAILED_CERTIFICATE_REFERENCE = "INQ-CERT-500";
-export const INVALID_CERTIFICATE_REFERENCE = "INQ-CERT-INVALID";
+export const UNAUTHORISED_CERTIFICATE_REFERENCE = "INQ-CRT-401";
+export const FORBIDDEN_CERTIFICATE_REFERENCE = "INQ-CRT-403";
+export const MISSING_CERTIFICATE_REFERENCE = "INQ-CRT-404";
+export const FAILED_CERTIFICATE_REFERENCE = "INQ-CRT-500";
+export const INVALID_CERTIFICATE_REFERENCE = "INQ-CRT-NVD";
 
 const certificateUrl = (laaReference: string): string =>
   `${TEST_CONFIG.INQUESTS_API_URL}/applications/${laaReference}/certificate`;

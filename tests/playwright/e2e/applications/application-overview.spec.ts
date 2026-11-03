@@ -1,4 +1,8 @@
-import { INTERNAL_CASEWORKER_ROLES } from "#src/infrastructure/config/accessControl.js";
+import {
+  INTERNAL_CASEWORKER_ROLES,
+  PERMISSION_ROLE_MAP,
+  PERMISSIONS,
+} from "#src/infrastructure/config/accessControl.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { test, expect } from "../../fixtures/index.js";
 import {
@@ -7,9 +11,13 @@ import {
   validateSummaryCardKeys,
 } from "../../utils/govuk-validators.js";
 
-const laaReference = "1";
+const laaReference = "INQ-YYY-001";
 
 test.describe("Application overview page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/auth/test-login");
+  });
+
   test("should have the correct title and back link", async ({
     page,
     checkAccessibility,
@@ -143,7 +151,7 @@ test.describe("Application overview page", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/applications/INQ-YYY-001/overview");
+    await page.goto("/applications/INQ-YYY-009/overview");
 
     await expect(page.locator("#application-details .govuk-tag")).toHaveText(
       "Submitted",
@@ -554,8 +562,10 @@ test.describe("Application people tab RBAC behaviour", () => {
   test("should not have a Make assessment button when viewed with incorrect role", async ({
     page,
   }) => {
+    const application_overview_roles =
+      PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_APPLICATIONS_OVERVIEW_PAGE];
     const allowedRoles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
-    for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+    for (const role of Object.values(application_overview_roles)) {
       if (!allowedRoles.includes(role)) {
         await page.goto(`/auth/test-login?overrideRoles=${role}`);
         await page.goto(`/applications/${laaReference}/overview`);

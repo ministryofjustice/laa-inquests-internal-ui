@@ -3,7 +3,8 @@ import { validateHeader } from "../../utils/govuk-validators.js";
 
 test.describe("Claims tab", () => {
   test("should show the Claims tab", async ({ page }) => {
-    await page.goto(`/applications/5/overview`);
+    const laaReference = "INQ-YYY-005";
+    await page.goto(`/applications/${laaReference}/overview`);
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.getByRole("tab", { name: "Claims" })).toBeVisible();

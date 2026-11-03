@@ -114,7 +114,7 @@ describe("globalAccessGuard", () => {
       assert.equal(res.status.callCount, 0);
     });
 
-    it("is safe when session roles are missing", () => {
+    it("Continues to next to require authentication when userId is empty", () => {
       setPath("/applications");
       req.session.user = { userId: "" };
 
@@ -129,31 +129,27 @@ describe("globalAccessGuard", () => {
       req.session.user = { userId: "test-caseworker" };
     });
 
-    it("allows access when no route policy is configured", () => {
-      setPath("/applications");
+    it("denies access when route policy is configured but session roles are missing", () => {
+      setPath("/applications/search");
 
       globalAccessGuard(req, res, next as NextFunction);
 
-      assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
+      assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+      assert.deepEqual(res.render.firstCall.args, ["main/error-unauthorised"]);
     });
 
-    it("is safe when session roles are missing", () => {
-      setPath("/applications");
-
-      globalAccessGuard(req, res, next as NextFunction);
-
-      assert.equal(next.callCount, 1);
-    });
-
-    it("allows access when roles are present but no policy applies", () => {
-      setPath("/applications");
+    it("denies access when roles are present but no policy applies", () => {
+      setPath("/unconfigured-route");
       req.session.roles = [INTERNAL_CASEWORKER_ROLES.APPLICATIONS_CASEWORKER];
 
       globalAccessGuard(req, res, next as NextFunction);
 
-      assert.equal(next.callCount, 1);
-      assert.equal(res.status.callCount, 0);
+      assert.equal(next.callCount, 0);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+      assert.deepEqual(res.render.firstCall.args, ["main/error-unauthorised"]);
     });
   });
 
