@@ -23,7 +23,7 @@ const claimPath = (claimReference: string): string =>
   `/applications/${CLAIM_APPLICATION_REFERENCE}/claims/${claimReference}`;
 
 const evidencePath = (evidenceId: string): string =>
-  `${claimPath("10")}/evidence/${evidenceId}?disposition=inline`;
+  `${claimPath("INQC-YYYY-0010")}/evidence/${evidenceId}?disposition=inline`;
 
 test.use({ storageState: { cookies: [], origins: [] } });
 

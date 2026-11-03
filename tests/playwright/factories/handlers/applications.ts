@@ -672,12 +672,12 @@ export const PAYMENT_EXTRACT_CSV =
   "INQC-0001-0001,1473,1200.00,2025-04-10\n";
 
 const duplicateApplicationReferences: Record<string, string[]> = {
-  "1": ["INQ-YYY-006", "INQ-YYY-010"],
+  "INQ-YYY-001": ["INQ-YYY-006", "INQ-YYY-010"],
   "INQ-YYY-002": ["INQ-YYY-004"],
   "INQ-YYY-003": ["INQ-YYY-004"],
   "INQ-YYY-004": ["INQ-YYY-002", "INQ-YYY-003", "INQ-YYY-012"],
-  "INQ-YYY-006": ["1"],
-  "INQ-YYY-010": ["1"],
+  "INQ-YYY-006": ["INQ-YYY-001"],
+  "INQ-YYY-010": ["INQ-YYY-001"],
   "INQ-YYY-012": ["INQ-YYY-004"],
 };
 
@@ -770,7 +770,7 @@ export const applicationHandlers = [
   http.get(
     `${TEST_CONFIG.INQUESTS_API_URL}/applications/:id/certificate`,
     ({ params }) => {
-      if (params.id === "999") {
+      if (params.id === "INQ-YYY-999") {
         return new HttpResponse(null, { status: 404 });
       }
       return HttpResponse.json(certificate);
