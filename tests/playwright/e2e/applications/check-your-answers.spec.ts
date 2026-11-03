@@ -104,7 +104,7 @@ test.describe.serial("Check your answers page", () => {
     await expect(finalBillRow.getByText("£1,200")).toBeVisible();
     await expect(
       finalBillRow.getByRole("link", { name: /change/i }),
-    ).toHaveAttribute("href", assessClaimPage);
+    ).toHaveAttribute("href", `${assessClaimPage}?from=check-your-answers`);
 
     const claimDecisionsRow = claimDetailsCard.locator(
       ".govuk-summary-list__row",
@@ -310,6 +310,30 @@ test.describe.serial("Check your answers page", () => {
 
     await expect(sharedPage).toHaveURL(checkYourAnswersPage);
   });
+
+  for (const rowTitle of [
+    checkYourAnswersLocale.finalBillTitle,
+    checkYourAnswersLocale.claimDecisionsTitle,
+  ]) {
+    test(`caseworker clicks Change on ${rowTitle} and uses back to return to Check your answers`, async () => {
+      const row = sharedPage
+        .getByTestId("check-your-answers")
+        .locator(".govuk-summary-list__row", {
+          has: sharedPage.getByText(rowTitle, { exact: true }),
+        });
+      await row.getByRole("link", { name: /change/i }).click();
+      await sharedPage.waitForLoadState("domcontentloaded");
+
+      await expect(sharedPage).toHaveURL(
+        `${assessClaimPage}?from=check-your-answers`,
+      );
+
+      await sharedPage.getByRole("link", { name: "Back", exact: true }).click();
+      await sharedPage.waitForLoadState("domcontentloaded");
+
+      await expect(sharedPage).toHaveURL(checkYourAnswersPage);
+    });
+  }
 
   test("caseworker clicks Finish assessing claim and reaches the paid in full success page", async () => {
     const form = sharedPage.getByTestId("check-your-answers");

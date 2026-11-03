@@ -72,6 +72,7 @@ export class ClaimAssessmentAdaptor {
     });
 
     this.navigationHelper.clearChangeLinkReturnOnFreshVisit(req);
+    this.navigationHelper.syncChangeLinkReturnFlag(req);
 
     const claimAssessmentViewResult =
       await this.buildClaimAssessmentViewUseCase.execute({
@@ -121,7 +122,11 @@ export class ClaimAssessmentAdaptor {
       : "application/claims/assess/index";
 
     res.render(view, {
-      backUrl: `/applications/${laaReference}/overview`,
+      backUrl: this.navigationHelper.resolveBackLinkUrl(
+        req,
+        `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+        `/applications/${laaReference}/overview`,
+      ),
       ...claimAssessmentViewResult.data,
       claimStatusTag,
       assessClaim,

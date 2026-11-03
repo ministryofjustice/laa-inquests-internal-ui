@@ -295,6 +295,59 @@ describe("ClaimAssessmentAdaptor", () => {
     assert.equal(sessionHelperStub.clearSessionData.callCount, 0);
   });
 
+  it("sets the back link to check your answers when arriving from check your answers", async () => {
+    requestStub.method = "GET";
+    requestStub.query = { from: "check-your-answers" };
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "INQC-0010-0010",
+    );
+
+    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
+      backUrl: "/applications/123/claims/INQC-0010-0010/check-your-answers",
+    });
+  });
+
+  it("stores the return to check your answers flag when arriving from check your answers", async () => {
+    requestStub.method = "GET";
+    requestStub.query = { from: "check-your-answers" };
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "INQC-0010-0010",
+    );
+
+    assert.deepStrictEqual(sessionHelperStub.storeSessionData.getCall(0).args, [
+      requestStub,
+      "claimApproval",
+      { returnToCheckYourAnswers: "true" },
+    ]);
+  });
+
+  it("keeps the back link on check your answers when the session flag is set", async () => {
+    requestStub.method = "POST";
+    requestStub.query = {};
+    sessionHelperStub.getSessionData.returns({
+      returnToCheckYourAnswers: "true",
+    });
+
+    await adaptor.renderClaimAssessmentPage(
+      requestStub,
+      responseStub,
+      "123",
+      "INQC-0010-0010",
+    );
+
+    assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
+      backUrl: "/applications/123/claims/INQC-0010-0010/check-your-answers",
+    });
+  });
+
   describe("processClaimAssessmentForm", () => {
     function buildPostRequest(
       assessClaim: string,
@@ -302,6 +355,7 @@ describe("ClaimAssessmentAdaptor", () => {
     ): TypedRequest<AssessClaimForm, ClaimIdParams> {
       return {
         ...requestStub,
+        query: {},
         body: {
           assessClaim,
           "rejection-reason": rejectionReason,
