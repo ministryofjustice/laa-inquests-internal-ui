@@ -394,7 +394,7 @@
     "decision": {
       "success": {
         "header": "Application for Inquest legal aid assessed complete",
-        "referenceLabel": "Apply reference number",
+        "referenceLabel": "Application reference number",
         "whatHappensNext": "What happens next",
         "whatHappensNextBody": "The decision has been saved against this application and the provider will be informed.",
         "applicationOverviewReturnButton": "Back to application overview"
