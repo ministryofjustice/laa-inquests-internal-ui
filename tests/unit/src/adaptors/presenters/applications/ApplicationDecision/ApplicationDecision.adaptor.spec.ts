@@ -99,6 +99,29 @@ describe("ApplicationDecisionAdaptor", () => {
       });
     });
 
+    it("renders the generic error page when the application is in a protected final state", async () => {
+      viewApplicationSourceStub.getApplication.resolves({
+        overallDecision: "GRANTED",
+        proceeding: mockProceeding,
+      } as any);
+
+      requestStub.params = { laaReference: "INQ-YYY-005" };
+
+      await assert.rejects(
+        () =>
+          adaptor.renderApplicationDecisionForm(
+            requestStub as Request,
+            responseStub,
+          ),
+        (error: unknown) =>
+          error instanceof Error &&
+          error.message === "Unable to prepare decision form" &&
+          error.cause === "Application is in a protected final state",
+      );
+
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
     it("captures check-your-answers origin and sets check-your-answers back link", async () => {
       (requestStub as unknown as Request).query = {
         from: "check-your-answers",

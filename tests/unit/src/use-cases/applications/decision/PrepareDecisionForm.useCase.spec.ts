@@ -36,4 +36,17 @@ describe("PrepareDecisionFormUseCase", () => {
       selectedOverallDecision: "REFUSED",
     });
   });
+
+  it("returns TECHNICAL_FAILURE when the application is in a protected final state", () => {
+    const result = useCase.execute({
+      application: {
+        proceeding: { certificateType: "SUBSTANTIVE" },
+        overallDecision: "GRANTED",
+      } as any,
+    });
+
+    assert.equal(result.status, "TECHNICAL_FAILURE");
+    assert.equal(result.reason, "INVALID_INPUT_STATE");
+    assert.equal(result.cause, "Application is in a protected final state");
+  });
 });
