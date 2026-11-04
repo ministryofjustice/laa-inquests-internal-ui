@@ -31,6 +31,7 @@ import { AddHistoryNoteValidator } from "#src/adaptors/presenter/applications/Ad
 import type { AddHistoryNoteForm } from "#src/adaptors/presenter/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { GetCoronersLetterDocumentUseCase } from "#src/use-cases/applications/documents/GetCoronersLetterDocument.useCase.js";
+import { formatAddressToHtml } from "#src/utils/addressFormatter.js";
 
 const {
   pages: {
@@ -141,6 +142,10 @@ export class ApplicationAdaptor {
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
       getCorrespondenceDisplay(application, clientHomeAddressDisplay);
 
+    const providerOfficeAddressDisplay = formatAddressToHtml(
+      application.provider?.officeAddress,
+    );
+
     const claims = await this.#buildClaimsView(
       req,
       laaReference,
@@ -167,6 +172,7 @@ export class ApplicationAdaptor {
       proceeding,
       clientHomeAddressDisplay,
       clientCorrespondenceAddressDisplay,
+      providerOfficeAddressDisplay,
       careOfRecipientDisplay,
       claims,
       historyRows,
