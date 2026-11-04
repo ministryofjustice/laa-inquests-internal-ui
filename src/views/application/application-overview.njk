@@ -185,6 +185,24 @@
             }
         ] %}
 
+        {% if application.client.clientLastNameAtBirth %}
+            {% set clientRows = clientRows.concat([
+                {
+                    key: { text: "Last name at birth" },
+                    value: { text: application.client.clientLastNameAtBirth }
+                }
+            ]) %}
+        {% endif %}
+
+        {% if application.client.prevApplicationReference %}
+            {% set clientRows = clientRows.concat([
+                {
+                    key: { text: "Previous inquest reference number" },
+                    value: { text: application.client.prevApplicationReference }
+                }
+            ]) %}
+        {% endif %}
+
         {% if careOfRecipientDisplay %}
             {% set clientRows = clientRows.concat([
                 {
@@ -226,7 +244,7 @@
                     value: { text: application.deceased.deceasedDateOfBirth }
                 },
                 {
-                    key: { text: "Inquest ID" },
+                    key: { text: "Coroner's reference" },
                     value: { text: application.deceased.coronersReference }
                 },
                 {
@@ -251,7 +269,11 @@
                     value: { text: application.provider.accountNumber }
                 },
                 {
-                    key: { text: "Address" },
+                    key: { text: "Office address" },
+                    value: { html: providerOfficeAddressDisplay }
+                },
+                {
+                    key: { text: "Email address" },
                     value: { text: application.provider.emailAddress }
                 }
             ]

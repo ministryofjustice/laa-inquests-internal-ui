@@ -64,6 +64,7 @@ const ProviderSchema = z.object({
   firmName: z.string().nullable(),
   accountNumber: z.string(),
   emailAddress: z.string().optional().nullable(),
+  officeAddress: AddressSchema.optional().nullable(),
 });
 
 const CoronersLetterSchema = z.object({

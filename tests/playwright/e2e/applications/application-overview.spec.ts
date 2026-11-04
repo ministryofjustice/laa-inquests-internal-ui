@@ -651,11 +651,19 @@ test.describe("People tab", () => {
     await validateSummaryCardKeys(clientCard, [
       "First name",
       "Last name",
+      "Last name at birth",
       "Date of birth",
       "National Insurance number",
       "Correspondence address",
       "Relationship to deceased",
+      "Previous inquest reference number",
     ]);
+    await expect(
+      clientCard.getByText("Birthname", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      clientCard.getByText("INQ-YYY-099", { exact: true }),
+    ).toBeVisible();
 
     await checkAccessibility();
   });
@@ -676,7 +684,7 @@ test.describe("People tab", () => {
       "Last name",
       "Date of death",
       "Date of birth",
-      "Inquest ID",
+      "Coroner's reference",
       "Additional inquest info",
     ]);
   });
@@ -695,9 +703,18 @@ test.describe("People tab", () => {
     await validateSummaryCardKeys(providerCard, [
       "Firm name",
       "Account number",
+      "Office address",
+      "Email address",
     ]);
+    const officeAddressRow = providerCard
+      .locator(".govuk-summary-list__row")
+      .filter({ hasText: "Office address" });
+
     await expect(
-      providerCard.locator("dt").getByText("Address", { exact: true }),
+      officeAddressRow.locator(".govuk-summary-list__value"),
+    ).toContainText("Test Office Address");
+    await expect(
+      providerCard.getByText("testfirm@example.com", { exact: true }),
     ).toBeVisible();
   });
 

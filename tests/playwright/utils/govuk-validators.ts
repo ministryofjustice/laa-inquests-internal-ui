@@ -116,6 +116,8 @@ export async function validateSummaryCardKeys(
   keys: string[],
 ): Promise<void> {
   for (const key of keys) {
-    await expect(card.locator("dt", { hasText: key })).toBeVisible();
+    await expect(
+      card.locator("dt").getByText(key, { exact: true }),
+    ).toBeVisible();
   }
 }
