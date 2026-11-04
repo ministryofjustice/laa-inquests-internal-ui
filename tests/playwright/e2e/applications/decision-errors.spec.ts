@@ -69,4 +69,15 @@ test.describe("Decision errors", () => {
     await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
     await expect(page.getByText(internalServerError)).toBeVisible();
   });
+
+  test("shows the generic error page when navigating to decision page for an application in a protected final state", async ({
+    page,
+  }) => {
+    const grantedApplicationReference = "INQ-YYY-005";
+    const decisionPage = `/applications/${grantedApplicationReference}/decision`;
+    await page.goto(decisionPage);
+
+    await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
+    await expect(page.getByText(internalServerError)).toBeVisible();
+  });
 });
