@@ -65,7 +65,7 @@
           {
               value: "REFUSED",
               text: t('pages.decision.merits.radio.refuseLabel')
-          }
+          } if proceeding.meritsDecision != "Refused"
       ]
     }) }}
     {{ govukButton({
