@@ -126,7 +126,22 @@ test.describe.serial("Refuse application journey", () => {
     await expect(errorMessage).toBeVisible();
   });
 
+  test("caseworker only sees grant option for application already refused", async () => {
+    const refusedApplicationReference = "INQ-YYY-012";
+    await sharedPage.goto(
+      `/applications/${refusedApplicationReference}/decision`,
+    );
+    const form = sharedPage.getByTestId("make-a-decision");
+    await expect(
+      form.getByRole("radio", { name: meritsLocale.radio.grantLabel }),
+    ).toBeVisible();
+    await expect(
+      form.getByRole("radio", { name: meritsLocale.radio.refuseLabel }),
+    ).not.toBeVisible();
+  });
+
   test("caseworker selects Refuse and continues to justification page", async () => {
+    await sharedPage.goto(makeADecisionPage);
     const form = sharedPage.getByTestId("make-a-decision");
     await form
       .getByRole("radio", { name: meritsLocale.radio.refuseLabel })
