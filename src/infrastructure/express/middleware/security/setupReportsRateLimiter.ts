@@ -6,6 +6,7 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 export const setupReportRateLimiter = (
   config: Config,
   reportType: string,
+  { renderOnReportPage = false }: { renderOnReportPage?: boolean } = {},
 ): RateLimitRequestHandler => {
   /**
    * Rate limiter for report downloads.
@@ -22,7 +23,8 @@ export const setupReportRateLimiter = (
         functionName: "app",
         message: `${reportType} report download rate limit has been exceeded by user`,
       });
-      if (reportType === "Payment extract") {
+      // The report page renders its own rate limit message once the form has been validated.
+      if (renderOnReportPage) {
         res.locals.rateLimit = true;
         next();
         return;

@@ -1,0 +1,76 @@
+{% extends "layouts/page-with-back-link.njk" %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+{% set reportContent = 'pages.reports.dateRange.' + reportKey %}
+{% set pageTitle = t(reportContent + '.heading') %}
+{% set formValues = formValues or {} %}
+
+{% block pageContent %}
+  {% if errorList %}
+    {{ govukErrorSummary({
+      titleText: t('common.errorSummaryTitle'),
+      errorList: errorList
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">{{ t(reportContent + '.heading') }}</h1>
+
+  <p class="govuk-body">{{ t(reportContent + '.description') }}</p>
+
+  {{ govukInsetText({
+    text: t('pages.error.rateLimitError.reportLimitMessage', { RATE_WINDOW_PER_REPORT_SECONDS: config.RATE_WINDOW_PER_REPORT_MS / 1000 })
+  }) if shouldShowRateLimitText }}
+
+  {{ govukInsetText({
+    text: t('pages.reports.dateRange.maxRangeText', { maxDays: maxDays })
+  }) }}
+
+  <form method="get" action="/reports/{{ reportSlug }}/download" novalidate>
+    {% set startErrorClass = " govuk-input--error" if errorSummaries.startDate else "" %}
+    {{ govukDateInput({
+      id: "start-date",
+      namePrefix: "start-date",
+      fieldset: {
+        legend: {
+          text: t('pages.reports.dateRange.startLegend'),
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      hint: { text: t(reportContent + '.startHint') },
+      errorMessage: errorSummaries.startDate,
+      items: [
+        { name: "day", classes: "govuk-input--width-2" + startErrorClass, value: formValues["start-date-day"] },
+        { name: "month", classes: "govuk-input--width-2" + startErrorClass, value: formValues["start-date-month"] },
+        { name: "year", classes: "govuk-input--width-4" + startErrorClass, value: formValues["start-date-year"] }
+      ]
+    }) }}
+
+    {% set endErrorClass = " govuk-input--error" if errorSummaries.endDate else "" %}
+    {{ govukDateInput({
+      id: "end-date",
+      namePrefix: "end-date",
+      fieldset: {
+        legend: {
+          text: t('pages.reports.dateRange.endLegend'),
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      hint: { text: t(reportContent + '.endHint') },
+      errorMessage: errorSummaries.endDate,
+      items: [
+        { name: "day", classes: "govuk-input--width-2" + endErrorClass, value: formValues["end-date-day"] },
+        { name: "month", classes: "govuk-input--width-2" + endErrorClass, value: formValues["end-date-month"] },
+        { name: "year", classes: "govuk-input--width-4" + endErrorClass, value: formValues["end-date-year"] }
+      ]
+    }) }}
+
+    {{ govukButton({
+      text: t('pages.reports.dateRange.button'),
+      type: "submit",
+      preventDoubleClick: true
+    }) }}
+  </form>
+{% endblock pageContent %}

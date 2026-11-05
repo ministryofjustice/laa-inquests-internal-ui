@@ -64,29 +64,84 @@
       "reportsButton": "View Reports"
     },
     "reports": {
-      "heading": "Reports",
-      "downloadApplicationsBacklogLink": "Download Applications Backlog",
-      "downloadClaimsBacklogLink": "Download Claims Backlog",
+      "heading": "Download reports",
+      "fileSizeEstimate": "(CSV, estimated 15KB)",
       "userAuditTrailLink": "User Audit Trail",
       "claimAndApplicationsProcessingLink": "Claim and Applications Processing",
       "costsLink": "Costs",
-      "paymentExtract": {
-        "heading": "Payment extract",
-        "description": "Download a CSV of a payment extract within a date range.",
-        "fromLegend": "From",
-        "fromHint": "For example, 1 4 2026",
-        "toLegend": "To",
-        "toHint": "For example, 30 4 2026",
-        "button": "Download CSV",
+      "sections": {
+        "operations": "Operations reports",
+        "finance": "Finance reports",
+        "managementInformation": "Management information reports"
+      },
+      "links": {
+        "claimsBacklog": {
+          "text": "Download claims workflow backlog {fileSizeEstimate}",
+          "description": "Claims awaiting assessment"
+        },
+        "applicationsBacklog": {
+          "text": "Download applications workflow backlog {fileSizeEstimate}",
+          "description": "Applications awaiting assessment"
+        },
+        "paymentsExtract": {
+          "text": "Payments extract",
+          "description": "Filter claims that are approved for payment by date"
+        },
+        "costEstimation": {
+          "text": "Cost estimation and forecasting {fileSizeEstimate}",
+          "description": "Live certificates with an outstanding cost limit"
+        },
+        "claimsApplicationsProcessing": {
+          "text": "Claims and applications processing",
+          "description": "Filter application and claims decisions by date"
+        },
+        "costsForOtherDepartments": {
+          "text": "Costs associated with other government departments",
+          "description": "Filter claims and the associated interested parties by date"
+        },
+        "userAuditTrail": {
+          "text": "User audit trail",
+          "description": "Filter user activity against cases by date"
+        }
+      },
+      "dateRange": {
+        "startLegend": "Start date",
+        "endLegend": "End date",
+        "button": "Download report",
+        "maxRangeText": "You must choose a date range of up to {maxDays} days.",
+        "paymentsExtract": {
+          "heading": "Payments",
+          "description": "View approved claims so that payments can be made to providers.",
+          "startHint": "For example, 12 12 2026",
+          "endHint": "For example, 10 1 2027"
+        },
+        "claimsApplicationsProcessing": {
+          "heading": "Claims and applications processing",
+          "description": "View caseworker decisions to monitor activity and volumes, and track against KPIs.",
+          "startHint": "For example, 12 12 2026",
+          "endHint": "For example, 10 1 2027"
+        },
+        "costsForOtherDepartments": {
+          "heading": "Costs associated with other government departments",
+          "description": "Identify which government departments costs should be attributed to for cost sharing, recharges, and budget requests.",
+          "startHint": "For example, 1 12 2026",
+          "endHint": "For example, 1 4 2027"
+        },
+        "userAuditTrail": {
+          "heading": "User audit trail",
+          "description": "View an audit trail of activity across all cases, including case history events, application views and report downloads.",
+          "startHint": "For example, 12 12 2026",
+          "endHint": "For example, 10 01 2027"
+        },
         "validationErrors": {
-          "fromMissing": "Enter the start date",
-          "fromInvalid": "Start date must be a real date",
-          "fromFuture": "Start date must be today or in the past",
-          "toMissing": "Enter the end date",
-          "toInvalid": "End date must be a real date",
-          "toFuture": "End date must be today or in the past",
-          "toBeforeFrom": "End date must be the same as or after the start date",
-          "dateRangeTooLong": "Date range must be 90 days or less"
+          "startMissing": "Enter the start date",
+          "startInvalid": "Start date must be a real date",
+          "startFuture": "Start date must be today or in the past",
+          "endMissing": "Enter the end date",
+          "endInvalid": "End date must be a real date",
+          "endFuture": "End date must be today or in the past",
+          "endBeforeStart": "End date must be the same as or after the start date",
+          "dateRangeTooLong": "Date range must be {maxDays} days or less"
         }
       }
     },

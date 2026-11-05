@@ -5,6 +5,7 @@ export {
   HTTP_NOT_FOUND,
   HTTP_UNPROCESSABLE_ENTITY,
   HTTP_INTERNAL_SERVER_ERROR,
+  HTTP_TOO_MANY_REQUESTS,
 } from "#src/infrastructure/express/constants.js";
 
 export const HTTP_OK = 200;

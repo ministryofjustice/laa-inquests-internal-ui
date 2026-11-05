@@ -2,12 +2,14 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import type { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
-import type { DownloadPaymentExtractReportUseCase } from "#src/use-cases/reports/DownloadPaymentExtractReport.useCase.js";
-import type { PaymentExtractValidator } from "./PaymentExtract/PaymentExtract.validator.js";
+import type { DownloadCostEstimationReportUseCase } from "#src/use-cases/reports/DownloadCostEstimationReport.useCase.js";
+import type { DownloadDateRangeReportUseCase } from "#src/use-cases/reports/DownloadDateRangeReport.useCase.js";
+import type { DateRangeReportValidator } from "./DateRangeReport/DateRangeReport.validator.js";
 import type {
-  PaymentExtractForm,
-  PaymentExtractFormErrors,
-} from "./PaymentExtract/models/form.types.js";
+  DateRangeReportForm,
+  DateRangeReportFormErrors,
+} from "./DateRangeReport/models/form.types.js";
+import type { DateRangeReportDefinition } from "./reportDefinitions.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import {
   HTTP_BAD_REQUEST,
@@ -19,31 +21,34 @@ import config from "#src/infrastructure/config/config.js";
 const {
   pages: {
     reports: {
-      paymentExtract: {
+      dateRange: {
         validationErrors: { dateRangeTooLong },
       },
     },
   },
 } = en;
 
+const DATE_RANGE_REPORT_TEMPLATE = "reports/date-range-report";
+
 interface ReportUseCases {
   downloadApplicationsBacklogReportUseCase: DownloadApplicationsBacklogReportUseCase;
   downloadClaimsBacklogReportUseCase: DownloadClaimsBacklogReportUseCase;
-  downloadPaymentExtractReportUseCase: DownloadPaymentExtractReportUseCase;
+  downloadCostEstimationReportUseCase: DownloadCostEstimationReportUseCase;
+  downloadDateRangeReportUseCase: DownloadDateRangeReportUseCase;
 }
 
-const PAYMENT_EXTRACT_ERROR_HREFS: Array<{
-  field: keyof PaymentExtractFormErrors;
+const DATE_RANGE_ERROR_HREFS: Array<{
+  field: keyof DateRangeReportFormErrors;
   href: string;
 }> = [
-  { field: "fromDate", href: "#from-date-day" },
-  { field: "toDate", href: "#to-date-day" },
+  { field: "startDate", href: "#start-date-day" },
+  { field: "endDate", href: "#end-date-day" },
 ];
 
 export class ReportsAdaptor {
   constructor(
     private readonly useCases: ReportUseCases,
-    private readonly paymentExtractValidator: PaymentExtractValidator,
+    private readonly dateRangeReportValidator: DateRangeReportValidator,
   ) {}
 
   renderReportsPage(req: Request, res: Response): void {
@@ -130,41 +135,96 @@ export class ReportsAdaptor {
     res.send(data);
   }
 
-  async downloadPaymentExtract(req: Request, res: Response): Promise<void> {
+  async downloadCostEstimation(req: Request, res: Response): Promise<void> {
     logger.logInfo({
-      functionName: "download_payment_extract_report",
-      message: "Payment extract report requested",
+      functionName: "download_cost_estimation_report",
+      message: "Cost estimation report requested",
       request: req,
       extraContext: {
-        event: "payment_extract_report_requested",
+        event: "cost_estimation_report_requested",
       },
     });
 
-    const form = this.#readPaymentExtractForm(req);
-    const errors =
-      this.paymentExtractValidator.validatePaymentExtractForm(form);
-
-    if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
-      this.#renderPaymentExtractErrors(res, form, errors);
-      return;
-    }
-    if (res.locals.rateLimit === true) {
-      this.#renderRateLimitError(res);
-      return;
-    }
-
-    const from = this.#isoDate(form, "from");
-    const to = this.#isoDate(form, "to");
-    const result =
-      await this.useCases.downloadPaymentExtractReportUseCase.execute(
-        from,
-        to,
+    const { data, contentType, contentDisposition } =
+      await this.useCases.downloadCostEstimationReportUseCase.execute(
         req.session.user?.accessToken,
       );
 
+    res.setHeader("Content-Type", contentType);
+    res.setHeader(
+      "Content-Disposition",
+      contentDisposition ??
+        'attachment; filename="cost-estimation-and-forecasting.csv"',
+    );
+    res.send(data);
+  }
+
+  renderDateRangeReportPage(
+    report: DateRangeReportDefinition,
+    req: Request,
+    res: Response,
+  ): void {
+    logger.logInfo({
+      functionName: "render_date_range_report_page",
+      message: "Date range report page requested",
+      request: req,
+      extraContext: {
+        event: "date_range_report_page_requested",
+        report: report.key,
+      },
+    });
+    res.render(DATE_RANGE_REPORT_TEMPLATE, this.#viewModel(report));
+  }
+
+  async downloadDateRangeReport(
+    report: DateRangeReportDefinition,
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    logger.logInfo({
+      functionName: "download_date_range_report",
+      message: "Date range report requested",
+      request: req,
+      extraContext: {
+        event: "date_range_report_requested",
+        report: report.key,
+      },
+    });
+
+    const form = this.#readDateRangeForm(req);
+    const errors = this.dateRangeReportValidator.validateDateRangeReportForm(
+      form,
+      report.maxDays,
+    );
+
+    if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
+      this.#renderDateRangeErrors(res, report, form, errors);
+      return;
+    }
+    if (res.locals.rateLimit === true) {
+      res.status(HTTP_TOO_MANY_REQUESTS).render(DATE_RANGE_REPORT_TEMPLATE, {
+        ...this.#viewModel(report),
+        formValues: form,
+        shouldShowRateLimitText: true,
+        config,
+      });
+      return;
+    }
+
+    const from = this.#isoDate(form, "start");
+    const to = this.#isoDate(form, "end");
+    const result = await this.useCases.downloadDateRangeReportUseCase.execute(
+      report.key,
+      from,
+      to,
+      req.session.user?.accessToken,
+    );
+
     if (result.status === "DATE_RANGE_TOO_LONG") {
-      this.#renderPaymentExtractErrors(res, form, {
-        toDate: { text: dateRangeTooLong },
+      this.#renderDateRangeErrors(res, report, form, {
+        endDate: {
+          text: dateRangeTooLong.replace("{maxDays}", String(report.maxDays)),
+        },
       });
       return;
     }
@@ -174,51 +234,58 @@ export class ReportsAdaptor {
     res.setHeader(
       "Content-Disposition",
       contentDisposition ??
-        `attachment; filename="payment-extract-${from}-to-${to}.csv"`,
+        `attachment; filename="${report.slug}-${from}-to-${to}.csv"`,
     );
     res.send(data);
   }
 
-  #renderPaymentExtractErrors(
+  #viewModel(report: DateRangeReportDefinition): {
+    backUrl: string;
+    reportKey: string;
+    reportSlug: string;
+    maxDays: number;
+  } {
+    return {
+      backUrl: "/reports",
+      reportKey: report.key,
+      reportSlug: report.slug,
+      maxDays: report.maxDays,
+    };
+  }
+
+  #renderDateRangeErrors(
     res: Response,
-    form: PaymentExtractForm,
-    errors: Partial<PaymentExtractFormErrors>,
+    report: DateRangeReportDefinition,
+    form: DateRangeReportForm,
+    errors: Partial<DateRangeReportFormErrors>,
   ): void {
-    res.status(HTTP_BAD_REQUEST).render("reports/index", {
-      backUrl: "/",
+    res.status(HTTP_BAD_REQUEST).render(DATE_RANGE_REPORT_TEMPLATE, {
+      ...this.#viewModel(report),
       formValues: form,
       errorSummaries: errors,
-      errorList: PAYMENT_EXTRACT_ERROR_HREFS.flatMap(({ field, href }) => {
+      errorList: DATE_RANGE_ERROR_HREFS.flatMap(({ field, href }) => {
         const { [field]: error } = errors;
         return error === undefined ? [] : [{ text: error.text, href }];
       }),
     });
   }
 
-  #renderRateLimitError(res: Response): void {
-    res.status(HTTP_TOO_MANY_REQUESTS).render("reports/index", {
-      backUrl: "/",
-      shouldShowRateLimitText: true,
-      config,
-    });
-  }
-
-  #readPaymentExtractForm({ query }: Request): PaymentExtractForm {
-    const read = (field: keyof PaymentExtractForm): string => {
+  #readDateRangeForm({ query }: Request): DateRangeReportForm {
+    const read = (field: keyof DateRangeReportForm): string => {
       const { [field]: value } = query;
       return typeof value === "string" ? value : "";
     };
     return {
-      "from-date-day": read("from-date-day"),
-      "from-date-month": read("from-date-month"),
-      "from-date-year": read("from-date-year"),
-      "to-date-day": read("to-date-day"),
-      "to-date-month": read("to-date-month"),
-      "to-date-year": read("to-date-year"),
+      "start-date-day": read("start-date-day"),
+      "start-date-month": read("start-date-month"),
+      "start-date-year": read("start-date-year"),
+      "end-date-day": read("end-date-day"),
+      "end-date-month": read("end-date-month"),
+      "end-date-year": read("end-date-year"),
     };
   }
 
-  #isoDate(form: PaymentExtractForm, prefix: "from" | "to"): string {
+  #isoDate(form: DateRangeReportForm, prefix: "start" | "end"): string {
     const day = form[`${prefix}-date-day`].trim().padStart(2, "0");
     const month = form[`${prefix}-date-month`].trim().padStart(2, "0");
     const year = form[`${prefix}-date-year`].trim();

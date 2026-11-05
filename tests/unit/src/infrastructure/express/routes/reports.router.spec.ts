@@ -5,6 +5,25 @@ import { stubInterface } from "ts-sinon";
 import type { NextFunction, Request, Response } from "express";
 import { createReportsRouter } from "#src/infrastructure/express/routes/reports.router.js";
 import type { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
+import { DATE_RANGE_REPORTS } from "#src/adaptors/presenter/reports/reportDefinitions.js";
+
+interface RouteLayer {
+  route?: {
+    path: string;
+    stack: Array<{
+      handle: (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+      ) => Promise<void> | void;
+    }>;
+  };
+}
+
+const findRoute = (router: express.Router, path: string): RouteLayer["route"] =>
+  (router as unknown as { stack: RouteLayer[] }).stack.find(
+    (layer) => layer.route?.path === path,
+  )?.route;
 
 describe("createReportsRouter", () => {
   it("registers GET / route", () => {
@@ -230,68 +249,166 @@ describe("createReportsRouter", () => {
     assert.equal(next.firstCall.args[0], error);
   });
 
-  it("delegates GET /payment-extract handler to reports adaptor", async () => {
-    const reportsAdaptor = stubInterface<ReportsAdaptor>();
-    const router = createReportsRouter(express.Router(), reportsAdaptor);
-    const route = (
-      router as unknown as {
-        stack: Array<{
-          route?: {
-            path: string;
-            stack: Array<{
-              handle: (
-                req: Request,
-                res: Response,
-                next: NextFunction,
-              ) => Promise<void>;
-            }>;
-          };
-        }>;
-      }
-    ).stack.find((layer) => layer.route?.path === "/payment-extract")?.route;
-    const req = stubInterface<Request>();
-    const res = stubInterface<Response>();
-    const next = sinon.stub();
+  describe("cost estimation and forecasting", () => {
+    const path = "/cost-estimation-and-forecasting";
 
-    await route?.stack.at(-1)?.handle(req, res, next);
+    it("delegates GET handler to reports adaptor", async () => {
+      const reportsAdaptor = stubInterface<ReportsAdaptor>();
+      const route = findRoute(
+        createReportsRouter(express.Router(), reportsAdaptor),
+        path,
+      );
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      const next = sinon.stub();
 
-    assert.equal(reportsAdaptor.downloadPaymentExtract.callCount, 1);
-    assert.deepEqual(reportsAdaptor.downloadPaymentExtract.firstCall.args, [
-      req,
-      res,
-    ]);
-    assert.equal(next.callCount, 0);
+      await route?.stack.at(-1)?.handle(req, res, next);
+
+      assert.deepEqual(reportsAdaptor.downloadCostEstimation.firstCall.args, [
+        req,
+        res,
+      ]);
+      assert.equal(next.callCount, 0);
+    });
+
+    it("applies the report rate limiter before the handler", () => {
+      const route = findRoute(
+        createReportsRouter(express.Router(), stubInterface<ReportsAdaptor>()),
+        path,
+      );
+
+      assert.equal(route?.stack.length, 2);
+    });
+
+    it("calls next when the handler throws", async () => {
+      const reportsAdaptor = stubInterface<ReportsAdaptor>();
+      const route = findRoute(
+        createReportsRouter(express.Router(), reportsAdaptor),
+        path,
+      );
+      const next = sinon.stub();
+      const error = new Error("cost estimation failed");
+      reportsAdaptor.downloadCostEstimation.rejects(error);
+
+      await route?.stack
+        .at(-1)
+        ?.handle(stubInterface<Request>(), stubInterface<Response>(), next);
+
+      assert.equal(next.callCount, 1);
+      assert.equal(next.firstCall.args[0], error);
+    });
   });
 
-  it("calls next when payment extract handler throws", async () => {
-    const reportsAdaptor = stubInterface<ReportsAdaptor>();
-    const router = createReportsRouter(express.Router(), reportsAdaptor);
-    const route = (
-      router as unknown as {
-        stack: Array<{
-          route?: {
-            path: string;
-            stack: Array<{
-              handle: (
-                req: Request,
-                res: Response,
-                next: NextFunction,
-              ) => Promise<void>;
-            }>;
-          };
-        }>;
-      }
-    ).stack.find((layer) => layer.route?.path === "/payment-extract")?.route;
-    const req = stubInterface<Request>();
-    const res = stubInterface<Response>();
-    const next = sinon.stub();
-    const error = new Error("payment extract failed");
+  describe("date range reports", () => {
+    for (const report of DATE_RANGE_REPORTS) {
+      describe(report.key, () => {
+        it(`delegates GET /${report.slug} to the report page renderer`, () => {
+          const reportsAdaptor = stubInterface<ReportsAdaptor>();
+          const route = findRoute(
+            createReportsRouter(express.Router(), reportsAdaptor),
+            `/${report.slug}`,
+          );
+          const req = stubInterface<Request>();
+          const res = stubInterface<Response>();
+          const next = sinon.stub();
 
-    reportsAdaptor.downloadPaymentExtract.rejects(error);
+          route?.stack.at(-1)?.handle(req, res, next);
 
-    await route?.stack.at(-1)?.handle(req, res, next);
+          assert.deepEqual(
+            reportsAdaptor.renderDateRangeReportPage.firstCall.args,
+            [report, req, res],
+          );
+          assert.equal(next.callCount, 0);
+        });
 
-    assert.equal(next.callCount, 1);
-    assert.equal(next.firstCall.args[0], error);
+        it(`does not rate limit GET /${report.slug}`, () => {
+          const route = findRoute(
+            createReportsRouter(
+              express.Router(),
+              stubInterface<ReportsAdaptor>(),
+            ),
+            `/${report.slug}`,
+          );
+
+          assert.equal(route?.stack.length, 1);
+        });
+
+        it(`calls next when rendering /${report.slug} throws`, () => {
+          const reportsAdaptor = stubInterface<ReportsAdaptor>();
+          const route = findRoute(
+            createReportsRouter(express.Router(), reportsAdaptor),
+            `/${report.slug}`,
+          );
+          const next = sinon.stub();
+          const error = new Error("render failed");
+          reportsAdaptor.renderDateRangeReportPage.throws(error);
+
+          route?.stack
+            .at(-1)
+            ?.handle(stubInterface<Request>(), stubInterface<Response>(), next);
+
+          assert.equal(next.callCount, 1);
+          assert.equal(next.firstCall.args[0], error);
+        });
+
+        it(`delegates GET /${report.slug}/download to the report download`, async () => {
+          const reportsAdaptor = stubInterface<ReportsAdaptor>();
+          const route = findRoute(
+            createReportsRouter(express.Router(), reportsAdaptor),
+            `/${report.slug}/download`,
+          );
+          const req = stubInterface<Request>();
+          const res = stubInterface<Response>();
+          const next = sinon.stub();
+
+          await route?.stack.at(-1)?.handle(req, res, next);
+
+          assert.deepEqual(
+            reportsAdaptor.downloadDateRangeReport.firstCall.args,
+            [report, req, res],
+          );
+          assert.equal(next.callCount, 0);
+        });
+
+        it(`applies the report rate limiter to GET /${report.slug}/download`, () => {
+          const route = findRoute(
+            createReportsRouter(
+              express.Router(),
+              stubInterface<ReportsAdaptor>(),
+            ),
+            `/${report.slug}/download`,
+          );
+
+          assert.equal(route?.stack.length, 2);
+        });
+
+        it(`calls next when the /${report.slug}/download handler throws`, async () => {
+          const reportsAdaptor = stubInterface<ReportsAdaptor>();
+          const route = findRoute(
+            createReportsRouter(express.Router(), reportsAdaptor),
+            `/${report.slug}/download`,
+          );
+          const next = sinon.stub();
+          const error = new Error("download failed");
+          reportsAdaptor.downloadDateRangeReport.rejects(error);
+
+          await route?.stack
+            .at(-1)
+            ?.handle(stubInterface<Request>(), stubInterface<Response>(), next);
+
+          assert.equal(next.callCount, 1);
+          assert.equal(next.firstCall.args[0], error);
+        });
+      });
+    }
+
+    it("no longer registers the old /payment-extract route", () => {
+      const route = findRoute(
+        createReportsRouter(express.Router(), stubInterface<ReportsAdaptor>()),
+        "/payment-extract",
+      );
+
+      assert.equal(route, undefined);
+    });
   });
 });
