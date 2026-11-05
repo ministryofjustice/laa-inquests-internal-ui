@@ -20,13 +20,16 @@ function headerValueToString(
 
 export function requestLoggingContext(
   req: Request,
-  _: Response,
+  res: Response,
   next: NextFunction,
 ): void {
   const requestId =
     headerValueToString(req.headers["x-request-id"]) ?? randomUUID();
   const correlationId =
     headerValueToString(req.headers["x-correlation-id"]) ?? requestId;
+
+  res.setHeader("x-request-id", requestId);
+  res.setHeader("x-correlation-id", correlationId);
 
   runWithLoggingContext({ requestId, correlationId }, next);
 }

@@ -27,6 +27,7 @@ import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsr
 import { setupGeneralRateLimiter } from "./infrastructure/express/middleware/security/setupGeneralRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { requestLoggingContext } from "#src/infrastructure/express/middleware/requestLoggingContext.js";
 import { viewContext } from "#src/infrastructure/express/middleware/accessControl/viewContext.js";
@@ -78,20 +79,24 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
-  res.on("finish", () => {
-    logger.logInfo({
-      functionName: "app",
-      message: "Request completed",
-      request: req,
-      extraContext: {
-        event: "http_request_completed",
-        route: getRequestRoutePath(req),
-        method: req.method,
-        status_code: res.statusCode,
-        duration_ms: Date.now() - startedAt,
-      },
-    });
-  });
+  // Bound so the completion log keeps this request's correlation context.
+  res.on(
+    "finish",
+    AsyncLocalStorage.bind(() => {
+      logger.logInfo({
+        functionName: "app",
+        message: "Request completed",
+        request: req,
+        extraContext: {
+          event: "http_request_completed",
+          route: getRequestRoutePath(req),
+          method: req.method,
+          status_code: res.statusCode,
+          duration_ms: Date.now() - startedAt,
+        },
+      });
+    }),
+  );
 
   next();
 });

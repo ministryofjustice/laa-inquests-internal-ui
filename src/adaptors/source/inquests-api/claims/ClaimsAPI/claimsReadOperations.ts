@@ -10,6 +10,7 @@ import {
   ClaimSummariesSchema,
 } from "#src/adaptors/models/claim.schema.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { buildInquestsApiHeaders } from "#src/adaptors/source/inquests-api/utils.js";
 import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
@@ -145,7 +146,7 @@ export async function getClaims(
       `${baseUrl}/applications/${encodeURIComponent(laaReference)}/claims`,
       {
         params: { assessed },
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: buildInquestsApiHeaders(accessToken),
       },
     );
     const result = ClaimSummariesSchema.safeParse(data);
@@ -206,7 +207,7 @@ export async function getClaimById(
   try {
     const { data }: AxiosResponse<ClaimDetail> = await http.get(
       `${baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      { headers: buildInquestsApiHeaders(accessToken) },
     );
     const result = ClaimDetailSchema.safeParse(data);
     if (!result.success) {
@@ -283,7 +284,7 @@ export async function getApplicationReferenceByClaimReference(
   try {
     const { data }: AxiosResponse<unknown> = await http.get(
       `${baseUrl}/claims/${encodeURIComponent(claimReference)}/application`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      { headers: buildInquestsApiHeaders(accessToken) },
     );
     const result = ClaimApplicationReferenceSchema.safeParse(data);
 
@@ -376,7 +377,7 @@ export async function getClaimEvidence(
       {
         params: { disposition },
         responseType: "arraybuffer",
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: buildInquestsApiHeaders(accessToken),
       },
     );
     logger.logInfo({

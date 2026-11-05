@@ -15,6 +15,7 @@ import {
 import { REFUSAL_REASON_MAP } from "../../../../models/application.types.js";
 import { APPLICATION_STATUSES } from "#src/infrastructure/locales/constants.js";
 import {
+  buildInquestsApiHeaders,
   patchInquestsApi,
   getInquestsApi,
   postInquestsApi,
@@ -241,7 +242,7 @@ export class ApplicationAPIAdaptor {
       const { data }: AxiosResponse<Certificate> = await this.http.get(
         `${this.baseUrl}/applications/${laaReference}/certificate`,
         {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: buildInquestsApiHeaders(accessToken),
         },
       );
       const certificateResult = CertificateSchema.safeParse(data);

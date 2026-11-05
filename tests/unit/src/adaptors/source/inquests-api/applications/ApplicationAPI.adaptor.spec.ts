@@ -15,7 +15,10 @@ import {
   APPLICATION_STATUSES,
   GRANTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  logger,
+  runWithLoggingContext,
+} from "#src/infrastructure/logging/logger.js";
 
 const LIVE_STATUS = "LIVE";
 
@@ -732,6 +735,33 @@ describe("Test getCertificateDetails", () => {
       {
         headers: {
           Authorization: "Bearer access-token-123",
+        },
+      },
+    );
+  });
+
+  it("forwards the active correlation ID on direct API calls", async () => {
+    const baseUrl = "https://localhost";
+    const fakeAxios = { get: axiosGetStub } as any;
+    const adaptor = new ApplicationAPIAdaptor(fakeAxios, baseUrl);
+
+    axiosGetStub.resolves({
+      data: expectedCertificate,
+    });
+
+    await runWithLoggingContext(
+      { requestId: "req-123", correlationId: "cor-456" },
+      async () =>
+        await adaptor.getCertificateDetails("123", "access-token-123"),
+    );
+
+    sinon.assert.calledWith(
+      axiosGetStub,
+      `${baseUrl}/applications/123/certificate`,
+      {
+        headers: {
+          Authorization: "Bearer access-token-123",
+          "x-correlation-id": "cor-456",
         },
       },
     );

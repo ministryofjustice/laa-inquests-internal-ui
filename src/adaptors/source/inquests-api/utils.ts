@@ -1,10 +1,29 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from "axios";
-import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  getLoggingContext,
+  logger,
+} from "#src/infrastructure/logging/logger.js";
 import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
 } from "#src/use-cases/common/applicationError.js";
+
+export const CORRELATION_ID_HEADER = "x-correlation-id";
+
+export function buildInquestsApiHeaders(
+  accessToken: string,
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+  };
+  const context = getLoggingContext();
+  if (context !== undefined) {
+    const { correlationId } = context;
+    headers[CORRELATION_ID_HEADER] = correlationId;
+  }
+  return headers;
+}
 
 export function translateInquestsApiError(
   error: unknown,
@@ -105,7 +124,7 @@ export async function patchInquestsApi<TResponse, TBody>(
   try {
     return await http.patch<TResponse>(`${baseUrl}${path}`, body, {
       ...restConfig,
-      headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
+      headers: { ...headerRecord, ...buildInquestsApiHeaders(accessToken) },
     });
   } catch (error) {
     logger.logError({
@@ -150,7 +169,7 @@ export async function getInquestsApi<TResponse>(
   try {
     return await http.get<TResponse>(`${baseUrl}${path}`, {
       ...restConfig,
-      headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
+      headers: { ...headerRecord, ...buildInquestsApiHeaders(accessToken) },
     });
   } catch (error) {
     logger.logError({
@@ -196,7 +215,7 @@ export async function postInquestsApi<TResponse, TBody>(
   try {
     return await http.post<TResponse>(`${baseUrl}${path}`, body, {
       ...restConfig,
-      headers: { ...headerRecord, Authorization: `Bearer ${accessToken}` },
+      headers: { ...headerRecord, ...buildInquestsApiHeaders(accessToken) },
     });
   } catch (error) {
     logger.logError({

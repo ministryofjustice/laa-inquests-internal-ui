@@ -37,6 +37,10 @@ export function runWithLoggingContext<Result>(
   return loggingContextStorage.run(context, callback);
 }
 
+export function getLoggingContext(): LogContext | undefined {
+  return loggingContextStorage.getStore();
+}
+
 type ExtraContext = Record<string, unknown>;
 
 interface EmitInput {
