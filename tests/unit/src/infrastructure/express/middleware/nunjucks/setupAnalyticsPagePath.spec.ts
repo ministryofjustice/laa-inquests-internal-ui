@@ -2,6 +2,7 @@ import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import sinon from "sinon";
 import { stubInterface } from "ts-sinon";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
 import { setupAnalyticsPagePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
 
 describe("setupAnalyticsPagePath", () => {
@@ -49,6 +50,26 @@ describe("setupAnalyticsPagePath", () => {
 
     assert.equal(res.locals.pageTemplatePath, "/missing-page");
     sinon.assert.calledOnceWithExactly(originalRender, "page-not-found");
+    sinon.assert.calledOnceWithExactly(next);
+  });
+
+  it("uses the request path when rendering a 404 through the catch-all route", () => {
+    const req = stubInterface<Request>();
+    const res: Response = stubInterface<Response>();
+    const next = sinon.stub();
+    const originalRender = sinon.stub();
+    req.baseUrl = "";
+    req.route = { path: "{*splat}" };
+    Object.defineProperty(req, "path", { value: "/missing-page" });
+    res.render = originalRender;
+    res.locals = {};
+
+    setupAnalyticsPagePath(req, res, next);
+    res.statusCode = HTTP_NOT_FOUND;
+    res.render("main/error");
+
+    assert.equal(res.locals.pageTemplatePath, "/missing-page");
+    sinon.assert.calledOnceWithExactly(originalRender, "main/error");
     sinon.assert.calledOnceWithExactly(next);
   });
 });
