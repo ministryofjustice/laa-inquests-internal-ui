@@ -447,7 +447,11 @@
 
 
     {% for tabItem in tabItems %}
-        <a href="#{{ tabItem.id }}" class="govuk-link application-overview-tab-link" id="{{ tabItem.id }}-link">{{ tabItem.label }}</a>
+        <p class="govuk-body">
+            <a href="#{{ tabItem.id }}" class="govuk-link application-overview-tab-link" id="{{ tabItem.id }}-link">
+                {{ tabItem.label }}
+            </a>
+        </p>
     {% endfor %}
 
     {% if noteSuccessBanner or errorSummaries %}
