@@ -18,6 +18,8 @@
     <script nonce="{{ cspNonce }}" async src="https://www.googletagmanager.com/gtag/js?id={{ config.GA_MEASUREMENT_ID }}"></script>
     <script nonce="{{ cspNonce }}">
         gtag('js', new Date());
-        gtag('config', '{{ config.GA_MEASUREMENT_ID }}');
+        gtag('config', '{{ config.GA_MEASUREMENT_ID }}'{% if pageTemplatePath %}, {
+            'page_location': window.location.origin + {{ pageTemplatePath | dump | replace("<", "\\u003c") | safe }} + window.location.search
+        }{% endif %});
     </script>
 {% endif %}

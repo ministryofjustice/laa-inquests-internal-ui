@@ -33,6 +33,7 @@ import { viewContext } from "#src/infrastructure/express/middleware/accessContro
 import { globalAccessGuard } from "#src/infrastructure/express/middleware/accessControl/globalAccessGuard.js";
 import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
+import { setupAnalyticsPagePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -69,6 +70,7 @@ initializeI18nextSync();
 app.use(requestLoggingContext);
 
 app.use(nonceMiddleware);
+app.use(setupAnalyticsPagePath);
 app.use(helmet(helmetConfig));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
