@@ -18,6 +18,42 @@ test.describe("Application overview page", () => {
     await page.goto("/auth/test-login");
   });
 
+  test("normalizes the analytics page location and preserves the query string", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.route("https://www.googletagmanager.com/**", async (route) => {
+      await route.abort();
+    });
+    const query = "?utm_source=analytics-test&search=example%20query";
+    const response = await page.goto(
+      `/applications/${laaReference}/overview${query}`,
+    );
+    const configuration = await page.evaluate(() => {
+      const { dataLayer = [] } = window as Window & {
+        dataLayer?: unknown[][];
+      };
+      return Array.from(dataLayer, (entry) => Array.from(entry)).filter(
+        (entry) => entry[0] === "config",
+      );
+    });
+    const origin = new URL(page.url()).origin;
+
+    expect(configuration).toEqual([
+      [
+        "config",
+        "G-1234567",
+        {
+          page_location: `${origin}/applications/:laaReference/overview${query}`,
+        },
+      ],
+    ]);
+    expect(await response?.text()).toMatch(
+      /window\.location\.origin\s*\+\s*['"]\/applications\/:laaReference\/overview['"]\s*\+\s*window\.location\.search/,
+    );
+    await checkAccessibility();
+  });
+
   test("should have the correct title and back link", async ({
     page,
     checkAccessibility,
