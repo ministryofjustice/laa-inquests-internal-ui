@@ -362,7 +362,9 @@ describe("ApplicationDecisionAdaptor", () => {
     });
 
     it("calls res.render with the correct view name", () => {
-      sessionHelperStub.getSessionData.returns({});
+      sessionHelperStub.getSessionData.returns({
+        meritsDecision: "Submitted",
+      });
 
       adaptor.renderJustificationForm(requestStub as Request, responseStub);
 
@@ -377,6 +379,7 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         refusalReason: "not-in-scope",
         justification: "some justification",
+        meritsDecision: "Submitted",
       });
 
       adaptor.renderJustificationForm(requestStub as Request, responseStub);
@@ -394,6 +397,7 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         refusalReason: "not-in-scope",
         justification: "some justification",
+        meritsDecision: "Submitted",
       });
       const errorSummaries = {
         decisionReason: {
@@ -424,6 +428,7 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         refusalReason: "not-in-scope",
         justification: "some justification",
+        meritsDecision: "Submitted",
       });
 
       adaptor.renderJustificationForm(requestStub as Request, responseStub);
@@ -519,7 +524,9 @@ describe("ApplicationDecisionAdaptor", () => {
 
     it("saves session data even when there are validation errors", () => {
       requestStub.body = { "refusal-reason": "", justification: "" };
-      sessionHelperStub.getSessionData.returns({});
+      sessionHelperStub.getSessionData.returns({
+        meritsDecision: "Submitted",
+      });
 
       adaptor.processJustificationForm(
         requestStub as unknown as TypedRequest<JustificationForm, IdParams>,
@@ -532,6 +539,7 @@ describe("ApplicationDecisionAdaptor", () => {
     it("re-renders with correct error summaries based on which fields are empty", () => {
       requestStub.body = { "refusal-reason": "", justification: "" };
       sessionHelperStub.getSessionData.returns({
+        meritsDecision: "Submitted",
         refusalReason: "not-in-scope",
         justification: "some justification",
       });
@@ -561,6 +569,7 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         refusalReason: "not-in-scope",
         justification: "a".repeat(1501),
+        meritsDecision: "Submitted",
       });
 
       adaptor.processJustificationForm(
@@ -585,6 +594,7 @@ describe("ApplicationDecisionAdaptor", () => {
       sessionHelperStub.getSessionData.returns({
         refusalReason: "not-in-scope",
         justification: "\uD800",
+        meritsDecision: "Submitted",
       });
 
       adaptor.processJustificationForm(
