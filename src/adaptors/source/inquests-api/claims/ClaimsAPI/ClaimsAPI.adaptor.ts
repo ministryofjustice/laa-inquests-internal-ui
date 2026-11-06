@@ -10,6 +10,7 @@ import type {
 } from "#src/ports/inquests-api/claims/ClaimsAPI/ClaimsAPI.port.js";
 import type { Disposition } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { buildInquestsApiHeaders } from "#src/adaptors/source/inquests-api/utils.js";
 import {
   getApplicationReferenceByClaimReference,
   getClaimById,
@@ -138,7 +139,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       await this.http.patch(
         `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}/reject`,
         { justification },
-        { headers: { Authorization: `Bearer ${accessToken}` } },
+        { headers: buildInquestsApiHeaders(accessToken) },
       );
       logger.logInfo({
         functionName: "claims_api_adaptor",
@@ -215,7 +216,7 @@ export class ClaimsAPIAdaptor implements ClaimsPort {
       await this.http.patch(
         `${this.baseUrl}/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}/pay-in-full`,
         data,
-        { headers: { Authorization: `Bearer ${accessToken}` } },
+        { headers: buildInquestsApiHeaders(accessToken) },
       );
       logger.logInfo({
         functionName: "claims_api_adaptor",

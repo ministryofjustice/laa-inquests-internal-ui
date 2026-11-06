@@ -74,4 +74,23 @@ describe("requestLoggingContext", () => {
     assert.notEqual(output.request_id, "");
     assert.equal(output.correlation_id, output.request_id);
   });
+
+  it("returns the request and correlation IDs in the response headers", () => {
+    const request = stubInterface<Request>();
+    const setHeader = sinon.stub();
+    const response = { setHeader } as unknown as Response;
+    request.headers = {
+      "x-request-id": "req-123",
+      "x-correlation-id": "cor-456",
+    };
+
+    requestLoggingContext(
+      request as unknown as Request,
+      response,
+      sinon.spy() as unknown as NextFunction,
+    );
+
+    sinon.assert.calledWith(setHeader, "x-request-id", "req-123");
+    sinon.assert.calledWith(setHeader, "x-correlation-id", "cor-456");
+  });
 });

@@ -14,6 +14,7 @@ import {
   SUBMITTED_DECISION,
 } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { buildInquestsApiHeaders } from "#src/adaptors/source/inquests-api/utils.js";
 import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
@@ -185,7 +186,7 @@ export async function getApplication(
   try {
     const { data }: AxiosResponse<Application> = await http.get(
       `${baseUrl}/applications/${laaReference}`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      { headers: buildInquestsApiHeaders(accessToken) },
     );
     const result = ApplicationSchema.safeParse(data);
     if (!result.success) {
@@ -276,7 +277,7 @@ export async function getApplicationHistory(
   try {
     const { data }: AxiosResponse<HistoryEvent[]> = await http.get(
       `${baseUrl}/applications/${laaReference}/history`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      { headers: buildInquestsApiHeaders(accessToken) },
     );
     const result = HistoryEventSchema.array().safeParse(data);
     if (!result.success) {
@@ -336,7 +337,7 @@ export async function getCoronersLetterDocument(
       `${baseUrl}/applications/${laaReference}/coroners-letter`,
       {
         responseType: "arraybuffer",
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: buildInquestsApiHeaders(accessToken),
       },
     );
     logSuccess(
