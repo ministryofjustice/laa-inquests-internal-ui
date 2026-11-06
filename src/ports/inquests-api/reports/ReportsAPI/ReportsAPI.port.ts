@@ -1,4 +1,10 @@
-export type PaymentExtractReportResult =
+export type DateRangeReportKey =
+  | "paymentsExtract"
+  | "claimsApplicationsProcessing"
+  | "costsForOtherDepartments"
+  | "userAuditTrail";
+
+export type DateRangeReportResult =
   | {
       status: "SUCCESS";
       data: Buffer;
@@ -14,9 +20,15 @@ export interface ReportsPort {
   getClaimsBacklogReport: (
     accessToken: string | undefined,
   ) => Promise<{ data: Buffer; contentType: string }>;
-  getPaymentExtractReport: (
+  getCostEstimationReport: (accessToken: string | undefined) => Promise<{
+    data: Buffer;
+    contentType: string;
+    contentDisposition: string | undefined;
+  }>;
+  getDateRangeReport: (
+    report: DateRangeReportKey,
     from: string,
     to: string,
     accessToken: string | undefined,
-  ) => Promise<PaymentExtractReportResult>;
+  ) => Promise<DateRangeReportResult>;
 }

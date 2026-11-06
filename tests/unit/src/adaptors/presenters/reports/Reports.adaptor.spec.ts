@@ -5,19 +5,37 @@ import type { Request, Response } from "express";
 import { ReportsAdaptor } from "#src/adaptors/presenter/reports/Reports.adaptor.js";
 import type { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import type { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
-import type { DownloadPaymentExtractReportUseCase } from "#src/use-cases/reports/DownloadPaymentExtractReport.useCase.js";
-import type { PaymentExtractValidator } from "#src/adaptors/presenter/reports/PaymentExtract/PaymentExtract.validator.js";
-import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import type { DownloadCostEstimationReportUseCase } from "#src/use-cases/reports/DownloadCostEstimationReport.useCase.js";
+import type { DownloadDateRangeReportUseCase } from "#src/use-cases/reports/DownloadDateRangeReport.useCase.js";
+import type { DateRangeReportValidator } from "#src/adaptors/presenter/reports/DateRangeReport/DateRangeReport.validator.js";
+import {
+  DATE_RANGE_REPORTS,
+  findDateRangeReport,
+} from "#src/adaptors/presenter/reports/reportDefinitions.js";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_TOO_MANY_REQUESTS,
+} from "#src/infrastructure/express/constants.js";
+import config from "#src/infrastructure/config/config.js";
 
-const VALID_PAYMENT_EXTRACT_QUERY = {
-  "from-date-day": "1",
-  "from-date-month": "4",
-  "from-date-year": "2025",
-  "to-date-day": "30",
-  "to-date-month": "4",
-  "to-date-year": "2025",
+const VALID_QUERY = {
+  "start-date-day": "1",
+  "start-date-month": "4",
+  "start-date-year": "2025",
+  "end-date-day": "30",
+  "end-date-month": "4",
+  "end-date-year": "2025",
 };
+
+const PAYMENTS_EXTRACT = findDateRangeReport("payments-extract")!;
+const USER_AUDIT_TRAIL = findDateRangeReport("user-audit-trail")!;
+
+const viewModelFor = (report: typeof PAYMENTS_EXTRACT) => ({
+  backUrl: "/reports",
+  reportKey: report.key,
+  reportSlug: report.slug,
+  maxDays: report.maxDays,
+});
 
 describe("Reports adaptor", () => {
   let reportsAdaptor: ReportsAdaptor;
@@ -25,20 +43,24 @@ describe("Reports adaptor", () => {
   let requestStub: StubbedInstance<Request>;
   let downloadApplicationsBacklogReportUseCaseStub: StubbedInstance<DownloadApplicationsBacklogReportUseCase>;
   let downloadClaimsBacklogReportUseCaseStub: StubbedInstance<DownloadClaimsBacklogReportUseCase>;
-  let downloadPaymentExtractReportUseCaseStub: StubbedInstance<DownloadPaymentExtractReportUseCase>;
-  let paymentExtractValidatorStub: StubbedInstance<PaymentExtractValidator>;
+  let downloadCostEstimationReportUseCaseStub: StubbedInstance<DownloadCostEstimationReportUseCase>;
+  let downloadDateRangeReportUseCaseStub: StubbedInstance<DownloadDateRangeReportUseCase>;
+  let dateRangeReportValidatorStub: StubbedInstance<DateRangeReportValidator>;
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
     responseStub.status.returns(responseStub);
+    responseStub.locals = {};
     requestStub = stubInterface<Request>();
     downloadApplicationsBacklogReportUseCaseStub =
       stubInterface<DownloadApplicationsBacklogReportUseCase>();
     downloadClaimsBacklogReportUseCaseStub =
       stubInterface<DownloadClaimsBacklogReportUseCase>();
-    downloadPaymentExtractReportUseCaseStub =
-      stubInterface<DownloadPaymentExtractReportUseCase>();
-    paymentExtractValidatorStub = stubInterface<PaymentExtractValidator>();
+    downloadCostEstimationReportUseCaseStub =
+      stubInterface<DownloadCostEstimationReportUseCase>();
+    downloadDateRangeReportUseCaseStub =
+      stubInterface<DownloadDateRangeReportUseCase>();
+    dateRangeReportValidatorStub = stubInterface<DateRangeReportValidator>();
     requestStub.session = {
       user: {
         accessToken: "test-access-token",
@@ -50,10 +72,11 @@ describe("Reports adaptor", () => {
           downloadApplicationsBacklogReportUseCaseStub,
         downloadClaimsBacklogReportUseCase:
           downloadClaimsBacklogReportUseCaseStub,
-        downloadPaymentExtractReportUseCase:
-          downloadPaymentExtractReportUseCaseStub,
+        downloadCostEstimationReportUseCase:
+          downloadCostEstimationReportUseCaseStub,
+        downloadDateRangeReportUseCase: downloadDateRangeReportUseCaseStub,
       },
-      paymentExtractValidatorStub,
+      dateRangeReportValidatorStub,
     );
   });
 
@@ -188,66 +211,53 @@ describe("Reports adaptor", () => {
     assert.equal(responseStub.send.callCount, 0);
   });
 
-  it("downloads the payment extract from the api when the date range is valid", async () => {
+  it("downloads the cost estimation report with the api content disposition", async () => {
     const mockBuffer = Buffer.from("col1,col2\n1,2");
-    requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
-    paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
-    downloadPaymentExtractReportUseCaseStub.execute.resolves({
-      status: "SUCCESS",
+    downloadCostEstimationReportUseCaseStub.execute.resolves({
       data: mockBuffer,
       contentType: "text/csv; charset=utf-8",
-      contentDisposition:
-        "attachment; filename=payment_extract_2025-04-01_2025-04-30.csv",
+      contentDisposition: "attachment; filename=forecast.csv",
     });
 
-    await reportsAdaptor.downloadPaymentExtract(requestStub, responseStub);
+    await reportsAdaptor.downloadCostEstimation(requestStub, responseStub);
 
     assert.deepEqual(
-      paymentExtractValidatorStub.validatePaymentExtractForm.firstCall.args,
-      [VALID_PAYMENT_EXTRACT_QUERY],
+      downloadCostEstimationReportUseCaseStub.execute.firstCall.args,
+      ["test-access-token"],
     );
-    assert.deepEqual(
-      downloadPaymentExtractReportUseCaseStub.execute.firstCall.args,
-      ["2025-04-01", "2025-04-30", "test-access-token"],
-    );
+    assert.equal(responseStub.setHeader.callCount, 2);
     assert.deepEqual(responseStub.setHeader.getCall(0).args, [
       "Content-Type",
       "text/csv; charset=utf-8",
     ]);
     assert.deepEqual(responseStub.setHeader.getCall(1).args, [
       "Content-Disposition",
-      "attachment; filename=payment_extract_2025-04-01_2025-04-30.csv",
+      "attachment; filename=forecast.csv",
     ]);
     assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
-    assert.equal(responseStub.render.callCount, 0);
   });
 
-  it("uses a fallback filename when the api does not provide a content disposition", async () => {
-    requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
-    paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
-    downloadPaymentExtractReportUseCaseStub.execute.resolves({
-      status: "SUCCESS",
+  it("uses a fallback filename for the cost estimation report when the api does not provide one", async () => {
+    downloadCostEstimationReportUseCaseStub.execute.resolves({
       data: Buffer.from("csv"),
       contentType: "text/csv",
       contentDisposition: undefined,
     });
 
-    await reportsAdaptor.downloadPaymentExtract(requestStub, responseStub);
+    await reportsAdaptor.downloadCostEstimation(requestStub, responseStub);
 
     assert.deepEqual(responseStub.setHeader.getCall(1).args, [
       "Content-Disposition",
-      'attachment; filename="payment-extract-2025-04-01-to-2025-04-30.csv"',
+      'attachment; filename="cost-estimation-and-forecasting.csv"',
     ]);
   });
 
-  it("propagates payment extract failures without writing a response", async () => {
+  it("propagates cost estimation report failures without writing a response", async () => {
     const error = new Error("API error");
-    requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
-    paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
-    downloadPaymentExtractReportUseCaseStub.execute.rejects(error);
+    downloadCostEstimationReportUseCaseStub.execute.rejects(error);
 
     await assert.rejects(
-      reportsAdaptor.downloadPaymentExtract(requestStub, responseStub),
+      reportsAdaptor.downloadCostEstimation(requestStub, responseStub),
       (thrown: unknown) => thrown === error,
     );
 
@@ -255,81 +265,290 @@ describe("Reports adaptor", () => {
     assert.equal(responseStub.send.callCount, 0);
   });
 
-  it("re-renders the reports page with a date range error when the api rejects the range as too long", async () => {
-    requestStub.query = VALID_PAYMENT_EXTRACT_QUERY;
-    paymentExtractValidatorStub.validatePaymentExtractForm.returns({});
-    downloadPaymentExtractReportUseCaseStub.execute.resolves({
-      status: "DATE_RANGE_TOO_LONG",
-    });
-    const toDate = {
-      text: en.pages.reports.paymentExtract.validationErrors.dateRangeTooLong,
-    };
+  describe("date range report pages", () => {
+    for (const report of DATE_RANGE_REPORTS) {
+      it(`renders the ${report.key} report page without errors`, () => {
+        reportsAdaptor.renderDateRangeReportPage(
+          report,
+          requestStub,
+          responseStub,
+        );
 
-    await reportsAdaptor.downloadPaymentExtract(requestStub, responseStub);
-
-    assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
-    assert.deepEqual(responseStub.render.firstCall.args, [
-      "reports/index",
-      {
-        backUrl: "/",
-        formValues: VALID_PAYMENT_EXTRACT_QUERY,
-        errorSummaries: { toDate },
-        errorList: [{ text: toDate.text, href: "#to-date-day" }],
-      },
-    ]);
-    assert.equal(responseStub.setHeader.callCount, 0);
-    assert.equal(responseStub.send.callCount, 0);
+        assert.equal(responseStub.status.callCount, 0);
+        assert.deepEqual(responseStub.render.firstCall.args, [
+          "reports/date-range-report",
+          viewModelFor(report),
+        ]);
+      });
+    }
   });
 
-  it("re-renders the reports page with errors when the date range is invalid", async () => {
-    const query = { ...VALID_PAYMENT_EXTRACT_QUERY, "to-date-day": "" };
-    const fromDate = { text: "Start date error" };
-    const toDate = { text: "End date error" };
-    requestStub.query = query;
-    paymentExtractValidatorStub.validatePaymentExtractForm.returns({
-      fromDate,
-      toDate,
+  describe("downloading a date range report", () => {
+    it("downloads the report from the api when the date range is valid", async () => {
+      const mockBuffer = Buffer.from("col1,col2\n1,2");
+      requestStub.query = VALID_QUERY;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+      downloadDateRangeReportUseCaseStub.execute.resolves({
+        status: "SUCCESS",
+        data: mockBuffer,
+        contentType: "text/csv; charset=utf-8",
+        contentDisposition:
+          "attachment; filename=payment_extract_2025-04-01_2025-04-30.csv",
+      });
+
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(
+        dateRangeReportValidatorStub.validateDateRangeReportForm.firstCall.args,
+        [VALID_QUERY, PAYMENTS_EXTRACT.maxDays],
+      );
+      assert.deepEqual(
+        downloadDateRangeReportUseCaseStub.execute.firstCall.args,
+        ["paymentsExtract", "2025-04-01", "2025-04-30", "test-access-token"],
+      );
+      assert.deepEqual(responseStub.setHeader.getCall(0).args, [
+        "Content-Type",
+        "text/csv; charset=utf-8",
+      ]);
+      assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        "attachment; filename=payment_extract_2025-04-01_2025-04-30.csv",
+      ]);
+      assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
+      assert.equal(responseStub.render.callCount, 0);
     });
 
-    await reportsAdaptor.downloadPaymentExtract(requestStub, responseStub);
+    it("validates and downloads using the limit and key of the requested report", async () => {
+      requestStub.query = VALID_QUERY;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+      downloadDateRangeReportUseCaseStub.execute.resolves({
+        status: "SUCCESS",
+        data: Buffer.from("csv"),
+        contentType: "text/csv",
+        contentDisposition: undefined,
+      });
 
-    assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
-    assert.deepEqual(responseStub.render.firstCall.args, [
-      "reports/index",
-      {
-        backUrl: "/",
-        formValues: query,
-        errorSummaries: { fromDate, toDate },
-        errorList: [
-          { text: fromDate.text, href: "#from-date-day" },
-          { text: toDate.text, href: "#to-date-day" },
-        ],
-      },
-    ]);
-    assert.equal(responseStub.send.callCount, 0);
-    assert.equal(downloadPaymentExtractReportUseCaseStub.execute.callCount, 0);
-  });
+      await reportsAdaptor.downloadDateRangeReport(
+        USER_AUDIT_TRAIL,
+        requestStub,
+        responseStub,
+      );
 
-  it("treats missing and non-string query values as empty date fields", async () => {
-    requestStub.query = { "from-date-day": ["1", "2"] } as never;
-    paymentExtractValidatorStub.validatePaymentExtractForm.returns({
-      fromDate: { text: "Start date error" },
+      assert.equal(
+        dateRangeReportValidatorStub.validateDateRangeReportForm.firstCall
+          .args[1],
+        USER_AUDIT_TRAIL.maxDays,
+      );
+      assert.equal(
+        downloadDateRangeReportUseCaseStub.execute.firstCall.args[0],
+        "userAuditTrail",
+      );
     });
 
-    await reportsAdaptor.downloadPaymentExtract(requestStub, responseStub);
+    it("zero pads single digit days and months in the dates sent to the api", async () => {
+      requestStub.query = {
+        ...VALID_QUERY,
+        "start-date-day": " 5 ",
+        "start-date-month": "3",
+        "end-date-day": "9",
+        "end-date-month": "3",
+      };
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+      downloadDateRangeReportUseCaseStub.execute.resolves({
+        status: "SUCCESS",
+        data: Buffer.from("csv"),
+        contentType: "text/csv",
+        contentDisposition: undefined,
+      });
 
-    assert.deepEqual(
-      paymentExtractValidatorStub.validatePaymentExtractForm.firstCall.args,
-      [
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(
+        downloadDateRangeReportUseCaseStub.execute.firstCall.args.slice(1, 3),
+        ["2025-03-05", "2025-03-09"],
+      );
+    });
+
+    it("uses a fallback filename when the api does not provide a content disposition", async () => {
+      requestStub.query = VALID_QUERY;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+      downloadDateRangeReportUseCaseStub.execute.resolves({
+        status: "SUCCESS",
+        data: Buffer.from("csv"),
+        contentType: "text/csv",
+        contentDisposition: undefined,
+      });
+
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        'attachment; filename="payments-extract-2025-04-01-to-2025-04-30.csv"',
+      ]);
+    });
+
+    it("propagates report failures without writing a response", async () => {
+      const error = new Error("API error");
+      requestStub.query = VALID_QUERY;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+      downloadDateRangeReportUseCaseStub.execute.rejects(error);
+
+      await assert.rejects(
+        reportsAdaptor.downloadDateRangeReport(
+          PAYMENTS_EXTRACT,
+          requestStub,
+          responseStub,
+        ),
+        (thrown: unknown) => thrown === error,
+      );
+
+      assert.equal(responseStub.setHeader.callCount, 0);
+      assert.equal(responseStub.send.callCount, 0);
+    });
+
+    it("re-renders the report page with a date range error when the api rejects the range as too long", async () => {
+      requestStub.query = VALID_QUERY;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+      downloadDateRangeReportUseCaseStub.execute.resolves({
+        status: "DATE_RANGE_TOO_LONG",
+      });
+      const endDate = {
+        text: `Date range must be ${PAYMENTS_EXTRACT.maxDays} days or less`,
+      };
+
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "reports/date-range-report",
         {
-          "from-date-day": "",
-          "from-date-month": "",
-          "from-date-year": "",
-          "to-date-day": "",
-          "to-date-month": "",
-          "to-date-year": "",
+          ...viewModelFor(PAYMENTS_EXTRACT),
+          formValues: VALID_QUERY,
+          errorSummaries: { endDate },
+          errorList: [{ text: endDate.text, href: "#end-date-day" }],
         },
-      ],
-    );
+      ]);
+      assert.equal(responseStub.setHeader.callCount, 0);
+      assert.equal(responseStub.send.callCount, 0);
+    });
+
+    it("re-renders the report page with errors when the date range is invalid", async () => {
+      const query = { ...VALID_QUERY, "end-date-day": "" };
+      const startDate = { text: "Start date error" };
+      const endDate = { text: "End date error" };
+      requestStub.query = query;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({
+        startDate,
+        endDate,
+      });
+
+      await reportsAdaptor.downloadDateRangeReport(
+        USER_AUDIT_TRAIL,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "reports/date-range-report",
+        {
+          ...viewModelFor(USER_AUDIT_TRAIL),
+          formValues: query,
+          errorSummaries: { startDate, endDate },
+          errorList: [
+            { text: startDate.text, href: "#start-date-day" },
+            { text: endDate.text, href: "#end-date-day" },
+          ],
+        },
+      ]);
+      assert.equal(responseStub.send.callCount, 0);
+      assert.equal(downloadDateRangeReportUseCaseStub.execute.callCount, 0);
+    });
+
+    it("treats missing and non-string query values as empty date fields", async () => {
+      requestStub.query = { "start-date-day": ["1", "2"] } as never;
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({
+        startDate: { text: "Start date error" },
+      });
+
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(
+        dateRangeReportValidatorStub.validateDateRangeReportForm.firstCall
+          .args[0],
+        {
+          "start-date-day": "",
+          "start-date-month": "",
+          "start-date-year": "",
+          "end-date-day": "",
+          "end-date-month": "",
+          "end-date-year": "",
+        },
+      );
+    });
+
+    it("renders the report page with the rate limit message instead of downloading when the rate limit is exceeded", async () => {
+      requestStub.query = VALID_QUERY;
+      responseStub.locals = { rateLimit: true };
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.status.firstCall.args, [
+        HTTP_TOO_MANY_REQUESTS,
+      ]);
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "reports/date-range-report",
+        {
+          ...viewModelFor(PAYMENTS_EXTRACT),
+          formValues: VALID_QUERY,
+          shouldShowRateLimitText: true,
+          config,
+        },
+      ]);
+      assert.equal(downloadDateRangeReportUseCaseStub.execute.callCount, 0);
+      assert.equal(responseStub.send.callCount, 0);
+    });
+
+    it("shows validation errors rather than the rate limit message when the form is invalid", async () => {
+      const startDate = { text: "Start date error" };
+      requestStub.query = VALID_QUERY;
+      responseStub.locals = { rateLimit: true };
+      dateRangeReportValidatorStub.validateDateRangeReportForm.returns({
+        startDate,
+      });
+
+      await reportsAdaptor.downloadDateRangeReport(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
+    });
   });
 });

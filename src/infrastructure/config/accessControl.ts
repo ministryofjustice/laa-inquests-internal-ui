@@ -63,6 +63,8 @@ export const PERMISSIONS = {
   VIEW_PAYMENT_EXTRACT_REPORT: "viewPaymentExtractReport",
   VIEW_OGD_COSTS_REPORT: "viewOgdCostsReport",
   VIEW_AUDIT_TRAIL_REPORT: "viewAuditTrailReport",
+  VIEW_DECISIONS_REPORT: "viewDecisionsReport",
+  VIEW_COST_ESTIMATION_REPORT: "viewCostEstimationReport",
 };
 
 const RECOGNISED_PERMISSIONS: readonly Permission[] =
@@ -86,6 +88,14 @@ const REPORT_PERMISSION_ROLE_MAP: Readonly<
     INTERNAL_CASEWORKER_ROLES.POLICY,
   ],
   [PERMISSIONS.VIEW_AUDIT_TRAIL_REPORT]: [INTERNAL_CASEWORKER_ROLES.ASSURANCE],
+  [PERMISSIONS.VIEW_DECISIONS_REPORT]: [
+    INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+    INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+  ],
+  [PERMISSIONS.VIEW_COST_ESTIMATION_REPORT]: [
+    INTERNAL_CASEWORKER_ROLES.FINANCE,
+    INTERNAL_CASEWORKER_ROLES.POLICY,
+  ],
 };
 
 // Anyone who can download at least one report may open the reports page.
@@ -190,8 +200,24 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_CLAIMS_REPORTS],
   },
   {
-    prefix: "/reports/payment-extract",
+    prefix: "/reports/payments-extract",
     allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_PAYMENT_EXTRACT_REPORT],
+  },
+  {
+    prefix: "/reports/claims-applications-processing",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_DECISIONS_REPORT],
+  },
+  {
+    prefix: "/reports/costs-for-other-departments",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_OGD_COSTS_REPORT],
+  },
+  {
+    prefix: "/reports/user-audit-trail",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_AUDIT_TRAIL_REPORT],
+  },
+  {
+    prefix: "/reports/cost-estimation-and-forecasting",
+    allowedRoles: PERMISSION_ROLE_MAP[PERMISSIONS.VIEW_COST_ESTIMATION_REPORT],
   },
   {
     prefix: "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/public-authorities",

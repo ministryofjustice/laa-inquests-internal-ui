@@ -56,8 +56,9 @@ import { createReportsRouter } from "#src/infrastructure/express/routes/reports.
 import { ReportsAPIAdaptor } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/ReportsAPI.adaptor.js";
 import { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/reports/DownloadApplicationsBacklogReport.useCase.js";
 import { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
-import { DownloadPaymentExtractReportUseCase } from "#src/use-cases/reports/DownloadPaymentExtractReport.useCase.js";
-import { PaymentExtractValidator } from "#src/adaptors/presenter/reports/PaymentExtract/PaymentExtract.validator.js";
+import { DownloadCostEstimationReportUseCase } from "#src/use-cases/reports/DownloadCostEstimationReport.useCase.js";
+import { DownloadDateRangeReportUseCase } from "#src/use-cases/reports/DownloadDateRangeReport.useCase.js";
+import { DateRangeReportValidator } from "#src/adaptors/presenter/reports/DateRangeReport/DateRangeReport.validator.js";
 import { CertificateAdaptor } from "#src/adaptors/presenter/applications/Certificate.adaptor.js";
 import { PreparePublicAuthorityFormUseCase } from "#src/use-cases/applications/publicAuthority/PreparePublicAuthorityForm.useCase.js";
 import { ProcessPublicAuthoritySelectionUseCase } from "#src/use-cases/applications/publicAuthority/ProcessPublicAuthoritySelection.useCase.js";
@@ -184,10 +185,13 @@ const reportsAdaptor = new ReportsAdaptor(
     downloadClaimsBacklogReportUseCase: new DownloadClaimsBacklogReportUseCase(
       reportsApiAdaptor,
     ),
-    downloadPaymentExtractReportUseCase:
-      new DownloadPaymentExtractReportUseCase(reportsApiAdaptor),
+    downloadCostEstimationReportUseCase:
+      new DownloadCostEstimationReportUseCase(reportsApiAdaptor),
+    downloadDateRangeReportUseCase: new DownloadDateRangeReportUseCase(
+      reportsApiAdaptor,
+    ),
   },
-  new PaymentExtractValidator(),
+  new DateRangeReportValidator(),
 );
 const cookiesAdaptor = new CookiesAdaptor();
 const applicationDecisionAdaptor = new ApplicationDecisionAdaptor(

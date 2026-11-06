@@ -109,7 +109,32 @@ so hidden reports leave no placeholders or empty spacing.
 These links use named `#PLACEHOLDER-FOR-...-LINK` fragments and
 `aria-disabled="true"` and do not download CSVs. Replace each placeholder `href`
 and remove `aria-disabled` when its report destination is ready.
-Date-range forms, download routes, and API permission
-alignment remain follow-up work; this change does not complete those acceptance
-criteria. Payment Extract and backlog report permissions and behaviour are
-unchanged.
+The placeholder block is kept for now; the real report links are described in
+the next section.
+
+## Download reports page
+
+The Reports page groups its links into Operations, Finance and Management
+information sections. A link, and a section heading with no visible links, is
+shown only when `hasPermission` allows it. Role mappings mirror the Inquests API
+(no role changes):
+
+| Report                                  | Route                                      | Permission                    | Roles                                    |
+| --------------------------------------- | ------------------------------------------ | ----------------------------- | ---------------------------------------- |
+| Claims workflow backlog                 | `/reports/claims/backlog`                  | `VIEW_CLAIMS_REPORTS`         | Claim workflow reporting                 |
+| Applications workflow backlog           | `/reports/applications/backlog`            | `VIEW_APPLICATIONS_REPORTS`   | Application workflow reporting           |
+| Payments extract                        | `/reports/payments-extract`                | `VIEW_PAYMENT_EXTRACT_REPORT` | Assurance, Finance                       |
+| Cost estimation and forecasting         | `/reports/cost-estimation-and-forecasting` | `VIEW_COST_ESTIMATION_REPORT` | Finance, Policy                          |
+| Claims and applications processing      | `/reports/claims-applications-processing`  | `VIEW_DECISIONS_REPORT`       | Application and Claim workflow reporting |
+| Costs associated with other departments | `/reports/costs-for-other-departments`     | `VIEW_OGD_COSTS_REPORT`       | Finance, Policy                          |
+| User audit trail                        | `/reports/user-audit-trail`                | `VIEW_AUDIT_TRAIL_REPORT`     | Assurance                                |
+
+The payments extract, claims and applications processing, costs for other
+departments and user audit trail pages all use the reusable
+`views/reports/date-range-report.njk` template. Each report is described once in
+`adaptors/presenter/reports/reportDefinitions.ts` (URL slug, maximum date range
+in days, permission). The form page is `GET /reports/<slug>` and it submits to
+`GET /reports/<slug>/download`, which shares the page's route policy prefix.
+Adding another date range report means adding a definition, its locale content
+under `pages.reports.dateRange`, an API route in `ReportsAPI.adaptor.ts` and a
+route policy entry.

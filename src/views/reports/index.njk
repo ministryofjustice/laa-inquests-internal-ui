@@ -1,22 +1,19 @@
 {% extends "layouts/page-with-back-link.njk" %}
-{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% set pageTitle = t('pages.reports.heading') %}
 
+{% macro reportLink(href, text, description) %}
+  <p class="govuk-body govuk-!-margin-bottom-1">
+    <a class="govuk-link" href="{{ href }}">{{ text }}</a>
+  </p>
+  <p class="govuk-body">{{ description }}</p>
+  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+{% endmacro %}
+
 {% block content %}
-    {% if errorSummaries %}
-      {{ govukErrorSummary({
-        titleText: t('common.errorSummaryTitle'),
-        errorList: errorList
-      }) }}
-    {% endif %}
-
     <h1 class="govuk-heading-xl">{{ t('pages.reports.heading') }}</h1>
-
-  {%- from "govuk/components/warning-text/macro.njk" import govukWarningText -%}
 
   {{ govukInsetText({
     text: t('pages.error.rateLimitError.reportLimitMessage', { RATE_WINDOW_PER_REPORT_SECONDS: config.RATE_WINDOW_PER_REPORT_MS / 1000 })
@@ -25,16 +22,38 @@
     text: t('pages.home.developerBanner.text'),
     iconFallbackText: t('pages.home.developerBanner.title')
   }) }}
-    {% if hasPermission(permissions.VIEW_APPLICATIONS_REPORTS) %}
-        <p class="govuk-body">
-          <a class="govuk-link" href="/reports/applications/backlog">{{ t('pages.reports.downloadApplicationsBacklogLink') }}</a>
-        </p>
+
+    {% set sizeOptions = { fileSizeEstimate: t('pages.reports.fileSizeEstimate') } %}
+
+    {% if hasPermission(permissions.VIEW_CLAIMS_REPORTS) or hasPermission(permissions.VIEW_APPLICATIONS_REPORTS) %}
+      <h2 class="govuk-heading-m">{{ t('pages.reports.sections.operations') }}</h2>
+      {% if hasPermission(permissions.VIEW_CLAIMS_REPORTS) %}
+        {{ reportLink("/reports/claims/backlog", t('pages.reports.links.claimsBacklog.text', sizeOptions), t('pages.reports.links.claimsBacklog.description')) }}
+      {% endif %}
+      {% if hasPermission(permissions.VIEW_APPLICATIONS_REPORTS) %}
+        {{ reportLink("/reports/applications/backlog", t('pages.reports.links.applicationsBacklog.text', sizeOptions), t('pages.reports.links.applicationsBacklog.description')) }}
+      {% endif %}
     {% endif %}
 
-    {% if hasPermission(permissions.VIEW_CLAIMS_REPORTS) %}
-        <p class="govuk-body">
-          <a class="govuk-link" href="/reports/claims/backlog">{{ t('pages.reports.downloadClaimsBacklogLink') }}</a>
-        </p>
+    {% if hasPermission(permissions.VIEW_PAYMENT_EXTRACT_REPORT) %}
+      <h2 class="govuk-heading-m">{{ t('pages.reports.sections.finance') }}</h2>
+      {{ reportLink("/reports/payments-extract", t('pages.reports.links.paymentsExtract.text'), t('pages.reports.links.paymentsExtract.description')) }}
+    {% endif %}
+
+    {% if hasPermission(permissions.VIEW_COST_ESTIMATION_REPORT) or hasPermission(permissions.VIEW_DECISIONS_REPORT) or hasPermission(permissions.VIEW_OGD_COSTS_REPORT) or hasPermission(permissions.VIEW_AUDIT_TRAIL_REPORT) %}
+      <h2 class="govuk-heading-m">{{ t('pages.reports.sections.managementInformation') }}</h2>
+      {% if hasPermission(permissions.VIEW_COST_ESTIMATION_REPORT) %}
+        {{ reportLink("/reports/cost-estimation-and-forecasting", t('pages.reports.links.costEstimation.text', sizeOptions), t('pages.reports.links.costEstimation.description')) }}
+      {% endif %}
+      {% if hasPermission(permissions.VIEW_DECISIONS_REPORT) %}
+        {{ reportLink("/reports/claims-applications-processing", t('pages.reports.links.claimsApplicationsProcessing.text'), t('pages.reports.links.claimsApplicationsProcessing.description')) }}
+      {% endif %}
+      {% if hasPermission(permissions.VIEW_OGD_COSTS_REPORT) %}
+        {{ reportLink("/reports/costs-for-other-departments", t('pages.reports.links.costsForOtherDepartments.text'), t('pages.reports.links.costsForOtherDepartments.description')) }}
+      {% endif %}
+      {% if hasPermission(permissions.VIEW_AUDIT_TRAIL_REPORT) %}
+        {{ reportLink("/reports/user-audit-trail", t('pages.reports.links.userAuditTrail.text'), t('pages.reports.links.userAuditTrail.description')) }}
+      {% endif %}
     {% endif %}
 
     {% if hasPermission(permissions.VIEW_MI_REPORTS) %}
@@ -47,60 +66,5 @@
         <p class="govuk-body">
           <a class="govuk-link" href="#PLACEHOLDER-FOR-COSTS-LINK" aria-disabled="true">{{ t('pages.reports.costsLink') }}</a>
         </p>
-    {% endif %}
-
-    {% if hasPermission(permissions.VIEW_PAYMENT_EXTRACT_REPORT) %}
-        {% set formValues = formValues or {} %}
-        {% if hasPermission(permissions.VIEW_APPLICATIONS_REPORTS) or hasPermission(permissions.VIEW_CLAIMS_REPORTS) %}
-          <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-        {% endif %}
-        <h2 class="govuk-heading-m">{{ t('pages.reports.paymentExtract.heading') }}</h2>
-        <p class="govuk-body">{{ t('pages.reports.paymentExtract.description') }}</p>
-
-        <form method="get" action="/reports/payment-extract" novalidate>
-          {% set fromErrorClass = " govuk-input--error" if errorSummaries.fromDate else "" %}
-          {{ govukDateInput({
-            id: "from-date",
-            namePrefix: "from-date",
-            fieldset: {
-              legend: {
-                text: t('pages.reports.paymentExtract.fromLegend'),
-                classes: "govuk-fieldset__legend--s"
-              }
-            },
-            hint: { text: t('pages.reports.paymentExtract.fromHint') },
-            errorMessage: errorSummaries.fromDate,
-            items: [
-              { name: "day", classes: "govuk-input--width-2" + fromErrorClass, value: formValues["from-date-day"] },
-              { name: "month", classes: "govuk-input--width-2" + fromErrorClass, value: formValues["from-date-month"] },
-              { name: "year", classes: "govuk-input--width-4" + fromErrorClass, value: formValues["from-date-year"] }
-            ]
-          }) }}
-
-          {% set toErrorClass = " govuk-input--error" if errorSummaries.toDate else "" %}
-          {{ govukDateInput({
-            id: "to-date",
-            namePrefix: "to-date",
-            fieldset: {
-              legend: {
-                text: t('pages.reports.paymentExtract.toLegend'),
-                classes: "govuk-fieldset__legend--s"
-              }
-            },
-            hint: { text: t('pages.reports.paymentExtract.toHint') },
-            errorMessage: errorSummaries.toDate,
-            items: [
-              { name: "day", classes: "govuk-input--width-2" + toErrorClass, value: formValues["to-date-day"] },
-              { name: "month", classes: "govuk-input--width-2" + toErrorClass, value: formValues["to-date-month"] },
-              { name: "year", classes: "govuk-input--width-4" + toErrorClass, value: formValues["to-date-year"] }
-            ]
-          }) }}
-
-          {{ govukButton({
-            text: t('pages.reports.paymentExtract.button'),
-            type: "submit",
-            preventDoubleClick: true
-          }) }}
-        </form>
     {% endif %}
 {% endblock %}

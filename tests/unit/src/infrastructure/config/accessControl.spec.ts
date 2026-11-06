@@ -178,12 +178,45 @@ describe("Access Control Configuration", () => {
       );
     });
 
-    it("restricts the payment extract download to assurance and finance", () => {
-      const policy = findRoutePolicy("/reports/payment-extract");
-      expect(policy?.allowedRoles).to.deep.equal([
-        INTERNAL_CASEWORKER_ROLES.ASSURANCE,
-        INTERNAL_CASEWORKER_ROLES.FINANCE,
-      ]);
+    describe("report routes", () => {
+      const {
+        APPLICATION_WORKFLOW_REPORTING,
+        CLAIM_WORKFLOW_REPORTING,
+        ASSURANCE,
+        FINANCE,
+        POLICY,
+      } = INTERNAL_CASEWORKER_ROLES;
+      const expectedRolesByPath: Array<[string, CaseworkerRole[]]> = [
+        ["/reports/payments-extract", [ASSURANCE, FINANCE]],
+        ["/reports/payments-extract/download", [ASSURANCE, FINANCE]],
+        [
+          "/reports/claims-applications-processing",
+          [APPLICATION_WORKFLOW_REPORTING, CLAIM_WORKFLOW_REPORTING],
+        ],
+        [
+          "/reports/claims-applications-processing/download",
+          [APPLICATION_WORKFLOW_REPORTING, CLAIM_WORKFLOW_REPORTING],
+        ],
+        ["/reports/costs-for-other-departments", [FINANCE, POLICY]],
+        ["/reports/costs-for-other-departments/download", [FINANCE, POLICY]],
+        ["/reports/user-audit-trail", [ASSURANCE]],
+        ["/reports/user-audit-trail/download", [ASSURANCE]],
+        ["/reports/cost-estimation-and-forecasting", [FINANCE, POLICY]],
+        ["/reports/applications/backlog", [APPLICATION_WORKFLOW_REPORTING]],
+        ["/reports/claims/backlog", [CLAIM_WORKFLOW_REPORTING]],
+      ];
+
+      for (const [path, roles] of expectedRolesByPath) {
+        it(`restricts ${path} to its permitted roles`, () => {
+          expect(findRoutePolicy(path)?.allowedRoles).to.have.members(roles);
+        });
+      }
+
+      it("no longer has a dedicated policy for the old payment extract path", () => {
+        expect(findRoutePolicy("/reports/payment-extract")?.prefix).to.equal(
+          "/reports",
+        );
+      });
     });
 
     it("allows every recognised caseworker role to access help", () => {
@@ -284,6 +317,20 @@ describe("Access Control Configuration", () => {
         INTERNAL_CASEWORKER_ROLES.FINANCE,
         INTERNAL_CASEWORKER_ROLES.POLICY,
       ]);
+    });
+
+    it("grants decisions report access only to the workflow reporting roles", () => {
+      expectRolesToHaveExactPermission(PERMISSIONS.VIEW_DECISIONS_REPORT, [
+        INTERNAL_CASEWORKER_ROLES.APPLICATION_WORKFLOW_REPORTING,
+        INTERNAL_CASEWORKER_ROLES.CLAIM_WORKFLOW_REPORTING,
+      ]);
+    });
+
+    it("grants cost estimation report access only to finance and policy", () => {
+      expectRolesToHaveExactPermission(
+        PERMISSIONS.VIEW_COST_ESTIMATION_REPORT,
+        [INTERNAL_CASEWORKER_ROLES.FINANCE, INTERNAL_CASEWORKER_ROLES.POLICY],
+      );
     });
 
     it("grants audit trail report access only to assurance", () => {
