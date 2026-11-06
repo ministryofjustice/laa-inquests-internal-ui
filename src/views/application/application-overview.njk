@@ -428,6 +428,7 @@
             }
         ]
     %}
+
     {% if hasPermission(permissions.VIEW_CLAIMS_TAB) %}
         {% set tabItems = tabItems.concat(
             [{
@@ -443,6 +444,11 @@
         id: "application-overview-tabs",
         items: tabItems
     }) }}
+
+
+    {% for tabItem in tabItems %}
+        <a href="#{{ tabItem.id }}" class="govuk-link application-overview-tab-link" id="{{ tabItem.id }}-link">{{ tabItem.label }}</a>
+    {% endfor %}
 
     {% if noteSuccessBanner or errorSummaries %}
         <script nonce="{{ cspNonce }}">
