@@ -1289,3 +1289,23 @@ test.describe("History tab", () => {
     });
   });
 });
+
+test.describe("Link Items", () => {
+  test("hides the link for the selected tab", async ({ page }) => {
+    await page.goto(`/applications/${laaReference}/overview`);
+
+    await test.step("hides the link for the initially selected tab", async () => {
+      await expect(page.locator("#application-details-link")).toBeHidden();
+      await expect(page.locator("#history-link")).toBeVisible();
+      await expect(page.locator("#people-link")).toBeVisible();
+      await expect(page.locator("#claims-link")).toBeVisible();
+    });
+
+    await test.step("updates the links when another tab is selected", async () => {
+      await page.getByRole("tab", { name: "History" }).click();
+
+      await expect(page.locator("#history-link")).toBeHidden();
+      await expect(page.locator("#application-details-link")).toBeVisible();
+    });
+  });
+});
