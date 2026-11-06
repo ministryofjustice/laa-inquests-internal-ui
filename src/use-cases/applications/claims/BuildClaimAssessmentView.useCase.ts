@@ -128,7 +128,7 @@ export class BuildClaimAssessmentViewUseCase {
         laaReference: application.laaReference,
         claimReference: claim.claimReference,
         claimStatus: mapClaimDecision(decision ?? claim.statusId ?? undefined),
-        isAssessed: ASSESSED_CLAIM_DECISIONS.includes(decision ?? ""), //TODO: Determine if we need a separate value for protected states?
+        isAssessed: ASSESSED_CLAIM_DECISIONS.includes(decision ?? ""),
         overview: {
           paymentType: mapClaimType(claim.claimTypeId),
           paymentAmount: formatAmount(claim.totalAmount),
