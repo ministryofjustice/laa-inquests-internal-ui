@@ -18,7 +18,10 @@ export const initialiseApplicationOverviewTabLinks = (
     const selectedHref = selectedTab?.getAttribute("href");
 
     tabLinks.forEach((tabLink) => {
-      tabLink.hidden = tabLink.getAttribute("href") === selectedHref;
+      const tabLinkParagraph = tabLink.closest("p");
+      if (tabLinkParagraph) {
+        tabLinkParagraph.hidden = tabLink.getAttribute("href") === selectedHref;
+      }
     });
   };
 
