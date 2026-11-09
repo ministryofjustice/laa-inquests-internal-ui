@@ -1,4 +1,4 @@
-import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
+import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/errorConstants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { cookiePolicySchema } from "#src/adaptors/models/cookies.schema.js";
 import type { Request, Response, NextFunction } from "express";

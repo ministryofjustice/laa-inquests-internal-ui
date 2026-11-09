@@ -1,5 +1,5 @@
 import type { TypedRequestBody } from "#src/infrastructure/express/api.types.js";
-import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/express/errorConstants.js";
 import type { RetrieveApplicationReferenceUseCase } from "#src/use-cases/applications/claims/RetrieveApplicationReference.useCase.js";
 import type { SearchClaimReferenceErrors } from "../../models/form.types.js";
 import type { SearchClaimValidator } from "./SearchClaim.validator.js";

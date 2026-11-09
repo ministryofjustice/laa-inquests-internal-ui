@@ -15,7 +15,7 @@ import {
 import {
   HTTP_BAD_REQUEST,
   HTTP_TOO_MANY_REQUESTS,
-} from "#src/infrastructure/express/constants.js";
+} from "#src/infrastructure/express/errorConstants.js";
 import config from "#src/infrastructure/config/config.js";
 
 const VALID_QUERY = {

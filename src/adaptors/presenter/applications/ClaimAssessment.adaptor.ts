@@ -26,7 +26,7 @@ import type { GetClaimEvidenceUseCase } from "#src/use-cases/applications/claims
 import {
   HTTP_BAD_REQUEST,
   HTTP_NOT_FOUND,
-} from "#src/infrastructure/express/constants.js";
+} from "#src/infrastructure/express/errorConstants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;

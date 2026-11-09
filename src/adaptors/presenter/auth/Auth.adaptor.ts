@@ -10,7 +10,7 @@ import {
   logSessionIdRotated,
   logSessionTerminated,
 } from "#src/infrastructure/express/session/sessionAudit.js";
-import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/errorConstants.js";
 import {
   AUTH_FAILURE_REASONS,
   SESSION_TERMINATION_REASONS,
