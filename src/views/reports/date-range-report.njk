@@ -29,7 +29,7 @@
   }) }}
 
   <form method="get" action="/reports/{{ reportSlug }}/download" novalidate>
-    {% set startErrorClass = " govuk-input--error" if errorSummaries.startDate else "" %}
+    {% set startFields = errorSummaries.startDate.fields if errorSummaries.startDate else [] %}
     {{ govukDateInput({
       id: "start-date",
       namePrefix: "start-date",
@@ -42,13 +42,13 @@
       hint: { text: t(reportContent + '.startHint') },
       errorMessage: errorSummaries.startDate,
       items: [
-        { name: "day", classes: "govuk-input--width-2" + startErrorClass, value: formValues["start-date-day"] },
-        { name: "month", classes: "govuk-input--width-2" + startErrorClass, value: formValues["start-date-month"] },
-        { name: "year", classes: "govuk-input--width-4" + startErrorClass, value: formValues["start-date-year"] }
+        { name: "day", classes: "govuk-input--width-2" + (" govuk-input--error" if "day" in startFields else ""), value: formValues["start-date-day"] },
+        { name: "month", classes: "govuk-input--width-2" + (" govuk-input--error" if "month" in startFields else ""), value: formValues["start-date-month"] },
+        { name: "year", classes: "govuk-input--width-4" + (" govuk-input--error" if "year" in startFields else ""), value: formValues["start-date-year"] }
       ]
     }) }}
 
-    {% set endErrorClass = " govuk-input--error" if errorSummaries.endDate else "" %}
+    {% set endFields = errorSummaries.endDate.fields if errorSummaries.endDate else [] %}
     {{ govukDateInput({
       id: "end-date",
       namePrefix: "end-date",
@@ -61,9 +61,9 @@
       hint: { text: t(reportContent + '.endHint') },
       errorMessage: errorSummaries.endDate,
       items: [
-        { name: "day", classes: "govuk-input--width-2" + endErrorClass, value: formValues["end-date-day"] },
-        { name: "month", classes: "govuk-input--width-2" + endErrorClass, value: formValues["end-date-month"] },
-        { name: "year", classes: "govuk-input--width-4" + endErrorClass, value: formValues["end-date-year"] }
+        { name: "day", classes: "govuk-input--width-2" + (" govuk-input--error" if "day" in endFields else ""), value: formValues["end-date-day"] },
+        { name: "month", classes: "govuk-input--width-2" + (" govuk-input--error" if "month" in endFields else ""), value: formValues["end-date-month"] },
+        { name: "year", classes: "govuk-input--width-4" + (" govuk-input--error" if "year" in endFields else ""), value: formValues["end-date-year"] }
       ]
     }) }}
 

@@ -178,6 +178,29 @@ async function expectValidationError(
   await expect(dateGroup(page, report, legend)).toContainText(message);
 }
 
+function displayDate({ day, month, year }: DateParts): string {
+  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+}
+
+async function expectHighlightedBoxes(
+  page: Page,
+  report: DateRangeReport,
+  legend: "Start date" | "End date",
+  highlighted: { Day: boolean; Month: boolean; Year: boolean },
+): Promise<void> {
+  const group = dateGroup(page, report, legend);
+  for (const [label, isHighlighted] of Object.entries(highlighted)) {
+    const box = group.getByLabel(label);
+    if (isHighlighted) {
+      await expect(box).toHaveClass(/govuk-input--error/);
+    } else {
+      await expect(box).not.toHaveClass(/govuk-input--error/);
+    }
+  }
+}
+
+const ALL_BOXES = { Day: true, Month: true, Year: true };
+
 async function expectDateValues(
   page: Page,
   report: DateRangeReport,
@@ -271,21 +294,69 @@ for (const report of REPORTS) {
       expect(response.headers()["content-type"]).toContain("text/csv");
     });
 
-    test("shows the generic error page when the inquests api fails", async ({
-      page,
-    }) => {
+    test.describe("when the inquests api fails", () => {
       const [year, month, day] = FAILED_REPORT_FROM.split("-");
-      await page.goto(path);
-      await fillDate(page, report, "Start date", { day, month, year });
-      await fillDate(page, report, "End date", { day, month, year });
+      const failedDate = { day, month, year };
 
-      const response = await submitReport(page, report);
+      async function submitFailingReport(page: Page): Promise<Response> {
+        await page.goto(path);
+        await fillDate(page, report, "Start date", failedDate);
+        await fillDate(page, report, "End date", failedDate);
+        return await submitReport(page, report);
+      }
 
-      expect(response.status()).toBe(HTTP_INTERNAL_SERVER_ERROR);
-      await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
-      await expect(
-        page.getByText(en.pages.error.internalServerError),
-      ).toBeVisible();
+      test("shows the report failure page with the report name", async ({
+        page,
+        checkAccessibility,
+      }) => {
+        const response = await submitFailingReport(page);
+
+        expect(response.status()).toBe(HTTP_INTERNAL_SERVER_ERROR);
+        await expect(
+          page.getByRole("heading", {
+            name: en.pages.error.reportDownloadFailed.heading,
+          }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(
+            en.pages.error.reportDownloadFailed.bodyDateRange.replace(
+              "{reportName}",
+              report.heading.toLowerCase(),
+            ),
+          ),
+        ).toBeVisible();
+        await expect(
+          page.getByText(en.pages.error.reportDownloadFailed.tryAgain),
+        ).toBeVisible();
+        await checkAccessibility();
+      });
+
+      test("does not return a file", async ({ page }) => {
+        const response = await submitFailingReport(page);
+
+        expect(response.headers()["content-disposition"]).toBeUndefined();
+        expect(response.headers()["content-type"]).toContain("text/html");
+      });
+
+      test("links back to the report page with the entered dates", async ({
+        page,
+      }) => {
+        await submitFailingReport(page);
+
+        await page
+          .getByRole("link", { name: en.common.back, exact: true })
+          .click();
+
+        await expect(page).toHaveURL(
+          new RegExp(`${path}\\?${queryFor(failedDate, failedDate)}$`),
+        );
+        for (const legend of ["Start date", "End date"] as const) {
+          const group = dateGroup(page, report, legend);
+          await expect(group.getByLabel("Day")).toHaveValue(day);
+          await expect(group.getByLabel("Month")).toHaveValue(month);
+          await expect(group.getByLabel("Year")).toHaveValue(year);
+        }
+      });
     });
 
     test.describe("validation", () => {
@@ -299,15 +370,17 @@ for (const report of REPORTS) {
 
         expect(response.status()).toBe(HTTP_BAD_REQUEST);
         await expectValidationError(page, report, {
-          message: "Enter the start date",
+          message: "Enter a start date",
           href: "#start-date-day",
           legend: "Start date",
         });
         await expectValidationError(page, report, {
-          message: "Enter the end date",
+          message: "Enter an end date",
           href: "#end-date-day",
           legend: "End date",
         });
+        await expectHighlightedBoxes(page, report, "Start date", ALL_BOXES);
+        await expectHighlightedBoxes(page, report, "End date", ALL_BOXES);
         await validateBackButton(page, "/reports");
 
         await checkAccessibility();
@@ -391,6 +464,118 @@ for (const report of REPORTS) {
           href: "#end-date-day",
           legend: "End date",
         });
+        await expectHighlightedBoxes(page, report, "End date", ALL_BOXES);
+        await expectHighlightedBoxes(page, report, "Start date", {
+          Day: false,
+          Month: false,
+          Year: false,
+        });
+      });
+
+      test("shows an error when the end date year has fewer than four digits", async ({
+        page,
+      }) => {
+        await page.goto(path);
+        await fillDate(page, report, "Start date", START);
+        await fillDate(page, report, "End date", {
+          day: "30",
+          month: "4",
+          year: "25",
+        });
+
+        await submitReport(page, report);
+
+        await expectValidationError(page, report, {
+          message: "End date must be a real date",
+          href: "#end-date-day",
+          legend: "End date",
+        });
+      });
+
+      for (const { name, parts, message, href, highlighted } of [
+        {
+          name: "a month",
+          parts: { day: "30", month: "", year: "2025" },
+          message: "End date must include a month",
+          href: "#end-date-month",
+          highlighted: { Day: false, Month: true, Year: false },
+        },
+        {
+          name: "a day",
+          parts: { day: "", month: "4", year: "2025" },
+          message: "End date must include a day",
+          href: "#end-date-day",
+          highlighted: { Day: true, Month: false, Year: false },
+        },
+        {
+          name: "a year",
+          parts: { day: "30", month: "4", year: "" },
+          message: "End date must include a year",
+          href: "#end-date-year",
+          highlighted: { Day: false, Month: false, Year: true },
+        },
+        {
+          name: "a day and month",
+          parts: { day: "", month: "", year: "2025" },
+          message: "End date must include a day and month",
+          href: "#end-date-day",
+          highlighted: { Day: true, Month: true, Year: false },
+        },
+        {
+          name: "a day and year",
+          parts: { day: "", month: "4", year: "" },
+          message: "End date must include a day and year",
+          href: "#end-date-day",
+          highlighted: { Day: true, Month: false, Year: true },
+        },
+        {
+          name: "a month and year",
+          parts: { day: "30", month: "", year: "" },
+          message: "End date must include a month and year",
+          href: "#end-date-month",
+          highlighted: { Day: false, Month: true, Year: true },
+        },
+      ]) {
+        test(`shows an error naming the missing part when the end date has no ${name}`, async ({
+          page,
+          checkAccessibility,
+        }) => {
+          await page.goto(path);
+          await fillDate(page, report, "Start date", START);
+          await fillDate(page, report, "End date", parts);
+
+          const response = await submitReport(page, report);
+
+          expect(response.status()).toBe(HTTP_BAD_REQUEST);
+          await expectValidationError(page, report, {
+            message,
+            href,
+            legend: "End date",
+          });
+          await expectHighlightedBoxes(page, report, "End date", highlighted);
+
+          await checkAccessibility();
+        });
+      }
+
+      test("shows an error naming the missing part when the start date has no month", async ({
+        page,
+      }) => {
+        await page.goto(path);
+        await fillDate(page, report, "Start date", {
+          day: "1",
+          month: "",
+          year: "2025",
+        });
+        await fillDate(page, report, "End date", START);
+
+        await submitReport(page, report);
+
+        await expectValidationError(page, report, {
+          message: "Start date must include a month",
+          href: "#start-date-month",
+          legend: "Start date",
+        });
       });
 
       test("shows an error when the end date is in the future", async ({
@@ -411,9 +596,10 @@ for (const report of REPORTS) {
           href: "#end-date-day",
           legend: "End date",
         });
+        await expectHighlightedBoxes(page, report, "End date", ALL_BOXES);
       });
 
-      test("shows an error when the end date is before the start date", async ({
+      test("shows errors on both dates when the end date is before the start date", async ({
         page,
         checkAccessibility,
       }) => {
@@ -425,17 +611,24 @@ for (const report of REPORTS) {
 
         expect(response.status()).toBe(HTTP_BAD_REQUEST);
         await expectValidationError(page, report, {
-          message: "End date must be the same as or after the start date",
+          message: `Start date must be the same as or before ${displayDate(START)}`,
+          href: "#start-date-day",
+          legend: "Start date",
+        });
+        await expectValidationError(page, report, {
+          message: `End date must be the same as or after ${displayDate(lastValidEnd)}`,
           href: "#end-date-day",
           legend: "End date",
         });
+        await expectHighlightedBoxes(page, report, "Start date", ALL_BOXES);
+        await expectHighlightedBoxes(page, report, "End date", ALL_BOXES);
         await expectDateValues(page, report, "Start date", lastValidEnd);
         await expectDateValues(page, report, "End date", START);
 
         await checkAccessibility();
       });
 
-      test(`shows an error when the date range is over ${maxDays} days`, async ({
+      test(`shows an error on both dates when the date range is over ${maxDays} days`, async ({
         page,
         checkAccessibility,
       }) => {
@@ -447,11 +640,20 @@ for (const report of REPORTS) {
         const response = await submitReport(page, report);
 
         expect(response.status()).toBe(HTTP_BAD_REQUEST);
+        const message = `Date range must be between 1 and ${maxDays} days`;
         await expectValidationError(page, report, {
-          message: `Date range must be ${maxDays} days or less`,
-          href: "#end-date-day",
-          legend: "End date",
+          message,
+          href: "#start-date-day",
+          legend: "Start date",
         });
+        await expect(dateGroup(page, report, "End date")).toContainText(
+          message,
+        );
+        await expect(
+          page.locator(".govuk-error-summary").getByRole("link"),
+        ).toHaveCount(1);
+        await expectHighlightedBoxes(page, report, "Start date", ALL_BOXES);
+        await expectHighlightedBoxes(page, report, "End date", ALL_BOXES);
         await expectDateValues(page, report, "Start date", START);
         await expectDateValues(page, report, "End date", tooLongEnd);
         await validateBackButton(page, "/reports");

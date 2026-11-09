@@ -56,3 +56,28 @@
 .moj-header--no-border {
   border-bottom: 0;
 }
+
+// Solid blue variant of the MoJ ticket panel content, used for the report download failure page.
+.moj-ticket-panel__content.app-ticket-panel__content--blue-fill {
+  background-color: index.govuk-colour("blue");
+  border-left-color: transparent;
+  padding: index.govuk-spacing(6);
+
+  &,
+  .govuk-heading-l,
+  .govuk-body {
+    color: index.govuk-colour("white");
+  }
+
+  .govuk-link {
+    &:link,
+    &:visited,
+    &:hover {
+      color: index.govuk-colour("white");
+    }
+
+    &:focus {
+      color: index.$govuk-focus-text-colour;
+    }
+  }
+}
