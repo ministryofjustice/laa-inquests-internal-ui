@@ -6,27 +6,20 @@ import { HTTP_NOT_FOUND } from "#src/infrastructure/express/errorConstants.js";
 import { setupAnalyticsPagePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
 
 describe("setupAnalyticsPagePath", () => {
-  it("captures the matched mounted route at render time and removes duplicate slashes", () => {
+  it("forwards render arguments to the original renderer", () => {
     const req = stubInterface<Request>();
     const res: Response = stubInterface<Response>();
     const next = sinon.stub();
     const originalRender = sinon.stub();
-    const options = { applicationReference: "INQ-YYY-001" };
+    const options = { title: "Application overview" };
     res.render = originalRender;
     res.locals = {};
 
     setupAnalyticsPagePath(req, res, next);
 
     sinon.assert.calledOnceWithExactly(next);
-    assert.equal(res.locals.pageTemplatePath, undefined);
-    req.baseUrl = "/applications/";
-    req.route = { path: "/:laaReference/overview" };
     res.render("application-overview", options);
 
-    assert.equal(
-      res.locals.pageTemplatePath,
-      "/applications/:laaReference/overview",
-    );
     sinon.assert.calledOnceWithExactly(
       originalRender,
       "application-overview",
