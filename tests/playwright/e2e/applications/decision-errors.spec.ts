@@ -12,6 +12,9 @@ const certificateStartDateLocale = en.pages.decision.certificateStartDate;
 const confirmationLocale = en.pages.decision.confirmation;
 const internalServerError = en.pages.error.internalServerError;
 
+const GRANTED_APPLICATION_REFERENCE = "INQ-YYY-005";
+const REFUSED_APPLICATION_REFERENCE = "INQ-YYY-006";
+
 test.describe("Decision errors", () => {
   test("shows the generic error page when granting an application fails", async ({
     page,
@@ -73,8 +76,7 @@ test.describe("Decision errors", () => {
   test("shows the generic error page when navigating to decision page for an application in a protected final state", async ({
     page,
   }) => {
-    const grantedApplicationReference = "INQ-YYY-005";
-    const decisionPage = `/applications/${grantedApplicationReference}/decision`;
+    const decisionPage = `/applications/${GRANTED_APPLICATION_REFERENCE}/decision`;
     await page.goto(decisionPage);
 
     await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
@@ -84,9 +86,8 @@ test.describe("Decision errors", () => {
   test("shows the generic error page when navigating to decision justification for an application in a protected final state", async ({
     page,
   }) => {
-    const grantedApplicationReference = "INQ-YYY-005";
-    const decisionPage = `/applications/${grantedApplicationReference}/decision`;
-    const justificationPage = `/applications/${grantedApplicationReference}/decision/justification`;
+    const decisionPage = `/applications/${GRANTED_APPLICATION_REFERENCE}/decision`;
+    const justificationPage = `/applications/${GRANTED_APPLICATION_REFERENCE}/decision/justification`;
     await page.goto(decisionPage);
     await page.goto(justificationPage);
 
@@ -97,9 +98,8 @@ test.describe("Decision errors", () => {
   test("shows the generic error page when navigating to decision justification for an application already refused", async ({
     page,
   }) => {
-    const refusedApplicationReference = "INQ-YYY-012";
-    const decisionPage = `/applications/${refusedApplicationReference}/decision`;
-    const justificationPage = `/applications/${refusedApplicationReference}/decision/justification`;
+    const decisionPage = `/applications/${REFUSED_APPLICATION_REFERENCE}/decision`;
+    const justificationPage = `/applications/${REFUSED_APPLICATION_REFERENCE}/decision/justification`;
     await page.goto(decisionPage);
     await page.goto(justificationPage);
 
@@ -110,8 +110,7 @@ test.describe("Decision errors", () => {
   test("shows the generic error page when navigating directly to decision justification for an application without going through decision page", async ({
     page,
   }) => {
-    const refusedApplicationReference = "INQ-YYY-012";
-    const justificationPage = `/applications/${refusedApplicationReference}/decision/justification`;
+    const justificationPage = `/applications/${REFUSED_APPLICATION_REFERENCE}/decision/justification`;
     await page.goto(justificationPage);
 
     await expect(page.getByRole("heading", { name: "500" })).toBeVisible();

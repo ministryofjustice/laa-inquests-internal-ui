@@ -515,7 +515,7 @@ test.describe("Application details tab", () => {
     );
   });
 
-  test("Make assessment button is hidden when application is in protected final state", async ({
+  test("should hide make assessment button when application is in protected final state", async ({
     page,
   }) => {
     const grantedApplicationReference = "INQ-YYY-005";

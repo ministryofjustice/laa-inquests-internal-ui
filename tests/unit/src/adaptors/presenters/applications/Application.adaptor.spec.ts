@@ -258,6 +258,29 @@ describe("Application adaptor", () => {
       });
     });
 
+    it("passes isProtectedFinalState to the overview template", async () => {
+      viewApplicationAdaptorStub.getApplication.resolves({
+        ...application,
+        overallDecision: "GRANTED",
+      });
+
+      await applicationAdaptor.renderApplicationPage(
+        requestStub,
+        responseStub,
+        "123",
+      );
+
+      assert.equal(
+        responseStub.render.firstCall.args[0],
+        "application/application-overview",
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      assert.partialDeepStrictEqual(responseStub.render.firstCall.args[1], {
+        isProtectedFinalState: true,
+      });
+    });
+
     it("passes API duplicate applications to the overview template", async () => {
       viewApplicationAdaptorStub.getApplication.resolves({
         ...application,
