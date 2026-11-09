@@ -21,6 +21,7 @@ import { ClaimsAPIAdaptor } from "#src/adaptors/source/inquests-api/claims/Claim
 import { AuthAdaptor } from "#src/adaptors/presenter/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
 import { requireAuth } from "#src/infrastructure/express/middleware/auth/requireAuth.js";
+import { captureAnalyticsBasePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
 import axios from "axios";
 import { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
 import config from "#src/infrastructure/config/config.js";
@@ -279,34 +280,42 @@ router.get("/error", (req: Request, res: Response): void => {
     .send("Internal Server Error");
 });
 
-router.use("/auth", createAuthRouter(express.Router(), authAdaptor));
+router.use(
+  "/auth",
+  captureAnalyticsBasePath,
+  createAuthRouter(express.Router(), authAdaptor),
+);
 
 router.use(
   "/reports",
+  captureAnalyticsBasePath,
   requireAuth,
   createReportsRouter(express.Router(), reportsAdaptor),
 );
 
 router.use(
   "/help",
+  captureAnalyticsBasePath,
   requireAuth,
   createHelpRouter(express.Router(), helpAdaptor),
 );
 router.use(
   "/cookies",
+  captureAnalyticsBasePath,
   requireAuth,
   createCookiesRouter(express.Router(), cookiesAdaptor),
 );
 
 router.use(
   "/accessibility-statement",
+  captureAnalyticsBasePath,
   createAccessibilityStatementRouter(
     express.Router(),
     accessibilityStatementAdaptor,
   ),
 );
 
-router.use("/claims", requireAuth, [
+router.use("/claims", captureAnalyticsBasePath, requireAuth, [
   createClaimRouter(
     express.Router(),
     new SearchClaimAdaptor(
@@ -316,7 +325,7 @@ router.use("/claims", requireAuth, [
   ),
 ]);
 
-router.use("/applications", requireAuth, [
+router.use("/applications", captureAnalyticsBasePath, requireAuth, [
   createApplicationRouter(
     express.Router(),
     applicationDisplayAdaptor,

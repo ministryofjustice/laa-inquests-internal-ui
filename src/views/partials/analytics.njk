@@ -19,7 +19,8 @@
     <script nonce="{{ cspNonce }}">
         gtag('js', new Date());
         gtag('config', '{{ config.GA_MEASUREMENT_ID }}'{% if pageTemplatePath %}, {
-            'page_location': window.location.origin + {{ pageTemplatePath | dump | replace("<", "\\u003c") | safe }} + window.location.search
+            'page_location': window.location.origin + {{ pageTemplatePath | dump | replace("<", "\\u003c") | safe }} + window.location.search{% if attemptedRoute %},
+            'attempted_route': {{ attemptedRoute | dump | replace("<", "\\u003c") | safe }}{% endif %}
         }{% endif %});
     </script>
 {% endif %}

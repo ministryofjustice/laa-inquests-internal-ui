@@ -53,7 +53,7 @@ describe("setupAnalyticsPagePath", () => {
     sinon.assert.calledOnceWithExactly(next);
   });
 
-  it("uses the request path when rendering a 404 through the catch-all route", () => {
+  it("uses the virtual error path when rendering a 404 through the catch-all route", () => {
     const req = stubInterface<Request>();
     const res: Response = stubInterface<Response>();
     const next = sinon.stub();
@@ -68,7 +68,8 @@ describe("setupAnalyticsPagePath", () => {
     res.statusCode = HTTP_NOT_FOUND;
     res.render("main/error");
 
-    assert.equal(res.locals.pageTemplatePath, "/missing-page");
+    assert.equal(res.locals.pageTemplatePath, "/errors/404");
+    assert.equal(res.locals.attemptedRoute, "{*splat}");
     sinon.assert.calledOnceWithExactly(originalRender, "main/error");
     sinon.assert.calledOnceWithExactly(next);
   });
