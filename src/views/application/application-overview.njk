@@ -185,14 +185,12 @@
             }
         ] %}
 
-        {% if application.client.clientLastNameAtBirth %}
-            {% set clientRows = clientRows.concat([
-                {
-                    key: { text: "Last name at birth" },
-                    value: { text: application.client.clientLastNameAtBirth }
-                }
-            ]) %}
-        {% endif %}
+        {% set clientRows = clientRows.concat([
+            {
+                key: { text: t('pages.applicationOverview.people.client.lastNameAtBirth') },
+                value: { text: application.client.clientLastNameAtBirth or t('pages.applicationOverview.people.client.noLastNameAtBirth') }
+            }
+        ]) %}
 
         {% if application.client.prevApplicationReference %}
             {% set clientRows = clientRows.concat([

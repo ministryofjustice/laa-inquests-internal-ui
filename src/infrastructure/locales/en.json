@@ -212,6 +212,10 @@
         "viewCertificate": "View certificate"
       },
       "people": {
+        "client": {
+          "lastNameAtBirth": "Last name at birth",
+          "noLastNameAtBirth": "None"
+        },
         "provider": {
           "fallbackFirmName": "Could not retrieve Provider details. Please try again later"
         }

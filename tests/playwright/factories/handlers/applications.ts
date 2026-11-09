@@ -688,6 +688,15 @@ const duplicateApplicationReferences: Record<string, string[]> = {
   "INQ-YYY-012": ["INQ-YYY-004"],
 };
 
+const clientLastNameAtBirthByReference: Record<
+  string,
+  string | null | undefined
+> = {
+  "INQ-NAM-NUL": null,
+  "INQ-NAM-EMP": "",
+  "INQ-NAM-MIS": undefined,
+};
+
 export const applicationHandlers = [
   http.get(`${TEST_CONFIG.INQUESTS_API_URL}/applications/`, () => {
     return HttpResponse.json(applicationSummaries);
@@ -716,6 +725,14 @@ export const applicationHandlers = [
 
     return HttpResponse.json({
       ...appToReturn,
+      client: {
+        ...appToReturn.client,
+        clientLastNameAtBirth:
+          typeof params.id === "string" &&
+          params.id in clientLastNameAtBirthByReference
+            ? clientLastNameAtBirthByReference[params.id]
+            : appToReturn.client?.clientLastNameAtBirth,
+      },
       potentialDuplicateApplications: (
         duplicateApplicationReferences[params.id as string] ?? []
       ).map((reference) => ({

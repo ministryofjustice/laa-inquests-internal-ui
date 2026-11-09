@@ -633,6 +633,36 @@ test.describe("Application people tab RBAC behaviour", () => {
 });
 
 test.describe("People tab", () => {
+  for (const scenario of [
+    { reference: "INQ-NAM-NUL", description: "null" },
+    { reference: "INQ-NAM-EMP", description: "empty" },
+    { reference: "INQ-NAM-MIS", description: "missing" },
+  ]) {
+    test(`shows None when last name at birth is ${scenario.description}`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(`/applications/${scenario.reference}/overview`);
+      await page.getByRole("tab", { name: "People" }).click();
+
+      const clientCard = page.locator("#people .govuk-summary-card").filter({
+        has: page.getByRole("heading", { name: "Client", exact: true }),
+      });
+      const lastNameAtBirthRow = clientCard
+        .locator(".govuk-summary-list__row")
+        .filter({
+          has: page.locator("dt").getByText("Last name at birth", {
+            exact: true,
+          }),
+        });
+
+      await expect(
+        lastNameAtBirthRow.locator(".govuk-summary-list__value"),
+      ).toHaveText("None");
+      await checkAccessibility();
+    });
+  }
+
   test("should have the client content", async ({
     page,
     checkAccessibility,
