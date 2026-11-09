@@ -1,5 +1,3 @@
-import type { FormErrorMessage } from "#src/adaptors/presenter/models/form.types.js";
-
 export interface DateRangeReportForm {
   "start-date-day": string;
   "start-date-month": string;
@@ -9,7 +7,17 @@ export interface DateRangeReportForm {
   "end-date-year": string;
 }
 
+export type DateField = "day" | "month" | "year";
+
+export interface DateRangeReportFormError {
+  text: string;
+  // The input boxes to highlight; the summary link targets the first one.
+  fields: DateField[];
+  // False when another error already links to the same problem.
+  inSummary?: boolean;
+}
+
 export interface DateRangeReportFormErrors {
-  startDate?: FormErrorMessage;
-  endDate?: FormErrorMessage;
+  startDate?: DateRangeReportFormError;
+  endDate?: DateRangeReportFormError;
 }

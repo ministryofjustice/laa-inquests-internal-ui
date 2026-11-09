@@ -268,6 +268,8 @@ describe("Reports adaptor", () => {
   describe("date range report pages", () => {
     for (const report of DATE_RANGE_REPORTS) {
       it(`renders the ${report.key} report page without errors`, () => {
+        requestStub.query = {};
+
         reportsAdaptor.renderDateRangeReportPage(
           report,
           requestStub,
@@ -277,10 +279,35 @@ describe("Reports adaptor", () => {
         assert.equal(responseStub.status.callCount, 0);
         assert.deepEqual(responseStub.render.firstCall.args, [
           "reports/date-range-report",
-          viewModelFor(report),
+          {
+            ...viewModelFor(report),
+            formValues: {
+              "start-date-day": "",
+              "start-date-month": "",
+              "start-date-year": "",
+              "end-date-day": "",
+              "end-date-month": "",
+              "end-date-year": "",
+            },
+          },
         ]);
       });
     }
+
+    it("prefills the form with the dates in the query", () => {
+      requestStub.query = VALID_QUERY;
+
+      reportsAdaptor.renderDateRangeReportPage(
+        PAYMENTS_EXTRACT,
+        requestStub,
+        responseStub,
+      );
+
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "reports/date-range-report",
+        { ...viewModelFor(PAYMENTS_EXTRACT), formValues: VALID_QUERY },
+      ]);
+    });
   });
 
   describe("downloading a date range report", () => {
@@ -424,9 +451,8 @@ describe("Reports adaptor", () => {
       downloadDateRangeReportUseCaseStub.execute.resolves({
         status: "DATE_RANGE_TOO_LONG",
       });
-      const endDate = {
-        text: `Date range must be ${PAYMENTS_EXTRACT.maxDays} days or less`,
-      };
+      const text = `Date range must be between 1 and ${PAYMENTS_EXTRACT.maxDays} days`;
+      const fields = ["day", "month", "year"];
 
       await reportsAdaptor.downloadDateRangeReport(
         PAYMENTS_EXTRACT,
@@ -440,8 +466,11 @@ describe("Reports adaptor", () => {
         {
           ...viewModelFor(PAYMENTS_EXTRACT),
           formValues: VALID_QUERY,
-          errorSummaries: { endDate },
-          errorList: [{ text: endDate.text, href: "#end-date-day" }],
+          errorSummaries: {
+            startDate: { text, fields },
+            endDate: { text, fields, inSummary: false },
+          },
+          errorList: [{ text, href: "#start-date-day" }],
         },
       ]);
       assert.equal(responseStub.setHeader.callCount, 0);
@@ -450,8 +479,8 @@ describe("Reports adaptor", () => {
 
     it("re-renders the report page with errors when the date range is invalid", async () => {
       const query = { ...VALID_QUERY, "end-date-day": "" };
-      const startDate = { text: "Start date error" };
-      const endDate = { text: "End date error" };
+      const startDate = { text: "Start date error", fields: ["day" as const] };
+      const endDate = { text: "End date error", fields: ["month" as const] };
       requestStub.query = query;
       dateRangeReportValidatorStub.validateDateRangeReportForm.returns({
         startDate,
@@ -473,7 +502,7 @@ describe("Reports adaptor", () => {
           errorSummaries: { startDate, endDate },
           errorList: [
             { text: startDate.text, href: "#start-date-day" },
-            { text: endDate.text, href: "#end-date-day" },
+            { text: endDate.text, href: "#end-date-month" },
           ],
         },
       ]);
@@ -484,7 +513,7 @@ describe("Reports adaptor", () => {
     it("treats missing and non-string query values as empty date fields", async () => {
       requestStub.query = { "start-date-day": ["1", "2"] } as never;
       dateRangeReportValidatorStub.validateDateRangeReportForm.returns({
-        startDate: { text: "Start date error" },
+        startDate: { text: "Start date error", fields: ["day"] },
       });
 
       await reportsAdaptor.downloadDateRangeReport(
@@ -535,7 +564,7 @@ describe("Reports adaptor", () => {
     });
 
     it("shows validation errors rather than the rate limit message when the form is invalid", async () => {
-      const startDate = { text: "Start date error" };
+      const startDate = { text: "Start date error", fields: ["day" as const] };
       requestStub.query = VALID_QUERY;
       responseStub.locals = { rateLimit: true };
       dateRangeReportValidatorStub.validateDateRangeReportForm.returns({

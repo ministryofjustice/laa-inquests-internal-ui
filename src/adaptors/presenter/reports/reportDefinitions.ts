@@ -48,3 +48,51 @@ export function findDateRangeReport(
 ): DateRangeReportDefinition | undefined {
   return DATE_RANGE_REPORTS.find((report) => report.slug === slug);
 }
+
+export interface DirectDownloadReportDefinition {
+  path: string;
+  nameKey: string;
+}
+
+export const DIRECT_DOWNLOAD_REPORTS: readonly DirectDownloadReportDefinition[] =
+  [
+    {
+      path: "/reports/applications/backlog",
+      nameKey: "pages.reports.links.applicationsBacklog.reportName",
+    },
+    {
+      path: "/reports/claims/backlog",
+      nameKey: "pages.reports.links.claimsBacklog.reportName",
+    },
+    {
+      path: "/reports/cost-estimation-and-forecasting",
+      nameKey: "pages.reports.links.costEstimation.reportName",
+    },
+  ];
+
+export type ReportDownloadTarget =
+  | { kind: "dateRange"; report: DateRangeReportDefinition }
+  | { kind: "direct"; report: DirectDownloadReportDefinition };
+
+export function findReportByDownloadPath(
+  path: string,
+): ReportDownloadTarget | undefined {
+  const normalisedPath =
+    path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+
+  const dateRangeReport = DATE_RANGE_REPORTS.find(
+    ({ slug }) => `/reports/${slug}/download` === normalisedPath,
+  );
+  if (dateRangeReport !== undefined) {
+    return { kind: "dateRange", report: dateRangeReport };
+  }
+
+  const directReport = DIRECT_DOWNLOAD_REPORTS.find(
+    (report) => report.path === normalisedPath,
+  );
+  if (directReport !== undefined) {
+    return { kind: "direct", report: directReport };
+  }
+
+  return undefined;
+}

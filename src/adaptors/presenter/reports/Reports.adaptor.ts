@@ -4,7 +4,10 @@ import type { DownloadApplicationsBacklogReportUseCase } from "#src/use-cases/re
 import type { DownloadClaimsBacklogReportUseCase } from "#src/use-cases/reports/DownloadClaimsBacklogReport.useCase.js";
 import type { DownloadCostEstimationReportUseCase } from "#src/use-cases/reports/DownloadCostEstimationReport.useCase.js";
 import type { DownloadDateRangeReportUseCase } from "#src/use-cases/reports/DownloadDateRangeReport.useCase.js";
-import type { DateRangeReportValidator } from "./DateRangeReport/DateRangeReport.validator.js";
+import {
+  buildDateRangeTooLongErrors,
+  type DateRangeReportValidator,
+} from "./DateRangeReport/DateRangeReport.validator.js";
 import type {
   DateRangeReportForm,
   DateRangeReportFormErrors,
@@ -15,18 +18,7 @@ import {
   HTTP_BAD_REQUEST,
   HTTP_TOO_MANY_REQUESTS,
 } from "#src/infrastructure/express/constants.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import config from "#src/infrastructure/config/config.js";
-
-const {
-  pages: {
-    reports: {
-      dateRange: {
-        validationErrors: { dateRangeTooLong },
-      },
-    },
-  },
-} = en;
 
 const DATE_RANGE_REPORT_TEMPLATE = "reports/date-range-report";
 
@@ -37,12 +29,12 @@ interface ReportUseCases {
   downloadDateRangeReportUseCase: DownloadDateRangeReportUseCase;
 }
 
-const DATE_RANGE_ERROR_HREFS: Array<{
+const DATE_RANGE_ERROR_FIELDS: Array<{
   field: keyof DateRangeReportFormErrors;
-  href: string;
+  idPrefix: string;
 }> = [
-  { field: "startDate", href: "#start-date-day" },
-  { field: "endDate", href: "#end-date-day" },
+  { field: "startDate", idPrefix: "start-date" },
+  { field: "endDate", idPrefix: "end-date" },
 ];
 
 export class ReportsAdaptor {
@@ -173,7 +165,10 @@ export class ReportsAdaptor {
         report: report.key,
       },
     });
-    res.render(DATE_RANGE_REPORT_TEMPLATE, this.#viewModel(report));
+    res.render(DATE_RANGE_REPORT_TEMPLATE, {
+      ...this.#viewModel(report),
+      formValues: this.#readDateRangeForm(req),
+    });
   }
 
   async downloadDateRangeReport(
@@ -221,11 +216,12 @@ export class ReportsAdaptor {
     );
 
     if (result.status === "DATE_RANGE_TOO_LONG") {
-      this.#renderDateRangeErrors(res, report, form, {
-        endDate: {
-          text: dateRangeTooLong.replace("{maxDays}", String(report.maxDays)),
-        },
-      });
+      this.#renderDateRangeErrors(
+        res,
+        report,
+        form,
+        buildDateRangeTooLongErrors(report.maxDays),
+      );
       return;
     }
 
@@ -263,9 +259,13 @@ export class ReportsAdaptor {
       ...this.#viewModel(report),
       formValues: form,
       errorSummaries: errors,
-      errorList: DATE_RANGE_ERROR_HREFS.flatMap(({ field, href }) => {
+      errorList: DATE_RANGE_ERROR_FIELDS.flatMap(({ field, idPrefix }) => {
         const { [field]: error } = errors;
-        return error === undefined ? [] : [{ text: error.text, href }];
+        if (error === undefined || error.inSummary === false) {
+          return [];
+        }
+        const firstField = error.fields.at(0) ?? "day";
+        return [{ text: error.text, href: `#${idPrefix}-${firstField}` }];
       }),
     });
   }

@@ -1,7 +1,9 @@
 import { strict as assert } from "assert";
 import {
   DATE_RANGE_REPORTS,
+  DIRECT_DOWNLOAD_REPORTS,
   findDateRangeReport,
+  findReportByDownloadPath,
 } from "#src/adaptors/presenter/reports/reportDefinitions.js";
 import {
   PERMISSIONS,
@@ -87,5 +89,54 @@ describe("Date range report definitions", () => {
 
   it("returns undefined for an unknown slug", () => {
     assert.equal(findDateRangeReport("payment-extract"), undefined);
+  });
+});
+
+describe("Finding a report by its download path", () => {
+  for (const report of DATE_RANGE_REPORTS) {
+    it(`finds the ${report.key} date range report`, () => {
+      assert.deepEqual(
+        findReportByDownloadPath(`/reports/${report.slug}/download`),
+        { kind: "dateRange", report },
+      );
+    });
+  }
+
+  for (const report of DIRECT_DOWNLOAD_REPORTS) {
+    it(`finds the direct download at ${report.path}`, () => {
+      assert.deepEqual(findReportByDownloadPath(report.path), {
+        kind: "direct",
+        report,
+      });
+    });
+  }
+
+  it("ignores a trailing slash", () => {
+    assert.equal(
+      findReportByDownloadPath("/reports/claims/backlog/")?.kind,
+      "direct",
+    );
+  });
+
+  it("returns undefined for paths that are not a report download", () => {
+    assert.equal(findReportByDownloadPath("/reports"), undefined);
+    assert.equal(
+      findReportByDownloadPath("/reports/payments-extract"),
+      undefined,
+    );
+    assert.equal(findReportByDownloadPath("/applications/search"), undefined);
+  });
+
+  it("has a lowercase report name in the locale for every direct download", () => {
+    for (const { nameKey } of DIRECT_DOWNLOAD_REPORTS) {
+      const name = nameKey
+        .split(".")
+        .reduce<unknown>(
+          (node, key) => (node as Record<string, unknown>)[key],
+          en,
+        );
+      assert.equal(typeof name, "string");
+      assert.equal(name, (name as string).toLowerCase());
+    }
   });
 });

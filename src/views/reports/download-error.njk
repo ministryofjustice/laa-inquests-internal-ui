@@ -1,0 +1,22 @@
+{% extends "base.njk" %}
+{%- from "moj/components/ticket-panel/macro.njk" import mojTicketPanel -%}
+
+{% set copy = 'pages.error.reportDownloadFailed.' %}
+{% set pageTitle = t(copy + 'heading') %}
+{% set bodyKey = 'bodyDateRange' if isDateRange else 'body' %}
+
+{% block content %}
+  {% set panelHtml %}
+    <h1 class="govuk-heading-l">{{ t(copy + 'heading') }}</h1>
+    <p class="govuk-body">{{ t(copy + bodyKey, { reportName: reportName }) }}</p>
+    <p class="govuk-body">{{ t(copy + 'tryAgain') }}</p>
+    <p class="govuk-body"><a class="govuk-link" href="{{ backUrl }}">{{ t('common.back') }}</a></p>
+  {% endset %}
+
+  {{ mojTicketPanel({
+    items: [{
+      html: panelHtml,
+      classes: "app-ticket-panel__content--blue-fill"
+    }]
+  }) }}
+{% endblock %}

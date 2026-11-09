@@ -77,10 +77,12 @@
       "links": {
         "claimsBacklog": {
           "text": "Download claims workflow backlog {fileSizeEstimate}",
+          "reportName": "claims workflow backlog",
           "description": "Claims awaiting assessment"
         },
         "applicationsBacklog": {
           "text": "Download applications workflow backlog {fileSizeEstimate}",
+          "reportName": "applications workflow backlog",
           "description": "Applications awaiting assessment"
         },
         "paymentsExtract": {
@@ -89,6 +91,7 @@
         },
         "costEstimation": {
           "text": "Cost estimation and forecasting {fileSizeEstimate}",
+          "reportName": "cost estimation and forecasting",
           "description": "Live certificates with an outstanding cost limit"
         },
         "claimsApplicationsProcessing": {
@@ -134,14 +137,25 @@
           "endHint": "For example, 10 01 2027"
         },
         "validationErrors": {
-          "startMissing": "Enter the start date",
+          "startMissing": "Enter a start date",
+          "startIncomplete": "Start date must include {parts}",
           "startInvalid": "Start date must be a real date",
           "startFuture": "Start date must be today or in the past",
-          "endMissing": "Enter the end date",
+          "endMissing": "Enter an end date",
+          "endIncomplete": "End date must include {parts}",
           "endInvalid": "End date must be a real date",
           "endFuture": "End date must be today or in the past",
-          "endBeforeStart": "End date must be the same as or after the start date",
-          "dateRangeTooLong": "Date range must be {maxDays} days or less"
+          "startAfterEnd": "Start date must be the same as or before {endDate}",
+          "endBeforeStart": "End date must be the same as or after {startDate}",
+          "dateRangeTooLong": "Date range must be between 1 and {maxDays} days",
+          "missingParts": {
+            "day": "a day",
+            "month": "a month",
+            "year": "a year",
+            "dayMonth": "a day and month",
+            "dayYear": "a day and year",
+            "monthYear": "a month and year"
+          }
         }
       }
     },
@@ -177,6 +191,12 @@
         "IpLimitMessage": "We received too many requests from your network or device in a short space of time. Your access has been paused to protect the service. We have not saved your answers. When the service is available, you will have to start again.",
         "tryAgainMessageIp": "Try again in 15 minutes.",
         "reportLimitMessage": "You must wait {RATE_WINDOW_PER_REPORT_SECONDS} seconds before downloading another file."
+      },
+      "reportDownloadFailed": {
+        "heading": "We could not generate your report",
+        "bodyDateRange": "There was a problem generating the {reportName} report for the selected date range.",
+        "body": "There was a problem generating the {reportName} report.",
+        "tryAgain": "Try generating the report again. If the problem continues, contact support."
       }
     },
     "applicationOverview": {

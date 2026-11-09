@@ -4,6 +4,7 @@ import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js
 import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
+  type ApplicationErrorType,
 } from "#src/use-cases/common/applicationError.js";
 import {
   HTTP_FORBIDDEN,
@@ -15,6 +16,7 @@ import {
   SESSION_EXPIRED_QUERY_FLAG,
   SESSION_TERMINATION_REASONS,
 } from "#src/infrastructure/locales/constants.js";
+import { findReportByDownloadPath } from "#src/adaptors/presenter/reports/reportDefinitions.js";
 import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
 import { logSessionTerminated } from "#src/infrastructure/express/session/sessionAudit.js";
 
@@ -128,6 +130,88 @@ const handleApplicationNotFoundError = (
   }
 };
 
+const REPORT_FAILURE_ERROR_TYPES: readonly ApplicationErrorType[] = [
+  APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+  APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
+  APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+];
+
+const DATE_RANGE_QUERY_FIELDS = [
+  "start-date-day",
+  "start-date-month",
+  "start-date-year",
+  "end-date-day",
+  "end-date-month",
+  "end-date-year",
+] as const;
+
+// Only the date fields are carried back, so the link never reflects arbitrary query input.
+const buildDateRangeBackUrl = ({ query }: Request, slug: string): string => {
+  const params = new URLSearchParams();
+  for (const field of DATE_RANGE_QUERY_FIELDS) {
+    const { [field]: value } = query;
+    if (typeof value === "string") {
+      params.set(field, value);
+    }
+  }
+  const queryString = params.toString();
+  return queryString === ""
+    ? `/reports/${slug}`
+    : `/reports/${slug}?${queryString}`;
+};
+
+const handleReportDownloadError = (
+  err: unknown,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  const target = findReportByDownloadPath(req.path);
+
+  if (
+    !(err instanceof ApplicationError) ||
+    !REPORT_FAILURE_ERROR_TYPES.includes(err.type) ||
+    target === undefined
+  ) {
+    next(err);
+    return;
+  }
+
+  logger.logError({
+    functionName: "report_download_error_middleware",
+    message: "Report download failed",
+    err,
+    request: req,
+    extraContext: {
+      event: "http_request_failed",
+      route: getRequestRoutePath(req),
+      method: req.method,
+      status_code: HTTP_INTERNAL_SERVER_ERROR,
+      error_type: err.type,
+      operation: err.operation,
+      retryable: err.retryable,
+    },
+  });
+
+  const viewModel =
+    target.kind === "dateRange"
+      ? {
+          isDateRange: true,
+          reportName: t(
+            `pages.reports.dateRange.${target.report.key}.heading`,
+          ).toLowerCase(),
+          backUrl: buildDateRangeBackUrl(req, target.report.slug),
+        }
+      : {
+          isDateRange: false,
+          reportName: t(target.report.nameKey),
+          backUrl: "/reports",
+        };
+
+  res.status(HTTP_INTERNAL_SERVER_ERROR);
+  res.render("reports/download-error", viewModel);
+};
+
 const handleServerErrors = (
   err: unknown,
   req: Request,
@@ -165,4 +249,5 @@ export {
   handleRouteNotFound,
   handleServerErrors,
   handleApplicationNotFoundError,
+  handleReportDownloadError,
 };

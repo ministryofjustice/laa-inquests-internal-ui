@@ -5,6 +5,7 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import {
   handleApiAuthErrors,
   handleApplicationNotFoundError,
+  handleReportDownloadError,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -14,6 +15,7 @@ import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nu
 import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,
+  type ApplicationErrorType,
 } from "#src/use-cases/common/applicationError.js";
 
 const buildAuthError = (
@@ -154,6 +156,180 @@ describe("error middleware", () => {
       );
 
       handleApplicationNotFoundError(error, req, res, next);
+
+      assert.equal(res.render.callCount, 0);
+      assert.equal(next.callCount, 1);
+    });
+  });
+
+  describe("handleReportDownloadError", () => {
+    const reportError = (
+      type: ApplicationErrorType = APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+    ): ApplicationError => new ApplicationError(type, "report_download", true);
+
+    const callMiddleware = (err: unknown): void => {
+      handleReportDownloadError(
+        err,
+        req as unknown as Request,
+        res as unknown as Response,
+        next as unknown as NextFunction,
+      );
+    };
+
+    const requestTo = (path: string, query: Request["query"] = {}): void => {
+      Object.defineProperty(req, "path", { value: path });
+      Object.defineProperty(req, "method", { value: "GET" });
+      req.query = query;
+    };
+
+    const renderedBackUrl = (): string =>
+      (res.render.firstCall.args[1] as unknown as { backUrl: string }).backUrl;
+
+    beforeEach(() => {
+      res.status.returns(res as unknown as Response);
+    });
+
+    for (const type of [
+      APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+      APPLICATION_ERROR_TYPES.UPSTREAM_REJECTED,
+      APPLICATION_ERROR_TYPES.INVALID_UPSTREAM_RESPONSE,
+    ]) {
+      it(`renders the report failure page with a 500 for ${type}`, () => {
+        requestTo("/reports/payments-extract/download");
+
+        callMiddleware(reportError(type));
+
+        assert.equal(res.status.firstCall.args[0], 500);
+        assert.equal(res.status.calledBefore(res.render), true);
+        assert.equal(res.render.firstCall.args[0], "reports/download-error");
+        assert.equal(next.callCount, 0);
+      });
+    }
+
+    it("names a date range report after its lowercase heading and links back with the entered dates", () => {
+      requestTo("/reports/user-audit-trail/download", {
+        "start-date-day": "1",
+        "start-date-month": "4",
+        "start-date-year": "2025",
+        "end-date-day": "30",
+        "end-date-month": "4",
+        "end-date-year": "2025",
+        unexpected: "<script>",
+      });
+
+      callMiddleware(reportError());
+
+      assert.deepEqual(res.render.firstCall.args[1], {
+        isDateRange: true,
+        reportName: "user audit trail",
+        backUrl:
+          "/reports/user-audit-trail?start-date-day=1&start-date-month=4&start-date-year=2025&end-date-day=30&end-date-month=4&end-date-year=2025",
+      });
+    });
+
+    it("links back to the report page without a query when no dates were sent", () => {
+      requestTo("/reports/payments-extract/download");
+
+      callMiddleware(reportError());
+
+      assert.equal(renderedBackUrl(), "/reports/payments-extract");
+    });
+
+    it("ignores non-string date values", () => {
+      requestTo("/reports/payments-extract/download", {
+        "start-date-day": ["1", "2"],
+      });
+
+      callMiddleware(reportError());
+
+      assert.equal(renderedBackUrl(), "/reports/payments-extract");
+    });
+
+    for (const [path, reportName] of [
+      ["/reports/applications/backlog", "applications workflow backlog"],
+      ["/reports/claims/backlog", "claims workflow backlog"],
+      [
+        "/reports/cost-estimation-and-forecasting",
+        "cost estimation and forecasting",
+      ],
+    ]) {
+      it(`renders the direct download variant for ${path}`, () => {
+        requestTo(path);
+
+        callMiddleware(reportError());
+
+        assert.deepEqual(res.render.firstCall.args, [
+          "reports/download-error",
+          { isDateRange: false, reportName, backUrl: "/reports" },
+        ]);
+      });
+    }
+
+    it("logs the failure once with safe context and no query string", () => {
+      const logSpy = sinon.spy(logger, "logError");
+      requestTo("/reports/claims/backlog", { secret: "value" });
+
+      callMiddleware(reportError());
+
+      assert.equal(logSpy.callCount, 1);
+      const { extraContext } = logSpy.firstCall.args[0] as {
+        extraContext: Record<string, unknown>;
+      };
+      assert.deepEqual(extraContext, {
+        event: "http_request_failed",
+        route: "/reports/claims/backlog",
+        method: "GET",
+        status_code: 500,
+        error_type: "UPSTREAM_UNAVAILABLE",
+        operation: "report_download",
+        retryable: true,
+      });
+    });
+
+    it("renders the failure page whatever operation the outbound adapter reported", () => {
+      requestTo("/reports/claims/backlog");
+
+      callMiddleware(
+        new ApplicationError(
+          APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+          "/reports/claims/backlog",
+          true,
+        ),
+      );
+
+      assert.equal(res.render.firstCall.args[0], "reports/download-error");
+      assert.equal(next.callCount, 0);
+    });
+
+    for (const type of [
+      APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+      APPLICATION_ERROR_TYPES.FORBIDDEN,
+      APPLICATION_ERROR_TYPES.NOT_FOUND,
+    ]) {
+      it(`passes ${type} to the next handler`, () => {
+        requestTo("/reports/claims/backlog");
+
+        callMiddleware(reportError(type));
+
+        assert.equal(res.render.callCount, 0);
+        assert.equal(next.callCount, 1);
+      });
+    }
+
+    it("passes errors that are not application errors to the next handler", () => {
+      requestTo("/reports/claims/backlog");
+      const err = new Error("plain error");
+
+      callMiddleware(err);
+
+      assert.equal(res.render.callCount, 0);
+      assert.deepEqual(next.firstCall.args, [err]);
+    });
+
+    it("passes the error on when the path is not a report download", () => {
+      requestTo("/applications/search");
+
+      callMiddleware(reportError());
 
       assert.equal(res.render.callCount, 0);
       assert.equal(next.callCount, 1);
