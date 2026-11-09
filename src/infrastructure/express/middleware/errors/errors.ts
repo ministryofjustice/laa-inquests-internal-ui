@@ -11,7 +11,7 @@ import {
   HTTP_INTERNAL_SERVER_ERROR,
   HTTP_NOT_FOUND,
   HTTP_UNAUTHORIZED,
-} from "#src/infrastructure/express/constants.js";
+} from "#src/infrastructure/express/errorConstants.js";
 import {
   SESSION_EXPIRED_QUERY_FLAG,
   SESSION_TERMINATION_REASONS,

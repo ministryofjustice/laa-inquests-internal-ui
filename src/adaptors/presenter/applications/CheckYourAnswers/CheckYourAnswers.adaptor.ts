@@ -12,7 +12,7 @@ import type { PayInFullClaimData } from "#src/ports/inquests-api/claims/ClaimsAP
 import {
   HTTP_BAD_REQUEST,
   HTTP_NOT_FOUND,
-} from "#src/infrastructure/express/constants.js";
+} from "#src/infrastructure/express/errorConstants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 
 const SESSION_NAMESPACE = "claimApproval";

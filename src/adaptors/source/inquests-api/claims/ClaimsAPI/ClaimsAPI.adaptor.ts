@@ -29,7 +29,7 @@ import { PayInFullValidationErrorSchema } from "#src/adaptors/models/payInFullEr
 import {
   HTTP_BAD_REQUEST,
   HTTP_UNPROCESSABLE_ENTITY,
-} from "#src/infrastructure/express/constants.js";
+} from "#src/infrastructure/express/errorConstants.js";
 
 const REJECT_CLAIM_OPERATION = "reject_claim";
 const REJECT_CLAIM_ROUTE = "/applications/:id/claims/:claimReference/reject";

@@ -13,8 +13,8 @@ import {
   CLAIM_STATUSES,
   CLAIM_STATUS_TAG_CLASSES,
 } from "#src/infrastructure/locales/constants.js";
-import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
-import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/errorConstants.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/express/errorConstants.js";
 import {
   hasPermission,
   PERMISSIONS,

@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { BuildCertificateViewUseCase } from "#src/use-cases/applications/overview/BuildCertificateView.useCase.js";
 import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
-import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/constants.js";
+import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/errorConstants.js";
 import { formatCurrency } from "#src/utils/formatter.js";
 import { formatDate } from "#src/utils/dateFormatter.js";
 import {

@@ -5,7 +5,7 @@ import {
   isPublicPath,
   type CaseworkerRole,
 } from "#src/infrastructure/config/accessControl.js";
-import { HTTP_FORBIDDEN } from "#src/infrastructure/express/constants.js";
+import { HTTP_FORBIDDEN } from "#src/infrastructure/express/errorConstants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 type DenyReason = "insufficient_role" | "unconfigured_route";

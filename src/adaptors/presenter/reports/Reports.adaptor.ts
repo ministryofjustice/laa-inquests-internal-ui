@@ -17,7 +17,7 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import {
   HTTP_BAD_REQUEST,
   HTTP_TOO_MANY_REQUESTS,
-} from "#src/infrastructure/express/constants.js";
+} from "#src/infrastructure/express/errorConstants.js";
 import config from "#src/infrastructure/config/config.js";
 
 const DATE_RANGE_REPORT_TEMPLATE = "reports/date-range-report";

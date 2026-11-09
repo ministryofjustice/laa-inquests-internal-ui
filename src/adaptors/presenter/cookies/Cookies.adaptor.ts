@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { setCookies } from "#src/infrastructure/express/middleware/cookies/cookies.js";
-import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/constants.js";
+import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/errorConstants.js";
 
 interface CookiesPreferencesForm {
   acceptCookies?: string;

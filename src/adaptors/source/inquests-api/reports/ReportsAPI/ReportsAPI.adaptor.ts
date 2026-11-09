@@ -15,7 +15,7 @@ import {
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { translateReportApiFailure } from "#src/adaptors/source/inquests-api/reports/ReportsAPI/reportApiFailure.js";
 import { DateRangeReportErrorSchema } from "#src/adaptors/models/dateRangeReportError.schema.js";
-import { HTTP_UNPROCESSABLE_ENTITY } from "#src/infrastructure/express/constants.js";
+import { HTTP_UNPROCESSABLE_ENTITY } from "#src/infrastructure/express/errorConstants.js";
 import {
   APPLICATION_ERROR_TYPES,
   ApplicationError,

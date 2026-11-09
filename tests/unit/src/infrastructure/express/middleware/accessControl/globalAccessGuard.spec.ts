@@ -9,7 +9,7 @@ import {
   ROUTE_POLICIES,
   type RoutePolicy,
 } from "#src/infrastructure/config/accessControl.js";
-import { HTTP_FORBIDDEN } from "#src/infrastructure/express/constants.js";
+import { HTTP_FORBIDDEN } from "#src/infrastructure/express/errorConstants.js";
 import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 describe("globalAccessGuard", () => {

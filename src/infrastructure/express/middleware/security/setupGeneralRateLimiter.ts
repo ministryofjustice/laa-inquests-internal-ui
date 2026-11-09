@@ -1,7 +1,7 @@
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
 import type { Config } from "#src/infrastructure/config/config.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
-import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/constants.js";
+import { HTTP_TOO_MANY_REQUESTS } from "#src/infrastructure/express/errorConstants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 export const setupGeneralRateLimiter = (

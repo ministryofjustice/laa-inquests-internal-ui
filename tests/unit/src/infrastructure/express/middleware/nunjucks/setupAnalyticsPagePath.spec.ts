@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import sinon from "sinon";
 import { stubInterface } from "ts-sinon";
-import { HTTP_NOT_FOUND } from "#src/infrastructure/express/constants.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/express/errorConstants.js";
 import { setupAnalyticsPagePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
 
 describe("setupAnalyticsPagePath", () => {
