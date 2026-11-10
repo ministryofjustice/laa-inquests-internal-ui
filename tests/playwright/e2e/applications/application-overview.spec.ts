@@ -493,7 +493,9 @@ test.describe("Application details tab", () => {
     await expect(evidenceCard.getByRole("link")).toHaveText(/.+/);
   });
 
-  test("should have a make assessment button", async ({ page }) => {
+  test("should have a make assessment button when application is not in protected final state", async ({
+    page,
+  }) => {
     await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "Application details" }).click();
@@ -511,6 +513,18 @@ test.describe("Application details tab", () => {
     await expect(page.url()).toContain(
       `/applications/${laaReference}/decision`,
     );
+  });
+
+  test("should hide make assessment button when application is in protected final state", async ({
+    page,
+  }) => {
+    const grantedApplicationReference = "INQ-YYY-005";
+    await page.goto(`/applications/${grantedApplicationReference}/overview`);
+
+    const makeAssessmentButton = page
+      .locator("#application-details")
+      .getByRole("button", { name: "Make assessment" });
+    await expect(makeAssessmentButton).not.toBeVisible();
   });
 
   test("should open the coroners letter in a new tab", async ({
@@ -785,7 +799,9 @@ test.describe("People tab", () => {
     );
   });
 
-  test("should have a make assessment button", async ({ page }) => {
+  test("should have a make assessment button when application is not in protected final state", async ({
+    page,
+  }) => {
     await page.goto(`/applications/${laaReference}/overview`);
 
     await page.getByRole("tab", { name: "People" }).click();
@@ -803,6 +819,18 @@ test.describe("People tab", () => {
     await expect(page.url()).toContain(
       `/applications/${laaReference}/decision`,
     );
+  });
+
+  test("Make assessment button is hidden when application is in protected final state", async ({
+    page,
+  }) => {
+    const grantedApplicationReference = "INQ-YYY-005";
+    await page.goto(`/applications/${grantedApplicationReference}/overview`);
+
+    const makeAssessmentButton = page
+      .locator("#application-details")
+      .getByRole("button", { name: "Make assessment" });
+    await expect(makeAssessmentButton).not.toBeVisible();
   });
 });
 

@@ -1,6 +1,8 @@
 import type { Application } from "#src/adaptors/models/application.types.js";
 import { toTitleCase } from "#src/utils/formatter.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+import { TECHNICAL_FAILURE_REASONS } from "#src/use-cases/common/useCaseResult.types.js";
+import { PROTECTED_APPLICATION_FINAL_STATES } from "#src/infrastructure/locales/constants.js";
 
 export interface DecisionSessionData {
   laaReference?: string;
@@ -39,6 +41,18 @@ export class PrepareDecisionFormUseCase {
       ),
       meritsDecision: toTitleCase(input.application.overallDecision ?? ""),
     };
+
+    if (
+      PROTECTED_APPLICATION_FINAL_STATES.includes(
+        input.application.overallDecision ?? "",
+      )
+    ) {
+      return {
+        status: "TECHNICAL_FAILURE",
+        reason: TECHNICAL_FAILURE_REASONS.INVALID_INPUT_STATE,
+        cause: "Application is in a protected final state",
+      };
+    }
 
     return {
       status: "SUCCESS",

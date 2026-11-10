@@ -203,11 +203,15 @@ export class ApplicationDecisionAdaptor {
       `/applications/${laaReference}/decision`,
     );
     const sessionData = this.sessionHelper.getSessionData(req, "decision");
+    if (sessionData?.meritsDecision !== "Submitted") {
+      throw new Error("Application has already been refused");
+    }
+
     res.render("application/decision/justification/index", {
       backUrl,
       laaReference,
-      refusalReason: sessionData?.refusalReason,
-      justification: sessionData?.justification,
+      refusalReason: sessionData.refusalReason,
+      justification: sessionData.justification,
       justificationMaxCharacterLength: JUSTIFICATION_MAX_CHARACTER_LENGTH,
       ...(errorSummaries && { errorSummaries }),
     });
@@ -396,7 +400,6 @@ export class ApplicationDecisionAdaptor {
     if (sessionData?.overallDecision === GRANTED_DECISION) {
       const grantDecisionResult = await this.#processGrantDecision(
         req,
-        res,
         laaReference,
         sessionData,
       );
@@ -415,7 +418,6 @@ export class ApplicationDecisionAdaptor {
     } else {
       const refuseDecisionResult = await this.#processRefuseDecision(
         req,
-        res,
         laaReference,
         sessionData,
       );
@@ -438,7 +440,6 @@ export class ApplicationDecisionAdaptor {
 
   async #processGrantDecision(
     req: Request,
-    res: Response,
     laaReference: string,
     sessionData: DecisionSessionData | null,
   ): Promise<GrantDecisionResult> {
@@ -466,7 +467,6 @@ export class ApplicationDecisionAdaptor {
 
   async #processRefuseDecision(
     req: Request,
-    res: Response,
     laaReference: string,
     sessionData: DecisionSessionData | null,
   ): Promise<RefuseDecisionResult> {

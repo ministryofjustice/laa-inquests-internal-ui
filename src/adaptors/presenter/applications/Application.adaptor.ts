@@ -12,6 +12,7 @@ import { getClaimCost, mapClaimType } from "#src/utils/claim.js";
 import {
   CLAIM_STATUSES,
   CLAIM_STATUS_TAG_CLASSES,
+  PROTECTED_APPLICATION_FINAL_STATES,
 } from "#src/infrastructure/locales/constants.js";
 import { HTTP_BAD_REQUEST } from "#src/infrastructure/express/errorConstants.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/express/errorConstants.js";
@@ -137,6 +138,9 @@ export class ApplicationAdaptor {
     }
 
     const application = mapApplication(overviewViewResult.data.application);
+    const isProtectedFinalState = PROTECTED_APPLICATION_FINAL_STATES.includes(
+      application.overallDecision ?? "",
+    );
     const proceeding = mapProceeding(application.proceeding);
     const clientHomeAddressDisplay = getHomeAddressDisplay(application);
     const { clientCorrespondenceAddressDisplay, careOfRecipientDisplay } =
@@ -166,6 +170,7 @@ export class ApplicationAdaptor {
 
     res.render("application/application-overview", {
       application,
+      isProtectedFinalState,
       potentialDuplicateApplications:
         overviewViewResult.data.potentialDuplicateApplications,
       hasLiveCertificate: overviewViewResult.data.hasLiveCertificate,
