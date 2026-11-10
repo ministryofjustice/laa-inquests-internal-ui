@@ -219,7 +219,7 @@ describe("Cookies adaptor", () => {
         {
           maxAge: 365 * 24 * 60 * 60 * 1000,
           httpOnly: true,
-          sameSite: "strict",
+          sameSite: "lax",
         },
       ]);
       assert.deepEqual(responseStub.redirect.firstCall.args, ["/reports"]);

@@ -123,8 +123,14 @@ describe("processCookies", () => {
     assert.equal(res.locals.cookieBannerState, "initial");
   });
 
-  for (const state of ["accepted", "rejected", "closed", "failed", undefined]) {
-    it("sets res.locals.cookieBannerState to req.session.cookieBannerState if cookies_policy.has_tracking_consent is defined", () => {
+  for (const { state, expectedState } of [
+    { state: "accepted", expectedState: "accepted" },
+    { state: "rejected", expectedState: "rejected" },
+    { state: "closed", expectedState: "closed" },
+    { state: "failed", expectedState: "closed" },
+    { state: undefined, expectedState: "closed" },
+  ]) {
+    it(`renders ${expectedState} for session state ${state} when a valid cookie preference is saved`, () => {
       req.cookies = {
         cookies_policy: encodeURIComponent(
           JSON.stringify({ has_tracking_consent: state === "accepted" }),
@@ -134,9 +140,22 @@ describe("processCookies", () => {
 
       processCookies(req, res, next);
 
-      assert.equal(res.locals.cookieBannerState, state);
+      assert.equal(res.locals.cookieBannerState, expectedState);
     });
   }
+
+  it("sets res.locals.cookieBannerState to closed if cookies_policy.has_tracking_consent is defined and there is no last state", () => {
+    req.cookies = {
+      cookies_policy: encodeURIComponent(
+        JSON.stringify({ has_tracking_consent: true }),
+      ),
+    };
+    req.session.cookieBannerState = undefined;
+
+    processCookies(req, res, next);
+
+    assert.equal(res.locals.cookieBannerState, "closed");
+  });
 
   for (const state of ["accepted", "rejected"]) {
     it(`sets req.session.cookieBannerState to closed if last state is ${state}`, () => {
@@ -207,7 +226,7 @@ describe("setCookies", () => {
       {
         maxAge: ONE_YEAR_MS,
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "lax",
       },
     ]);
   });
@@ -222,7 +241,7 @@ describe("setCookies", () => {
       {
         maxAge: ONE_YEAR_MS,
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "lax",
       },
     ]);
   });

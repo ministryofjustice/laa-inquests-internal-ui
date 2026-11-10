@@ -41,7 +41,7 @@ export function setCookies(
   res.cookie(
     "cookies_policy",
     JSON.stringify({ has_tracking_consent: acceptCookies }),
-    { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+    { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "lax" },
   );
 
   res.locals.hasTrackingConsent = acceptCookies;
@@ -65,22 +65,21 @@ export default function processCookies(
   if (req.method === "GET") {
     try {
       const consent = parseTrackingConsent(req.cookies.cookies_policy);
-      res.locals.hasTrackingConsent = consent === true;
-
-      if (consent === undefined) {
-        req.session.cookieBannerState = "initial";
-      }
       const {
         session: { cookieBannerState },
       } = req;
-      res.locals.cookieBannerState = cookieBannerState;
+      res.locals.hasTrackingConsent = consent === true;
 
-      if (
-        ["accepted", "rejected"].includes(
-          req.session.cookieBannerState as string,
-        )
+      if (consent === undefined) {
+        res.locals.cookieBannerState = "initial";
+      } else if (
+        cookieBannerState === "accepted" ||
+        cookieBannerState === "rejected"
       ) {
-        req.session.cookieBannerState = "closed"; // For next load
+        res.locals.cookieBannerState = cookieBannerState;
+        req.session.cookieBannerState = "closed";
+      } else {
+        res.locals.cookieBannerState = "closed";
       }
     } catch (err) {
       res.locals.hasTrackingConsent = false;
