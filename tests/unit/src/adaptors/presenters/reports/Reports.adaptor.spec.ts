@@ -588,5 +588,100 @@ describe("Reports adaptor", () => {
 
       assert.deepEqual(responseStub.status.firstCall.args, [HTTP_BAD_REQUEST]);
     });
+
+    describe("download complete cookie", () => {
+      const TOKEN = "3f2b8c1e-4d5a-4b6c-9d7e-8f9a0b1c2d3e";
+
+      const downloadWith = async (
+        query: Record<string, unknown>,
+      ): Promise<void> => {
+        requestStub.query = query as never;
+        dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+        downloadDateRangeReportUseCaseStub.execute.resolves({
+          status: "SUCCESS",
+          data: Buffer.from("a,b"),
+          contentType: "text/csv; charset=utf-8",
+          contentDisposition: undefined,
+        });
+        await reportsAdaptor.downloadDateRangeReport(
+          PAYMENTS_EXTRACT,
+          requestStub,
+          responseStub,
+        );
+      };
+
+      it("sets the cookie with the submitted token when the download succeeds", async () => {
+        await downloadWith({ ...VALID_QUERY, "download-token": TOKEN });
+
+        assert.equal(responseStub.cookie.callCount, 1);
+        const [name, value, options] = responseStub.cookie.firstCall
+          .args as unknown as [string, string, Record<string, unknown>];
+        assert.equal(name, "reportDownloadToken");
+        assert.equal(value, TOKEN);
+        assert.equal(options.httpOnly, false);
+        assert.equal(options.sameSite, "lax");
+        assert.equal(options.path, "/");
+        assert.equal(responseStub.send.callCount, 1);
+      });
+
+      it("does not set the cookie when no token is submitted", async () => {
+        await downloadWith(VALID_QUERY);
+
+        assert.equal(responseStub.cookie.callCount, 0);
+        assert.equal(responseStub.send.callCount, 1);
+      });
+
+      it("does not set the cookie when the token is malformed", async () => {
+        await downloadWith({ ...VALID_QUERY, "download-token": "a;b=c\r\n" });
+
+        assert.equal(responseStub.cookie.callCount, 0);
+        assert.equal(responseStub.send.callCount, 1);
+      });
+
+      it("does not set the cookie when the form is invalid", async () => {
+        requestStub.query = { ...VALID_QUERY, "download-token": TOKEN };
+        dateRangeReportValidatorStub.validateDateRangeReportForm.returns({
+          startDate: { text: "Start date error", fields: ["day"] },
+        });
+
+        await reportsAdaptor.downloadDateRangeReport(
+          PAYMENTS_EXTRACT,
+          requestStub,
+          responseStub,
+        );
+
+        assert.equal(responseStub.cookie.callCount, 0);
+      });
+
+      it("does not set the cookie when the api rejects the range as too long", async () => {
+        requestStub.query = { ...VALID_QUERY, "download-token": TOKEN };
+        dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+        downloadDateRangeReportUseCaseStub.execute.resolves({
+          status: "DATE_RANGE_TOO_LONG",
+        });
+
+        await reportsAdaptor.downloadDateRangeReport(
+          PAYMENTS_EXTRACT,
+          requestStub,
+          responseStub,
+        );
+
+        assert.equal(responseStub.cookie.callCount, 0);
+      });
+
+      it("does not set the cookie when the rate limit is exceeded", async () => {
+        requestStub.query = { ...VALID_QUERY, "download-token": TOKEN };
+        responseStub.locals = { rateLimit: true };
+        dateRangeReportValidatorStub.validateDateRangeReportForm.returns({});
+
+        await reportsAdaptor.downloadDateRangeReport(
+          PAYMENTS_EXTRACT,
+          requestStub,
+          responseStub,
+        );
+
+        assert.equal(responseStub.cookie.callCount, 0);
+      });
+    });
   });
 });
