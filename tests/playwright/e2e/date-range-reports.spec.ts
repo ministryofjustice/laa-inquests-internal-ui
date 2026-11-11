@@ -386,6 +386,67 @@ for (const report of REPORTS) {
         await checkAccessibility();
       });
 
+      test("clears the errors once corrected dates download successfully", async ({
+        page,
+      }) => {
+        await page.goto(path);
+        await fillDate(page, report, "Start date", {
+          day: "31",
+          month: "2",
+          year: "2025",
+        });
+        await fillDate(page, report, "End date", START);
+
+        const invalidResponse = await submitReport(page, report);
+        expect(invalidResponse.status()).toBe(HTTP_BAD_REQUEST);
+        await expect(page.locator(".govuk-error-summary")).toBeVisible();
+
+        await fillDate(page, report, "Start date", START);
+        const downloadPromise = page.waitForEvent("download");
+        await reportForm(page, report)
+          .getByRole("button", { name: "Download report" })
+          .click();
+        await downloadPromise;
+
+        await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+        await expect(
+          reportForm(page, report).locator(".govuk-error-message"),
+        ).toHaveCount(0);
+        await expectHighlightedBoxes(page, report, "Start date", {
+          Day: false,
+          Month: false,
+          Year: false,
+        });
+        await expectDateValues(page, report, "Start date", START);
+      });
+
+      test("keeps the errors when the corrected dates are still invalid", async ({
+        page,
+      }) => {
+        await page.goto(path);
+        await fillDate(page, report, "Start date", {
+          day: "31",
+          month: "2",
+          year: "2025",
+        });
+        await fillDate(page, report, "End date", START);
+        await submitReport(page, report);
+
+        await fillDate(page, report, "Start date", {
+          day: "30",
+          month: "2",
+          year: "2025",
+        });
+        const response = await submitReport(page, report);
+
+        expect(response.status()).toBe(HTTP_BAD_REQUEST);
+        await expectValidationError(page, report, {
+          message: "Start date must be a real date",
+          href: "#start-date-day",
+          legend: "Start date",
+        });
+      });
+
       test("shows an error when the start date is not a real date", async ({
         page,
       }) => {
