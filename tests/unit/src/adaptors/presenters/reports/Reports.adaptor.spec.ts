@@ -172,30 +172,39 @@ describe("Reports adaptor", () => {
   });
 
   it("downloads claims backlog report with attachment headers", async () => {
-    const mockBuffer = Buffer.from("col1,col2\n1,2");
-    downloadClaimsBacklogReportUseCaseStub.execute.resolves({
-      data: mockBuffer,
-      contentType: "text/csv",
+    const clock = sinon.useFakeTimers({
+      now: Date.UTC(2026, 9, 30, 10, 10, 10),
+      toFake: ["Date"],
     });
 
-    await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
+    try {
+      const mockBuffer = Buffer.from("col1,col2\n1,2");
+      downloadClaimsBacklogReportUseCaseStub.execute.resolves({
+        data: mockBuffer,
+        contentType: "text/csv",
+      });
 
-    assert.equal(downloadClaimsBacklogReportUseCaseStub.execute.callCount, 1);
-    assert.deepEqual(
-      downloadClaimsBacklogReportUseCaseStub.execute.firstCall.args,
-      ["test-access-token"],
-    );
-    assert.equal(responseStub.setHeader.callCount, 2);
-    assert.deepEqual(responseStub.setHeader.getCall(0).args, [
-      "Content-Type",
-      "text/csv",
-    ]);
-    assert.deepEqual(responseStub.setHeader.getCall(1).args, [
-      "Content-Disposition",
-      'attachment; filename="claims-backlog.csv"',
-    ]);
-    assert.equal(responseStub.send.callCount, 1);
-    assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
+      await reportsAdaptor.downloadClaimsBacklog(requestStub, responseStub);
+
+      assert.equal(downloadClaimsBacklogReportUseCaseStub.execute.callCount, 1);
+      assert.deepEqual(
+        downloadClaimsBacklogReportUseCaseStub.execute.firstCall.args,
+        ["test-access-token"],
+      );
+      assert.equal(responseStub.setHeader.callCount, 2);
+      assert.deepEqual(responseStub.setHeader.getCall(0).args, [
+        "Content-Type",
+        "text/csv",
+      ]);
+      assert.deepEqual(responseStub.setHeader.getCall(1).args, [
+        "Content-Disposition",
+        'attachment; filename="2026-10-30-101010 - Report - IDDS Claims Backlog - OFFICIAL-SENSITIVE - LAA Use Only.csv"',
+      ]);
+      assert.equal(responseStub.send.callCount, 1);
+      assert.deepEqual(responseStub.send.firstCall.args, [mockBuffer]);
+    } finally {
+      clock.restore();
+    }
   });
 
   it("propagates claims report failures without writing a response", async () => {
