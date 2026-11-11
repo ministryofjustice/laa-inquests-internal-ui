@@ -19,6 +19,12 @@ import {
   HTTP_TOO_MANY_REQUESTS,
 } from "#src/infrastructure/express/errorConstants.js";
 import config from "#src/infrastructure/config/config.js";
+import {
+  REPORT_DOWNLOAD_COOKIE,
+  REPORT_DOWNLOAD_COOKIE_MAX_AGE_MS,
+  REPORT_DOWNLOAD_TOKEN_FIELD,
+  REPORT_DOWNLOAD_TOKEN_PATTERN,
+} from "#src/utils/reportDownload.constants.js";
 
 const DATE_RANGE_REPORT_TEMPLATE = "reports/date-range-report";
 
@@ -249,6 +255,7 @@ export class ReportsAdaptor {
     }
 
     const { data, contentType, contentDisposition } = result;
+    this.#signalDownloadComplete(req, res);
     res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Content-Disposition",
@@ -256,6 +263,26 @@ export class ReportsAdaptor {
         `attachment; filename="${report.slug}-${from}-to-${to}.csv"`,
     );
     res.send(data);
+  }
+
+  // The browser stays on the page when a file is downloaded, so the page
+  // watches for this cookie to know it can clear any earlier errors.
+  #signalDownloadComplete(req: Request, res: Response): void {
+    const { query } = req;
+    const { [REPORT_DOWNLOAD_TOKEN_FIELD]: token } = query;
+    if (
+      typeof token !== "string" ||
+      !REPORT_DOWNLOAD_TOKEN_PATTERN.test(token)
+    ) {
+      return;
+    }
+    res.cookie(REPORT_DOWNLOAD_COOKIE, token, {
+      maxAge: REPORT_DOWNLOAD_COOKIE_MAX_AGE_MS,
+      sameSite: "lax",
+      secure: req.secure,
+      httpOnly: false,
+      path: "/",
+    });
   }
 
   #viewModel(report: DateRangeReportDefinition): {
