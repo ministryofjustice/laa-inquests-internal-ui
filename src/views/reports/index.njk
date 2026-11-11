@@ -1,6 +1,5 @@
 {% extends "layouts/page-with-back-link.njk" %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
-{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% set pageTitle = t('pages.reports.heading') %}
 
@@ -18,10 +17,6 @@
   {{ govukInsetText({
     text: t('pages.error.rateLimitError.reportLimitMessage', { RATE_WINDOW_PER_REPORT_SECONDS: config.RATE_WINDOW_PER_REPORT_MS / 1000 })
   }) if shouldShowRateLimitText }}
-  {{ govukWarningText({
-    text: t('pages.home.developerBanner.text'),
-    iconFallbackText: t('pages.home.developerBanner.title')
-  }) }}
 
     {% set sizeOptions = { fileSizeEstimate: t('pages.reports.fileSizeEstimate') } %}
 

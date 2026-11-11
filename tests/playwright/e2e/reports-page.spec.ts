@@ -109,7 +109,7 @@ async function loginAs(page: Page, ...roles: string[]): Promise<void> {
 }
 
 test.describe("Download reports page", () => {
-  test("displays the heading, section headings and developer warning", async ({
+  test("displays the heading and section headings", async ({
     page,
     checkAccessibility,
   }) => {
@@ -127,11 +127,6 @@ test.describe("Download reports page", () => {
         page.getByRole("heading", { level: 2, name: section }),
       ).toBeVisible();
     }
-    await expect(
-      page.getByText(
-        "This page is not production ready and is intended for developers.",
-      ),
-    ).toBeVisible();
     await validateBackButton(page, "/");
 
     await checkAccessibility();
