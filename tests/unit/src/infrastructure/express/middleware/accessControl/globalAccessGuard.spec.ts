@@ -153,6 +153,30 @@ describe("globalAccessGuard", () => {
     });
   });
 
+  describe("Authenticated requests to a path that only shares a policy's prefix text", () => {
+    for (const path of ["/helps", "/reportsfoo", "/cookiesx"]) {
+      it(`denies access to ${path} for every recognised role`, () => {
+        setPath(path);
+        req.session.user = { userId: "test-caseworker" };
+
+        for (const role of RECOGNISED_ROLES) {
+          res.status.resetHistory();
+          res.render.resetHistory();
+          next.resetHistory();
+          req.session.roles = [role];
+
+          globalAccessGuard(req, res, next as NextFunction);
+
+          assert.equal(next.callCount, 0);
+          assert.equal(res.status.firstCall.args[0], HTTP_FORBIDDEN);
+          assert.deepEqual(res.render.firstCall.args, [
+            "main/error-unauthorised",
+          ]);
+        }
+      });
+    }
+  });
+
   describe("Only authenticated requests to a policy-protected dummy test route", () => {
     // Allows adding a test policy to the otherwise readonly ROUTE_POLICIES array.
     const mutableRoutePolicies = ROUTE_POLICIES as RoutePolicy[];
