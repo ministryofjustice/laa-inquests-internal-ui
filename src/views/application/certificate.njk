@@ -1,12 +1,13 @@
-{% extends "layouts/page-with-back-link.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% extends "base.njk" %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
 {% set pageTitle = t('pages.applicationCertificate.title') %}
 
-{% block pageContent %}
+{% set backLink = backUrl %}
+
+{% block content %}
     <div class="certificate-view">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
@@ -6,7 +6,9 @@
 
 {% set pageTitle = t('pages.decision.confirmation.header') %}
 
-{% block pageContent %}
+{% set backLink = backUrl %}
+
+{% block content %}
 <form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/decision/confirmation">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
   <h1 class="govuk-heading-l">{{ t('pages.decision.confirmation.header') }}</h1>
@@ -100,4 +102,4 @@
     text: t('pages.decision.confirmation.submitButton')
   }) }}
 </form>
-{% endblock pageContent %}
+{% endblock content %}

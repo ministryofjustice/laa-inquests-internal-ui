@@ -328,6 +328,7 @@ for (const report of REPORTS) {
         await expect(
           page.getByText(en.pages.error.reportDownloadFailed.tryAgain),
         ).toBeVisible();
+        await expect(page.locator(".govuk-back-link")).toHaveCount(0);
         await checkAccessibility();
       });
 

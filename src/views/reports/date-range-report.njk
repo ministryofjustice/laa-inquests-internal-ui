@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
@@ -8,7 +8,9 @@
 {% set pageTitle = t(reportContent + '.heading') %}
 {% set formValues = formValues or {} %}
 
-{% block pageContent %}
+{% set backLink = backUrl %}
+
+{% block content %}
   {% if errorList %}
     {{ govukErrorSummary({
       titleText: t('common.errorSummaryTitle'),
@@ -73,4 +75,4 @@
       preventDoubleClick: true
     }) }}
   </form>
-{% endblock pageContent %}
+{% endblock content %}
