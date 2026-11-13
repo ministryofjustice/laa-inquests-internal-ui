@@ -17,10 +17,30 @@
 
   <h1 class="govuk-heading-l">{{ t('pages.claimAssessment.confirmDisbursementCosts.heading') }}</h1>
 
-  <p class="govuk-body">{{ t('pages.claimAssessment.confirmDisbursementCosts.intro1') }}</p>
   <p class="govuk-body">{{ t('pages.claimAssessment.confirmDisbursementCosts.intro2') }}</p>
 
-  <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmDisbursementCosts.vat20Heading') }}</h2>
+  <h3 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmDisbursementCosts.vat0Heading') }}</h3>
+
+  {{ govukInput({
+    id: "zero-vat-total",
+    name: "zero-vat-total",
+    autocomplete: "off",
+    label: {
+      text: t('pages.claimAssessment.confirmDisbursementCosts.zeroLabel'),
+      classes: "govuk-label--s"
+    },
+    hint: {
+      text: t('pages.claimAssessment.confirmDisbursementCosts.zeroHint')
+    },
+    prefix: {
+      text: "£"
+    },
+    classes: "govuk-input--width-5",
+    value: zeroVatTotal,
+    errorMessage: errorSummaries.zeroVatTotal
+  }) }}
+
+  <h3 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmDisbursementCosts.vat20Heading') }}</h3>
 
   {{ govukInput({
     id: "net-total",
@@ -58,27 +78,6 @@
     classes: "govuk-input--width-5",
     value: grossTotal,
     errorMessage: errorSummaries.grossTotal
-  }) }}
-
-  <h2 class="govuk-heading-m govuk-!-margin-top-7 govuk-!-margin-bottom-7">{{ t('pages.claimAssessment.confirmDisbursementCosts.vat0Heading') }}</h2>
-
-  {{ govukInput({
-    id: "zero-vat-total",
-    name: "zero-vat-total",
-    autocomplete: "off",
-    label: {
-      text: t('pages.claimAssessment.confirmDisbursementCosts.zeroLabel'),
-      classes: "govuk-label--s"
-    },
-    hint: {
-      text: t('pages.claimAssessment.confirmDisbursementCosts.zeroHint')
-    },
-    prefix: {
-      text: "£"
-    },
-    classes: "govuk-input--width-5",
-    value: zeroVatTotal,
-    errorMessage: errorSummaries.zeroVatTotal
   }) }}
 
   {{ govukButton({
