@@ -1,11 +1,13 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = t('pages.claimAssessment.confirmDisbursementCosts.heading') %}
 
-{% block pageContent %}
+{% set backLink = backUrl %}
+
+{% block content %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
     titleText: t('common.errorSummaryTitle'),
@@ -84,4 +86,4 @@
     text: t('pages.claimAssessment.confirmDisbursementCosts.continue')
   }) }}
 </form>
-{% endblock pageContent %}
+{% endblock content %}

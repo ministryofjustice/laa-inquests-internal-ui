@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "macros/claimOverview.njk" import claimOverview %}
 {% from "macros/finalOrNilBillDetails.njk" import finalOrNilBillDetailsCards %}
 {% from "macros/supportingEvidence.njk" import supportingEvidenceSection %}
@@ -10,7 +10,9 @@
 
 {% set pageTitle = t('pages.claimAssessment.heading') %}
 
-{% block pageContent %}
+{% set backLink = backUrl %}
+
+{% block content %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
     titleText: t('common.errorSummaryTitle'),
@@ -80,4 +82,4 @@
   }) }}
   {% endif %}
 </form>
-{% endblock pageContent %}
+{% endblock content %}

@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
@@ -6,7 +6,9 @@
 
 {% set pageTitle = t('pages.decision.certificateStartDate.header') %}
 
-{% block pageContent %}
+{% set backLink = backUrl %}
+
+{% block content %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
     titleText: t('errorSummaryTitle'),
@@ -82,4 +84,4 @@
     text: "Continue"
   }) }}
 </form>
-{% endblock pageContent %}
+{% endblock content %}

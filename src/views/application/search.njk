@@ -1,12 +1,12 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = t('pages.applicationSearch.pageTitle') %}
-{% set backUrl = "/" %}
+{% set backLink = "/" %}
 
-{% block pageContent %}
+{% block content %}
   {% if applicationReference != undefined %}
     {{ govukErrorSummary({
       titleText: t('common.errorSummaryTitle'),

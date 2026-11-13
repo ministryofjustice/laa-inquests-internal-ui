@@ -103,6 +103,10 @@ export async function validateBackButton(
   const backButton = page.getByRole("link", { name: "Back", exact: true });
   await expect(backButton).toBeVisible();
   await expect(backButton).toHaveAttribute("href", previousUrl);
+  await expect(page.locator("main .govuk-back-link")).toHaveCount(0);
+  await expect(
+    page.locator(".govuk-width-container > .govuk-back-link"),
+  ).toHaveCount(1);
 }
 
 export async function validateCSRFToken(form: Locator): Promise<void> {
