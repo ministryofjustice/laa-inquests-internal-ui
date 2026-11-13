@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@azure/msal-node": "^7.2.1",
-    "@ministryofjustice/frontend": "^11.1.0",
+    "@ministryofjustice/frontend": "^12.0.0",
     "@redis/client": "^6.3.1",
     "@sentry/node": "^11.11.0",
     "@sentry/profiling-node": "^11.11.0",
