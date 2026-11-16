@@ -7,7 +7,7 @@ import {
 } from "#src/adaptors/presenter/utils/journeyStepHelper.js";
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
-describe.only("journeyStepHelper", () => {
+describe("journeyStepHelper", () => {
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
 
@@ -17,61 +17,58 @@ describe.only("journeyStepHelper", () => {
     requestStub.session = {} as any;
   });
 
-  // describe("completeStepAndRedirect", () => {
-  //   it("redirects to redirect url", () => {
-  //     completeStepAndRedirect(
-  //       requestStub,
-  //       responseStub,
-  //       "/apply/client-details/name-and-dob",
-  //     );
-  //     assert.equal(responseStub.redirect.callCount, 1);
-  //     const redirectArgs = responseStub.redirect.getCall(0).args;
-  //     assert.equal(redirectArgs[0], "/apply/client-details/name-and-dob");
-  //   });
+  describe("completeStepAndRedirect", () => {
+    it("redirects to redirect url", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+        JOURNEY_TYPES.PUBLIC_AUTHORITY,
+      );
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(
+        redirectArgs[0],
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+      );
+    });
 
-  //   it("marks the previous step complete before redirecting", () => {
-  //     completeStepAndRedirect(
-  //       requestStub,
-  //       responseStub,
-  //       "/apply/client-details/name-and-dob",
-  //     );
+    it("marks the previous step complete before redirecting", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+        JOURNEY_TYPES.PUBLIC_AUTHORITY,
+      );
 
-  //     const applyState = (requestStub.session as any).apply;
-  //     assert.equal(applyState.lastCompletedStepIndex, 1);
-  //   });
+      const session = requestStub.session as any;
+      assert.equal(session.lastCompletedStepIndex, 0);
+    });
 
-  //   it("uses apply journey sequence for when redirectUrl starts with /apply", () => {
-  //     completeStepAndRedirect(
-  //       requestStub,
-  //       responseStub,
-  //       "/apply/client-details/name-and-dob",
-  //     );
-  //     const applyState = (requestStub.session as any).apply;
-  //     assert.equal(applyState.lastCompletedStepIndex, 1);
-  //   });
+    // TODO: When tracking current journey in session, add tests to ensure the correct journey is being used for step completion.
 
-  //   it("uses claim journey sequence for when redirectUrl starts with /claim", () => {
-  //     completeStepAndRedirect(requestStub, responseStub, "/claim/type");
-  //     const claimState = (requestStub.session as any).claim;
-  //     assert.equal(claimState.lastCompletedStepIndex, 3);
-  //   });
+    it("sets lastStepCompleted as ZERO if res.redirect is first step", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/applications/INQ-YYY-YYY/public-authorities",
+        JOURNEY_TYPES.PUBLIC_AUTHORITY,
+      );
+      const session = requestStub.session as any;
+      assert.equal(session.lastCompletedStepIndex, 0);
+    });
 
-  //   it("sets lastStepCompleted as ZERO if res.redirect is first set", () => {
-  //     completeStepAndRedirect(requestStub, responseStub, "/apply");
-  //     const applyState = (requestStub.session as any).apply;
-  //     assert.equal(applyState.lastCompletedStepIndex, 0);
-  //   });
-
-  //   it("strips query parameters when completing a step", () => {
-  //     completeStepAndRedirect(
-  //       requestStub,
-  //       responseStub,
-  //       "/apply/client-details/name-and-dob?test=1",
-  //     );
-  //     const applyState = (requestStub.session as any).apply;
-  //     assert.equal(applyState.lastCompletedStepIndex, 1);
-  //   });
-  // });
+    it("strips query parameters when completing a step", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/applications/INQ-YYY-YYY/public-authorities?test=1",
+        JOURNEY_TYPES.PUBLIC_AUTHORITY,
+      );
+      const session = requestStub.session as any;
+      assert.equal(session.lastCompletedStepIndex, 0);
+    });
+  });
 
   describe("markStepComplete", () => {
     [

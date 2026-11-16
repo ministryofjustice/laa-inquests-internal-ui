@@ -15,14 +15,10 @@ export function completeStepAndRedirect(
   redirectToUrl: string,
   journeyType: JOURNEY_TYPES,
 ): void {
-  const noQueryUrl = redirectToUrl.split("?").at(ZERO) ?? redirectToUrl;
-
   const journey = getJourney(journeyType); // TODO: test logic in here?
+  const newIndex = getPageIndex(redirectToUrl, journey);
 
-  const stepIndex =
-    journey.indexOf(noQueryUrl) === ZERO
-      ? ZERO
-      : journey.indexOf(noQueryUrl) - OFFSET;
+  const stepIndex = Math.max(newIndex - OFFSET, ZERO);
 
   markStepComplete(req, journey[stepIndex], journeyType); // TODO: test journey type is passed?
   res.redirect(redirectToUrl);
@@ -37,16 +33,7 @@ export function markStepComplete(
 
   const sessionRecord = req.session as Record<string, unknown>;
 
-  const abstractedApplicationPage = pageToMark.replace(
-    /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v,
-    "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
-  );
-  const abstractedPage = abstractedApplicationPage.replace(
-    /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v,
-    "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
-  );
-
-  const stepIndex = journey.indexOf(abstractedPage);
+  const stepIndex = getPageIndex(pageToMark, journey);
   if (stepIndex < ZERO) {
     throw new Error(`Unsupported pageToMark: ${pageToMark}`);
   }
@@ -61,4 +48,18 @@ function getJourney(journeyType: JOURNEY_TYPES): string[] {
   }
 
   return JOURNEYS[journeyType];
+}
+
+function getPageIndex(pageToMark: string, journey: string[]): number {
+  const noQueryUrl = pageToMark.split("?").at(ZERO) ?? pageToMark;
+  const abstractedApplicationPage = noQueryUrl.replace(
+    /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v,
+    "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
+  );
+  const abstractedPage = abstractedApplicationPage.replace(
+    /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v,
+    "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+  );
+
+  return journey.indexOf(abstractedPage);
 }
