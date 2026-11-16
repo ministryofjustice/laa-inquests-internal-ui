@@ -29,5 +29,6 @@ declare module "express-session" {
     roles?: CaseworkerRole[];
     lifetime?: SessionLifetime;
     returnTo?: string;
+    lastCompletedStepIndex?: number;
   }
 }
