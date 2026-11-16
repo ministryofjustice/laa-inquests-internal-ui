@@ -63,6 +63,10 @@ const CLAIMS_JOURNEY_DECISION_SEQUENCE = [
 
 const APPLICATION_JOURNEY_DECISION_SEQUENCE = [
   "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision/justification",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision/certificate-start-date",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision/confirmation",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision/success",
 ];
 
 export const enum JOURNEY_TYPES {
