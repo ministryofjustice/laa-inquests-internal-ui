@@ -1,26 +1,6 @@
-import {
-  REPORT_DOWNLOAD_COOKIE,
-  REPORT_DOWNLOAD_TOKEN_FIELD,
-} from "#src/utils/reportDownload.constants.js";
-
-const POLL_INTERVAL_MS = 500;
-const POLL_TIMEOUT_MS = 60_000;
-
-type PageWindow = Pick<Window, "setInterval" | "clearInterval" | "crypto">;
-
-const readCookie = (pageDocument: Document, name: string): string | null => {
-  const prefix = `${name}=`;
-  const match = pageDocument.cookie
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(prefix));
-  return match === undefined ? null : match.slice(prefix.length);
-};
-
-const expireCookie = (pageDocument: Document, name: string): void => {
-  pageDocument.cookie = `${name}=; Max-Age=0; path=/`;
-};
-
+// A successful download keeps the browser on the page, whereas every other
+// outcome (validation errors, rate limit, failure) navigates to a new page,
+// so any errors on screen can be cleared as soon as the form is submitted.
 const clearErrors = (pageDocument: Document, form: HTMLFormElement): void => {
   pageDocument.querySelector(".govuk-error-summary")?.remove();
 
@@ -53,42 +33,12 @@ const clearErrors = (pageDocument: Document, form: HTMLFormElement): void => {
 
 export const initialiseReportDownloadErrors = (
   pageDocument: Document,
-  pageWindow: PageWindow,
 ): void => {
   const form = pageDocument.querySelector<HTMLFormElement>(
     "form[data-report-download-form]",
   );
-  const tokenInput = form?.querySelector<HTMLInputElement>(
-    `input[name="${REPORT_DOWNLOAD_TOKEN_FIELD}"]`,
-  );
 
-  if (!form || !tokenInput) {
-    return;
-  }
-
-  let pollTimer: number | null = null;
-
-  const stopPolling = (): void => {
-    if (pollTimer !== null) {
-      pageWindow.clearInterval(pollTimer);
-      pollTimer = null;
-    }
-  };
-
-  form.addEventListener("submit", () => {
-    stopPolling();
-    const token = pageWindow.crypto.randomUUID();
-    tokenInput.value = token;
-    const startedAt = Date.now();
-
-    pollTimer = pageWindow.setInterval(() => {
-      if (readCookie(pageDocument, REPORT_DOWNLOAD_COOKIE) === token) {
-        stopPolling();
-        expireCookie(pageDocument, REPORT_DOWNLOAD_COOKIE);
-        clearErrors(pageDocument, form);
-      } else if (Date.now() - startedAt > POLL_TIMEOUT_MS) {
-        stopPolling();
-      }
-    }, POLL_INTERVAL_MS);
+  form?.addEventListener("submit", () => {
+    clearErrors(pageDocument, form);
   });
 };

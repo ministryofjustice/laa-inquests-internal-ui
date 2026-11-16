@@ -29,7 +29,6 @@
   }) }}
 
   <form method="get" action="/reports/{{ reportSlug }}/download" novalidate data-report-download-form>
-    <input type="hidden" name="download-token" value="">
     {% set startFields = errorSummaries.startDate.fields if errorSummaries.startDate else [] %}
     {{ govukDateInput({
       id: "start-date",

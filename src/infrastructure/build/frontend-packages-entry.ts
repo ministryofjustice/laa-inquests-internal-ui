@@ -11,7 +11,7 @@ const initialiseFrontendPackages = (): void => {
       initMOJ();
       initialiseApplicationOverviewNoteErrors(document, window);
       initialiseApplicationOverviewTabLinks(document, window);
-      initialiseReportDownloadErrors(document, window);
+      initialiseReportDownloadErrors(document);
 
       if (process.env.NODE_ENV !== "production") {
         console.log("Frontend packages loaded and initialised");
