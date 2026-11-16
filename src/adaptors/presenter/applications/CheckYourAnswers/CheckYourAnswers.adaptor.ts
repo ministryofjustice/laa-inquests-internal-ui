@@ -14,6 +14,8 @@ import {
   HTTP_NOT_FOUND,
 } from "#src/infrastructure/express/errorConstants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
+import { markStepComplete } from "#src/adaptors/presenter/utils/journeyStepHelper.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -108,6 +110,12 @@ export class CheckYourAnswersAdaptor {
       });
       return;
     }
+
+    markStepComplete(
+      req,
+      `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+      JOURNEY_TYPES.CLAIM_DECISION,
+    );
 
     res.render("application/claims/check-your-answers/index", {
       backUrl: `/applications/${laaReference}/claims/${claimReference}/confirm-disbursement-costs`,

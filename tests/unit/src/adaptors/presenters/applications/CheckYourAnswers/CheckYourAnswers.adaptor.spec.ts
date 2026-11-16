@@ -48,7 +48,7 @@ describe("CheckYourAnswersAdaptor", () => {
     const processRequest = stubInterface<Request>();
     processRequest.session.user = { userId: "user", accessToken: "token" };
     (processRequest as unknown as { params: ClaimIdParams }).params = {
-      laaReference: "123",
+      laaReference: "INQ-YYY-YYY",
       claimReference: "INQC-0010-0010",
     };
     return processRequest as unknown as TypedRequest<
@@ -63,7 +63,7 @@ describe("CheckYourAnswersAdaptor", () => {
     await adaptor.renderCheckYourAnswersPage(
       request,
       response,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -80,7 +80,7 @@ describe("CheckYourAnswersAdaptor", () => {
     await adaptor.renderCheckYourAnswersPage(
       request,
       response,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -91,8 +91,9 @@ describe("CheckYourAnswersAdaptor", () => {
     assert.equal(view, "application/claims/check-your-answers/index");
     assert.equal(
       locals.backUrl,
-      "/applications/123/claims/INQC-0010-0010/confirm-disbursement-costs",
+      "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/confirm-disbursement-costs",
     );
+    assert.equal(request.session.lastCompletedStepIndex, 3);
   });
 
   it("propagates application errors without rendering", async () => {
@@ -107,7 +108,7 @@ describe("CheckYourAnswersAdaptor", () => {
       adaptor.renderCheckYourAnswersPage(
         request,
         response,
-        "123",
+        "INQ-YYY-YYY",
         "INQC-0010-0010",
       ),
       (thrown: unknown) => thrown === error,
@@ -131,7 +132,7 @@ describe("CheckYourAnswersAdaptor", () => {
 
     assert.equal(payInFullClaimUseCase.execute.callCount, 1);
     assert.deepEqual(payInFullClaimUseCase.execute.firstCall.args[0], {
-      laaReference: "123",
+      laaReference: "INQ-YYY-YYY",
       claimReference: "INQC-0010-0010",
       data: {
         profitCostNet: 1000,
@@ -142,7 +143,7 @@ describe("CheckYourAnswersAdaptor", () => {
       accessToken: "token",
     });
     assert.deepEqual(response.redirect.firstCall.args, [
-      "/applications/123/claims/INQC-0010-0010/paid-in-full",
+      "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/paid-in-full",
     ]);
   });
 
@@ -226,7 +227,7 @@ describe("CheckYourAnswersAdaptor", () => {
     await adaptor.renderClaimPaidInFullSuccessPage(
       request,
       response,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -236,7 +237,7 @@ describe("CheckYourAnswersAdaptor", () => {
     ];
     assert.equal(view, "application/claims/paid-in-full/index");
     assert.deepEqual(locals, {
-      laaReference: "123",
+      laaReference: "INQ-YYY-YYY",
       claimType: "Payment on account",
     });
   });
@@ -247,7 +248,7 @@ describe("CheckYourAnswersAdaptor", () => {
     await adaptor.renderClaimPaidInFullSuccessPage(
       request,
       response,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 

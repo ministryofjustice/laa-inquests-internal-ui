@@ -59,6 +59,13 @@ const PUBLIC_AUTHORITY_JOURNEY_SEQUENCE = [
 
 const CLAIMS_JOURNEY_DECISION_SEQUENCE = [
   "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+  // Final bill - approve
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/confirm-profit-costs",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/confirm-disbursement-costs",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/check-your-answers",
+  // outcomes
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/rejected",
+  "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/claims/INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/paid-in-full",
 ];
 
 const APPLICATION_JOURNEY_DECISION_SEQUENCE = [

@@ -18,7 +18,7 @@ import type { ProcessCertificateStartDateUseCase } from "#src/use-cases/applicat
 import { GRANTED_DECISION } from "#src/infrastructure/locales/constants.js";
 import { DecisionSessionData } from "#src/use-cases/applications/decision/PrepareDecisionForm.useCase.js";
 
-describe.only("ApplicationDecisionAdaptor", () => {
+describe("ApplicationDecisionAdaptor", () => {
   let responseStub: StubbedInstance<Response>;
   let requestStub:
     | StubbedInstance<Request>
