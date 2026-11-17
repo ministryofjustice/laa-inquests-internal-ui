@@ -7,7 +7,7 @@ import {
 } from "#src/adaptors/presenter/utils/journeyStepHelper.js";
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
-describe.only("journeyStepHelper", () => {
+describe("journeyStepHelper", () => {
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
 
