@@ -15,7 +15,10 @@ import {
 } from "#src/infrastructure/express/errorConstants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
-import { markStepComplete } from "#src/adaptors/presenter/utils/journeyStepHelper.js";
+import {
+  completeStepAndRedirect,
+  markStepComplete,
+} from "#src/adaptors/presenter/utils/journeyStepHelper.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -213,8 +216,11 @@ export class CheckYourAnswersAdaptor {
       },
     });
 
-    res.redirect(
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
       `/applications/${laaReference}/claims/${claimReference}/paid-in-full`,
+      JOURNEY_TYPES.CLAIM_DECISION,
     );
   }
 

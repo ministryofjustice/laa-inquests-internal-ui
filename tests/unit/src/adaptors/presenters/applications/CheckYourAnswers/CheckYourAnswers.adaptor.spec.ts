@@ -145,6 +145,7 @@ describe("CheckYourAnswersAdaptor", () => {
     assert.deepEqual(response.redirect.firstCall.args, [
       "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/paid-in-full",
     ]);
+    assert.equal(processRequest.session.lastCompletedStepIndex, 4);
   });
 
   it("renders a 400 when the pay in full submission is invalid", async () => {
