@@ -76,7 +76,7 @@ const APPLICATION_JOURNEY_DECISION_SEQUENCE = [
   "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/decision/success",
 ];
 
-export const enum JOURNEY_TYPES {
+export enum JOURNEY_TYPES {
   PUBLIC_AUTHORITY = 1,
   CLAIM_DECISION = 2,
   APPLICATION_DECISION = 3,
