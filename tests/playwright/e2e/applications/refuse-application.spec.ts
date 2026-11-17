@@ -281,7 +281,12 @@ test.describe.serial("Refuse application journey", () => {
       }),
     ).toBeVisible();
     await expect(
-      meritsAssessmentRow.getByRole("link", { name: /change/i }),
+      meritsAssessmentRow.getByRole("link", {
+        name: new RegExp(
+          `^Change ${confirmationLocale.meritsAssessmentTitle}`,
+          "v",
+        ),
+      }),
     ).toHaveAttribute("href", makeADecisionFromCheckAnswersPage);
 
     await expect(
