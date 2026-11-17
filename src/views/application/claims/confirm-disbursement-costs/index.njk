@@ -26,7 +26,7 @@
     name: "zero-vat-total",
     autocomplete: "off",
     label: {
-      text: t('pages.claimAssessment.confirmDisbursementCosts.zeroLabel'),
+      html: (t('pages.claimAssessment.confirmDisbursementCosts.zeroLabel') | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     hint: {
@@ -47,7 +47,7 @@
     name: "net-total",
     autocomplete: "off",
     label: {
-      text: t('pages.claimAssessment.confirmDisbursementCosts.netLabel'),
+      html: (t('pages.claimAssessment.confirmDisbursementCosts.netLabel') | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     hint: {
@@ -66,7 +66,7 @@
     name: "gross-total",
     autocomplete: "off",
     label: {
-      text: t('pages.claimAssessment.confirmDisbursementCosts.grossLabel'),
+      html: (t('pages.claimAssessment.confirmDisbursementCosts.grossLabel') | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     hint: {
