@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Back",
+    "inPounds": ", in pounds",
     "change": "Change",
     "remove": "Remove",
     "save": "Save",
