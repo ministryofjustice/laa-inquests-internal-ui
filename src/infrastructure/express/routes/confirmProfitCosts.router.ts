@@ -11,7 +11,7 @@ export function createConfirmProfitCostsRouter(
   confirmProfitCostsAdaptor: ConfirmProfitCostsAdaptor,
 ): Router {
   confirmProfitCostsRouter.get(
-    "/:laaReference/claims/:claimReference/confirm-profit-costs",
+    "/:claimReference/confirm-profit-costs",
     (req: Request, res: Response): void => {
       const {
         params: { laaReference, claimReference },
@@ -29,7 +29,7 @@ export function createConfirmProfitCostsRouter(
   );
 
   confirmProfitCostsRouter.post(
-    "/:laaReference/claims/:claimReference/confirm-profit-costs",
+    "/:claimReference/confirm-profit-costs",
     (req: Request, res: Response): void => {
       confirmProfitCostsAdaptor.processConfirmProfitCostsForm(
         req as unknown as TypedRequest<ConfirmProfitCostsForm, ClaimIdParams>,

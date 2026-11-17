@@ -10,7 +10,7 @@ export function createCheckYourAnswersRouter(
   checkYourAnswersAdaptor: CheckYourAnswersAdaptor,
 ): Router {
   checkYourAnswersRouter.get(
-    "/:laaReference/claims/:claimReference/check-your-answers",
+    "/:claimReference/check-your-answers",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
         params: { laaReference, claimReference },
@@ -32,7 +32,7 @@ export function createCheckYourAnswersRouter(
   );
 
   checkYourAnswersRouter.post(
-    "/:laaReference/claims/:claimReference/check-your-answers",
+    "/:claimReference/check-your-answers",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       try {
         await checkYourAnswersAdaptor.processFinishAssessingClaim(
@@ -46,7 +46,7 @@ export function createCheckYourAnswersRouter(
   );
 
   checkYourAnswersRouter.get(
-    "/:laaReference/claims/:claimReference/paid-in-full",
+    "/:claimReference/paid-in-full",
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const {
         params: { laaReference, claimReference },

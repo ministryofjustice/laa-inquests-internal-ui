@@ -4,9 +4,6 @@ import { ConfidentialClientApplication } from "@azure/msal-node";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createApplicationDecisionRouter } from "#src/infrastructure/express/routes/applicationDecision.router.js";
-import { createConfirmProfitCostsRouter } from "#src/infrastructure/express/routes/confirmProfitCosts.router.js";
-import { createConfirmDisbursementCostsRouter } from "#src/infrastructure/express/routes/confirmDisbursementCosts.router.js";
-import { createCheckYourAnswersRouter } from "#src/infrastructure/express/routes/checkYourAnswers.router.js";
 import { createPublicAuthorityRouter } from "#src/infrastructure/express/routes/publicAuthority.router.js";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import { ApplicationAdaptor } from "#src/adaptors/presenter/applications/Application.adaptor.js";
@@ -82,6 +79,7 @@ import { createAccessibilityStatementRouter } from "#src/infrastructure/express/
 import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/footer/AccessibilityStatement.adaptor.js";
 import { createHelpRouter } from "#src/infrastructure/express/routes/help.router.js";
 import { HelpAdaptor } from "#src/adaptors/presenter/footer/Help.adaptor.js";
+import { createClaimsAssessmentRouter } from "./claimsAssessment.router.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -329,17 +327,28 @@ router.use("/applications", captureAnalyticsBasePath, requireAuth, [
   createApplicationRouter(
     express.Router(),
     applicationDisplayAdaptor,
-    claimAssessmentAdaptor,
     certificateDisplayAdaptor,
     new SearchApplicationAdaptor(new SearchApplicationValidator()),
   ),
-  createConfirmProfitCostsRouter(express.Router(), confirmProfitCostsAdaptor),
-  createConfirmDisbursementCostsRouter(
-    express.Router(),
-    confirmDisbursementCostsAdaptor,
-  ),
-  createCheckYourAnswersRouter(express.Router(), checkYourAnswersAdaptor),
   createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
   createPublicAuthorityRouter(express.Router(), publicAuthorityAdaptor),
 ]);
+
+router.use(
+  "/applications/:laaReference/claims",
+  captureAnalyticsBasePath,
+  requireAuth,
+  [
+    createClaimsAssessmentRouter(
+      express.Router({ mergeParams: true }),
+      claimAssessmentAdaptor,
+      confirmProfitCostsAdaptor,
+      confirmDisbursementCostsAdaptor,
+      checkYourAnswersAdaptor,
+    ),
+  ],
+);
+
+// applications/.../claims
+
 export default router;
