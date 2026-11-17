@@ -80,6 +80,11 @@ import { AccessibilityStatementAdaptor } from "#src/adaptors/presenter/footer/Ac
 import { createHelpRouter } from "#src/infrastructure/express/routes/help.router.js";
 import { HelpAdaptor } from "#src/adaptors/presenter/footer/Help.adaptor.js";
 import { createClaimsAssessmentRouter } from "./claimsAssessment.router.js";
+import {
+  applicationDecisionJourneyGuard,
+  claimDecisionJourneyGuard,
+  publicAuthorityJourneyGuard,
+} from "../middleware/accessControl/journeyGuard.js";
 
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -330,8 +335,14 @@ router.use("/applications", captureAnalyticsBasePath, requireAuth, [
     certificateDisplayAdaptor,
     new SearchApplicationAdaptor(new SearchApplicationValidator()),
   ),
-  createApplicationDecisionRouter(express.Router(), applicationDecisionAdaptor),
-  createPublicAuthorityRouter(express.Router(), publicAuthorityAdaptor),
+  createApplicationDecisionRouter(
+    express.Router().use(applicationDecisionJourneyGuard),
+    applicationDecisionAdaptor,
+  ),
+  createPublicAuthorityRouter(
+    express.Router().use(publicAuthorityJourneyGuard),
+    publicAuthorityAdaptor,
+  ),
 ]);
 
 router.use(
@@ -340,7 +351,7 @@ router.use(
   requireAuth,
   [
     createClaimsAssessmentRouter(
-      express.Router({ mergeParams: true }),
+      express.Router({ mergeParams: true }).use(claimDecisionJourneyGuard),
       claimAssessmentAdaptor,
       confirmProfitCostsAdaptor,
       confirmDisbursementCostsAdaptor,
@@ -348,7 +359,5 @@ router.use(
     ),
   ],
 );
-
-// applications/.../claims
 
 export default router;

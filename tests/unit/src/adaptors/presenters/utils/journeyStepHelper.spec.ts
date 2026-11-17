@@ -67,7 +67,7 @@ describe("journeyStepHelper", () => {
           journeyType.journey,
         );
         const session = requestStub.session as any;
-        assert.equal(session.currentJourney, journeyType.journey);
+        assert.equal(session.journeyType, journeyType.journey);
       });
     });
 

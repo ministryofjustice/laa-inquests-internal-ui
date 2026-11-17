@@ -31,6 +31,6 @@ declare module "express-session" {
     lifetime?: SessionLifetime;
     returnTo?: string;
     lastCompletedStepIndex?: number;
-    currentJourney?: JOURNEY_TYPES;
+    journeyType?: JOURNEY_TYPES;
   }
 }
