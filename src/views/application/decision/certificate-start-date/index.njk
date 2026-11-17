@@ -7,13 +7,19 @@
 {% set pageTitle = t('pages.decision.certificateStartDate.header') %}
 
 {% block pageContent %}
-{% if errorSummaries %}
+{% if errorSummaries.certificateStartDateOption or errorSummaries.certificateStartDate %}
   {{ govukErrorSummary({
     titleText: t('errorSummaryTitle'),
     errorList: [
-      { text: errorSummaries.certificateStartDateOption.text, href: "#start-date-option" } if errorSummaries.certificateStartDateOption,
-      { text: errorSummaries.certificateStartDate.text, href: "#start-date" } if errorSummaries.certificateStartDate
-    ]
+      {
+          text: errorSummaries.certificateStartDateOption.text,
+          href: "#start-date-option"
+      },
+      {
+          text: errorSummaries.certificateStartDate.text,
+          href: "#start-date"
+      }
+    ] | selectattr("text")
   }) }}
 {% endif %}
 <form data-testid="certificate-start-date" method="post" action="/applications/{{ laaReference }}/decision/certificate-start-date">
