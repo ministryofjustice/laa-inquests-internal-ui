@@ -11,13 +11,19 @@
 {% set pageTitle = t('pages.claimAssessment.heading') %}
 
 {% block pageContent %}
-{% if errorSummaries %}
+{% if errorSummaries.assessClaim or errorSummaries.rejectionReason %}
   {{ govukErrorSummary({
     titleText: t('common.errorSummaryTitle'),
     errorList: [
-      { text: errorSummaries.assessClaim.text, href: '#assess-claim' } if errorSummaries.assessClaim,
-      { text: errorSummaries.rejectionReason.text, href: '#rejection-reason' } if errorSummaries.rejectionReason
-    ]
+      {
+          text: errorSummaries.assessClaim.text,
+          href: '#assess-claim'
+      },
+      {
+          text: errorSummaries.rejectionReason.text,
+          href: '#rejection-reason'
+      }
+    ] | selectattr("text")
   }) }}
 {% endif %}
 

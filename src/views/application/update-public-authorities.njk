@@ -8,26 +8,19 @@
 
 {% block pageContent %}
 
-  {% if errorSummaries.noPublicAuthoritySelected %}
+  {% if errorSummaries.noPublicAuthoritySelected or errorSummaries.noChangeToPublicAuthorities %}
     {{ govukErrorSummary({
       titleText: "There is a problem",
       errorList: [
         {
           text: errorSummaries.noPublicAuthoritySelected.text,
           href: '#publicAuthorityOption'
-        }
-      ]
-    })
-  }}
-  {% elif errorSummaries.noChangeToPublicAuthorities %}
-    {{ govukErrorSummary({
-      titleText: "There is a problem",
-      errorList: [
+        },
         {
           text: errorSummaries.noChangeToPublicAuthorities.text,
           href: '#publicAuthorityOption'
         }
-      ]
+      ] | selectattr("text")
     })
   }}
   {% endif %}

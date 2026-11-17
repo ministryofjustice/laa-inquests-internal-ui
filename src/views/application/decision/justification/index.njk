@@ -7,13 +7,19 @@
 {% set pageTitle = t('pages.decision.justification.header') %}
 
 {% block pageContent %}
-{% if errorSummaries %}
+{% if errorSummaries.decisionReason or errorSummaries.decisionJustification %}
   {{ govukErrorSummary({
     titleText: t('errorSummaryTitle'),
     errorList: [
-      { text: errorSummaries.decisionReason.text, href: "#refusal-reason" } if errorSummaries.decisionReason,
-      { text: errorSummaries.decisionJustification.text, href: "#justification" } if errorSummaries.decisionJustification
-    ]
+      {
+          text: errorSummaries.decisionReason.text,
+          href: "#refusal-reason"
+      },
+      {
+          text: errorSummaries.decisionJustification.text,
+          href: "#justification"
+      }
+    ] | selectattr("text")
   }) }}
 {% endif %}
 <form data-testid="select-reason-for-refusal" method="post" action="/applications/{{ laaReference }}/decision/justification">
