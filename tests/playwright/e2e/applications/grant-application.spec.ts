@@ -222,7 +222,12 @@ test.describe.serial("Grant application journey", () => {
       backUrl: certificateStartDatePage,
     });
     await expect(
-      meritsAssessmentRow.getByRole("link", { name: /change/i }),
+      meritsAssessmentRow.getByRole("link", {
+        name: new RegExp(
+          `^Change ${confirmationLocale.meritsAssessmentTitle}`,
+          "v",
+        ),
+      }),
     ).toHaveAttribute("href", makeADecisionFromCheckAnswersPage);
 
     const startDateRow = summaryCard.locator(".govuk-summary-list__row", {
