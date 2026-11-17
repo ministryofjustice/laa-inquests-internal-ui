@@ -99,6 +99,11 @@ test.describe("Confirm the total disbursement costs page", () => {
       );
     }
 
+    await expect(form.getByRole("textbox")).toHaveCount(3);
+    for (const input of await form.getByRole("textbox").all()) {
+      await expect(input).toHaveAccessibleName(/, in pounds$/);
+    }
+
     await validateSubmitButton(form, confirmDisbursementCostsLocale.continue);
     await validateBackButton(page, confirmProfitCostsPage);
 

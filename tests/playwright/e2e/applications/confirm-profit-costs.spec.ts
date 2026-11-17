@@ -102,6 +102,11 @@ test.describe("Confirm the total profit costs page", () => {
       form.getByText(confirmProfitCostsLocale.zeroHint),
     ).toBeVisible();
 
+    await expect(form.getByRole("textbox")).toHaveCount(3);
+    for (const input of await form.getByRole("textbox").all()) {
+      await expect(input).toHaveAccessibleName(/, in pounds$/);
+    }
+
     await validateSubmitButton(form, confirmProfitCostsLocale.continue);
     await validateBackButton(page, assessClaimPage);
 
