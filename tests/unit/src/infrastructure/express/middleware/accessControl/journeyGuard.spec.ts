@@ -28,7 +28,7 @@ describe("journeyGuard middleware", () => {
     nextSpy = sinon.spy();
 
     requestStub.session = {};
-    requestStub.path = "/apply/step-1";
+    requestStub.originalUrl = "/apply/step-1";
 
     responseStub.redirect = sinon.spy();
   });
@@ -61,7 +61,7 @@ describe("journeyGuard middleware", () => {
         journeySequence: TEST_JOURNEY_SEQUENCE,
       });
 
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -77,7 +77,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 0,
         journeyType: JOURNEY_TYPES.CLAIM_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-profit-costs";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -94,7 +94,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 2,
         journeyType: JOURNEY_TYPES.CLAIM_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-profit-costs";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -111,7 +111,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 0,
         journeyType: JOURNEY_TYPES.CLAIM_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/check-your-answers";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -133,7 +133,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 0,
         journeyType: JOURNEY_TYPES.CLAIM_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/paid-in-full";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -154,7 +154,7 @@ describe("journeyGuard middleware", () => {
       });
 
       requestStub.session = {};
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -169,7 +169,7 @@ describe("journeyGuard middleware", () => {
       requestStub.session = {
         apply: { lastCompletedStepIndex: "invalid" },
       };
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -185,7 +185,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 3,
         journeyType: JOURNEY_TYPES.CLAIM_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-disbursement-costs";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -194,13 +194,13 @@ describe("journeyGuard middleware", () => {
     });
   });
 
-  describe("path handling", () => {
-    it("allows access to paths not in the journey sequence", () => {
+  describe("originalUrl handling", () => {
+    it("allows access to originalUrls not in the journey sequence", () => {
       const middleware = createJourneyGuard({
         journeySequence: TEST_JOURNEY_SEQUENCE,
       });
 
-      requestStub.path = "/apply/some-utility-endpoint";
+      requestStub.originalUrl = "/apply/some-utility-endpoint";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -208,14 +208,14 @@ describe("journeyGuard middleware", () => {
       assert(nextSpy.calledOnce);
     });
 
-    it("handles paths with trailing slashes", () => {
+    it("handles originalUrls with trailing slashes", () => {
       const middleware = createJourneyGuard({
         journeySequence: TEST_JOURNEY_SEQUENCE,
       });
 
       requestStub.session = {};
-      // Path has trailing slash but not in sequence
-      requestStub.path = "/apply/step-1/";
+      // originalUrl has trailing slash but not in sequence
+      requestStub.originalUrl = "/apply/step-1/";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -234,7 +234,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 4,
         journeyType: JOURNEY_TYPES.APPLICATION_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/paid-in-full";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -256,7 +256,8 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 2,
         journeyType: JOURNEY_TYPES.APPLICATION_DECISION,
       };
-      requestStub.path = "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/";
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -274,7 +275,7 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 4,
         journeyType: JOURNEY_TYPES.CLAIM_DECISION,
       };
-      requestStub.path =
+      requestStub.originalUrl =
         "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/paid-in-full";
 
       middleware(requestStub as any, responseStub, nextSpy);
@@ -291,7 +292,8 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 0,
         journeyType: JOURNEY_TYPES.PUBLIC_AUTHORITY,
       };
-      requestStub.path = "/applications/INQ-YYY-YYY/public-authorities/confirm";
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/public-authorities/confirm";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -308,7 +310,8 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: 999,
         journeyType: JOURNEY_TYPES.PUBLIC_AUTHORITY,
       };
-      requestStub.path = "/applications/INQ-YYY-YYY/public-authorities/confirm";
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/public-authorities/confirm";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -330,7 +333,8 @@ describe("journeyGuard middleware", () => {
         lastCompletedStepIndex: -999,
         journeyType: JOURNEY_TYPES.PUBLIC_AUTHORITY,
       };
-      requestStub.path = "/applications/INQ-YYY-YYY/public-authorities/confirm";
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/public-authorities/confirm";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -356,7 +360,7 @@ describe("journeyGuard middleware", () => {
       requestStub.session = {
         lastCompletedStepIndex: JOURNEY_NOT_STARTED,
       };
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 

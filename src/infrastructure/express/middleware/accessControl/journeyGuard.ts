@@ -39,7 +39,7 @@ function getValidatedLastCompletedStep(
 export function createJourneyGuard(options: JourneyGuardOptions) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const { journeySequence } = options;
-    const { path: currentPath } = req;
+    const { originalUrl: currentPath } = req;
 
     const currentIndex = getPageIndex(currentPath, journeySequence);
 
