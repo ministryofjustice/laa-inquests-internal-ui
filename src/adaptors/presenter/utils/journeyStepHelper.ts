@@ -42,6 +42,7 @@ export function markStepComplete(
 
   // TODO: Make this dynamic/not global?
   sessionRecord.lastCompletedStepIndex = stepIndex;
+  sessionRecord.currentJourney = journeyType;
 }
 
 function getJourney(journeyType: JOURNEY_TYPES): string[] {

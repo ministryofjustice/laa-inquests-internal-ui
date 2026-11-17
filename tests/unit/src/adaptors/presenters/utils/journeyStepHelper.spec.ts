@@ -7,7 +7,7 @@ import {
 } from "#src/adaptors/presenter/utils/journeyStepHelper.js";
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
-describe("journeyStepHelper", () => {
+describe.only("journeyStepHelper", () => {
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
 
@@ -45,7 +45,31 @@ describe("journeyStepHelper", () => {
       assert.equal(session.lastCompletedStepIndex, 0);
     });
 
-    // TODO: When tracking current journey in session, add tests to ensure the correct journey is being used for step completion.
+    [
+      {
+        journey: JOURNEY_TYPES.PUBLIC_AUTHORITY,
+        page: "/applications/INQ-YYY-YYY/public-authorities/confirm",
+      },
+      {
+        journey: JOURNEY_TYPES.APPLICATION_DECISION,
+        page: "/applications/INQ-YYY-YYY/decision",
+      },
+      {
+        journey: JOURNEY_TYPES.CLAIM_DECISION,
+        page: "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY",
+      },
+    ].forEach((journeyType: { journey: JOURNEY_TYPES; page: string }) => {
+      it(`sets the current journey in session using the provided journey type: ${journeyType.journey}`, () => {
+        completeStepAndRedirect(
+          requestStub,
+          responseStub,
+          journeyType.page,
+          journeyType.journey,
+        );
+        const session = requestStub.session as any;
+        assert.equal(session.currentJourney, journeyType.journey);
+      });
+    });
 
     it("sets lastStepCompleted as ZERO if res.redirect is first step", () => {
       completeStepAndRedirect(
