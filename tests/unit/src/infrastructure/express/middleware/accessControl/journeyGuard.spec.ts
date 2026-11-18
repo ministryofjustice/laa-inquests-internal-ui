@@ -265,6 +265,90 @@ describe("journeyGuard middleware", () => {
     });
   });
 
+  describe("Current path handling", () => {
+    it("allows access when current path is included in visitedJourneyPages", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM_DECISION],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 1,
+        journeyType: JOURNEY_TYPES.CLAIM_DECISION,
+        visitedJourneyPages: [
+          "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY",
+          "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-profit-costs",
+          "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-disbursement-costs",
+        ],
+      };
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-profit-costs";
+
+      middleware(requestStub as any, responseStub, nextSpy);
+
+      assert(nextSpy.calledOnce);
+    });
+
+    it("allows access when current path is the first step", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM_DECISION],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.CLAIM_DECISION,
+        visitedJourneyPages: [],
+      };
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY";
+
+      middleware(requestStub as any, responseStub, nextSpy);
+
+      assert(nextSpy.calledOnce);
+    });
+
+    it("allows access when completePages is undefined and accessing the first step", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM_DECISION],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.CLAIM_DECISION,
+      };
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY";
+
+      middleware(requestStub as any, responseStub, nextSpy);
+
+      assert(nextSpy.calledOnce);
+    });
+
+    it("redirects when current path is not included in visitedJourneyPages and is not the first step", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM_DECISION],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.CLAIM_DECISION,
+        visitedJourneyPages: [
+          "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY",
+          "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-profit-costs",
+        ],
+      };
+      requestStub.originalUrl =
+        "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-disbursement-costs";
+
+      middleware(requestStub as any, responseStub, nextSpy);
+
+      assert((responseStub.redirect as any).calledOnce);
+      assert.strictEqual(
+        (responseStub.redirect as any).firstCall.args[0],
+        "/applications/INQ-YYY-YYY/claims/INQC-YYYY-YYYY/confirm-profit-costs",
+      );
+    });
+  });
+
   describe("boundary conditions", () => {
     it("allows access to final step after completing penultimate step", () => {
       const middleware = createJourneyGuard({

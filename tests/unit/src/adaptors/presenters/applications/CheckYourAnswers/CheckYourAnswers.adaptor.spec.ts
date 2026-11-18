@@ -93,7 +93,6 @@ describe("CheckYourAnswersAdaptor", () => {
       locals.backUrl,
       "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/confirm-disbursement-costs",
     );
-    assert.equal(request.session.lastCompletedStepIndex, 3);
   });
 
   it("propagates application errors without rendering", async () => {

@@ -32,5 +32,6 @@ declare module "express-session" {
     returnTo?: string;
     lastCompletedStepIndex?: number;
     journeyType?: JOURNEY_TYPES;
+    visitedJourneyPages?: string[];
   }
 }

@@ -93,6 +93,37 @@ describe("journeyStepHelper", () => {
       assert.equal(session.lastCompletedStepIndex, 0);
     });
 
+    it("adds the redirected URL to visitedJourneyPages in session when no previous completed pages exist", () => {
+      requestStub.session.visitedJourneyPages = undefined;
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+        JOURNEY_TYPES.PUBLIC_AUTHORITY,
+      );
+      const session = requestStub.session as any;
+      assert.deepEqual(session.visitedJourneyPages, [
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+      ]);
+    });
+
+    it("adds the redirected URL to visitedJourneyPages in session when previous completed pages exist", () => {
+      requestStub.session.visitedJourneyPages = [
+        "/applications/INQ-YYY-YYY/public-authorities",
+      ];
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+        JOURNEY_TYPES.PUBLIC_AUTHORITY,
+      );
+      const session = requestStub.session as any;
+      assert.deepEqual(session.visitedJourneyPages, [
+        "/applications/INQ-YYY-YYY/public-authorities",
+        "/applications/INQ-YYY-YYY/public-authorities/confirm",
+      ]);
+    });
+
     it("throws for invalid journey type", () => {
       assert.throws(() => {
         completeStepAndRedirect(

@@ -23,6 +23,14 @@ export function completeStepAndRedirect(
   const stepIndex = Math.max(newIndex - OFFSET, ZERO);
 
   markStepComplete(req, journey[stepIndex], journeyType);
+  const sessionRecord = req.session as Record<string, unknown>;
+  const visitedJourneyPages: unknown[] = Array.isArray(
+    sessionRecord.visitedJourneyPages,
+  )
+    ? sessionRecord.visitedJourneyPages
+    : [];
+  visitedJourneyPages.push(redirectToUrl);
+  sessionRecord.visitedJourneyPages = visitedJourneyPages;
   res.redirect(redirectToUrl);
 }
 

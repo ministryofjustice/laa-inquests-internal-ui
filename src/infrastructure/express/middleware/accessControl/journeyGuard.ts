@@ -69,7 +69,13 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
       currentIndex === FIRST_STEP_INDEX ||
       currentIndex <= lastCompletedStepIndex + NEXT_STEP_OFFSET;
 
-    if (isAllowedStep && isAllowedJourneyType) {
+    const isCurrentPath = checkCurrentPath(
+      currentPath,
+      sessionRecord,
+      currentIndex,
+    );
+
+    if (isAllowedStep && isAllowedJourneyType && isCurrentPath) {
       next();
       return;
     }
@@ -112,6 +118,25 @@ function getRedirectIndex(
     isAllowedJourneyType
     ? lastCompletedStepIndex + NEXT_STEP_OFFSET
     : FIRST_STEP_INDEX;
+}
+
+function checkCurrentPath(
+  currentPath: string,
+  session: Record<string, unknown>,
+  currentIndex: number,
+): boolean {
+  const { visitedJourneyPages } = session;
+  const { lastCompletedStepIndex } = session;
+  if (visitedJourneyPages instanceof Array) {
+    return (
+      visitedJourneyPages.includes(
+        currentPath.split("?").at(ZERO) ?? currentPath,
+      ) ||
+      lastCompletedStepIndex === JOURNEY_NOT_STARTED ||
+      currentIndex === FIRST_STEP_INDEX
+    );
+  }
+  return true;
 }
 
 function getPageIndex(pageToMark: string, journey: readonly string[]): number {
