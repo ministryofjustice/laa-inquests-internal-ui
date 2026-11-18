@@ -40,7 +40,6 @@ export function markStepComplete(
     throw new Error(`Unsupported pageToMark: ${pageToMark}`);
   }
 
-  // TODO: Make this dynamic/not global?
   sessionRecord.lastCompletedStepIndex = stepIndex;
   sessionRecord.journeyType = journeyType;
 }
