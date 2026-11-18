@@ -6,7 +6,7 @@
 {% set pageTitle = pageHeading %}
 {% set backLink = backHref or "/applications/" ~ laaReference ~ "/overview" %}
 
-{% block content %}
+{% block pageContent %}
 
   {% if errorSummaries.noPublicAuthoritySelected %}
     {{ govukErrorSummary({

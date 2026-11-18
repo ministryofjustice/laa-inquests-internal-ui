@@ -6,7 +6,7 @@
 {% set pageTitle = t('pages.applicationSearch.pageTitle') %}
 {% set backLink = "/" %}
 
-{% block content %}
+{% block pageContent %}
   {% if applicationReference != undefined %}
     {{ govukErrorSummary({
       titleText: t('common.errorSummaryTitle'),

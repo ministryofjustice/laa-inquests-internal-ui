@@ -7,7 +7,7 @@
 
 {% set backLink = backUrl %}
 
-{% block content %}
+{% block pageContent %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
     titleText: t('components.errorSummary.title'),
@@ -192,4 +192,4 @@
     text: t('pages.claimAssessment.checkYourAnswers.finishButton')
   }) }}
 </form>
-{% endblock content %}
+{% endblock pageContent %}

@@ -8,7 +8,7 @@
 {% set pageTitle = t('pages.claimSearch.pageTitle') %}
 {% set backLink = "/" %}
 
-{% block content %}
+{% block pageContent %}
     {% if claimReference != undefined%}
       {{ govukErrorSummary({
         titleText: t('common.errorSummaryTitle'),

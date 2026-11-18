@@ -7,7 +7,7 @@
 
 {% set backLink = backUrl %}
 
-{% block content %}
+{% block pageContent %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
     titleText: t('common.errorSummaryTitle'),
@@ -87,4 +87,4 @@
     text: t('pages.claimAssessment.confirmDisbursementCosts.continue')
   }) }}
 </form>
-{% endblock content %}
+{% endblock pageContent %}

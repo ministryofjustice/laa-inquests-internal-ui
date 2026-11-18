@@ -10,7 +10,7 @@
 
 {% set backLink = backUrl %}
 
-{% block content %}
+{% block pageContent %}
   {% if errorList %}
     {{ govukErrorSummary({
       titleText: t('common.errorSummaryTitle'),
@@ -75,4 +75,4 @@
       preventDoubleClick: true
     }) }}
   </form>
-{% endblock content %}
+{% endblock pageContent %}

@@ -8,7 +8,7 @@
 
 {% set backLink = backUrl %}
 
-{% block content %}
+{% block pageContent %}
 <form data-testid="check-your-answers" method="post" action="/applications/{{ laaReference }}/decision/confirmation">
   <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
   <h1 class="govuk-heading-l">{{ t('pages.decision.confirmation.header') }}</h1>
@@ -102,4 +102,4 @@
     text: t('pages.decision.confirmation.submitButton')
   }) }}
 </form>
-{% endblock content %}
+{% endblock pageContent %}

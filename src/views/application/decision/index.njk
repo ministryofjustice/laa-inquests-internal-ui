@@ -10,7 +10,7 @@
 
 {% set backLink = backUrl %}
 
-{% block content %}
+{% block pageContent %}
 {% if errorSummaries %}
   {{ govukErrorSummary({
     titleText: t('errorSummaryTitle'),
@@ -75,4 +75,4 @@
     }) }}
 </form>
 
-{% endblock content %}
+{% endblock pageContent %}

@@ -9,7 +9,7 @@
 
 {% set backLink = backUrl %}
 
-{% block content %}
+{% block pageContent %}
 <div data-testid="assessed-claim">
   <h1 class="govuk-heading-l">{{ claimReference }}</h1>
   <h2 class="govuk-heading-s">{{ t('pages.claimAssessment.claimStatus') }}: {{ govukTag(claimStatusTag) }}</h2>
@@ -26,4 +26,4 @@
 
   {{ supportingEvidenceSection(claimCostBreakdown, supportingEvidence) }}
 </div>
-{% endblock content %}
+{% endblock pageContent %}

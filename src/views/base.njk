@@ -69,7 +69,9 @@
 {% endblock %}
 
 {% block content %}
-  <h1 class="govuk-heading-xl">{{ t('pages.home.defaultHeading') }}</h1>
+  {% block pageContent %}
+    <h1 class="govuk-heading-xl">{{ t('pages.home.defaultHeading') }}</h1>
+  {% endblock %}
 {% endblock %}
 
 {% block govukFooter %}
