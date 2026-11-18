@@ -37,7 +37,6 @@ const authorizeTestForJourneyStep = async (
   page: Page,
   pageUrl: string,
 ): Promise<void> => {
-  // const path = pageUrl.split("?")[0];
   const path = getAbstractedPage(pageUrl);
   let journeyType: string | undefined;
   let stepIndex: number;

@@ -92,6 +92,17 @@ describe("journeyStepHelper", () => {
       const session = requestStub.session as any;
       assert.equal(session.lastCompletedStepIndex, 0);
     });
+
+    it("throws for invalid journey type", () => {
+      assert.throws(() => {
+        completeStepAndRedirect(
+          requestStub,
+          responseStub,
+          "/applications/INQ-YYY-YYY/public-authorities/confirm",
+          "invalid" as any,
+        );
+      }, /Unknown journey type: invalid/);
+    });
   });
 
   describe("markStepComplete", () => {

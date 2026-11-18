@@ -17,12 +17,12 @@ export function completeStepAndRedirect(
 ): void {
   // TODO: Push redirectUrl to session. We will have an array of urls that we have been redirected to. The guard can then check if the user is navigating to a url which is in the list.
   // If it is not in the list, the guard can prevent navigation to that URL, because we know we are navigating to it via some other means.
-  const journey = getJourney(journeyType); // TODO: test logic in here?
+  const journey = getJourney(journeyType);
   const newIndex = getPageIndex(redirectToUrl, journey);
 
   const stepIndex = Math.max(newIndex - OFFSET, ZERO);
 
-  markStepComplete(req, journey[stepIndex], journeyType); // TODO: test journey type is passed?
+  markStepComplete(req, journey[stepIndex], journeyType);
   res.redirect(redirectToUrl);
 }
 
