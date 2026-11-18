@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 {% from "macros/claimOverview.njk" import claimOverview %}
 {% from "macros/assessmentDetails.njk" import assessmentDetailsSection %}
@@ -6,6 +6,8 @@
 {% from "macros/supportingEvidence.njk" import supportingEvidenceSection %}
 
 {% set pageTitle = claimReference %}
+
+{% set backLink = backUrl %}
 
 {% block pageContent %}
 <div data-testid="assessed-claim">

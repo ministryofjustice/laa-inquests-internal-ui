@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
@@ -7,6 +7,8 @@
 {% set reportContent = 'pages.reports.dateRange.' + reportKey %}
 {% set pageTitle = t(reportContent + '.heading') %}
 {% set formValues = formValues or {} %}
+
+{% set backLink = backUrl %}
 
 {% block pageContent %}
   {% if errorList %}

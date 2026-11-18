@@ -1,7 +1,8 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
 {% set pageTitle = t('pages.reports.heading') %}
+{% set backLink = backUrl %}
 
 {% macro reportLink(href, text, description) %}
   <p class="govuk-body govuk-!-margin-bottom-1">

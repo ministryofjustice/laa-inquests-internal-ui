@@ -1,10 +1,12 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% set pageTitle = t('pages.decision.justification.header') %}
+
+{% set backLink = backUrl %}
 
 {% block pageContent %}
 {% if errorSummaries.decisionReason or errorSummaries.decisionJustification %}

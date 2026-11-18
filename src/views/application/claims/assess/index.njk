@@ -1,4 +1,4 @@
-{% extends "layouts/page-with-back-link.njk" %}
+{% extends "base.njk" %}
 {% from "macros/claimOverview.njk" import claimOverview %}
 {% from "macros/finalOrNilBillDetails.njk" import finalOrNilBillDetailsCards %}
 {% from "macros/supportingEvidence.njk" import supportingEvidenceSection %}
@@ -9,6 +9,8 @@
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 
 {% set pageTitle = t('pages.claimAssessment.heading') %}
+
+{% set backLink = backUrl %}
 
 {% block pageContent %}
 {% if errorSummaries.assessClaim or errorSummaries.rejectionReason %}

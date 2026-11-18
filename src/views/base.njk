@@ -3,6 +3,7 @@
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 
 {% block pageTitle %}{{ (pageTitle + " – " + config.SERVICE_NAME + " – GOV.UK") if pageTitle else config.SERVICE_NAME + " – GOV.UK" }}{% endblock %}
 
@@ -58,8 +59,19 @@
   }) }}
 {% endblock %}
 
+{% block containerStart %}
+  {% if backLink %}
+    {{ govukBackLink({
+      text: t('common.back'),
+      href: backLink
+    }) }}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
-  <h1 class="govuk-heading-xl">{{ t('pages.home.defaultHeading') }}</h1>
+  {% block pageContent %}
+    <h1 class="govuk-heading-xl">{{ t('pages.home.defaultHeading') }}</h1>
+  {% endblock %}
 {% endblock %}
 
 {% block govukFooter %}
