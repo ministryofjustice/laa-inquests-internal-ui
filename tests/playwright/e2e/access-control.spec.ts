@@ -59,6 +59,25 @@ test.describe("Access control security headers", () => {
     expectSecurityHeaders(response.headers());
   });
 
+  test("is denied access to a made-up page sharing a permitted page's name for every role", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    for (const role of Object.values(INTERNAL_CASEWORKER_ROLES)) {
+      await page.goto(`/auth/test-login?overrideRoles=${role}`);
+
+      for (const path of ["/helps", "/reportsfoo"]) {
+        const response = await page.goto(path);
+
+        expect(response?.status()).toBe(HTTP_FORBIDDEN);
+        await expect(
+          page.getByRole("heading", { name: "You cannot access this page" }),
+        ).toBeVisible();
+      }
+    }
+    await checkAccessibility();
+  });
+
   test("includes a CSP nonce for scripts on a permitted page", async ({
     page,
   }) => {

@@ -8,7 +8,7 @@
 {% set backLink = backUrl %}
 
 {% block pageContent %}
-{% if errorSummaries %}
+{% if errorSummaries.payInFull %}
   {{ govukErrorSummary({
     titleText: t('components.errorSummary.title'),
     errorList: [

@@ -91,6 +91,13 @@ Adding a new protected top-level route requires adding a corresponding
 entry to the central route policy matrix in `accessControl.ts`. Authenticated
 requests to routes missing from the policy return `403 Forbidden` by design.
 
+Policy prefixes match whole path segments only: the `/help` policy covers
+`/help` and `/help/...`, but not `/helps`. A path that merely shares a prefix
+with a policy therefore has no policy and returns `403`, rather than passing
+the guard and reaching the `404` page. A non-existent page under a prefix the
+user is allowed to access (for example `/reports/does-not-exist`) still
+returns `404`.
+
 ## How to add a new navigational permission
 
 1. Add a key to `PERMISSIONS` in `accessControl.ts` (e.g. `VIEW_REPORTS_LINK`).

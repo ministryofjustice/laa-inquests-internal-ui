@@ -278,7 +278,9 @@ export function matchesPrefix(path: string, prefix: string): boolean {
   if (prefix === "/") {
     return path === "/";
   }
-  return path === prefix || path.match(`^${prefix}`) !== null;
+  // Prefixes may be regex patterns. Requiring a segment boundary stops
+  // `/help` from matching `/helps`.
+  return path.match(`^${prefix}(?:/|$)`) !== null;
 }
 
 export function isPublicPath(path: string): boolean {

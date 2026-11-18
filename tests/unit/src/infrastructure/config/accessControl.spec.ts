@@ -138,6 +138,26 @@ describe("Access Control Configuration", () => {
       expect(matchesPrefix("/apply/step1/detail", "/apply")).to.be.true;
       expect(matchesPrefix("/apply/step1/detail", "/apply/step1")).to.be.true;
     });
+
+    it("should not match a path that only shares the prefix text", () => {
+      expect(matchesPrefix("/helps", "/help")).to.be.false;
+      expect(matchesPrefix("/helpme/now", "/help")).to.be.false;
+    });
+
+    it("should match a prefix followed by a trailing slash", () => {
+      expect(matchesPrefix("/help/", "/help")).to.be.true;
+    });
+
+    it("should match regex prefixes on whole segments only", () => {
+      const prefix = "/applications/INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/overview";
+
+      expect(matchesPrefix("/applications/INQ-ABC-123/overview", prefix)).to.be
+        .true;
+      expect(matchesPrefix("/applications/INQ-ABC-123/overview/x", prefix)).to
+        .be.true;
+      expect(matchesPrefix("/applications/INQ-ABC-123/overviews", prefix)).to.be
+        .false;
+    });
   });
 
   describe("isPublicPath", () => {
@@ -167,6 +187,12 @@ describe("Access Control Configuration", () => {
   describe("findRoutePolicy", () => {
     it("should return undefined when no policy matches", () => {
       expect(findRoutePolicy("/dashboard")).to.be.undefined;
+    });
+
+    it("should return undefined for a path that only shares a policy's prefix text", () => {
+      expect(findRoutePolicy("/helps")).to.be.undefined;
+      expect(findRoutePolicy("/reportsfoo")).to.be.undefined;
+      expect(findRoutePolicy("/cookiesx")).to.be.undefined;
     });
 
     it("should return the most specific matching policy", () => {

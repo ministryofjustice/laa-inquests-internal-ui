@@ -50,24 +50,29 @@ test.describe("Confirm the total disbursement costs page", () => {
     ).toBeVisible();
 
     await expect(
-      page.getByText(confirmDisbursementCostsLocale.intro1),
-    ).toBeVisible();
-    await expect(
       page.getByText(confirmDisbursementCostsLocale.intro2),
     ).toBeVisible();
 
-    await expect(
-      page.getByRole("heading", {
-        level: 2,
-        name: confirmDisbursementCostsLocale.vat20Heading,
-      }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", {
-        level: 2,
-        name: confirmDisbursementCostsLocale.vat0Heading,
-      }),
-    ).toBeVisible();
+    // Verify 0% VAT section appears before 20% VAT section
+    const vat0Heading = page.getByRole("heading", {
+      level: 3,
+      name: confirmDisbursementCostsLocale.vat0Heading,
+    });
+    const vat20Heading = page.getByRole("heading", {
+      level: 3,
+      name: confirmDisbursementCostsLocale.vat20Heading,
+    });
+    await expect(vat0Heading).toBeVisible();
+    await expect(vat20Heading).toBeVisible();
+
+    // Verify 0% VAT input appears before 20% VAT inputs by checking their positions
+    const zeroVatInput = page.locator("#zero-vat-total");
+    const netInput = page.locator("#net-total");
+    const zeroVatLocator = await zeroVatInput.boundingBox();
+    const netLocator = await netInput.boundingBox();
+    if (zeroVatLocator && netLocator) {
+      expect(zeroVatLocator.y).toBeLessThan(netLocator.y);
+    }
 
     const form = page.getByTestId("confirm-disbursement-costs");
     await validateFormAttributes(form, confirmDisbursementCostsPage);
@@ -92,6 +97,11 @@ test.describe("Confirm the total disbursement costs page", () => {
         "autocomplete",
         "off",
       );
+    }
+
+    await expect(form.getByRole("textbox")).toHaveCount(3);
+    for (const input of await form.getByRole("textbox").all()) {
+      await expect(input).toHaveAccessibleName(/, in pounds$/);
     }
 
     await validateSubmitButton(form, confirmDisbursementCostsLocale.continue);

@@ -11,11 +11,11 @@
 {% set backLink = backUrl %}
 
 {% block pageContent %}
-{% if errorSummaries %}
+{% if errorSummaries.overallDecision %}
   {{ govukErrorSummary({
     titleText: t('errorSummaryTitle'),
     errorList: [
-      { text: errorSummaries.overallDecision.text, href: "#overall-decision" } if errorSummaries.overallDecision
+      { text: errorSummaries.overallDecision.text, href: "#overall-decision" }
     ]
   }) }}
 {% endif %}

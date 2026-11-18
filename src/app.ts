@@ -33,6 +33,7 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import { requestLoggingContext } from "#src/infrastructure/express/middleware/requestLoggingContext.js";
 import { viewContext } from "#src/infrastructure/express/middleware/accessControl/viewContext.js";
 import { globalAccessGuard } from "#src/infrastructure/express/middleware/accessControl/globalAccessGuard.js";
+import { globalAuthGuard } from "#src/infrastructure/express/middleware/accessControl/globalAuthGuard.js";
 import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
 import { setupAnalyticsPagePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
@@ -157,6 +158,7 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
   next();
 });
 app.use(viewContext);
+app.use(globalAuthGuard);
 app.use(globalAccessGuard);
 app.use(setupLocaleData);
 setupNunjucks(app);
