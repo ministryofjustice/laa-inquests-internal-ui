@@ -37,7 +37,8 @@ const authorizeTestForJourneyStep = async (
   page: Page,
   pageUrl: string,
 ): Promise<void> => {
-  const path = pageUrl.split("?")[0];
+  // const path = pageUrl.split("?")[0];
+  const path = getAbstractedPage(pageUrl);
   let journeyType: string | undefined;
   let stepIndex: number;
 
@@ -53,6 +54,18 @@ const authorizeTestForJourneyStep = async (
     { maxRedirects: 0 },
   );
 };
+
+function getAbstractedPage(pageToMark: string): string {
+  const noQueryUrl = pageToMark.split("?").at(0) ?? pageToMark;
+  const abstractedApplicationPage = noQueryUrl.replace(
+    /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v,
+    "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
+  );
+  return abstractedApplicationPage.replace(
+    /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v,
+    "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+  );
+}
 
 export const test = base.extend<TestFixtures>({
   freshSession: [
