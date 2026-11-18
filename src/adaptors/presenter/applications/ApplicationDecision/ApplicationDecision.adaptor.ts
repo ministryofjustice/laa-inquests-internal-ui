@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- This adaptor orchestrates the full multi-page application decision journey. */
 import type { Request, Response } from "express";
 import { ApplicationError } from "#src/use-cases/common/applicationError.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/SessionHelper.js";
@@ -32,6 +33,8 @@ import { GrantDecisionUseCase } from "#src/use-cases/applications/decision/Grant
 import type { GrantDecisionResult } from "#src/use-cases/applications/decision/GrantDecision.useCase.js";
 import type { RefuseDecisionResult } from "#src/use-cases/applications/decision/RefuseDecision.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 interface DecisionUseCases {
   prepareDecisionFormUseCase: PrepareDecisionFormUseCase;
@@ -186,7 +189,12 @@ export class ApplicationDecisionAdaptor {
       decisionToPersist,
     );
 
-    res.redirect(redirectPath);
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
+      redirectPath,
+      JOURNEY_TYPES.APPLICATION_DECISION,
+    );
   }
 
   renderJustificationForm(
@@ -263,7 +271,12 @@ export class ApplicationDecisionAdaptor {
       req as unknown as Request,
     );
 
-    res.redirect(`/applications/${laaReference}/decision/confirmation`);
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
+      `/applications/${laaReference}/decision/confirmation`,
+      JOURNEY_TYPES.APPLICATION_DECISION,
+    );
   }
 
   renderCertificateStartDateForm(
@@ -341,7 +354,12 @@ export class ApplicationDecisionAdaptor {
       req as unknown as Request,
     );
 
-    res.redirect(`/applications/${laaReference}/decision/confirmation`);
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
+      `/applications/${laaReference}/decision/confirmation`,
+      JOURNEY_TYPES.APPLICATION_DECISION,
+    );
   }
 
   renderConfirmationPage(req: Request, res: Response): void {
@@ -435,7 +453,12 @@ export class ApplicationDecisionAdaptor {
       });
     }
 
-    res.redirect(`/applications/${laaReference}/decision/success`);
+    completeStepAndRedirect(
+      req,
+      res,
+      `/applications/${laaReference}/decision/success`,
+      JOURNEY_TYPES.APPLICATION_DECISION,
+    );
   }
 
   async #processGrantDecision(

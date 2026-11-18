@@ -30,6 +30,10 @@ describe("ConfirmProfitCostsAdaptor", () => {
 
     sessionHelperStub.getSessionData.returns(null);
     requestStub.query = {};
+    requestStub.session.user = {
+      userId: "test-user-id",
+      accessToken: "test-access-token",
+    };
 
     adaptor = new ConfirmProfitCostsAdaptor(sessionHelperStub, validator);
   });
@@ -42,7 +46,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     adaptor.renderConfirmProfitCostsPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -52,8 +56,8 @@ describe("ConfirmProfitCostsAdaptor", () => {
       "application/claims/confirm-profit-costs/index",
     );
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/INQC-0010-0010",
-      laaReference: "123",
+      backUrl: "/applications/INQ-YYY-YYY/claims/INQC-0010-0010",
+      laaReference: "INQ-YYY-YYY",
       claimReference: "INQC-0010-0010",
       netTotal: "",
       grossTotal: "",
@@ -71,13 +75,13 @@ describe("ConfirmProfitCostsAdaptor", () => {
     adaptor.renderConfirmProfitCostsPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/INQC-0010-0010",
-      laaReference: "123",
+      backUrl: "/applications/INQ-YYY-YYY/claims/INQC-0010-0010",
+      laaReference: "INQ-YYY-YYY",
       claimReference: "INQC-0010-0010",
       netTotal: "300",
       grossTotal: "360",
@@ -91,7 +95,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     adaptor.renderConfirmProfitCostsPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -99,7 +103,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
       .args[1] as unknown as Record<string, unknown>;
     assert.equal(
       renderArgs.backUrl,
-      "/applications/123/claims/INQC-0010-0010/check-your-answers",
+      "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/check-your-answers",
     );
   });
 
@@ -113,7 +117,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "",
         },
         params: {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
         },
       };
@@ -126,8 +130,8 @@ describe("ConfirmProfitCostsAdaptor", () => {
       "application/claims/confirm-profit-costs/index",
     );
     assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/INQC-0010-0010",
-      laaReference: "123",
+      backUrl: "/applications/INQ-YYY-YYY/claims/INQC-0010-0010",
+      laaReference: "INQ-YYY-YYY",
       claimReference: "INQC-0010-0010",
       netTotal: "",
       grossTotal: "",
@@ -151,7 +155,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "100",
         },
         params: {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
         },
       };
@@ -180,7 +184,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "",
         },
         params: {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
         },
       };
@@ -201,8 +205,9 @@ describe("ConfirmProfitCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     assert.equal(
       responseStub.redirect.getCall(0).args[0],
-      "/applications/123/claims/INQC-0010-0010/confirm-disbursement-costs",
+      "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/confirm-disbursement-costs",
     );
+    assert.equal(requestStub.session.lastCompletedStepIndex, 1);
   });
 
   it("redirects back to check your answers when the request originated there", () => {
@@ -219,7 +224,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
           "zero-vat-total": "",
         },
         params: {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
         },
       };
@@ -229,7 +234,7 @@ describe("ConfirmProfitCostsAdaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     assert.equal(
       responseStub.redirect.getCall(0).args[0],
-      "/applications/123/claims/INQC-0010-0010/check-your-answers",
+      "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/check-your-answers",
     );
   });
 });

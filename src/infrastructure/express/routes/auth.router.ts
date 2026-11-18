@@ -98,6 +98,19 @@ export function createAuthRouter(
           ? overrideRoles.split(",")
           : [...RECOGNISED_ROLES];
 
+      if (
+        typeof req.query.journeyStep === "string" &&
+        typeof req.query.journeyType === "string"
+      ) {
+        const stepIndex = Number(req.query.journeyStep);
+        const journeyType = Number(req.query.journeyType);
+        if (!Number.isNaN(stepIndex) && !Number.isNaN(journeyType)) {
+          req.session.lastCompletedStepIndex = stepIndex;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-assignment -- need looser assignment
+          req.session.journeyType = journeyType;
+        }
+      }
+
       // Optional overrides to exercise session-expiry behaviour in E2E tests.
       const now = Date.now();
       const secondsOr = (value: unknown, fallbackMs: number): number => {

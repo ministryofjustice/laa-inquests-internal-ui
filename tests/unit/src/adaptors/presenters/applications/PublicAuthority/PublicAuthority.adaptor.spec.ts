@@ -228,6 +228,7 @@ describe("PublicAuthorityAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${laaReference}/public-authorities/confirm`,
       );
+      assert.equal(requestStub.session.lastCompletedStepIndex, 0);
     });
 
     it("stores a single selected option in session", async () => {

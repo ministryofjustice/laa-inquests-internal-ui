@@ -1,4 +1,5 @@
 import type { CaseworkerRole } from "#src/infrastructure/config/accessControl.js";
+import type { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 declare module "express-session" {
   interface UserSessionData extends Record<string, string | undefined> {
@@ -29,5 +30,8 @@ declare module "express-session" {
     roles?: CaseworkerRole[];
     lifetime?: SessionLifetime;
     returnTo?: string;
+    lastCompletedStepIndex?: number;
+    journeyType?: JOURNEY_TYPES;
+    visitedJourneyPages?: string[];
   }
 }

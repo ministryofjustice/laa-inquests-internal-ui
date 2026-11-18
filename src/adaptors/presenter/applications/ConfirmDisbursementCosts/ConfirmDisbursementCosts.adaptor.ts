@@ -12,6 +12,8 @@ import type {
 import type { ConfirmDisbursementCostsValidator } from "./ConfirmDisbursementCosts.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -172,8 +174,11 @@ export class ConfirmDisbursementCostsAdaptor {
       disbursementZeroVatTotal: formBody["zero-vat-total"].trim(),
     });
 
-    res.redirect(
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
       `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+      JOURNEY_TYPES.CLAIM_DECISION,
     );
   }
 }

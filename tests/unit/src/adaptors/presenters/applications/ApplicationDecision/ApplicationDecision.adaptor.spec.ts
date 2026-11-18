@@ -28,7 +28,7 @@ describe("ApplicationDecisionAdaptor", () => {
   let adaptor: ApplicationDecisionAdaptor;
   let validator: ApplicationDecisionValidator;
 
-  const laaReference = "1";
+  const laaReference = "INQ-YYY-YYY";
   const mockProceeding = {
     proceedingId: "IQ011",
     proceedingName: "An individual has died in police custody",
@@ -214,6 +214,7 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${laaReference}/decision/justification`,
       );
+      assert.equal(requestStub.session.lastCompletedStepIndex, 0);
     });
 
     it("redirects to the certificate start date page when granted", () => {
@@ -229,6 +230,7 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${laaReference}/decision/certificate-start-date`,
       );
+      assert.equal(requestStub.session.lastCompletedStepIndex, 1);
     });
 
     it("redirects back to check-your-answers when returning from check-your-answers and refusal details are present", () => {
@@ -255,6 +257,7 @@ describe("ApplicationDecisionAdaptor", () => {
         "decision",
         { returnToCheckYourAnswers: "" },
       ]);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 2);
     });
 
     it("redirects to the justification page when returning from check-your-answers and refusal details are missing", () => {
@@ -502,6 +505,7 @@ describe("ApplicationDecisionAdaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         `/applications/${laaReference}/decision/confirmation`,
       );
+      assert.equal(requestStub.session.lastCompletedStepIndex, 2);
     });
 
     it("clears return-to-check-your-answers flag when returning from check-your-answers and submission is valid", () => {
@@ -750,6 +754,7 @@ describe("ApplicationDecisionAdaptor", () => {
           certificateStartDateYear: "2020",
         },
       ]);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 2);
     });
 
     it("propagates certificate validation errors without saving session data", () => {
@@ -1049,6 +1054,7 @@ describe("ApplicationDecisionAdaptor", () => {
             "This case is not in scope",
           ],
         );
+        assert.equal(requestStub.session.lastCompletedStepIndex, 3);
       });
 
       it("redirects to the success page on refusal complete", async () => {

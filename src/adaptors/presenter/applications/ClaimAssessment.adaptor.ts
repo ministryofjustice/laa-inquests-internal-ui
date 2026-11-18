@@ -28,6 +28,8 @@ import {
   HTTP_NOT_FOUND,
 } from "#src/infrastructure/express/errorConstants.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { completeStepAndRedirect } from "../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const REJECT_DECISION: string = CLAIM_DECISION_STATUSES.REJECT;
 const PAY_IN_FULL_STATUS: string = CLAIM_DECISION_STATUSES.PAY_IN_FULL;
@@ -202,8 +204,11 @@ export class ClaimAssessmentAdaptor {
         },
       });
 
-      res.redirect(
+      completeStepAndRedirect(
+        req as unknown as Request,
+        res,
         `/applications/${laaReference}/claims/${claimReference}/rejected`,
+        JOURNEY_TYPES.CLAIM_DECISION,
       );
       return;
     }
@@ -243,14 +248,20 @@ export class ClaimAssessmentAdaptor {
         },
       });
 
-      res.redirect(
+      completeStepAndRedirect(
+        req as unknown as Request,
+        res,
         `/applications/${laaReference}/claims/${claimReference}/paid-in-full`,
+        JOURNEY_TYPES.CLAIM_DECISION,
       );
       return;
     }
 
-    res.redirect(
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
       `/applications/${laaReference}/claims/${claimReference}/confirm-profit-costs`,
+      JOURNEY_TYPES.CLAIM_DECISION,
     );
   }
 
