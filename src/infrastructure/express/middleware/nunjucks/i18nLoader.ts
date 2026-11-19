@@ -37,6 +37,7 @@ export function initializeI18nextSync(): void {
       void i18next.init({
         lng: "en",
         fallbackLng: "en",
+        returnEmptyString: true,
         debug: process.env.NODE_ENV === "development",
 
         // Use namespaces from the JSON structure - each top-level key becomes a namespace
@@ -60,6 +61,7 @@ export function initializeI18nextSync(): void {
       void i18next.init({
         lng: "en",
         fallbackLng: "en",
+        returnEmptyString: true,
         interpolation: {
           escapeValue: false,
           prefix: "{",
@@ -74,6 +76,7 @@ export function initializeI18nextSync(): void {
     void i18next.init({
       lng: "en",
       fallbackLng: "en",
+      returnEmptyString: true,
       interpolation: {
         escapeValue: false,
         prefix: "{",
