@@ -13,6 +13,17 @@
   }
 }
 
+// Wrapper for tables that may overflow at high zoom levels
+// Ensures responsive behavior while maintaining overflow constraint
+.app-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  table {
+    min-width: 100%;
+  }
+}
+
 .search-form-row {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(8rem, 1fr);

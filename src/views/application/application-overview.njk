@@ -371,6 +371,7 @@
                 text: "Search this page using Ctrl+F",
                 iconFallbackText: "Warning"
             }) }}
+            <div class="app-table-wrapper">
             {{ govukTable({
                 caption: t('pages.applicationOverview.history.tableCaption'),
                 captionClasses: "govuk-visually-hidden",
@@ -381,6 +382,7 @@
                 ],
                 rows: historyRows
             }) }}
+            </div>
         {% endif %}
 
         <div class="govuk-grid-row">
