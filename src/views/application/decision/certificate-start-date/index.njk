@@ -77,7 +77,7 @@
       },
       {
         value: "another-date",
-        text: t('pages.decision.certificateStartDate.radio.anotherDate'),
+        html: (t('pages.decision.certificateStartDate.radio.anotherDate') | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t('pages.decision.certificateStartDate.radio.anotherDateRevealHint') | escape) ~ '</span>',
         checked: startDateOption === "another-date",
         conditional: {
           html: anotherDateHtml
