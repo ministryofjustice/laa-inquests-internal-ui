@@ -13,12 +13,6 @@
   }
 }
 
-#history .govuk-table {
-  table-layout: fixed;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
 .search-form-row {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(8rem, 1fr);
