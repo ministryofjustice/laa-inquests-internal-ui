@@ -63,7 +63,7 @@ describe("ClaimAssessmentAdaptor", () => {
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
       data: {
-        laaReference: "123",
+        laaReference: "INQ-YYY-YYY",
         claimReference: "INQC-0010-0010",
         claimStatus: "Reject",
         isAssessed: false,
@@ -124,7 +124,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -132,7 +132,7 @@ describe("ClaimAssessmentAdaptor", () => {
     assert.deepStrictEqual(
       buildClaimAssessmentViewUseCaseStub.execute.getCall(0).args[0],
       {
-        laaReference: "123",
+        laaReference: "INQ-YYY-YYY",
         claimReference: "INQC-0010-0010",
         accessToken: "test-access-token",
       },
@@ -144,8 +144,8 @@ describe("ClaimAssessmentAdaptor", () => {
       "application/claims/assess/index",
     );
     assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/overview",
-      laaReference: "123",
+      backUrl: "/applications/INQ-YYY-YYY/overview",
+      laaReference: "INQ-YYY-YYY",
       claimReference: "INQC-0010-0010",
       claimStatus: "Reject",
       claimCostBreakdown: {
@@ -159,7 +159,7 @@ describe("ClaimAssessmentAdaptor", () => {
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
       data: {
-        laaReference: "123",
+        laaReference: "INQ-YYY-YYY",
         claimReference: "INQC-0010-0010",
         claimStatus: "Pay in full",
         isAssessed: false,
@@ -185,7 +185,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -201,7 +201,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -217,7 +217,7 @@ describe("ClaimAssessmentAdaptor", () => {
     buildClaimAssessmentViewUseCaseStub.execute.resolves({
       status: "SUCCESS",
       data: {
-        laaReference: "123",
+        laaReference: "INQ-YYY-YYY",
         claimReference: "INQC-0010-0010",
         claimStatus: "Pay in full",
         isAssessed: true,
@@ -243,7 +243,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -253,7 +253,7 @@ describe("ClaimAssessmentAdaptor", () => {
       "application/claims/assessed/index",
     );
     assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/overview",
+      backUrl: "/applications/INQ-YYY-YYY/overview",
       claimReference: "INQC-0010-0010",
       claimStatus: "Pay in full",
       claimStatusTag: {
@@ -270,7 +270,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -288,7 +288,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -302,12 +302,13 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
     assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/INQC-0010-0010/check-your-answers",
+      backUrl:
+        "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/check-your-answers",
     });
   });
 
@@ -318,7 +319,7 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
@@ -339,12 +340,13 @@ describe("ClaimAssessmentAdaptor", () => {
     await adaptor.renderClaimAssessmentPage(
       requestStub,
       responseStub,
-      "123",
+      "INQ-YYY-YYY",
       "INQC-0010-0010",
     );
 
     assert.partialDeepStrictEqual(responseStub.render.getCall(0).args[1], {
-      backUrl: "/applications/123/claims/INQC-0010-0010/check-your-answers",
+      backUrl:
+        "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/check-your-answers",
     });
   });
 
@@ -361,7 +363,7 @@ describe("ClaimAssessmentAdaptor", () => {
           "rejection-reason": rejectionReason,
         },
         params: {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
         },
       } as unknown as TypedRequest<AssessClaimForm, ClaimIdParams>;
@@ -389,16 +391,17 @@ describe("ClaimAssessmentAdaptor", () => {
         processNilBillAndPOAPayInFullDecisionUseCaseStub.execute.getCall(0)
           .args[0],
         {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
           accessToken: "test-access-token",
         },
       );
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/claims/INQC-0010-0010/confirm-profit-costs",
+        "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/confirm-profit-costs",
       ]);
       assert.equal(responseStub.render.callCount, 0);
       assert.equal(rejectClaimUseCaseStub.execute.callCount, 0);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 0);
     });
 
     it("redirects straight to the paid in full confirmation page for a Nil bill claim", async () => {
@@ -417,7 +420,7 @@ describe("ClaimAssessmentAdaptor", () => {
       );
 
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/claims/INQC-0010-0010/paid-in-full",
+        "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/paid-in-full",
       ]);
       assert.equal(responseStub.render.callCount, 0);
       assert.equal(
@@ -428,6 +431,7 @@ describe("ClaimAssessmentAdaptor", () => {
           ).length,
         1,
       );
+      assert.equal(requestStub.session.lastCompletedStepIndex, 4);
     });
 
     it("renders a not found error page when the Nil bill or POA claim cannot be found", async () => {
@@ -493,7 +497,7 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.deepStrictEqual(
         rejectClaimUseCaseStub.execute.getCall(0).args[0],
         {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
           justification: "Not enough supporting evidence provided",
           accessToken: "test-access-token",
@@ -508,8 +512,9 @@ describe("ClaimAssessmentAdaptor", () => {
         1,
       );
       assert.deepStrictEqual(responseStub.redirect.getCall(0).args, [
-        "/applications/123/claims/INQC-0010-0010/rejected",
+        "/applications/INQ-YYY-YYY/claims/INQC-0010-0010/rejected",
       ]);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 3);
     });
 
     it("throws when rejecting the claim fails upstream", async () => {
@@ -569,7 +574,7 @@ describe("ClaimAssessmentAdaptor", () => {
       await adaptor.renderClaimRejectionSuccessPage(
         requestStub,
         responseStub,
-        "123",
+        "INQ-YYY-YYY",
         "INQC-0010-0010",
       );
 
@@ -577,7 +582,7 @@ describe("ClaimAssessmentAdaptor", () => {
       assert.deepStrictEqual(
         buildClaimRejectionViewUseCaseStub.execute.getCall(0).args[0],
         {
-          laaReference: "123",
+          laaReference: "INQ-YYY-YYY",
           claimReference: "INQC-0010-0010",
           accessToken: "test-access-token",
         },
@@ -589,7 +594,7 @@ describe("ClaimAssessmentAdaptor", () => {
         "application/claims/rejected/index",
       );
       assert.deepStrictEqual(responseStub.render.getCall(0).args[1], {
-        laaReference: "123",
+        laaReference: "INQ-YYY-YYY",
         claimType: "Payment on account",
       });
     });
@@ -606,7 +611,7 @@ describe("ClaimAssessmentAdaptor", () => {
         adaptor.renderClaimRejectionSuccessPage(
           requestStub,
           responseStub,
-          "123",
+          "INQ-YYY-YYY",
           "INQC-0010-0010",
         ),
         (thrown: unknown) => thrown === error,
