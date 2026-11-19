@@ -254,7 +254,6 @@ test.describe("Claims - upstream failure", () => {
 test.describe("Claims tab - reflow at increased zoom", () => {
   const laaReference = "INQ-YYY-005";
 
-  // Equivalent CSS viewport widths for 200%, 250% and 400% zoom on a 1280px screen.
   for (const width of [640, 512, 320]) {
     test(`should keep the claims tables within the page at ${width}px wide`, async ({
       page,

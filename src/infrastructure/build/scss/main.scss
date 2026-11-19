@@ -12,9 +12,6 @@
     background-color: index.govuk-colour("light-grey");
   }
 }
-
-// Lets wide data tables scroll horizontally inside their container at high zoom
-// (WCAG 1.4.10). Needs tabindex="0" in markup so keyboard users can scroll it.
 .app-table-scroll {
   overflow-x: auto;
   margin-bottom: index.govuk-spacing(6);
