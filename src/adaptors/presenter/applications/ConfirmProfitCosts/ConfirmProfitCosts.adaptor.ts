@@ -12,6 +12,8 @@ import type {
 import type { ConfirmProfitCostsValidator } from "./ConfirmProfitCosts.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { ClaimAssessmentNavigationHelper } from "#src/adaptors/presenter/applications/ClaimAssessmentNavigation.helper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const SESSION_NAMESPACE = "claimApproval";
 
@@ -172,12 +174,16 @@ export class ConfirmProfitCostsAdaptor {
       zeroVatTotal: formBody["zero-vat-total"].trim(),
     });
 
-    res.redirect(
-      this.navigationHelper.resolveContinueUrl(
-        req as unknown as Request,
-        `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
-        `/applications/${laaReference}/claims/${claimReference}/confirm-disbursement-costs`,
-      ),
+    const continueUrl = this.navigationHelper.resolveContinueUrl(
+      req as unknown as Request,
+      `/applications/${laaReference}/claims/${claimReference}/check-your-answers`,
+      `/applications/${laaReference}/claims/${claimReference}/confirm-disbursement-costs`,
+    );
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
+      continueUrl,
+      JOURNEY_TYPES.CLAIM_DECISION,
     );
   }
 }

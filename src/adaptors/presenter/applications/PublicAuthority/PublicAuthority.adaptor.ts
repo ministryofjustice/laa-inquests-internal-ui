@@ -18,6 +18,8 @@ import { ConfirmPublicAuthorityUpdateUseCase } from "#src/use-cases/applications
 import { GetPublicBodiesUseCase } from "#src/use-cases/applications/publicAuthority/GetPublicBodies.useCase.js";
 import { GetApplicationUseCase } from "#src/use-cases/applications/overview/GetApplication.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const SESSION_NAMESPACE = "publicAuthority";
 
@@ -171,7 +173,12 @@ export class PublicAuthorityAdaptor {
       ),
     });
 
-    res.redirect(`/applications/${laaReference}/public-authorities/confirm`);
+    completeStepAndRedirect(
+      req as unknown as Request,
+      res,
+      `/applications/${laaReference}/public-authorities/confirm`,
+      JOURNEY_TYPES.PUBLIC_AUTHORITY,
+    );
   }
 
   async renderConfirmationPage(req: Request, res: Response): Promise<void> {
