@@ -74,10 +74,14 @@ ingress:
   enabled: true
   className: modsec
   hosts:
-    - host: laa-inquests-internal-ui-prod.apps.live.cloud-platform.service.justice.gov.uk
+    - host: manage-inquest-legal-aid.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
+  tls:
+    - hosts:
+        - manage-inquest-legal-aid.service.justice.gov.uk
+      secretName: manage-inquest-legal-aid-cert
   annotations:
     external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-internal-ui-laa-inquests-internal-ui-prod-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
