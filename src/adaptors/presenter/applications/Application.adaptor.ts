@@ -435,7 +435,7 @@ function mapClaimRow(claim: ClaimSummary, laaReference: string): ClaimRow {
     ...(classes && { statusTag: { text: status, classes } }),
     claimType: mapClaimType(claim.claimTypeId),
     claimReference: claim.claimReference,
-    href: `/applications/${laaReference}/claims/${claim.claimReference}`,
+    href: `/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claim.claimReference)}`,
   };
 }
 

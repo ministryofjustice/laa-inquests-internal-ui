@@ -52,10 +52,10 @@ export const HISTORY_EVENT_FORMATTERS: Partial<Record<string, EventFormatter>> =
       };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_003]: (eventData) => {
-      const laaReference = escapeHtmlValue(eventData?.laaReference);
+      const encodedLaaReference = encodedPathSegment(eventData?.laaReference);
       return {
         heading: "Certificate created",
-        detail: `<a href="/applications/${laaReference}/certificate">View certificate</a>`,
+        detail: `<a href="/applications/${encodedLaaReference}/certificate">View certificate</a>`,
       };
     },
     [HISTORY_EVENT_REFERENCE.EVT_BUS_APP_004]: (eventData) => {
@@ -158,13 +158,19 @@ function escapeHtmlValue(value: unknown): string {
   throw new Error(`Couldn't format history event eventData`);
 }
 
+function encodedPathSegment(value: unknown): string {
+  escapeHtmlValue(value);
+  return escapeHtml(encodeURIComponent(String(value)));
+}
+
 function claimReferenceLink(
   laaReference: string,
   claimReference: unknown,
 ): string {
   const escapedClaimReference = escapeHtmlValue(claimReference);
-  const escapedLaaReference = escapeHtml(laaReference);
-  return `<a href="/applications/${escapedLaaReference}/claims/${escapedClaimReference}">${escapedClaimReference}</a>`;
+  const encodedClaimReference = encodedPathSegment(claimReference);
+  const encodedLaaReference = encodedPathSegment(laaReference);
+  return `<a href="/applications/${encodedLaaReference}/claims/${encodedClaimReference}">${escapedClaimReference}</a>`;
 }
 
 function formatCaseworkerNote(noteText: unknown): string {

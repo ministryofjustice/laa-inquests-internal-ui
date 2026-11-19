@@ -378,14 +378,14 @@ function mapEvidenceRow(
   claimReference: string,
   fileSize: number | null | undefined,
 ): ClaimAssessmentEvidenceRow {
-  const basePath = `/applications/${laaReference}/claims/${claimReference}/evidence`;
+  const basePath = `/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}/evidence`;
 
   return {
     fileName,
     fileFormat: getFileFormat(fileName),
     fileSize: formatFileSize(fileSize),
-    viewHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.INLINE}`,
-    downloadHref: `${basePath}/${evidenceId}?disposition=${DISPOSITION.ATTACHMENT}`,
+    viewHref: `${basePath}/${encodeURIComponent(evidenceId)}?disposition=${DISPOSITION.INLINE}`,
+    downloadHref: `${basePath}/${encodeURIComponent(evidenceId)}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
 }
 
@@ -400,12 +400,12 @@ function mapClaimCostBreakdown(
     return null;
   }
 
-  const basePath = `/applications/${laaReference}/claims/${claimReference}/evidence`;
+  const basePath = `/applications/${encodeURIComponent(laaReference)}/claims/${encodeURIComponent(claimReference)}/evidence`;
 
   return {
     fileName: costTemplateFile.claimCostTemplateFileName,
     fileFormat: getFileFormat(costTemplateFile.claimCostTemplateFileName),
     fileSize: formatFileSize(costTemplateFile.fileSize),
-    downloadHref: `${basePath}/${costTemplateFile.claimCostTemplateFileId}?disposition=${DISPOSITION.ATTACHMENT}`,
+    downloadHref: `${basePath}/${encodeURIComponent(costTemplateFile.claimCostTemplateFileId)}?disposition=${DISPOSITION.ATTACHMENT}`,
   };
 }
