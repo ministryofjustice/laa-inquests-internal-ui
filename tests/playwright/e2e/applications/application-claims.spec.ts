@@ -250,3 +250,40 @@ test.describe("Claims - upstream failure", () => {
     await expect(page.getByRole("heading", { name: "500" })).toBeVisible();
   });
 });
+
+test.describe("Claims tab - reflow at increased zoom", () => {
+  const laaReference = "INQ-YYY-005";
+
+  // Equivalent CSS viewport widths for 200%, 250% and 400% zoom on a 1280px screen.
+  for (const width of [640, 512, 320]) {
+    test(`should keep the claims tables within the page at ${width}px wide`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/applications/${laaReference}/overview`);
+
+      const pageWidths = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(pageWidths.scrollWidth).toBeLessThanOrEqual(
+        pageWidths.clientWidth,
+      );
+
+      for (const name of ["Claims to be assessed", "Assessed claims"]) {
+        const region = page.getByRole("region", { name });
+        await expect(region).toHaveAttribute("tabindex", "0");
+        await expect(region.locator("table")).toHaveCount(1);
+
+        const regionBox = await region.boundingBox();
+        const panelBox = await page.locator("#claims").boundingBox();
+        expect(regionBox).not.toBeNull();
+        expect(panelBox).not.toBeNull();
+        expect(regionBox!.width).toBeLessThanOrEqual(panelBox!.width);
+      }
+
+      await checkAccessibility();
+    });
+  }
+});

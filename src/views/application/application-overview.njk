@@ -325,7 +325,7 @@
             <p class="govuk-body"><strong>{{ t('pages.applicationOverview.claims.totalRemaining') }}</strong> {{ claims.totalRemaining }}</p>
 
             {% if claims.toBeAssessed.length %}
-                <h2 class="govuk-heading-m">{{ t('pages.applicationOverview.claims.toBeAssessedHeading') }}</h2>
+                <h2 class="govuk-heading-m" id="claims-to-be-assessed-heading">{{ t('pages.applicationOverview.claims.toBeAssessedHeading') }}</h2>
                 {% set toBeAssessedRows = [] %}
                 {% for claim in claims.toBeAssessed %}
                     {% set toBeAssessedRows = toBeAssessedRows.concat([[
@@ -336,14 +336,16 @@
                         { html: govukTag(claim.statusTag) } if claim.statusTag else { text: claim.status }
                     ]]) %}
                 {% endfor %}
-                {{ govukTable({
-                    head: claimsTableHead,
-                    rows: toBeAssessedRows
-                }) }}
+                <div class="app-table-scroll" role="region" aria-labelledby="claims-to-be-assessed-heading" tabindex="0">
+                    {{ govukTable({
+                        head: claimsTableHead,
+                        rows: toBeAssessedRows
+                    }) }}
+                </div>
             {% endif %}
 
             {% if claims.assessed.length %}
-                <h2 class="govuk-heading-m">{{ t('pages.applicationOverview.claims.assessedHeading') }}</h2>
+                <h2 class="govuk-heading-m" id="assessed-claims-heading">{{ t('pages.applicationOverview.claims.assessedHeading') }}</h2>
                 {% set assessedRows = [] %}
                 {% for claim in claims.assessed %}
                     {% set assessedRows = assessedRows.concat([[
@@ -354,10 +356,12 @@
                         { html: govukTag(claim.statusTag) } if claim.statusTag else { text: claim.status }
                     ]]) %}
                 {% endfor %}
-                {{ govukTable({
-                    head: claimsTableHead,
-                    rows: assessedRows
-                }) }}
+                <div class="app-table-scroll" role="region" aria-labelledby="assessed-claims-heading" tabindex="0">
+                    {{ govukTable({
+                        head: claimsTableHead,
+                        rows: assessedRows
+                    }) }}
+                </div>
             {% endif %}
         {% endif %}
     {% endset %}
@@ -371,7 +375,6 @@
                 text: "Search this page using Ctrl+F",
                 iconFallbackText: "Warning"
             }) }}
-            <div class="app-table-wrapper">
             {{ govukTable({
                 caption: t('pages.applicationOverview.history.tableCaption'),
                 captionClasses: "govuk-visually-hidden",
@@ -382,7 +385,6 @@
                 ],
                 rows: historyRows
             }) }}
-            </div>
         {% endif %}
 
         <div class="govuk-grid-row">

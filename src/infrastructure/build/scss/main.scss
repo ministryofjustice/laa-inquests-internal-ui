@@ -13,15 +13,25 @@
   }
 }
 
-// Wrapper for tables that may overflow at high zoom levels
-// Ensures responsive behavior while maintaining overflow constraint
-.app-table-wrapper {
+// Lets wide data tables scroll horizontally inside their container at high zoom
+// (WCAG 1.4.10). Needs tabindex="0" in markup so keyboard users can scroll it.
+.app-table-scroll {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  
-  table {
-    min-width: 100%;
+  margin-bottom: index.govuk-spacing(6);
+
+  &:focus {
+    @include index.govuk-focused-box;
   }
+
+  .govuk-table {
+    margin-bottom: 0;
+  }
+}
+
+#history .govuk-table {
+  table-layout: fixed;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .search-form-row {
