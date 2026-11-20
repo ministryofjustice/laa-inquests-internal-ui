@@ -5,9 +5,10 @@
 {% set pageTitle = t('pages.decision.success.header') %}
 
 {% block content %}
+  {% set referencePanelHtml %}<div>{{ t('pages.decision.success.referenceLabel') }}:</div><div><strong>{{ laaReference }}</strong></div>{% endset %}
   {{ govukPanel({
     titleText: t('pages.decision.success.header'),
-    html: "<div>" + t('pages.decision.success.referenceLabel') + ":</div><div><strong>" + laaReference + "</strong></div>"
+    html: referencePanelHtml
   }) }}
 
   <h2 class="govuk-heading-s govuk-!-padding-top-6">{{ t('pages.decision.success.whatHappensNext') }}</h2>
