@@ -37,6 +37,7 @@ import { globalAuthGuard } from "#src/infrastructure/express/middleware/accessCo
 import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
 import { setupAnalyticsPagePath } from "#src/infrastructure/express/middleware/nunjucks/setupAnalyticsPagePath.js";
+import { cacheControl } from "./infrastructure/express/middleware/cacheControl/cacheControl.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -72,6 +73,7 @@ initializeI18nextSync();
 
 app.use(requestLoggingContext);
 
+app.use(cacheControl);
 app.use(nonceMiddleware);
 app.use(setupAnalyticsPagePath);
 app.use(helmet(helmetConfig));
