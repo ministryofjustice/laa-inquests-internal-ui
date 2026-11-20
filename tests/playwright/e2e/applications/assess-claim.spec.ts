@@ -78,9 +78,7 @@ test.describe("Assess claim page", () => {
       await expect(
         page.getByRole("radio", { name: "Pay in full", exact: true }),
       ).toBeVisible();
-      await expect(
-        page.getByRole("radio", { name: "Reject", exact: true }),
-      ).toBeVisible();
+      await expect(page.getByRole("radio", { name: "Reject" })).toBeVisible();
       await expect(
         page.getByRole("button", { name: "Continue", exact: true }),
       ).toBeVisible();
@@ -575,6 +573,29 @@ test.describe("Assess claim page", () => {
         name: claimAssessmentLocale.heading,
         exact: true,
       }),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
+  test("includes the revealed field in the reject radio's accessible name", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const form = page.getByTestId("assess-claim");
+    const rejectRadio = form.locator(
+      'input[name="assessClaim"][value="Reject"]',
+    );
+
+    await expect(rejectRadio).toHaveAccessibleName(
+      /^Reject\s+\.\s+Selecting this option will reveal a field for the reason for rejecting the claim\.$/,
+    );
+
+    await rejectRadio.check();
+    await expect(
+      form.getByLabel(claimAssessmentLocale.reasonLabel),
     ).toBeVisible();
 
     await checkAccessibility();

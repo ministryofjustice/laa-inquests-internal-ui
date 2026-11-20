@@ -139,7 +139,16 @@ test.describe.serial("Grant application journey", () => {
 
   test("caseworker selects Another date and sees date input fields revealed", async () => {
     const form = sharedPage.getByTestId("certificate-start-date");
-    await form.getByRole("radio", { name: "Another date" }).check();
+
+    const anotherDateRadio = form.locator(
+      'input[name="start-date-option"][value="another-date"]',
+    );
+
+    await expect(anotherDateRadio).toHaveAccessibleName(
+      /^Another date\s+\.\s+Selecting this option will reveal fields for the certificate start date\.$/,
+    );
+
+    await anotherDateRadio.check();
 
     // Date fields should now be visible
     await expect(form.getByLabel("Day", { exact: true })).toBeVisible();
