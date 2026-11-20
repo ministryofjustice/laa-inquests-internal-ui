@@ -62,7 +62,7 @@
       },
       {
         value: 'Reject',
-        text: t('pages.claimAssessment.radio.reject'),
+        html: (t('pages.claimAssessment.radio.reject') | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t('pages.claimAssessment.radio.rejectRevealHint') | escape) ~ '</span>',
         conditional: {
           html: govukCharacterCount({
             name: "rejection-reason",
