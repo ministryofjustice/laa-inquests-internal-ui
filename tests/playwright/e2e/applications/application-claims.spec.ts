@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { test, expect } from "../../fixtures/index.js";
 import { validateHeader } from "../../utils/govuk-validators.js";
 
@@ -253,36 +254,80 @@ test.describe("Claims - upstream failure", () => {
 
 test.describe("Claims tab - reflow at increased zoom", () => {
   const laaReference = "INQ-YYY-005";
+  const columnLabels = [
+    "Claim reference",
+    "Date",
+    "Type of claim",
+    "Total amount",
+    "Status",
+  ];
 
+  const getFirstRowCells = (page: Page) =>
+    page
+      .locator("#claims table")
+      .first()
+      .locator("tbody tr")
+      .first()
+      .locator("td");
+
+  const expectClaimsTablesWithinPage = async (page: Page) => {
+    const pageWidths = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(pageWidths.scrollWidth).toBeLessThanOrEqual(pageWidths.clientWidth);
+
+    const panelBox = await page.locator("#claims").boundingBox();
+    for (const table of await page.locator("#claims table").all()) {
+      const tableBox = await table.boundingBox();
+      expect(tableBox!.width).toBeLessThanOrEqual(panelBox!.width);
+    }
+  };
+
+  // Equivalent CSS viewport widths for 200%, 250% and 400% zoom on a 1280px screen.
   for (const width of [640, 512, 320]) {
-    test(`should keep the claims tables within the page at ${width}px wide`, async ({
+    test(`should stack the claims table rows at ${width}px wide`, async ({
       page,
       checkAccessibility,
     }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`/applications/${laaReference}/overview`);
 
-      const pageWidths = await page.evaluate(() => ({
-        scrollWidth: document.documentElement.scrollWidth,
-        clientWidth: document.documentElement.clientWidth,
-      }));
-      expect(pageWidths.scrollWidth).toBeLessThanOrEqual(
-        pageWidths.clientWidth,
+      await expectClaimsTablesWithinPage(page);
+
+      const cells = getFirstRowCells(page);
+      const cellLabels = await cells.evaluateAll((elements) =>
+        elements.map((element) =>
+          getComputedStyle(element, "::before").content.replaceAll('"', ""),
+        ),
       );
+      expect(cellLabels).toEqual(columnLabels);
 
-      for (const name of ["Claims to be assessed", "Assessed claims"]) {
-        const region = page.getByRole("region", { name });
-        await expect(region).toHaveAttribute("tabindex", "0");
-        await expect(region.locator("table")).toHaveCount(1);
-
-        const regionBox = await region.boundingBox();
-        const panelBox = await page.locator("#claims").boundingBox();
-        expect(regionBox).not.toBeNull();
-        expect(panelBox).not.toBeNull();
-        expect(regionBox!.width).toBeLessThanOrEqual(panelBox!.width);
-      }
+      const firstCellBox = await cells.nth(0).boundingBox();
+      const secondCellBox = await cells.nth(1).boundingBox();
+      expect(secondCellBox!.x).toBe(firstCellBox!.x);
+      expect(secondCellBox!.y).toBeGreaterThan(firstCellBox!.y);
 
       await checkAccessibility();
     });
   }
+
+  test("should show the claims tables as columns at full width", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`/applications/${laaReference}/overview`);
+    await page.getByRole("tab", { name: "Claims" }).click();
+
+    await expectClaimsTablesWithinPage(page);
+    await expect(
+      page.locator("#claims table").first().locator("thead th"),
+    ).toHaveText(columnLabels);
+
+    const cells = getFirstRowCells(page);
+    const firstCellBox = await cells.nth(0).boundingBox();
+    const secondCellBox = await cells.nth(1).boundingBox();
+    expect(secondCellBox!.y).toBe(firstCellBox!.y);
+    expect(secondCellBox!.x).toBeGreaterThan(firstCellBox!.x);
+  });
 });

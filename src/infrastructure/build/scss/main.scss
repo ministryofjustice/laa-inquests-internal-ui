@@ -12,16 +12,42 @@
     background-color: index.govuk-colour("light-grey");
   }
 }
-.app-table-scroll {
-  overflow-x: auto;
-  margin-bottom: index.govuk-spacing(6);
 
-  &:focus {
-    @include index.govuk-focused-box;
-  }
+// Stacks each table row into label and value pairs on small screens and at high
+// zoom (WCAG 1.4.10), matching how the summary list component reflows.
+// Each cell needs a data-label attribute containing its column header.
+.app-table--stack-on-mobile {
+  @include index.govuk-media-query($until: tablet) {
+    &,
+    .govuk-table__body,
+    .govuk-table__row,
+    .govuk-table__cell {
+      display: block;
+    }
 
-  .govuk-table {
-    margin-bottom: 0;
+    .govuk-table__head {
+      @include index.govuk-visually-hidden;
+    }
+
+    .govuk-table__row {
+      padding: index.govuk-spacing(2) 0;
+      border-bottom: 1px solid index.$govuk-border-colour;
+    }
+
+    .govuk-table__row:first-child {
+      border-top: 1px solid index.$govuk-border-colour;
+    }
+
+    .govuk-table__cell {
+      padding: 0 0 index.govuk-spacing(2);
+      border-bottom: 0;
+
+      &::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: index.$govuk-font-weight-bold;
+      }
+    }
   }
 }
 
