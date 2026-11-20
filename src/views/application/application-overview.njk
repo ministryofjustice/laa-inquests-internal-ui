@@ -10,6 +10,7 @@
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
+{% from "macros/responsiveTable.njk" import appResponsiveTable %}
 {% from "moj/components/alert/macro.njk" import mojAlert %}
 
 {% set pageTitle = "Application " + application.laaReference %}
@@ -325,7 +326,7 @@
             <p class="govuk-body"><strong>{{ t('pages.applicationOverview.claims.totalRemaining') }}</strong> {{ claims.totalRemaining }}</p>
 
             {% if claims.toBeAssessed.length %}
-                <h2 class="govuk-heading-m">{{ t('pages.applicationOverview.claims.toBeAssessedHeading') }}</h2>
+                <h2 class="govuk-heading-m" id="claims-to-be-assessed-heading">{{ t('pages.applicationOverview.claims.toBeAssessedHeading') }}</h2>
                 {% set toBeAssessedRows = [] %}
                 {% for claim in claims.toBeAssessed %}
                     {% set toBeAssessedRows = toBeAssessedRows.concat([[
@@ -336,14 +337,15 @@
                         { html: govukTag(claim.statusTag) } if claim.statusTag else { text: claim.status }
                     ]]) %}
                 {% endfor %}
-                {{ govukTable({
+                {{ appResponsiveTable({
+                    attributes: { "aria-labelledby": "claims-to-be-assessed-heading" },
                     head: claimsTableHead,
                     rows: toBeAssessedRows
                 }) }}
             {% endif %}
 
             {% if claims.assessed.length %}
-                <h2 class="govuk-heading-m">{{ t('pages.applicationOverview.claims.assessedHeading') }}</h2>
+                <h2 class="govuk-heading-m" id="assessed-claims-heading">{{ t('pages.applicationOverview.claims.assessedHeading') }}</h2>
                 {% set assessedRows = [] %}
                 {% for claim in claims.assessed %}
                     {% set assessedRows = assessedRows.concat([[
@@ -354,7 +356,8 @@
                         { html: govukTag(claim.statusTag) } if claim.statusTag else { text: claim.status }
                     ]]) %}
                 {% endfor %}
-                {{ govukTable({
+                {{ appResponsiveTable({
+                    attributes: { "aria-labelledby": "assessed-claims-heading" },
                     head: claimsTableHead,
                     rows: assessedRows
                 }) }}
