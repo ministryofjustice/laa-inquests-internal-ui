@@ -1,0 +1,44 @@
+{% from "govuk/macros/attributes.njk" import govukAttributes %}
+
+{#
+  Mirrors the govukTable markup, plus:
+  - a data-label (from the matching head cell) on every body cell so rows can stack on narrow screens
+  - explicit table roles, because display: block on stacked rows stops screen readers (e.g. VoiceOver)
+    treating it as a table and announcing the column headers
+#}
+{% macro appResponsiveTable(params) %}
+<table class="govuk-table app-table--stack-on-mobile
+  {%- if params.classes %} {{ params.classes }}{% endif %}" role="table"
+  {{- govukAttributes(params.attributes) }}>
+{% if params.caption %}
+  <caption class="govuk-table__caption
+    {%- if params.captionClasses %} {{ params.captionClasses }}{% endif %}">
+    {{- params.caption -}}
+  </caption>
+{% endif %}
+  <thead class="govuk-table__head" role="rowgroup">
+    <tr class="govuk-table__row" role="row">
+    {% for item in params.head %}
+      <th scope="col" role="columnheader" class="govuk-table__header
+        {%- if item.format %} govuk-table__header--{{ item.format }}{% endif %}
+        {%- if item.classes %} {{ item.classes }}{% endif %}">
+        {{- item.html | safe if item.html else item.text -}}
+      </th>
+    {% endfor %}
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body" role="rowgroup">
+{% for row in params.rows %}
+    <tr class="govuk-table__row" role="row">
+    {% for cell in row %}
+      <td role="cell" class="govuk-table__cell
+        {%- if cell.format %} govuk-table__cell--{{ cell.format }}{% endif %}
+        {%- if cell.classes %} {{ cell.classes }}{% endif %}" data-label="{{ params.head[loop.index0].text }}">
+        {{- cell.html | safe if cell.html else cell.text -}}
+      </td>
+    {% endfor %}
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endmacro %}

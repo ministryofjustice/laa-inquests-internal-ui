@@ -312,6 +312,16 @@ test.describe("Claims tab - reflow at increased zoom", () => {
     });
   }
 
+  test("should keep the claims tables within the page at 800px wide", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await page.goto(`/applications/${laaReference}/overview`);
+    await page.getByRole("tab", { name: "Claims" }).click();
+
+    await expectClaimsTablesWithinPage(page);
+  });
+
   test("should show the claims tables as columns at full width", async ({
     page,
   }) => {

@@ -15,8 +15,13 @@
 
 // Stacks each table row into label and value pairs on small screens and at high
 // zoom (WCAG 1.4.10), matching how the summary list component reflows.
-// Each cell needs a data-label attribute containing its column header.
+// Each cell needs a data-label attribute containing its column header
+// (the appResponsiveTable macro adds these).
 .app-table--stack-on-mobile {
+  .govuk-table__cell {
+    overflow-wrap: anywhere;
+  }
+
   @include index.govuk-media-query($until: tablet) {
     &,
     .govuk-table__body,
