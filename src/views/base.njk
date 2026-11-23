@@ -21,6 +21,13 @@
 {% endblock %}
 
 {% block govukHeader %}
+  {% set navigationListOpeningTag = '<ul class="moj-header__navigation-list">' %}
+  {% set accountNameItem %}
+  <li class="moj-header__navigation-item">
+    <span class="moj-header__navigation-link">{{ userName if userName else "Account name" }}</span>
+  </li>
+  {% endset %}
+  {% set headerHtml %}
   {{ mojHeader({
     classes: "moj-header--no-border",
     organisationLabel: {
@@ -30,15 +37,13 @@
     navigation: {
       label: "Account navigation",
       items: [{
-        text: userName if userName else "Account name",
-        href: "#",
-        active: true
-      }, {
         text: t('navigation.header.signOut'),
         href: "/auth/logout"
       }]
     }
   }) }}
+  {% endset %}
+  {{ headerHtml | replace(navigationListOpeningTag, navigationListOpeningTag + accountNameItem) | safe }}
 {% endblock %}
 
 {% block govukServiceNavigation %}

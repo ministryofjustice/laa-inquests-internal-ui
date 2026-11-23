@@ -49,10 +49,10 @@ test.describe("All Applications page", () => {
     const navigation = header.getByRole("navigation", {
       name: "Account navigation",
     });
-    const navLinks = navigation.getByRole("link");
+    const navItems = navigation.getByRole("listitem");
 
-    await expect(navLinks.nth(0)).toHaveText(CASEWORKER_DISPLAY_NAME);
-    await expect(navLinks.nth(1)).toHaveText("Sign out");
+    await expect(navItems.nth(0)).toHaveText(CASEWORKER_DISPLAY_NAME);
+    await expect(navItems.nth(1)).toHaveText("Sign out");
   });
 
   test("displays service name and applications table", async ({
