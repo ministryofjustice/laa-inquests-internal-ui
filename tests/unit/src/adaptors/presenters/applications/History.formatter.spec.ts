@@ -354,5 +354,26 @@ describe("HistoryFormatter", () => {
       expect(row?.[2]?.html).to.contain("&lt;script&gt;");
       expect(row?.[2]?.html).to.contain("&quot;x&quot;");
     });
+
+    it("URL-encodes the claim reference in the link", () => {
+      const [row] = formatHistoryRows(
+        [
+          {
+            timestamp: "2026-08-17T08:35:24.110277Z",
+            actor: "Caseworker",
+            eventReference: HISTORY_EVENT_REFERENCE.EVT_BUS_CLM_001,
+            eventData: {
+              claimType: "PAYMENT_ON_ACCOUNT",
+              claimReference: "../x?a=1#' onmouseover='alert(1)",
+            },
+          },
+        ],
+        laaReference,
+      );
+
+      expect(row?.[2]?.html).to.contain(
+        'href="/applications/INQ-001/claims/..%2Fx%3Fa%3D1%23&#39;%20onmouseover%3D&#39;alert(1)"',
+      );
+    });
   });
 });

@@ -5,12 +5,13 @@
 
     {%- from "govuk/components/warning-text/macro.njk" import govukWarningText -%}
     {%- from "govuk/components/table/macro.njk" import govukTable -%}
+    {%- from "macros/link.njk" import link -%}
 
     {% set renderedRows = [] %}
     {% for row in tableRows %}
       {% set renderedRows = (renderedRows.push([
         {
-          html: '<a class="govuk-link" href="' + row[0].href + '">' + row[0].text + '</a>'
+          html: link(row[0].href, row[0].text, "govuk-link")
         },
         row[1],
         row[2],

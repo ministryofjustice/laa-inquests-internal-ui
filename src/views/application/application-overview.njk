@@ -10,6 +10,7 @@
 {% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
+{% from "macros/link.njk" import link %}
 {% from "macros/responsiveTable.njk" import appResponsiveTable %}
 {% from "moj/components/alert/macro.njk" import mojAlert %}
 
@@ -59,7 +60,7 @@
                 {% set duplicateRows = [] %}
                 {% for duplicate in potentialDuplicateApplications %}
                     {% set duplicateRows = duplicateRows.concat([[
-                        { html: '<a class="govuk-link" href="/applications/' ~ (duplicate.laaReference | urlencode) ~ '/overview">' ~ (duplicate.laaReference | escape) ~ '</a>' },
+                        { html: link("/applications/" ~ (duplicate.laaReference | urlencode) ~ "/overview", duplicate.laaReference, "govuk-link") },
                         { html: meritsDecisionTag(duplicate.status) }
                     ]]) %}
                 {% endfor %}
@@ -144,7 +145,7 @@
             rows: [
                 {
                     key: { text: "Coroners letter" },
-                    value: { html: '<a href="/applications/' ~ application.laaReference ~ '/coroners-letter" rel="noreferrer noopener" target="_blank">' ~ application.coronersLetter.fileName ~ ' (opens in new tab) </a>' }
+                    value: { html: link("/applications/" ~ (application.laaReference | urlencode) ~ "/coroners-letter", application.coronersLetter.fileName ~ " (opens in new tab) ", "", true) }
                 }
             ]
         }) }}
@@ -330,7 +331,7 @@
                 {% set toBeAssessedRows = [] %}
                 {% for claim in claims.toBeAssessed %}
                     {% set toBeAssessedRows = toBeAssessedRows.concat([[
-                        { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ claim.claimReference ~ '</a>' },
+                        { html: link(claim.href, claim.claimReference, "govuk-link") },
                         { text: claim.date },
                         { text: claim.claimType },
                         { text: claim.total },
@@ -349,7 +350,7 @@
                 {% set assessedRows = [] %}
                 {% for claim in claims.assessed %}
                     {% set assessedRows = assessedRows.concat([[
-                        { html: '<a class="govuk-link" href="' ~ claim.href ~ '">' ~ claim.claimReference ~ '</a>' },
+                        { html: link(claim.href, claim.claimReference, "govuk-link") },
                         { text: claim.date },
                         { text: claim.claimType },
                         { text: claim.total },
