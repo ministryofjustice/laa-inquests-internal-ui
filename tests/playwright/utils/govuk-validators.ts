@@ -65,10 +65,13 @@ export async function validateMojHeader(page: Page): Promise<void> {
   });
   await expect(navigation).toBeVisible();
 
-  const accountNameLink = navigation.getByRole("link", {
-    name: CASEWORKER_DISPLAY_NAME,
-  });
-  await expect(accountNameLink).toBeVisible();
+  const accountNameItem = navigation
+    .getByRole("listitem")
+    .filter({ hasText: CASEWORKER_DISPLAY_NAME });
+  await expect(accountNameItem).toBeVisible();
+  await expect(accountNameItem.locator("span")).toHaveText(
+    CASEWORKER_DISPLAY_NAME,
+  );
 
   const signOutLink = navigation.getByRole("link", { name: "Sign out" });
   await expect(signOutLink).toBeVisible();
