@@ -145,7 +145,7 @@
             rows: [
                 {
                     key: { text: "Coroners letter" },
-                    value: { html: link("/applications/" ~ (application.laaReference | urlencode) ~ "/coroners-letter", application.coronersLetter.fileName ~ " (opens in new tab) ", "", true) }
+                    value: { html: link("/applications/" ~ (application.laaReference | urlencode) ~ "/coroners-letter", application.coronersLetter.fileName, "govuk-link") }
                 }
             ]
         }) }}

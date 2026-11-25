@@ -527,30 +527,18 @@ test.describe("Application details tab", () => {
     await expect(makeAssessmentButton).not.toBeVisible();
   });
 
-  test("should open the coroners letter in a new tab", async ({
-    page,
-    context,
-  }) => {
+  test("should open the coroners letter in the same tab", async ({ page }) => {
     await page.goto(`/applications/${laaReference}/overview`);
     const evidenceCard = page.locator(".govuk-summary-card", {
       hasText: "Supporting evidence",
     });
-    const [newPage, response] = await Promise.all([
-      context.waitForEvent("page"),
-      context.waitForEvent("response", (response) =>
-        response
-          .url()
-          .includes(`/applications/${laaReference}/coroners-letter`),
-      ),
-      evidenceCard.getByRole("link").click(),
-    ]);
+    const coronersLetterLink = evidenceCard.getByRole("link");
 
-    await newPage.waitForLoadState("domcontentloaded");
-
-    // Verify the URL is correct
-    await expect(newPage.url()).toContain(
+    await expect(coronersLetterLink).toHaveAttribute(
+      "href",
       `/applications/${laaReference}/coroners-letter`,
     );
+    await expect(coronersLetterLink).not.toHaveAttribute("target", "_blank");
   });
 });
 
