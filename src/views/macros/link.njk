@@ -1,4 +1,4 @@
 {# Builds a link for use in html: params. Autoescaping encodes href and text, so API-controlled values can't add tags or attributes. #}
-{% macro link(href, text, classes = "", opensInNewTab = false) -%}
-  <a{% if classes %} class="{{ classes }}"{% endif %} href="{{ href }}"{% if opensInNewTab %} rel="noreferrer noopener" target="_blank"{% endif %}>{{ text }}</a>
+{% macro link(href, text, classes = "") -%}
+  <a{% if classes %} class="{{ classes }}"{% endif %} href="{{ href }}">{{ text }}</a>
 {%- endmacro %}
