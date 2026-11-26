@@ -625,6 +625,45 @@ test.describe("Assess claim page", () => {
     await validateCSRFToken(form);
   });
 
+  test("does not set aria-expanded on page load", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const form = page.getByTestId("assess-claim");
+    const rejectRadio = form.locator(
+      'input[name="assessClaim"][value="Reject"]',
+    );
+
+    await expect(rejectRadio).not.toHaveAttribute("aria-expanded");
+    await checkAccessibility();
+  });
+
+  test("does not set aria-expanded when reject radio is checked or unchecked", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto(assessClaimPage);
+
+    const form = page.getByTestId("assess-claim");
+    const rejectRadio = form.locator(
+      'input[name="assessClaim"][value="Reject"]',
+    );
+    const rejectionReasonInput = form.getByLabel(
+      claimAssessmentLocale.reasonLabel,
+    );
+
+    await rejectRadio.check();
+    await expect(rejectionReasonInput).toBeVisible();
+    await expect(rejectRadio).not.toHaveAttribute("aria-expanded");
+    await checkAccessibility();
+
+    await form.getByRole("radio", { name: "Pay in full" }).check();
+    await expect(rejectionReasonInput).toBeHidden();
+    await expect(rejectRadio).not.toHaveAttribute("aria-expanded");
+  });
+
   test("shows a validation error when no claim decision is selected", async ({
     page,
   }) => {

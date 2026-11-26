@@ -3,12 +3,14 @@ import { initAll as initMOJ } from "@ministryofjustice/frontend";
 import { initialiseApplicationOverviewNoteErrors } from "#src/infrastructure/build/applicationOverviewNoteErrors.js";
 import { initialiseApplicationOverviewTabLinks } from "#src/infrastructure/build/applicationOverviewTabLinks.js";
 import { initialiseReportDownloadErrors } from "#src/infrastructure/build/reportDownloadErrors.js";
+import { initialiseRemoveAriaExpandedFromRadios } from "#src/infrastructure/build/radioAriaExpandedRemoval.js";
 
 const initialiseFrontendPackages = (): void => {
   if (typeof window !== "undefined") {
     try {
       initGOVUK();
       initMOJ();
+      initialiseRemoveAriaExpandedFromRadios(document, window);
       initialiseApplicationOverviewNoteErrors(document, window);
       initialiseApplicationOverviewTabLinks(document, window);
       initialiseReportDownloadErrors(document);
