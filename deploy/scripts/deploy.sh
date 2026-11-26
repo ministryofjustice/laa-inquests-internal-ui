@@ -59,7 +59,11 @@ deploy_branch() {
 }
 
 deploy_main() {
-  RELEASE_HOST="laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  if [[ "$ENVIRONMENT" == "prod" ]]; then
+    RELEASE_HOST="manage-inquest-legal-aid.service.justice.gov.uk"
+  else
+    RELEASE_HOST="laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  fi
   IDENTIFIER="laa-inquests-internal-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
   AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
