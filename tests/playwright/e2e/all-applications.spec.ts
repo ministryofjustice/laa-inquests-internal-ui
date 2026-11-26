@@ -47,7 +47,8 @@ test.describe("All Applications page", () => {
   test("navigation items should be in correct order", async ({ page }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
-      name: "Account navigation",
+      name: "Account",
+      exact: true,
     });
     const navItems = navigation.getByRole("listitem");
 
