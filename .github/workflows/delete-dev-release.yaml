@@ -43,7 +43,7 @@ jobs:
 
       - name: Authenticate to the cluster
         id: authenticate_to_cluster
-        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/authenticate_to_cluster@d61e0cf24795b75f719a8981a4dc21e1334a1455
+        uses: ministryofjustice/laa-reusable-github-actions/.github/actions/authenticate_to_cluster@7152e5b52e016ee20bca10b13d716c4f087599b4
         with:
           kube-cert: ${{ secrets.KUBE_CERT }}
           kube-token: ${{ secrets.KUBE_TOKEN }}
