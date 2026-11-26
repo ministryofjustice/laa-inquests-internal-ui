@@ -16,7 +16,8 @@
   {# cookie policy #}
 {% endblock %}
 
-{% block govukHeader %}
+{# Overrides the GOV.UK template's <header> wrapper, as mojHeader already provides the banner landmark. #}
+{% block header %}
   {{ mojHeader({
     classes: "moj-header--no-border",
     organisationLabel: {

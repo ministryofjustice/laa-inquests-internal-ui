@@ -20,7 +20,8 @@
   {% include "partials/cookie-banner.njk" %}
 {% endblock %}
 
-{% block govukHeader %}
+{# Overrides the GOV.UK template's <header> wrapper, as mojHeader already provides the banner landmark. #}
+{% block header %}
   {% set navigationListOpeningTag = '<ul class="moj-header__navigation-list">' %}
   {% set accountNameItem %}
   <li class="moj-header__navigation-item">
@@ -35,7 +36,7 @@
       href: "/"
     },
     navigation: {
-      label: "Account navigation",
+      label: t('navigation.header.accountNavigationLabel'),
       items: [{
         text: t('navigation.header.signOut'),
         href: "/auth/logout"
@@ -44,17 +45,13 @@
   }) }}
   {% endset %}
   {{ headerHtml | replace(navigationListOpeningTag, navigationListOpeningTag + accountNameItem) | safe }}
-{% endblock %}
 
-{% block govukServiceNavigation %}
-{{ govukServiceNavigation({
-  classes: "govuk-!-padding-top-1 govuk-!-padding-bottom-1",
-  serviceName: config.SERVICE_NAME,
-  serviceUrl: "/"
-}) }}
-{% endblock %}
+  {{ govukServiceNavigation({
+    classes: "govuk-!-padding-top-1 govuk-!-padding-bottom-1",
+    serviceName: config.SERVICE_NAME,
+    serviceUrl: "/"
+  }) }}
 
-{% block headerEnd %}
   {{ govukPhaseBanner({
     classes: "govuk-!-padding-top-2 govuk-!-padding-bottom-2",
     tag: {

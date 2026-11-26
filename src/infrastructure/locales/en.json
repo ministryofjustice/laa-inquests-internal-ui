@@ -17,6 +17,7 @@
     "mainNav": {},
     "header": {
       "organisationLabel": "Legal Aid Agency",
+      "accountNavigationLabel": "Account",
       "signOut": "Sign out"
     },
     "footer": {

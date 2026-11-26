@@ -106,10 +106,27 @@ test.describe("Home page", () => {
     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
   });
 
+  test("should have a single banner landmark", async ({ page }) => {
+    await expect(page.getByRole("banner")).toHaveCount(1);
+  });
+
+  test("should not repeat the landmark type in the account navigation label", async ({
+    page,
+  }) => {
+    const header = page.getByRole("banner");
+    await expect(
+      header.getByRole("navigation", { name: "Account", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: /navigation/i }),
+    ).toHaveCount(0);
+  });
+
   test("navigation items should be in correct order", async ({ page }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
-      name: "Account navigation",
+      name: "Account",
+      exact: true,
     });
     const navItems = navigation.getByRole("listitem");
 
@@ -122,7 +139,8 @@ test.describe("Home page", () => {
   }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
-      name: "Account navigation",
+      name: "Account",
+      exact: true,
     });
     const navLinks = navigation.getByRole("link");
 

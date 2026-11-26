@@ -49,7 +49,8 @@ export async function validateGovForm(
 }
 
 export async function validateMojHeader(page: Page): Promise<void> {
-  const header = page.getByRole("banner").first();
+  await expect(page.getByRole("banner")).toHaveCount(1);
+  const header = page.getByRole("banner");
   await expect(header).toBeVisible();
 
   const laaLink = header.getByRole("link", { name: "Legal Aid Agency" });
@@ -61,7 +62,8 @@ export async function validateMojHeader(page: Page): Promise<void> {
   await expect(serviceLink).toBeVisible();
 
   const navigation = header.getByRole("navigation", {
-    name: "Account navigation",
+    name: "Account",
+    exact: true,
   });
   await expect(navigation).toBeVisible();
 
