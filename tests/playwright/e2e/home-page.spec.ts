@@ -122,6 +122,15 @@ test.describe("Home page", () => {
     ).toHaveCount(0);
   });
 
+  test("should not label the service options panel as navigation", async ({
+    page,
+  }) => {
+    await expect(page.locator(".moj-ticket-panel")).toBeVisible();
+    await expect(page.locator(".moj-ticket-panel")).not.toHaveAttribute(
+      "aria-label",
+    );
+  });
+
   test("navigation items should be in correct order", async ({ page }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
