@@ -4,6 +4,7 @@ import type {
 } from "#src/adaptors/presenter/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { hasUnsafeProseCharacters } from "#src/utils/textRules.js";
 import { NOTE_MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 const { pages } = en;
@@ -30,6 +31,10 @@ export class AddHistoryNoteValidator extends FormValidator {
     if (this.exceedsMaxLength(noteText, NOTE_MAX_CHARACTER_LENGTH)) {
       result.errors.noteText = {
         text: validationErrors.tooLong,
+      };
+    } else if (hasUnsafeProseCharacters(noteText)) {
+      result.errors.noteText = {
+        text: validationErrors.invalidCharacters,
       };
     }
 

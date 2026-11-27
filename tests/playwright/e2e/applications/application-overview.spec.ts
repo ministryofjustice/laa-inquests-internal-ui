@@ -1252,7 +1252,7 @@ test.describe("History tab", () => {
       const addNoteButton = page
         .locator("#history")
         .getByRole("button", { name: "Add to application history" });
-      const noteAtLimit = `<b>&</b>${"a".repeat(4991)}\n${"b".repeat(5000)}`;
+      const noteAtLimit = `[b]&[/b]${"a".repeat(4991)}\n${"b".repeat(5000)}`;
       const noteOverLimit = `${noteAtLimit}c`;
 
       await noteTextarea.fill(noteOverLimit);
@@ -1280,15 +1280,17 @@ test.describe("History tab", () => {
       await checkAccessibility();
     });
 
-    test("should successfully submit a free note containing HTML without error", async ({
+    test("shows an error for a note containing angle brackets and keeps what was typed", async ({
       page,
+      checkAccessibility,
     }) => {
       await page.goto(`/applications/${laaReference}/overview`);
 
       await page.getByRole("tab", { name: "History" }).click();
 
+      const htmlNote = '<b>bold</b> & "quoted" <em>text</em>';
       const noteTextarea = page.locator("#note-text");
-      await noteTextarea.fill('<b>bold</b> & "quoted" <em>text</em>');
+      await noteTextarea.fill(htmlNote);
 
       const addNoteButton = page
         .locator("#history")
@@ -1297,11 +1299,21 @@ test.describe("History tab", () => {
 
       await page.waitForLoadState("domcontentloaded");
 
-      await expect(page.locator(".govuk-error-summary")).not.toBeVisible();
-
+      const invalidCharactersError =
+        en.pages.applicationOverview.history.validationErrors.invalidCharacters;
+      const errorSummary = page.locator(".govuk-error-summary");
+      await expect(errorSummary).toContainText(invalidCharactersError);
+      await expect(
+        errorSummary.getByRole("link", { name: invalidCharactersError }),
+      ).toHaveAttribute("href", "#note-text");
+      await expect(page.locator("#note-text-error")).toHaveText(
+        `Error: ${invalidCharactersError}`,
+      );
+      await expect(page.locator("#note-text")).toHaveValue(htmlNote);
       await expect(
         page.locator(".govuk-notification-banner--success"),
-      ).toBeVisible();
+      ).toHaveCount(0);
+      await checkAccessibility();
     });
   });
 });
