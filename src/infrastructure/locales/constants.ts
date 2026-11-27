@@ -4,6 +4,10 @@ export const REJECTION_REASON_MAX_CHARACTER_LENGTH = 500;
 export const NOTE_MAX_CHARACTER_LENGTH = 10000;
 export const EMPTY_ARR_LENGTH = 0;
 
+// Prose keeps its line breaks and tabs but rejects angle brackets and other control or
+// format characters (zero-width, direction marks), as the API's prose rule does.
+export const PROSE_UNSAFE_CHARACTERS_REGEX = /[<>]|[[\p{Cc}\p{Cf}]--[\n\r\t]]/v;
+
 export const GRANTED_DECISION = "GRANTED";
 export const REFUSED_DECISION = "REFUSED";
 export const SUBMITTED_DECISION = "SUBMITTED";

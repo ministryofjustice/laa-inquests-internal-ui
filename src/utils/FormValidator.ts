@@ -31,6 +31,11 @@ export class FormValidator {
     return !value.isWellFormed();
   }
 
+  /** True for a missing value or one made only of whitespace, including line breaks. */
+  protected isBlank(inputValue: string | undefined): boolean {
+    return inputValue === undefined || inputValue.trim() === "";
+  }
+
   protected checkDateFieldsAreEmpty(
     day: string | undefined,
     month: string | undefined,
