@@ -8,6 +8,7 @@ import type {
 } from "./models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { hasUnsafeProseCharacters } from "#src/utils/textRules.js";
 import { JUSTIFICATION_MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class ApplicationDecisionValidator extends FormValidator {
@@ -38,7 +39,7 @@ export class ApplicationDecisionValidator extends FormValidator {
       };
     }
 
-    if (!justification) {
+    if (this.isBlank(justification)) {
       errors.decisionJustification = {
         text: en.pages.decision.justification.textarea.validationErrors
           .notEmpty,
@@ -51,6 +52,11 @@ export class ApplicationDecisionValidator extends FormValidator {
       errors.decisionJustification = {
         text: en.pages.decision.justification.textarea.validationErrors
           .invalidCharacters,
+      };
+    } else if (hasUnsafeProseCharacters(justification)) {
+      errors.decisionJustification = {
+        text: en.pages.decision.justification.textarea.validationErrors
+          .unsafeCharacters,
       };
     }
 

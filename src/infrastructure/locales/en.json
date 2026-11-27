@@ -506,7 +506,8 @@
           "validationErrors": {
             "notEmpty": "Enter the decision justification",
             "tooLong": "Justification must be 1500 characters or fewer",
-            "invalidCharacters": "Justification for decision must only include unicode characters"
+            "invalidCharacters": "Justification for decision must only include unicode characters",
+            "unsafeCharacters": "Justification must not include < or > or control characters"
           }
         }
       },
