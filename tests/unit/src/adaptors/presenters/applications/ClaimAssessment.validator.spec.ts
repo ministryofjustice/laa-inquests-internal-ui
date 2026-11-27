@@ -81,5 +81,57 @@ describe("ClaimAssessmentValidator", () => {
 
       assert.deepEqual(errors, {});
     });
+
+    const validateRejectionReason = (rejectionReason: string) =>
+      validator.validateAssessClaimForm({
+        assessClaim: "Reject",
+        "rejection-reason": rejectionReason,
+      });
+
+    [
+      ["a less-than sign", "cost < estimate"],
+      ["a greater-than sign", "cost > estimate"],
+      ["a script tag", "<script>alert(1)</script>"],
+      ["a control character", "bell\u0007"],
+      ["a null byte", "null\u0000byte"],
+      ["a zero-width character", "zero\u200bwidth"],
+      ["a right-to-left override", "\u202etxt.exe"],
+    ].forEach(([reason, value]) => {
+      it(`adds a reasonInvalidCharacters error when the reason contains ${reason}`, () => {
+        assert.deepEqual(validateRejectionReason(value), {
+          rejectionReason: {
+            text: radioLocale.validationErrors.reasonInvalidCharacters,
+          },
+        });
+      });
+    });
+
+    it("reports too long before unsafe characters", () => {
+      assert.deepEqual(validateRejectionReason(`<${"a".repeat(500)}`), {
+        rejectionReason: { text: radioLocale.validationErrors.reasonTooLong },
+      });
+    });
+
+    [
+      "Not enough supporting evidence provided",
+      "Line one\nline two\r\nline three",
+      "Column\tone",
+      'The provider\'s "claim"; see s.1 (a) & (b): =+@ 100% £5 #2',
+      "Zoë 李明 O\u2019Brien",
+      "a".repeat(500),
+    ].forEach((value) => {
+      it(`accepts the reason ${JSON.stringify(value.slice(0, 40))}`, () => {
+        assert.deepEqual(validateRejectionReason(value), {});
+      });
+    });
+
+    it("does not check the reason for unsafe characters when Pay in full is selected", () => {
+      const errors = validator.validateAssessClaimForm({
+        assessClaim: "Pay in full",
+        "rejection-reason": "<script>",
+      });
+
+      assert.deepEqual(errors, {});
+    });
   });
 });

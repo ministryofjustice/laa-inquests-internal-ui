@@ -384,7 +384,8 @@
         "validationError": "Select the claim decision",
         "validationErrors": {
           "reasonNotEmpty": "Enter a reason for rejecting the claim",
-          "reasonTooLong": "Rejection reason must be 500 characters or less"
+          "reasonTooLong": "Rejection reason must be 500 characters or less",
+          "reasonInvalidCharacters": "Rejection reason must not include < or > or control characters"
         }
       },
       "reasonLabel": "What is the reason you are rejecting this claim?",

@@ -4,6 +4,7 @@ import type {
 } from "#src/adaptors/presenter/models/form.types.js";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { hasUnsafeProseCharacters } from "#src/utils/textRules.js";
 import {
   CLAIM_DECISION_STATUSES,
   REJECTION_REASON_MAX_CHARACTER_LENGTH,
@@ -39,6 +40,11 @@ export class ClaimAssessmentValidator extends FormValidator {
       ) {
         errors.rejectionReason = {
           text: en.pages.claimAssessment.radio.validationErrors.reasonTooLong,
+        };
+      } else if (hasUnsafeProseCharacters(rejectionReason)) {
+        errors.rejectionReason = {
+          text: en.pages.claimAssessment.radio.validationErrors
+            .reasonInvalidCharacters,
         };
       }
     }
